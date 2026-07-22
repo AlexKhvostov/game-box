@@ -655,6 +655,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You'**
   String get youGhost;
+
+  /// No description provided for @periodMine.
+  ///
+  /// In en, this message translates to:
+  /// **'Mine'**
+  String get periodMine;
+
+  /// No description provided for @colAttempt.
+  ///
+  /// In en, this message translates to:
+  /// **'Attempt'**
+  String get colAttempt;
+
+  /// No description provided for @myAttemptsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No runs yet — play a round'**
+  String get myAttemptsEmpty;
+
+  /// No description provided for @attemptShared.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared'**
+  String get attemptShared;
+
+  /// No description provided for @attemptLocal.
+  ///
+  /// In en, this message translates to:
+  /// **'Not shared'**
+  String get attemptLocal;
 }
 
 class _AppLocalizationsDelegate

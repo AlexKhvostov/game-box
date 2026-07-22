@@ -15,6 +15,7 @@ class GameFieldPainter extends CustomPainter {
     required this.borderColor,
     this.borderWidth = 3,
     this.cornerRadius = 18,
+    this.frame = 0,
   });
 
   final GameWorld world;
@@ -24,6 +25,8 @@ class GameFieldPainter extends CustomPainter {
   final Color borderColor;
   final double borderWidth;
   final double cornerRadius;
+  /// Меняется каждый тик — иначе CustomPaint не перерисует mutable world.
+  final int frame;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -234,9 +237,11 @@ class GameFieldPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant GameFieldPainter oldDelegate) {
-    return oldDelegate.world != world ||
+    return oldDelegate.frame != frame ||
+        oldDelegate.world != world ||
         oldDelegate.accent != accent ||
         oldDelegate.danger != danger ||
-        oldDelegate.borderWidth != borderWidth;
+        oldDelegate.borderWidth != borderWidth ||
+        oldDelegate.cornerRadius != cornerRadius;
   }
 }

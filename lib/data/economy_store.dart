@@ -52,6 +52,8 @@ class EconomyStore extends ChangeNotifier {
     claimedEarnIds
       ..clear()
       ..addAll(_prefs.getStringList(_kEarnClaimed) ?? const []);
+    // Реклама всегда многоразовая — убираем старый one-shot флаг.
+    claimedEarnIds.remove('watch_ad');
 
     final dailyRaw = _prefs.getString(_kLastDaily);
     if (dailyRaw != null) {
@@ -238,10 +240,9 @@ class EconomyStore extends ChangeNotifier {
     return granted;
   }
 
-  /// Реклама из магазина (FREE). Работает даже если watch_ad нет в earnActions.
-  int? claimWatchAd({int fallbackReward = 5}) {
+  /// Реклама из магазина (FREE) — многоразовая, без «claimed».
+  int claimWatchAd({int fallbackReward = 5}) {
     const id = 'watch_ad';
-    if (claimedEarnIds.contains(id)) return null;
     var reward = fallbackReward;
     for (final a in config.earnActions) {
       if (a.id == id) {
@@ -249,9 +250,10 @@ class EconomyStore extends ChangeNotifier {
         break;
       }
     }
-    claimedEarnIds.add(id);
     final granted = _withPremium(reward);
     tokens += granted;
+    // Не пишем в claimedEarnIds — рекламу можно смотреть снова.
+    claimedEarnIds.remove(id);
     _persist();
     return granted;
   }

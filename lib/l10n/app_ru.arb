@@ -92,5 +92,10 @@
   "rankSliceMonth": "В этом месяце",
   "rankSliceYear": "В этом году",
   "rankSliceAll": "За всё время",
-  "youGhost": "Вы"
+  "youGhost": "Вы",
+  "periodMine": "Мои",
+  "colAttempt": "Попытка",
+  "myAttemptsEmpty": "Пока пусто — сыграйте раунд",
+  "attemptShared": "В рейтинге",
+  "attemptLocal": "Не сохранено"
 }

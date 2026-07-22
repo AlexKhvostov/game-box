@@ -475,7 +475,6 @@ class _ShopPane extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final ad = _adOffer!;
-    final adDone = economy.isEarnClaimed(ad.id);
     final adReward = economy.hasPremium
         ? (ad.reward * economy.config.premiumDailyMultiplier).round()
         : ad.reward;
@@ -483,25 +482,19 @@ class _ShopPane extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 8),
       children: [
-        // Бесплатно за рекламу — как «покупка» FREE
+        // Бесплатно за рекламу — многоразово
         Material(
           color: Colors.transparent,
           child: InkWell(
             borderRadius: BorderRadius.circular(14),
-            onTap: adDone
-                ? null
-                : () {
-                    final n = economy.claimWatchAd(fallbackReward: ad.reward);
-                    if (n != null) {
-                      showGameToast(context, message: l10n.crystalsPlus(n));
-                    }
-                  },
+            onTap: () {
+              final n = economy.claimWatchAd(fallbackReward: ad.reward);
+              showGameToast(context, message: l10n.crystalsPlus(n));
+            },
             child: GamePanel(
               margin: const EdgeInsets.only(bottom: 10),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-              accent: adDone
-                  ? const Color(0xFF3DDC97)
-                  : const Color(0xFF7EE0FF),
+              accent: const Color(0xFF7EE0FF),
               child: Row(
                 children: [
                   Container(
@@ -512,11 +505,9 @@ class _ShopPane extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                       color: const Color(0xFF7EE0FF).withValues(alpha: 0.15),
                     ),
-                    child: Icon(
-                      adDone
-                          ? Icons.check_rounded
-                          : Icons.play_circle_outline_rounded,
-                      color: const Color(0xFF7EE0FF),
+                    child: const Icon(
+                      Icons.play_circle_outline_rounded,
+                      color: Color(0xFF7EE0FF),
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -554,22 +545,18 @@ class _ShopPane extends StatelessWidget {
                         const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
-                      color: adDone
-                          ? const Color(0xFF3DDC97).withValues(alpha: 0.2)
-                          : const Color(0xFF3DDC97).withValues(alpha: 0.25),
+                      color: const Color(0xFF3DDC97).withValues(alpha: 0.25),
                       border: Border.all(
                         color: const Color(0xFF3DDC97).withValues(alpha: 0.55),
                       ),
                     ),
                     child: Text(
-                      adDone ? l10n.claimed : l10n.shopFree,
-                      style: TextStyle(
+                      l10n.shopFree,
+                      style: const TextStyle(
                         fontWeight: FontWeight.w900,
                         fontSize: 12,
                         letterSpacing: 0.6,
-                        color: adDone
-                            ? const Color(0xFF3DDC97)
-                            : const Color(0xFF3DDC97),
+                        color: Color(0xFF3DDC97),
                       ),
                     ),
                   ),

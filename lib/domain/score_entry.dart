@@ -36,6 +36,49 @@ class ScoreEntry {
   }
 }
 
+/// Локальная попытка игрока (даже без Share).
+class LocalAttempt {
+  const LocalAttempt({
+    required this.id,
+    required this.timeMs,
+    required this.createdAt,
+    this.shared = false,
+  });
+
+  final String id;
+  final int timeMs;
+  final DateTime createdAt;
+  final bool shared;
+
+  double get timeSec => timeMs / 1000.0;
+
+  LocalAttempt copyWith({bool? shared}) {
+    return LocalAttempt(
+      id: id,
+      timeMs: timeMs,
+      createdAt: createdAt,
+      shared: shared ?? this.shared,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'timeMs': timeMs,
+        'createdAt': createdAt.toIso8601String(),
+        'shared': shared,
+      };
+
+  factory LocalAttempt.fromJson(Map<String, dynamic> json) {
+    return LocalAttempt(
+      id: json['id'] as String? ??
+          DateTime.now().microsecondsSinceEpoch.toString(),
+      timeMs: (json['timeMs'] as num?)?.toInt() ?? 0,
+      createdAt: DateTime.tryParse('${json['createdAt']}') ?? DateTime.now(),
+      shared: json['shared'] as bool? ?? false,
+    );
+  }
+}
+
 class RankInfo {
   const RankInfo({
     required this.place,

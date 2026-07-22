@@ -317,4 +317,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get youGhost => 'You';
+
+  @override
+  String get periodMine => 'Mine';
+
+  @override
+  String get colAttempt => 'Attempt';
+
+  @override
+  String get myAttemptsEmpty => 'No runs yet — play a round';
+
+  @override
+  String get attemptShared => 'Shared';
+
+  @override
+  String get attemptLocal => 'Not shared';
 }

@@ -9,10 +9,11 @@ import '../../ui/game_sheet.dart';
 import '../../ui/game_toast.dart';
 import '../balance/crystals_sheet.dart';
 
-/// Светлые позитивные акценты для окна жизней (без «тревожного» красного).
-const _lifePink = Color(0xFFFF8FB3);
+/// Дружелюбные акценты окна жизней. Красный — только у иконки сердца.
+const _heartRed = Color(0xFFFF5A5F);
 const _lifeMint = Color(0xFF5EE6B0);
-const _lifeSoft = Color(0xFFFFC2D4);
+const _lifeCyan = Color(0xFF7EE0FF);
+const _lifeSoftBg = Color(0xFF1A242C);
 
 Future<void> showLivesSheet(BuildContext context) {
   return showModalBottomSheet<void>(
@@ -56,12 +57,12 @@ class _LivesSheet extends StatelessWidget {
             const SizedBox(height: 14),
             GamePanel(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-              accent: _lifePink,
+              accent: _lifeCyan,
               child: Row(
                 children: [
                   const Icon(
                     Icons.favorite_rounded,
-                    color: _lifePink,
+                    color: _heartRed,
                     size: 22,
                   ),
                   const SizedBox(width: 8),
@@ -76,7 +77,7 @@ class _LivesSheet extends StatelessWidget {
                     '${economy.tokens}',
                     style: const TextStyle(
                       fontWeight: FontWeight.w800,
-                      color: Color(0xFF7EE0FF),
+                      color: _lifeCyan,
                     ),
                   ),
                 ],
@@ -101,10 +102,10 @@ class _LivesSheet extends StatelessWidget {
                       showGameToast(
                         context,
                         message: l10n.livesGained(pack.lives),
-                        accent: _lifePink,
+                        accent: _lifeMint,
                         icon: const Icon(
                           Icons.favorite_rounded,
-                          color: _lifePink,
+                          color: _heartRed,
                         ),
                       );
                     },
@@ -155,18 +156,18 @@ class _LifePackTile extends StatelessWidget {
             gradient: LinearGradient(
               colors: bestValue
                   ? [
-                      _lifeMint.withValues(alpha: 0.18),
-                      const Color(0xFF1A2428),
+                      _lifeMint.withValues(alpha: 0.2),
+                      _lifeSoftBg,
                     ]
                   : [
-                      _lifeSoft.withValues(alpha: 0.08),
+                      _lifeCyan.withValues(alpha: 0.08),
                       const Color(0xFF151C22),
                     ],
             ),
             border: Border.all(
               color: bestValue
-                  ? _lifeMint.withValues(alpha: 0.5)
-                  : _lifePink.withValues(alpha: 0.28),
+                  ? _lifeMint.withValues(alpha: 0.55)
+                  : _lifeCyan.withValues(alpha: 0.28),
             ),
           ),
           child: Row(
@@ -177,16 +178,14 @@ class _LifePackTile extends StatelessWidget {
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      _lifePink.withValues(alpha: 0.35),
-                      _lifePink.withValues(alpha: 0.08),
-                    ],
+                  color: Colors.white.withValues(alpha: 0.06),
+                  border: Border.all(
+                    color: _lifeCyan.withValues(alpha: 0.25),
                   ),
                 ),
                 child: const Icon(
                   Icons.favorite_rounded,
-                  color: _lifePink,
+                  color: _heartRed,
                 ),
               ),
               const SizedBox(width: 12),
@@ -222,7 +221,7 @@ class _LifePackTile extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                     gradient: canBuy
                         ? const LinearGradient(
-                            colors: [_lifeMint, Color(0xFF3DDC97)],
+                            colors: [_lifeCyan, _lifeMint],
                           )
                         : null,
                     color: canBuy ? null : Colors.white12,

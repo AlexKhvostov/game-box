@@ -3,10 +3,10 @@ import 'package:provider/provider.dart';
 
 import '../../data/economy_store.dart';
 import '../../data/scores_store.dart';
-import '../../domain/score_entry.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/game_sheet.dart';
 import '../../ui/game_toast.dart';
+import '../leaderboard/leaderboard_panel.dart';
 import '../leaderboard/leaderboard_widgets.dart';
 
 Future<void> showShareScoreSheet(
@@ -30,16 +30,13 @@ class _ShareScoreBody extends StatefulWidget {
   State<_ShareScoreBody> createState() => _ShareScoreBodyState();
 }
 
-class _ShareScoreBodyState extends State<_ShareScoreBody>
-    with SingleTickerProviderStateMixin {
+class _ShareScoreBodyState extends State<_ShareScoreBody> {
   late final TextEditingController _name;
-  late final TabController _tabs;
   bool _saving = false;
 
   @override
   void initState() {
     super.initState();
-    _tabs = TabController(length: 5, vsync: this, initialIndex: 4);
     _name = TextEditingController();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -49,24 +46,8 @@ class _ShareScoreBodyState extends State<_ShareScoreBody>
 
   @override
   void dispose() {
-    _tabs.dispose();
     _name.dispose();
     super.dispose();
-  }
-
-  String get _periodKey {
-    switch (_tabs.index) {
-      case 0:
-        return 'day';
-      case 1:
-        return 'week';
-      case 2:
-        return 'month';
-      case 3:
-        return 'year';
-      default:
-        return 'all';
-    }
   }
 
   Future<void> _save() async {
@@ -118,7 +99,6 @@ class _ShareScoreBodyState extends State<_ShareScoreBody>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Шапка + вкладки (фиксированы)
             Padding(
               padding: const EdgeInsets.fromLTRB(18, 6, 18, 0),
               child: Column(
@@ -137,92 +117,64 @@ class _ShareScoreBodyState extends State<_ShareScoreBody>
                 ],
               ),
             ),
-            TabBar(
-              controller: _tabs,
-              isScrollable: true,
-              tabAlignment: TabAlignment.start,
-              indicatorSize: TabBarIndicatorSize.label,
-              labelPadding: const EdgeInsets.symmetric(horizontal: 12),
-              onTap: (_) => setState(() {}),
-              tabs: [
-                Tab(text: l10n.periodDay, height: 34),
-                Tab(text: l10n.periodWeek, height: 34),
-                Tab(text: l10n.periodMonth, height: 34),
-                Tab(text: l10n.periodYear, height: 34),
-                Tab(text: l10n.periodAll, height: 34),
-              ],
-            ),
-            // Лидерборд — единственная прокручиваемая зона
+            // Тот же лидерборд, что и по клику на рекорд
             Expanded(
-              child: AnimatedBuilder(
-                animation: _tabs,
-                builder: (context, _) {
-                  final list =
-                      store.scoresForNamedPeriod(_periodKey).take(40).toList();
-                  final insertAt =
-                      store.rankFor(widget.timeMs, period: _periodKey).place -
-                          1;
-                  final ghost = ScoreEntry(
-                    id: 'ghost',
-                    displayName: l10n.youGhost,
-                    timeMs: widget.timeMs,
-                    createdAt: DateTime.now(),
-                    countryCode: country,
-                  );
-
-                  if (list.isEmpty) {
-                    return ListView(
-                      padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                      children: [
-                        LeaderboardRankRow(
-                          place: 1,
-                          entry: ghost,
-                          ghost: true,
-                          ghostLabel: l10n.youGhost,
-                        ),
-                        const SizedBox(height: 8),
-                        Center(child: Text(l10n.leaderboardEmpty)),
-                      ],
-                    );
-                  }
-
-                  return ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                    itemCount: list.length + 1,
-                    itemBuilder: (context, i) {
-                      if (i == insertAt) {
-                        return LeaderboardRankRow(
-                          place: insertAt + 1,
-                          entry: ghost,
-                          ghost: true,
-                          ghostLabel: l10n.youGhost,
-                        );
-                      }
-                      final idx = i < insertAt ? i : i - 1;
-                      final place = idx < insertAt ? idx + 1 : idx + 2;
-                      return LeaderboardRankRow(
-                        place: place,
-                        entry: list[idx],
-                        highlight: place <= 3,
-                      );
-                    },
-                  );
-                },
+              child: LeaderboardPanel(
+                ghostTimeMs: widget.timeMs,
+                ghostCountryCode: country,
+                listPadding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
               ),
             ),
-            // Низ: места + имя + кнопки — без прокрутки
-            Material(
-              color: const Color(0xFF12181E),
+            DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(22)),
+                gradient: const LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Color(0xFF1C2A32),
+                    Color(0xFF141C22),
+                    Color(0xFF0F151A),
+                  ],
+                ),
+                border: Border.all(
+                  color: const Color(0xFF7EE0FF).withValues(alpha: 0.35),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF7EE0FF).withValues(alpha: 0.12),
+                    blurRadius: 18,
+                    offset: const Offset(0, -6),
+                  ),
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.45),
+                    blurRadius: 16,
+                    offset: const Offset(0, -4),
+                  ),
+                ],
+              ),
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(14, 8, 14, 12),
+                padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    Center(
+                      child: Container(
+                        width: 36,
+                        height: 3,
+                        margin: const EdgeInsets.only(bottom: 10),
+                        decoration: BoxDecoration(
+                          color:
+                              const Color(0xFF7EE0FF).withValues(alpha: 0.45),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
                     PeriodRanksCompact(ranks: periodRanks),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 10),
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Expanded(
                           child: SizedBox(
@@ -243,16 +195,27 @@ class _ShareScoreBodyState extends State<_ShareScoreBody>
                                   vertical: 10,
                                 ),
                                 filled: true,
-                                fillColor: Colors.white.withValues(alpha: 0.05),
+                                fillColor: Colors.black.withValues(alpha: 0.28),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
-                                  borderSide:
-                                      const BorderSide(color: Colors.white12),
+                                  borderSide: BorderSide(
+                                    color: const Color(0xFF7EE0FF)
+                                        .withValues(alpha: 0.35),
+                                  ),
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
-                                  borderSide:
-                                      const BorderSide(color: Colors.white12),
+                                  borderSide: BorderSide(
+                                    color: const Color(0xFF7EE0FF)
+                                        .withValues(alpha: 0.35),
+                                  ),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: const BorderSide(
+                                    color: Color(0xFF7EE0FF),
+                                    width: 1.4,
+                                  ),
                                 ),
                               ),
                             ),

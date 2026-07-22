@@ -170,5 +170,10 @@
   "rankSliceMonth": "This month",
   "rankSliceYear": "This year",
   "rankSliceAll": "All time",
-  "youGhost": "You"
+  "youGhost": "You",
+  "periodMine": "Mine",
+  "colAttempt": "Attempt",
+  "myAttemptsEmpty": "No runs yet — play a round",
+  "attemptShared": "Shared",
+  "attemptLocal": "Not shared"
 }

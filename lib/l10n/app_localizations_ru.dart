@@ -317,4 +317,19 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get youGhost => 'Вы';
+
+  @override
+  String get periodMine => 'Мои';
+
+  @override
+  String get colAttempt => 'Попытка';
+
+  @override
+  String get myAttemptsEmpty => 'Пока пусто — сыграйте раунд';
+
+  @override
+  String get attemptShared => 'В рейтинге';
+
+  @override
+  String get attemptLocal => 'Не сохранено';
 }

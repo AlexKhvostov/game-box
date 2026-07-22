@@ -5,6 +5,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 
 import '../../data/economy_store.dart';
+import '../../data/scores_store.dart';
 import '../../domain/gameplay_config.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/crystal_cube_icon.dart';
@@ -160,6 +161,7 @@ class _GameHomeScreenState extends State<GameHomeScreen>
       _resultMs = _aliveMs;
     });
     context.read<EconomyStore>().recordBestTime(_aliveMs);
+    context.read<ScoresStore>().recordAttempt(_aliveMs);
   }
 
   void _onTouchStart() {
@@ -249,6 +251,7 @@ class _GameHomeScreenState extends State<GameHomeScreen>
                                       borderColor: theme.colorScheme.primary,
                                       borderWidth: config.borderWidth,
                                       cornerRadius: 18,
+                                      frame: _frame.value,
                                     ),
                                   );
                                 },
@@ -260,6 +263,8 @@ class _GameHomeScreenState extends State<GameHomeScreen>
                     },
                   ),
                 ),
+                if (_phase == _Phase.playing)
+                  _PlayTimer(frame: _frame, timeMs: () => _aliveMs),
                 Expanded(
                   child: _phase == _Phase.idle && config.game.startHintEnabled
                       ? _TapToStartBanner(
@@ -295,12 +300,6 @@ class _GameHomeScreenState extends State<GameHomeScreen>
                   onLivesTap: () => showLivesSheet(context),
                   onCrystalsTap: () => showCrystalsSheet(context),
                   onRecordTap: () => showLeaderboardSheet(context),
-                  frame: _frame,
-                  timeMs: () {
-                    if (_phase == _Phase.result) return _resultMs;
-                    if (_phase == _Phase.playing) return _aliveMs;
-                    return null;
-                  },
                 ),
               ),
             ),
@@ -430,84 +429,120 @@ class _TapToStartBanner extends StatelessWidget {
   }
 }
 
+class _PlayTimer extends StatelessWidget {
+  const _PlayTimer({required this.frame, required this.timeMs});
+
+  final ValueNotifier<int> frame;
+  final int Function() timeMs;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+      child: Center(
+        child: ListenableBuilder(
+          listenable: frame,
+          builder: (context, _) {
+            final ms = timeMs();
+            final totalSec = ms ~/ 1000;
+            final minutes = (totalSec ~/ 60).toString().padLeft(2, '0');
+            final seconds = (totalSec % 60).toString().padLeft(2, '0');
+            final millis = (ms % 1000).toString().padLeft(3, '0');
+            return DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                color: theme.colorScheme.surface.withValues(alpha: 0.85),
+                border: Border.all(
+                  color: theme.colorScheme.primary.withValues(alpha: 0.4),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: theme.colorScheme.primary.withValues(alpha: 0.14),
+                    blurRadius: 14,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+                child: Text(
+                  '$minutes:$seconds.$millis',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 28,
+                    letterSpacing: 1.2,
+                    color: theme.colorScheme.primary,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
 class _Hud extends StatelessWidget {
   const _Hud({
     required this.onLivesTap,
     required this.onCrystalsTap,
     required this.onRecordTap,
-    required this.frame,
-    required this.timeMs,
   });
 
   final VoidCallback onLivesTap;
   final VoidCallback onCrystalsTap;
   final VoidCallback onRecordTap;
-  final ValueNotifier<int> frame;
-  final int? Function() timeMs;
 
   @override
   Widget build(BuildContext context) {
     final economy = context.watch<EconomyStore>();
     final theme = Theme.of(context);
 
-    return Row(
-      children: [
-        GestureDetector(
-          onTap: onLivesTap,
-          child: _HudChip(
-            icon: Icon(Icons.favorite, size: 16, color: theme.colorScheme.error),
-            label: '${economy.lives}',
-            highlight: true,
+    return SizedBox(
+      height: 40,
+      child: Row(
+        children: [
+          GestureDetector(
+            onTap: onLivesTap,
+            child: _HudChip(
+              icon: Icon(
+                Icons.favorite,
+                size: 16,
+                color: theme.colorScheme.error,
+              ),
+              label: '${economy.lives}',
+              highlight: true,
+            ),
           ),
-        ),
-        const SizedBox(width: 8),
-        GestureDetector(
-          onTap: onCrystalsTap,
-          child: _HudChip(
-            icon: const CrystalCubeIcon(size: 16, glow: false),
-            label: '${economy.tokens}',
-            highlight: true,
+          const SizedBox(width: 8),
+          GestureDetector(
+            onTap: onCrystalsTap,
+            child: _HudChip(
+              icon: const CrystalCubeIcon(size: 16, glow: false),
+              label: '${economy.tokens}',
+              highlight: true,
+            ),
           ),
-        ),
-        const Spacer(),
-        ListenableBuilder(
-          listenable: frame,
-          builder: (context, _) {
-            final ms = timeMs();
-            if (ms != null) {
-              final totalSec = ms ~/ 1000;
-              final minutes = (totalSec ~/ 60).toString().padLeft(2, '0');
-              final seconds = (totalSec % 60).toString().padLeft(2, '0');
-              final millis = (ms % 1000).toString().padLeft(3, '0');
-              return Text(
-                '$minutes:$seconds.$millis',
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w900,
-                  fontFeatures: const [FontFeature.tabularFigures()],
+          const Spacer(),
+          if (economy.bestTimeMs > 0)
+            GestureDetector(
+              onTap: onRecordTap,
+              child: _HudChip(
+                icon: Icon(
+                  Icons.emoji_events_rounded,
+                  size: 16,
                   color: theme.colorScheme.primary,
-                  fontSize: 26,
                 ),
-              );
-            }
-            if (economy.bestTimeMs > 0) {
-              return GestureDetector(
-                onTap: onRecordTap,
-                child: _HudChip(
-                  icon: Icon(
-                    Icons.emoji_events_rounded,
-                    size: 16,
-                    color: theme.colorScheme.primary,
-                  ),
-                  label: '${(economy.bestTimeMs / 1000).toStringAsFixed(2)}s',
-                  highlight: true,
-                ),
-              );
-            }
-            return const SizedBox.shrink();
-          },
-        ),
-        const Spacer(),
-      ],
+                label: '${(economy.bestTimeMs / 1000).toStringAsFixed(2)}s',
+                highlight: true,
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

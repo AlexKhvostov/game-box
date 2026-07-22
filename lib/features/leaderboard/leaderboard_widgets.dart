@@ -31,82 +31,132 @@ class LeaderboardRankRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    const youGold = Color(0xFFFFD54F);
+    const youGoldSoft = Color(0xFFFFECB3);
     final accent = ghost
-        ? const Color(0xFF7EE0FF)
+        ? youGold
         : highlight
             ? theme.colorScheme.primary
             : Colors.white70;
     final name = ghost ? (ghostLabel ?? entry.displayName) : entry.displayName;
 
+    final row = Row(
+      children: [
+        SizedBox(
+          width: 28,
+          child: Text(
+            '$place',
+            style: TextStyle(
+              fontWeight: FontWeight.w900,
+              fontSize: 15,
+              color: accent,
+            ),
+          ),
+        ),
+        Expanded(
+          child: Text(
+            name,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontWeight: FontWeight.w800,
+              fontStyle: ghost ? FontStyle.italic : FontStyle.normal,
+              color: ghost ? youGoldSoft : null,
+              shadows: ghost
+                  ? const [
+                      Shadow(
+                        color: Color(0x99FFD54F),
+                        blurRadius: 10,
+                      ),
+                    ]
+                  : null,
+            ),
+          ),
+        ),
+        SizedBox(
+          width: 28,
+          child: Text(
+            countryFlagEmoji(entry.countryCode),
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 16),
+          ),
+        ),
+        SizedBox(
+          width: 58,
+          child: Text(
+            '${entry.timeSec.toStringAsFixed(2)}s',
+            textAlign: TextAlign.end,
+            style: TextStyle(
+              fontWeight: FontWeight.w900,
+              color: accent,
+              fontSize: 13,
+              fontFeatures: const [FontFeature.tabularFigures()],
+              shadows: ghost
+                  ? const [
+                      Shadow(
+                        color: Color(0x99FFD54F),
+                        blurRadius: 8,
+                      ),
+                    ]
+                  : null,
+            ),
+          ),
+        ),
+        SizedBox(
+          width: 52,
+          child: Text(
+            ghost ? '—' : _dateLabel(entry.createdAt),
+            textAlign: TextAlign.end,
+            style: TextStyle(
+              fontSize: 11,
+              color: ghost ? youGold.withValues(alpha: 0.85) : Colors.white54,
+              fontWeight: FontWeight.w600,
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
+          ),
+        ),
+      ],
+    );
+
+    if (ghost) {
+      return Container(
+        margin: const EdgeInsets.only(bottom: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              youGold.withValues(alpha: 0.22),
+              const Color(0xFF2A2410),
+              const Color(0xFF151C22),
+            ],
+          ),
+          border: Border.all(color: youGold.withValues(alpha: 0.75), width: 1.3),
+          boxShadow: [
+            BoxShadow(
+              color: youGold.withValues(alpha: 0.35),
+              blurRadius: 14,
+              spreadRadius: 0.5,
+              offset: const Offset(0, 2),
+            ),
+            BoxShadow(
+              color: youGold.withValues(alpha: 0.18),
+              blurRadius: 22,
+              spreadRadius: 1,
+            ),
+          ],
+        ),
+        child: row,
+      );
+    }
+
     return GamePanel(
       margin: const EdgeInsets.only(bottom: 6),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-      accent: ghost
-          ? const Color(0xFF7EE0FF)
-          : highlight
-              ? theme.colorScheme.primary
-              : null,
-      child: Row(
-        children: [
-          SizedBox(
-            width: 28,
-            child: Text(
-              '$place',
-              style: TextStyle(
-                fontWeight: FontWeight.w900,
-                fontSize: 15,
-                color: accent,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              name,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontWeight: FontWeight.w700,
-                fontStyle: ghost ? FontStyle.italic : FontStyle.normal,
-                color: ghost ? const Color(0xFF7EE0FF) : null,
-              ),
-            ),
-          ),
-          SizedBox(
-            width: 28,
-            child: Text(
-              countryFlagEmoji(entry.countryCode),
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 16),
-            ),
-          ),
-          SizedBox(
-            width: 58,
-            child: Text(
-              '${entry.timeSec.toStringAsFixed(2)}s',
-              textAlign: TextAlign.end,
-              style: TextStyle(
-                fontWeight: FontWeight.w900,
-                color: accent,
-                fontSize: 13,
-                fontFeatures: const [FontFeature.tabularFigures()],
-              ),
-            ),
-          ),
-          SizedBox(
-            width: 52,
-            child: Text(
-              ghost ? '—' : _dateLabel(entry.createdAt),
-              textAlign: TextAlign.end,
-              style: TextStyle(
-                fontSize: 11,
-                color: ghost ? const Color(0xFF7EE0FF) : Colors.white54,
-                fontWeight: FontWeight.w600,
-                fontFeatures: const [FontFeature.tabularFigures()],
-              ),
-            ),
-          ),
-        ],
-      ),
+      accent: highlight ? theme.colorScheme.primary : null,
+      child: row,
     );
   }
 }
@@ -140,11 +190,11 @@ class PeriodRanksCompact extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final items = <(String, RankInfo)>[
-      (l10n.periodDay, ranks.day),
-      (l10n.periodWeek, ranks.week),
-      (l10n.periodMonth, ranks.month),
-      (l10n.periodYear, ranks.year),
       (l10n.periodAll, ranks.all),
+      (l10n.periodYear, ranks.year),
+      (l10n.periodMonth, ranks.month),
+      (l10n.periodWeek, ranks.week),
+      (l10n.periodDay, ranks.day),
     ];
 
     return GamePanel(
