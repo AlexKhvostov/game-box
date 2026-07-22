@@ -120,9 +120,7 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String plusToast(String brand) {
-    return '$brand Plus · Daily ×2';
-  }
+  String get plusToast => 'Plus · Daily ×2';
 
   @override
   String get plusCancelledToast => 'Plus отключена';
@@ -189,7 +187,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String premiumTimesLocked(String mult) {
-    return '×$mult Plus';
+    return '×$mult with Plus';
   }
 
   @override
@@ -296,9 +294,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get tabEarn => 'Действия';
 
   @override
-  String plusTitle(String brand) {
-    return '$brand Plus';
-  }
+  String get plusTitle => 'Plus';
 
   @override
   String get plusBenefits => 'Без рекламы';

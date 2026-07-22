@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../data/economy_store.dart';
-import '../../domain/currency.dart';
 import '../../domain/economy_config.dart';
 import '../../domain/shop_catalog.dart';
 import '../../l10n/app_localizations.dart';
@@ -594,10 +593,12 @@ class _PlusStrip extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  l10n.plusTitle(Currency.brand),
+                  l10n.plusTitle,
                   style: const TextStyle(
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w800,
                     fontSize: 13,
+                    color: Color(0xFF3DDC97),
+                    letterSpacing: 0.2,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -681,7 +682,7 @@ class _PlusStrip extends StatelessWidget {
                 economy.activatePremiumPreview();
                 showGameToast(
                   context,
-                  message: l10n.plusToast(Currency.brand),
+                  message: l10n.plusToast,
                   accent: const Color(0xFF3DDC97),
                 );
               },
@@ -756,7 +757,7 @@ class _PlusManageSheet extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              l10n.plusTitle(Currency.brand),
+              l10n.plusTitle,
               style: const TextStyle(
                 fontWeight: FontWeight.w800,
                 fontSize: 15,
@@ -1190,8 +1191,12 @@ class _CrystalRewardBadge extends StatelessWidget {
         showPlusHint && hasPremium && amount != baseAmount;
     final showLockedHint = showPlusHint && !hasPremium;
     const cyan = Color(0xFF7EE0FF);
-    final border = cyan.withValues(alpha: emphasized ? 0.55 : 0.3);
-    final glow = cyan.withValues(alpha: showActiveDouble ? 0.32 : 0.2);
+    const mint = Color(0xFF3DDC97);
+    final border = showActiveDouble
+        ? mint.withValues(alpha: 0.55)
+        : cyan.withValues(alpha: emphasized ? 0.55 : 0.3);
+    final glow = (showActiveDouble ? mint : cyan)
+        .withValues(alpha: showActiveDouble ? 0.28 : 0.2);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
@@ -1200,85 +1205,73 @@ class _CrystalRewardBadge extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            cyan.withValues(alpha: showActiveDouble ? 0.28 : 0.2),
-            const Color(0xFF3DDC97).withValues(alpha: 0.14),
-            if (showActiveDouble) Colors.white.withValues(alpha: 0.08),
-          ],
+          colors: showActiveDouble
+              ? [
+                  mint.withValues(alpha: 0.16),
+                  const Color(0xFF0E1A16).withValues(alpha: 0.9),
+                ]
+              : [
+                  cyan.withValues(alpha: 0.2),
+                  const Color(0xFF3DDC97).withValues(alpha: 0.14),
+                ],
         ),
         border: Border.all(color: border),
         boxShadow: [
-          BoxShadow(color: glow, blurRadius: showActiveDouble ? 14 : 10),
+          BoxShadow(color: glow, blurRadius: showActiveDouble ? 12 : 10),
         ],
       ),
-      child: Stack(
-        clipBehavior: Clip.none,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          if (showActiveDouble)
-            Positioned.fill(
-              child: IgnorePointer(
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    gradient: LinearGradient(
-                      begin: const Alignment(-1.2, -0.8),
-                      end: const Alignment(0.6, 0.9),
-                      colors: [
-                        Colors.white.withValues(alpha: 0.0),
-                        Colors.white.withValues(alpha: 0.22),
-                        Colors.white.withValues(alpha: 0.0),
-                      ],
-                      stops: const [0.25, 0.48, 0.72],
-                    ),
-                  ),
-                ),
+          CrystalCubeIcon(size: 14, glow: emphasized || showActiveDouble),
+          const SizedBox(width: 4),
+          Text(
+            '+$amount',
+            style: TextStyle(
+              fontWeight: FontWeight.w900,
+              fontSize: 15,
+              color: showActiveDouble ? mint : const Color(0xFFB8F4FF),
+              letterSpacing: 0.2,
+              shadows: showActiveDouble
+                  ? const [
+                      Shadow(
+                        color: Color(0x88000000),
+                        blurRadius: 4,
+                        offset: Offset(0, 1),
+                      ),
+                    ]
+                  : [
+                      Shadow(
+                        color: cyan.withValues(alpha: 0.55),
+                        blurRadius: 8,
+                      ),
+                    ],
+            ),
+          ),
+          if (showActiveDouble) ...[
+            const SizedBox(width: 6),
+            Text(
+              l10n.premiumTimesBase(baseAmount, label),
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w800,
+                color: cyan.withValues(alpha: 0.95),
+                height: 1,
               ),
             ),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CrystalCubeIcon(size: 14, glow: emphasized || showActiveDouble),
-              const SizedBox(width: 4),
-              Text(
-                '+$amount',
-                style: TextStyle(
-                  fontWeight: FontWeight.w900,
-                  fontSize: 15,
-                  color: const Color(0xFFB8F4FF),
-                  letterSpacing: 0.2,
-                  shadows: [
-                    Shadow(
-                      color: cyan.withValues(alpha: showActiveDouble ? 0.75 : 0.55),
-                      blurRadius: showActiveDouble ? 10 : 8,
-                    ),
-                  ],
-                ),
+          ] else if (showLockedHint) ...[
+            const SizedBox(width: 6),
+            Text(
+              l10n.premiumTimesLocked(label),
+              style: const TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w800,
+                color: mint,
+                height: 1,
+                letterSpacing: 0.15,
               ),
-              if (showActiveDouble) ...[
-                const SizedBox(width: 6),
-                Text(
-                  l10n.premiumTimesBase(baseAmount, label),
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w800,
-                    color: cyan.withValues(alpha: 0.95),
-                    height: 1,
-                  ),
-                ),
-              ] else if (showLockedHint) ...[
-                const SizedBox(width: 6),
-                Text(
-                  l10n.premiumTimesLocked(label),
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
-                    color: cyan.withValues(alpha: 0.55),
-                    height: 1,
-                  ),
-                ),
-              ],
-            ],
-          ),
+            ),
+          ],
         ],
       ),
     );

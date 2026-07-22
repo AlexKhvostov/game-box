@@ -69,12 +69,7 @@
       "price": {"type": "String"}
     }
   },
-  "plusToast": "{brand} Plus · Daily ×2",
-  "@plusToast": {
-    "placeholders": {
-      "brand": {"type": "String"}
-    }
-  },
+  "plusToast": "Plus · Daily ×2",
   "plusCancelledToast": "Plus turned off",
   "plusManageTitle": "Manage Plus",
   "plusManageSubtitle": "Subscription perks for the game. This is a local preview — real billing will go through Google Play / App Store later.",
@@ -123,7 +118,7 @@
       "mult": {"type": "String"}
     }
   },
-  "premiumTimesLocked": "×{mult} Plus",
+  "premiumTimesLocked": "×{mult} with Plus",
   "@premiumTimesLocked": {
     "placeholders": {
       "mult": {"type": "String"}
@@ -172,12 +167,7 @@
   "tabDaily": "Daily",
   "tabShop": "Shop",
   "tabEarn": "Earn",
-  "plusTitle": "{brand} Plus",
-  "@plusTitle": {
-    "placeholders": {
-      "brand": {"type": "String"}
-    }
-  },
+  "plusTitle": "Plus",
   "plusBenefits": "No ads",
   "plusDailyBoost": "on Daily",
   "giftReady": "Ready!",

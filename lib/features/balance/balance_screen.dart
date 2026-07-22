@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../data/economy_store.dart';
-import '../../domain/currency.dart';
 import '../../domain/shop_catalog.dart';
 import '../../ui/crystal_cube_icon.dart';
 import '../../ui/game_toast.dart';
@@ -92,7 +91,7 @@ class _BalanceScreenState extends State<BalanceScreen>
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
               child: Text(
-                '${Currency.brand} Plus активна · Daily ×2',
+                'Plus активна · Daily ×2',
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.primary,
                 ),
@@ -853,7 +852,7 @@ class _ShopTab extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                '${Currency.brand} Plus',
+                'Plus',
                 style: theme.textTheme.titleLarge,
               ),
               const SizedBox(height: 6),
@@ -869,7 +868,7 @@ class _ShopTab extends StatelessWidget {
                         economy.activatePremiumPreview();
                         showGameToast(
                           context,
-                          message: '${Currency.brand} Plus · Daily ×2',
+                          message: 'Plus · Daily ×2',
                           accent: const Color(0xFF3DDC97),
                           icon: const Icon(
                             Icons.workspace_premium,

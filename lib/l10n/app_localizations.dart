@@ -293,8 +293,8 @@ abstract class AppLocalizations {
   /// No description provided for @plusToast.
   ///
   /// In en, this message translates to:
-  /// **'{brand} Plus · Daily ×2'**
-  String plusToast(String brand);
+  /// **'Plus · Daily ×2'**
+  String get plusToast;
 
   /// No description provided for @plusCancelledToast.
   ///
@@ -395,7 +395,7 @@ abstract class AppLocalizations {
   /// No description provided for @premiumTimesLocked.
   ///
   /// In en, this message translates to:
-  /// **'×{mult} Plus'**
+  /// **'×{mult} with Plus'**
   String premiumTimesLocked(String mult);
 
   /// No description provided for @claimed.
@@ -599,8 +599,8 @@ abstract class AppLocalizations {
   /// No description provided for @plusTitle.
   ///
   /// In en, this message translates to:
-  /// **'{brand} Plus'**
-  String plusTitle(String brand);
+  /// **'Plus'**
+  String get plusTitle;
 
   /// No description provided for @plusBenefits.
   ///

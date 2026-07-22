@@ -10,6 +10,7 @@ import '../../domain/gameplay_config.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/crystal_cube_icon.dart';
 import '../../ui/hud_fly_targets.dart';
+import '../../ui/resting_cube_icon.dart';
 import '../balance/crystals_sheet.dart';
 import '../leaderboard/leaderboard_sheet.dart';
 import '../result/result_screen.dart';
@@ -274,6 +275,7 @@ class _GameHomeScreenState extends State<GameHomeScreen>
                           text: economy.canPlay
                               ? l10n.tapHintPlayful
                               : l10n.noLivesOpenCrystals,
+                          outOfLives: !economy.canPlay,
                         )
                       : const SizedBox.expand(),
                 ),
@@ -329,11 +331,13 @@ class _TapToStartBanner extends StatelessWidget {
     required this.pulse,
     required this.title,
     required this.text,
+    this.outOfLives = false,
   });
 
   final Animation<double> pulse;
   final String title;
   final String text;
+  final bool outOfLives;
 
   @override
   Widget build(BuildContext context) {
@@ -341,6 +345,9 @@ class _TapToStartBanner extends StatelessWidget {
       animation: pulse,
       builder: (context, _) {
         final t = pulse.value;
+        final accent = outOfLives
+            ? const Color(0xFF7EE0FF)
+            : const Color(0xFF3DDC97);
         return Center(
           child: Container(
             margin: const EdgeInsets.fromLTRB(28, 8, 28, 24),
@@ -353,7 +360,9 @@ class _TapToStartBanner extends StatelessWidget {
                 colors: [
                   Color.lerp(
                     const Color(0xFF1A2A32),
-                    const Color(0xFF243840),
+                    outOfLives
+                        ? const Color(0xFF1E2C38)
+                        : const Color(0xFF243840),
                     t,
                   )!,
                   const Color(0xFF12181E),
@@ -361,16 +370,15 @@ class _TapToStartBanner extends StatelessWidget {
               ),
               border: Border.all(
                 color: Color.lerp(
-                  const Color(0xFF3DDC97).withValues(alpha: 0.35),
-                  const Color(0xFF7EE0FF).withValues(alpha: 0.55),
+                  accent.withValues(alpha: 0.35),
+                  accent.withValues(alpha: 0.55),
                   t,
                 )!,
                 width: 1.4,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF3DDC97)
-                      .withValues(alpha: 0.12 + t * 0.18),
+                  color: accent.withValues(alpha: 0.12 + t * 0.18),
                   blurRadius: 18 + t * 10,
                   offset: const Offset(0, 8),
                 ),
@@ -388,11 +396,18 @@ class _TapToStartBanner extends StatelessWidget {
                     letterSpacing: 4.2,
                     color: Color.lerp(
                       const Color(0xFF7EE0FF).withValues(alpha: 0.75),
-                      const Color(0xFF3DDC97),
+                      accent,
                       t,
                     ),
                   ),
                 ),
+                if (outOfLives) ...[
+                  const SizedBox(height: 12),
+                  Transform.translate(
+                    offset: Offset(0, sin(t * pi) * 2),
+                    child: const RestingCubeIcon(size: 72),
+                  ),
+                ],
                 const SizedBox(height: 10),
                 Transform.scale(
                   scale: 0.96 + t * 0.06,
@@ -400,7 +415,7 @@ class _TapToStartBanner extends StatelessWidget {
                     text,
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: 22,
+                      fontSize: outOfLives ? 18 : 22,
                       fontWeight: FontWeight.w800,
                       letterSpacing: 0.4,
                       height: 1.25,
@@ -412,15 +427,17 @@ class _TapToStartBanner extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 8),
-                Opacity(
-                  opacity: 0.45 + t * 0.35,
-                  child: const Icon(
-                    Icons.touch_app_rounded,
-                    color: Color(0xFF7EE0FF),
-                    size: 22,
+                if (!outOfLives) ...[
+                  const SizedBox(height: 8),
+                  Opacity(
+                    opacity: 0.45 + t * 0.35,
+                    child: const Icon(
+                      Icons.touch_app_rounded,
+                      color: Color(0xFF7EE0FF),
+                      size: 22,
+                    ),
                   ),
-                ),
+                ],
               ],
             ),
           ),
