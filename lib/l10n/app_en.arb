@@ -1,0 +1,174 @@
+{
+  "@@locale": "en",
+  "appTitle": "Game Box",
+  "tapToStart": "Tap to start",
+  "noLivesOpenCrystals": "Out of lives — open crystals",
+  "noLivesTitle": "Out of lives",
+  "noLivesBody": "Exchange crystals or earn more by tapping the crystal balance above.",
+  "livesGained": "+{count} lives",
+  "@livesGained": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "buyLivesButton": "+{lives} lives · {cost} crystals",
+  "@buyLivesButton": {
+    "placeholders": {
+      "lives": {"type": "int"},
+      "cost": {"type": "int"}
+    }
+  },
+  "toCrystals": "Get crystals",
+  "seconds": "seconds",
+  "newScore": "New score",
+  "rankFaster": "#{place} · faster than {percent}%",
+  "@rankFaster": {
+    "placeholders": {
+      "place": {"type": "int"},
+      "percent": {"type": "int"}
+    }
+  },
+  "share": "Share",
+  "ok": "OK",
+  "saveScoreTitle": "Save score",
+  "saveScoreSubtitle": "{time} s · top 20",
+  "@saveScoreSubtitle": {
+    "placeholders": {
+      "time": {"type": "String"}
+    }
+  },
+  "nameLabel": "Name",
+  "leaderboardEmpty": "Empty so far — be the first",
+  "enterName": "Enter a name",
+  "savedPlace": "Saved · #{place}",
+  "@savedPlace": {
+    "placeholders": {
+      "place": {"type": "int"}
+    }
+  },
+  "saving": "Saving…",
+  "save": "Save",
+  "cancel": "Cancel",
+  "crystals": "Crystals",
+  "crystalsGenitive": "crystals",
+  "giftToast": "Gift! +{count} crystals",
+  "@giftToast": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "daily": "Daily",
+  "earn": "Earn",
+  "earnPreviewHint": "Preview until ads & SDKs are connected",
+  "shop": "Shop",
+  "plusActive": "Plus active",
+  "plusButton": "Plus · {price}",
+  "@plusButton": {
+    "placeholders": {
+      "price": {"type": "String"}
+    }
+  },
+  "plusToast": "{brand} Plus · Daily ×2",
+  "@plusToast": {
+    "placeholders": {
+      "brand": {"type": "String"}
+    }
+  },
+  "giftCrystals": "+{count} crystals",
+  "@giftCrystals": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "claimGift": "Claim gift",
+  "dayReward": "Day {day} · +{amount}",
+  "@dayReward": {
+    "placeholders": {
+      "day": {"type": "int"},
+      "amount": {"type": "int"}
+    }
+  },
+  "claimed": "Claimed",
+  "claim": "Claim",
+  "dailyToast": "Daily +{count}",
+  "@dailyToast": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "crystalsPlus": "+{count} crystals",
+  "@crystalsPlus": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "earnWatchAd": "Watch an ad",
+  "earnWatchAdSub": "Short video",
+  "earnSocialPost": "Social post",
+  "earnSocialPostSub": "Tell your friends",
+  "earnNotifications": "Notifications",
+  "earnNotificationsSub": "Allow push alerts",
+  "earnRateApp": "Rate the game",
+  "earnRateAppSub": "Stars in the store",
+  "earnInviteFriend": "Invite a friend",
+  "earnInviteFriendSub": "Share a link",
+  "earnReward": "Reward",
+  "packHandful": "Handful",
+  "packStack": "Stack",
+  "packChest": "Chest",
+  "packVault": "Vault",
+  "badgeDeal": "Deal",
+  "badgeBest": "Best price",
+  "badgeMax": "Max",
+  "playerFallback": "Player",
+  "leaderboardTitle": "Leaderboard",
+  "online": "online",
+  "offline": "offline",
+  "colPlace": "#",
+  "colPlayer": "Player",
+  "colCountry": "CC",
+  "colTime": "Time",
+  "tabDaily": "Daily",
+  "tabShop": "Shop",
+  "tabEarn": "Earn",
+  "plusTitle": "{brand} Plus",
+  "@plusTitle": {
+    "placeholders": {
+      "brand": {"type": "String"}
+    }
+  },
+  "plusBenefits": "No ads · ×2 crystals everywhere",
+  "giftReady": "Ready!",
+  "tapHintPlayful": "Tap anywhere to dodge",
+  "livesBalance": "{count} lives",
+  "@livesBalance": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "colDate": "Date",
+  "periodDay": "Day",
+  "periodWeek": "Week",
+  "periodMonth": "Month",
+  "periodYear": "Year",
+  "periodAll": "All",
+  "livesConvertTitle": "Get lives",
+  "livesConvertSubtitle": "Exchange crystals for lives",
+  "livesPackLabel": "+{count} lives",
+  "@livesPackLabel": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "shopFree": "FREE",
+  "shopWatchAd": "Watch & get",
+  "shopWatchAdSub": "Short video · free crystals",
+  "yourPlacesTitle": "Your places",
+  "shareRankHint": "Where this score ranks if you save it",
+  "rankSliceToday": "Today",
+  "rankSliceWeek": "This week",
+  "rankSliceMonth": "This month",
+  "rankSliceYear": "This year",
+  "rankSliceAll": "All time",
+  "youGhost": "You"
+}

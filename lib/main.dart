@@ -1,30 +1,67 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import 'app/app.dart';
 import 'data/economy_store.dart';
-import 'data/local_scores_store.dart';
+import 'data/firebase_bootstrap.dart';
+import 'data/remote_config_loader.dart';
+import 'data/scores_store.dart';
+import 'domain/economy_config.dart';
+import 'domain/gameplay_config.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-  ]);
+  await runZonedGuarded(() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    FlutterError.onError = (details) {
+      FlutterError.presentError(details);
+      debugPrint('FlutterError: ${details.exceptionAsString()}');
+    };
+    PlatformDispatcher.instance.onError = (error, stack) {
+      debugPrint('PlatformError: $error\n$stack');
+      return true;
+    };
 
-  final economy = EconomyStore();
-  await economy.load();
+    await SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]);
 
-  final scores = LocalScoresStore();
-  await scores.load();
+    final firebaseOk = await FirebaseBootstrap.init();
 
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider.value(value: economy),
-        ChangeNotifierProvider.value(value: scores),
-      ],
-      child: const GameBoxApp(),
-    ),
-  );
+    var economyConfig = const EconomyConfig();
+    var gameplayConfig = const GameplayConfig();
+    var forceLocale = '';
+    if (firebaseOk) {
+      final remote = await RemoteConfigLoader.load();
+      economyConfig = remote.economy;
+      gameplayConfig = remote.gameplay;
+      forceLocale = remote.forceLocale;
+    }
+    debugPrint(
+      'Economy RC: timedBonus=${economyConfig.timedBonusTokens}, '
+      'daily=${economyConfig.dailyRewardTokens}',
+    );
+
+    final economy = EconomyStore(config: economyConfig);
+    await economy.load();
+
+    final scores = ScoresStore();
+    await scores.load();
+
+    runApp(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider.value(value: economy),
+          ChangeNotifierProvider.value(value: scores),
+          Provider.value(value: gameplayConfig),
+        ],
+        child: GameBoxApp(forceLocale: forceLocale),
+      ),
+    );
+  }, (error, stack) {
+    debugPrint('Uncaught zone error: $error\n$stack');
+  });
 }

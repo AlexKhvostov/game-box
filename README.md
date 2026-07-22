@@ -8,6 +8,7 @@
 - [Техническое задание (ТЗ)](docs/TZ.md)
 - [Дорожная карта](docs/ROADMAP.md)
 - [Подключение Firebase](docs/FIREBASE_SETUP.md)
+- [Админка геймплея (Remote Config)](docs/GAMEPLAY_ADMIN.md)
 
 ## Стек
 

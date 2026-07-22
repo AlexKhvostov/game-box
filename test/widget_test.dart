@@ -4,17 +4,18 @@ import 'package:provider/provider.dart';
 
 import 'package:game_box/app/app.dart';
 import 'package:game_box/data/economy_store.dart';
-import 'package:game_box/data/local_scores_store.dart';
+import 'package:game_box/data/scores_store.dart';
+import 'package:game_box/domain/gameplay_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('Shell shows three tabs', (tester) async {
+  testWidgets('Hypercasual home shows field hint', (tester) async {
     SharedPreferences.setMockInitialValues({});
     final economy = EconomyStore();
     await economy.load();
-    final scores = LocalScoresStore();
+    final scores = ScoresStore();
     await scores.load();
 
     await tester.pumpWidget(
@@ -22,17 +23,19 @@ void main() {
         providers: [
           ChangeNotifierProvider.value(value: economy),
           ChangeNotifierProvider.value(value: scores),
+          Provider.value(value: const GameplayConfig()),
         ],
-        child: const GameBoxApp(),
+        child: const GameBoxApp(forceLocale: 'en'),
       ),
     );
 
-    expect(find.text('GAME BOX'), findsOneWidget);
-    expect(find.text('Игра'), findsOneWidget);
-    expect(find.text('Рейтинг'), findsOneWidget);
-    expect(find.text('Профиль'), findsOneWidget);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
 
-    // Снимаем дерево, чтобы отменить Timer в ProfileScreen (IndexedStack).
+    expect(find.textContaining('Tap anywhere'), findsOneWidget);
+    expect(find.text('Игра'), findsNothing);
+    expect(find.text('Баланс'), findsNothing);
+
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump(const Duration(seconds: 2));
   });

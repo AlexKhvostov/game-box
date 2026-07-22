@@ -23,12 +23,12 @@ Future<void> showFreezeSheet(BuildContext context) {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Купите пак из ${cfg.lifePackSize} жизней за ${cfg.lifePackCostTokens} жетонов '
-                  'или получите жетоны в профиле.',
+                  'Купите пак из ${cfg.lifePackSize} жизней за ${cfg.lifePackCostTokens} кристалов '
+                  'или обменяйте прямо на экране Игра.',
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 const SizedBox(height: 8),
-                Text('У вас жетонов: ${economy.tokens}'),
+                Text('У вас кристалов: ${economy.tokens}'),
                 const SizedBox(height: 16),
                 FilledButton(
                   onPressed: economy.canBuyLifePack
@@ -45,7 +45,7 @@ Future<void> showFreezeSheet(BuildContext context) {
                         }
                       : null,
                   child: Text(
-                    'Разморозить (−${cfg.lifePackCostTokens} жетонов)',
+                    'Разморозить (−${cfg.lifePackCostTokens} кристалов)',
                   ),
                 ),
                 const SizedBox(height: 8),

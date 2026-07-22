@@ -1,35 +1,48 @@
 # Подключение Firebase (Game Box)
 
-Firebase нужен для: анонимного входа, онлайн-рейтинга, профиля и **Remote Config** (параметры жизней/жетонов без нового билда).
+Статус: **Android подключён** (`google-services.json`, Auth, Firestore, Remote Config в коде).
 
-## Что сделать вам (один раз)
+## Что уже сделано в проекте
 
-1. Откройте [Firebase Console](https://console.firebase.google.com/) и создайте проект (например `game-box`).
-2. Добавьте приложение **Android** с package name: `com.boxgame.game_box`  
-   (он уже в нашем Flutter-проекте).
-3. Скачайте `google-services.json` и положите в:
-   `android/app/google-services.json`
-4. В консоли включите:
-   - **Authentication** → Anonymous
-   - **Firestore Database** (режим production + правила позже)
-   - **Remote Config**
-5. Напишите мне: «Firebase проект готов» — допишу код (Auth, рейтинг, Remote Config) и закоммичу.
+- Package: `com.boxgame.game_box`
+- Плагин Google Services в Gradle
+- `lib/firebase_options.dart` из вашего `google-services.json`
+- Анонимный вход при старте
+- Рейтинг → коллекция Firestore `scores`
+- Параметры Remote Config блоками: `enemies`, `player`, `field`, `game`, `economy`  
+  (см. [GAMEPLAY_ADMIN.md](GAMEPLAY_ADMIN.md))
 
-Либо установите FlutterFire CLI и выполните у себя:
+## Что проверить в консоли
 
-```bash
-dart pub global activate flutterfire_cli
-flutterfire configure
+1. **Authentication** → Anonymous включён  
+2. **Firestore** создан (test mode ок на старте)  
+3. **Remote Config** → параметр `economy` → **Publish changes**
+
+### Параметр `economy` (пример)
+
+```json
+{
+  "initialLives": 10,
+  "lifePackSize": 10,
+  "lifePackCostTokens": 5,
+  "lifePacks": [
+    {"lives": 10, "costTokens": 5},
+    {"lives": 12, "costTokens": 10},
+    {"lives": 20, "costTokens": 15}
+  ],
+  "dailyRewardTokens": [2, 4, 9, 16, 32, 64, 81],
+  "timedBonusTokens": 22,
+  "timedBonusHours": 8
+}
 ```
 
-Это создаст `lib/firebase_options.dart` автоматически.
+`lifePacks` — пакеты обмена кристалов на жизни.  
+`timedBonusTokens` — подарок у кристалов (не Daily). Кристалы открываются тапом по счётчику.
 
-## Зачем Remote Config
+## Индекс Firestore (если консоль попросит)
 
-Там можно менять без обновления приложения в сторе:
+При первом запросе топа Firebase может показать ссылку «создать индекс» для `fair` + `timeMs`. Откройте ссылку и создайте индекс.
 
-- стартовые жизни, размер пака, цена в жетонах;
-- Daily Reward и награда за 8 часов;
-- позже — параметры сложности.
+## Параметр `gameplay` (админка механики)
 
-Удобно тестировать баланс «на живых» игроках.
+Создайте второй параметр Remote Config с ключом `gameplay` (JSON), см. [GAMEPLAY_ADMIN.md](GAMEPLAY_ADMIN.md).

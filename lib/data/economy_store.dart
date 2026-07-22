@@ -4,9 +4,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../domain/economy_config.dart';
 
 class EconomyStore extends ChangeNotifier {
-  EconomyStore({EconomyConfig? config}) : config = config ?? const EconomyConfig();
+  EconomyStore({EconomyConfig? config})
+      : config = config ?? const EconomyConfig();
 
-  final EconomyConfig config;
+  EconomyConfig config;
 
   static const _kLives = 'lives';
   static const _kTokens = 'tokens';
@@ -15,6 +16,8 @@ class EconomyStore extends ChangeNotifier {
   static const _kNextBonus = 'next_token_bonus';
   static const _kDisplayName = 'display_name';
   static const _kBestTime = 'best_time_ms';
+  static const _kPremium = 'has_premium';
+  static const _kEarnClaimed = 'earn_claimed_ids';
 
   late SharedPreferences _prefs;
 
@@ -25,6 +28,8 @@ class EconomyStore extends ChangeNotifier {
   DateTime? nextTokenBonusAt;
   String? displayName;
   int bestTimeMs = 0;
+  bool hasPremium = false;
+  final Set<String> claimedEarnIds = {};
 
   Future<void> load() async {
     _prefs = await SharedPreferences.getInstance();
@@ -43,6 +48,10 @@ class EconomyStore extends ChangeNotifier {
     dailyStreak = _prefs.getInt(_kStreak) ?? 0;
     bestTimeMs = _prefs.getInt(_kBestTime) ?? 0;
     displayName = _prefs.getString(_kDisplayName);
+    hasPremium = _prefs.getBool(_kPremium) ?? false;
+    claimedEarnIds
+      ..clear()
+      ..addAll(_prefs.getStringList(_kEarnClaimed) ?? const []);
 
     final dailyRaw = _prefs.getString(_kLastDaily);
     if (dailyRaw != null) {
@@ -55,11 +64,18 @@ class EconomyStore extends ChangeNotifier {
     notifyListeners();
   }
 
+  void applyConfig(EconomyConfig next) {
+    config = next;
+    notifyListeners();
+  }
+
   Future<void> _persist() async {
     await _prefs.setInt(_kLives, lives);
     await _prefs.setInt(_kTokens, tokens);
     await _prefs.setInt(_kStreak, dailyStreak);
     await _prefs.setInt(_kBestTime, bestTimeMs);
+    await _prefs.setBool(_kPremium, hasPremium);
+    await _prefs.setStringList(_kEarnClaimed, claimedEarnIds.toList());
     if (displayName != null) {
       await _prefs.setString(_kDisplayName, displayName!);
     }
@@ -91,15 +107,35 @@ class EconomyStore extends ChangeNotifier {
   int get upcomingDailyTokens {
     final last = lastDailyClaimAt;
     final now = DateTime.now();
-    if (last == null) return config.dailyTokensForStreak(0);
+    if (last == null) {
+      return config.dailyTokensForStreak(0, premium: hasPremium);
+    }
     final yesterday = DateTime(now.year, now.month, now.day)
         .subtract(const Duration(days: 1));
     final lastDay = DateTime(last.year, last.month, last.day);
     final nextStreak = lastDay == yesterday ? dailyStreak : 0;
-    return config.dailyTokensForStreak(nextStreak);
+    return config.dailyTokensForStreak(nextStreak, premium: hasPremium);
   }
 
-  /// Возвращает начисленные жетоны или null, если нельзя.
+  /// День streak, который будет засчитан при следующем claim (1-based).
+  int get upcomingStreakDay {
+    final last = lastDailyClaimAt;
+    final now = DateTime.now();
+    if (last == null) return 1;
+    final yesterday = DateTime(now.year, now.month, now.day)
+        .subtract(const Duration(days: 1));
+    final lastDay = DateTime(last.year, last.month, last.day);
+    if (lastDay == yesterday) return dailyStreak + 1;
+    if (_isSameCalendarDay(last, now)) return dailyStreak;
+    return 1;
+  }
+
+  int _withPremium(int base) {
+    if (!hasPremium || base <= 0) return base;
+    return (base * config.premiumDailyMultiplier).round().clamp(base, 99999);
+  }
+
+  /// Возвращает начисленные кристалы или null, если нельзя.
   int? claimDaily() {
     if (!canClaimDaily) return null;
     final last = lastDailyClaimAt;
@@ -112,11 +148,21 @@ class EconomyStore extends ChangeNotifier {
     } else {
       dailyStreak = 1;
     }
-    final amount = config.dailyTokensForStreak(dailyStreak - 1);
+    final amount = config.dailyTokensForStreak(
+      dailyStreak - 1,
+      premium: hasPremium,
+    );
     tokens += amount;
     lastDailyClaimAt = now;
     _persist();
     return amount;
+  }
+
+  /// До полуночи (когда Daily уже взят сегодня).
+  Duration get untilMidnight {
+    final now = DateTime.now();
+    final next = DateTime(now.year, now.month, now.day + 1);
+    return next.difference(now);
   }
 
   bool get canClaimTimedBonus {
@@ -135,7 +181,7 @@ class EconomyStore extends ChangeNotifier {
 
   int? claimTimedBonus() {
     if (!canClaimTimedBonus) return null;
-    final amount = config.timedBonusTokens;
+    final amount = _withPremium(config.timedBonusTokens);
     tokens += amount;
     nextTokenBonusAt =
         DateTime.now().add(Duration(hours: config.timedBonusHours));
@@ -143,15 +189,74 @@ class EconomyStore extends ChangeNotifier {
     return amount;
   }
 
-  bool get canBuyLifePack => tokens >= config.lifePackCostTokens;
+  bool get canBuyLifePack =>
+      canBuyLifePackOffer(config.resolvedLifePacks.first);
 
-  bool buyLifePack() {
-    if (!canBuyLifePack) return false;
-    tokens -= config.lifePackCostTokens;
-    lives += config.lifePackSize;
+  bool canBuyLifePackOffer(LifePackOffer offer) =>
+      tokens >= offer.costTokens;
+
+  bool buyLifePack() => buyLifePackOffer(config.resolvedLifePacks.first);
+
+  bool buyLifePackOffer(LifePackOffer offer) {
+    if (!canBuyLifePackOffer(offer)) return false;
+    tokens -= offer.costTokens;
+    lives += offer.lives;
     _persist();
     return true;
   }
+
+  /// Локальный preview покупки пака (до Google Play Billing).
+  /// Plus удваивает начисление.
+  int grantCrystals(int amount) {
+    final granted = _withPremium(amount);
+    tokens += granted;
+    _persist();
+    return granted;
+  }
+
+  /// Локальный preview подписки.
+  void activatePremiumPreview() {
+    hasPremium = true;
+    _persist();
+  }
+
+  /// Preview: награда за действие (реклама / соцсеть / …).
+  int? claimEarnAction(String id) {
+    if (claimedEarnIds.contains(id)) return null;
+    EarnAction? action;
+    for (final a in config.earnActions) {
+      if (a.id == id) {
+        action = a;
+        break;
+      }
+    }
+    if (action == null) return null;
+    claimedEarnIds.add(id);
+    final granted = _withPremium(action.reward);
+    tokens += granted;
+    _persist();
+    return granted;
+  }
+
+  /// Реклама из магазина (FREE). Работает даже если watch_ad нет в earnActions.
+  int? claimWatchAd({int fallbackReward = 5}) {
+    const id = 'watch_ad';
+    if (claimedEarnIds.contains(id)) return null;
+    var reward = fallbackReward;
+    for (final a in config.earnActions) {
+      if (a.id == id) {
+        reward = a.reward;
+        break;
+      }
+    }
+    claimedEarnIds.add(id);
+    final granted = _withPremium(reward);
+    tokens += granted;
+    _persist();
+    return granted;
+  }
+
+  bool isEarnClaimed(String id) => claimedEarnIds.contains(id);
 
   Future<void> setDisplayName(String name) async {
     displayName = name.trim();

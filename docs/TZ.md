@@ -65,7 +65,7 @@ lib/
 | lifePackSize | 10 | Сколько жизней в паке |
 | lifePackCostTokens | 5 | Цена пака в жетонах |
 | dailyRewardTokens | [2,3,4,5,6,7,10] | По дням streak |
-| timedBonusTokens | 3 | Награда кнопки 8ч |
+| timedBonusTokens | 22 | Награда кнопки 8ч |
 | timedBonusHours | 8 | Фриз кнопки |
 | iapPacks | [{id, tokens, ...}] | Пакеты магазина |
 

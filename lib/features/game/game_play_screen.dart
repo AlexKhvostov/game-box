@@ -1,12 +1,24 @@
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:provider/provider.dart';
 
-import '../result/result_screen.dart';
+import '../../domain/gameplay_config.dart';
+import '../../ui/game_status_bar.dart';
+import 'game_field_painter.dart';
+import 'game_world.dart';
 
 class GamePlayScreen extends StatefulWidget {
-  const GamePlayScreen({super.key});
+  const GamePlayScreen({
+    super.key,
+    required this.onFinished,
+    required this.onExit,
+  });
+
+  final ValueChanged<int> onFinished;
+  final VoidCallback onExit;
 
   @override
   State<GamePlayScreen> createState() => _GamePlayScreenState();
@@ -14,19 +26,13 @@ class GamePlayScreen extends StatefulWidget {
 
 class _GamePlayScreenState extends State<GamePlayScreen>
     with SingleTickerProviderStateMixin {
-  static const double playerSize = 36;
-  static const double enemySize = 48;
-
   late final Ticker _ticker;
-  final _rng = Random();
-
-  Size _field = Size.zero;
-  Offset _player = Offset.zero;
-  final List<_Enemy> _enemies = [];
+  GameWorld? _world;
+  Size _fieldSize = Size.zero;
 
   Duration _lastElapsed = Duration.zero;
   int _aliveMs = 0;
-  double _spawnAcc = 0;
+  bool _waitingTouch = true;
   bool _running = false;
   bool _finished = false;
 
@@ -42,23 +48,29 @@ class _GamePlayScreenState extends State<GamePlayScreen>
     super.dispose();
   }
 
-  void _startIfNeeded(Size field) {
-    if (_running || _finished) return;
-    _field = field;
-    _player = Offset(
-      (field.width - playerSize) / 2,
-      (field.height - playerSize) / 2,
-    );
-    _enemies.clear();
+  void _ensureWorld(Size field, GameplayConfig config) {
+    if (_finished) return;
+    if (_world != null && _fieldSize == field) return;
+    _fieldSize = field;
+    _world = GameWorld(config: config, field: field)..resetLayout();
     _aliveMs = 0;
-    _spawnAcc = 0;
+    _waitingTouch = true;
+    _running = false;
     _lastElapsed = Duration.zero;
-    _running = true;
-    _ticker.start();
+    if (!_ticker.isActive) _ticker.start();
   }
 
   void _onTick(Duration elapsed) {
-    if (!_running || _finished) return;
+    if (_finished || _world == null) return;
+
+    if (_waitingTouch) {
+      _world!.tickIdle(elapsed.inMilliseconds / 1000.0);
+      setState(() {});
+      return;
+    }
+
+    if (!_running) return;
+
     final dtMs = (_lastElapsed == Duration.zero)
         ? 16
         : (elapsed - _lastElapsed).inMilliseconds;
@@ -67,154 +79,171 @@ class _GamePlayScreenState extends State<GamePlayScreen>
 
     final dt = dtMs / 1000.0;
     _aliveMs += dtMs;
+    _world!.tickPlay(dt, _aliveMs / 1000.0);
 
-    final speedBoost = 1.0 + _aliveMs / 20000.0;
-    for (final e in _enemies) {
-      e.pos += e.vel * (dt * 60 * speedBoost);
-    }
-    _enemies.removeWhere(
-      (e) =>
-          e.pos.dx < -enemySize * 2 ||
-          e.pos.dy < -enemySize * 2 ||
-          e.pos.dx > _field.width + enemySize * 2 ||
-          e.pos.dy > _field.height + enemySize * 2,
-    );
-
-    final spawnEvery = max(0.35, 1.1 - _aliveMs / 25000.0);
-    _spawnAcc += dt;
-    while (_spawnAcc >= spawnEvery) {
-      _spawnAcc -= spawnEvery;
-      _spawnEnemy();
-    }
-
-    final playerRect = Rect.fromLTWH(
-      _player.dx,
-      _player.dy,
-      playerSize,
-      playerSize,
-    );
-    for (final e in _enemies) {
-      final enemyRect = Rect.fromLTWH(e.pos.dx, e.pos.dy, e.w, e.h);
-      if (playerRect.overlaps(enemyRect)) {
-        _endGame();
-        return;
-      }
+    if (_world!.playerHitsBorder() || _world!.playerHitsEnemy()) {
+      _endGame();
+      return;
     }
 
     setState(() {});
   }
 
-  void _spawnEnemy() {
-    final side = _rng.nextInt(4);
-    late Offset pos;
-    late Offset vel;
-    final base = 2.2 + _rng.nextDouble() * 1.4;
-    final w = enemySize * (0.7 + _rng.nextDouble() * 0.8);
-    final h = enemySize * (0.7 + _rng.nextDouble() * 0.8);
-
-    switch (side) {
-      case 0: // top
-        pos = Offset(_rng.nextDouble() * (_field.width - w), -h);
-        vel = Offset((_rng.nextDouble() - 0.5) * 1.5, base);
-      case 1: // bottom
-        pos = Offset(_rng.nextDouble() * (_field.width - w), _field.height);
-        vel = Offset((_rng.nextDouble() - 0.5) * 1.5, -base);
-      case 2: // left
-        pos = Offset(-w, _rng.nextDouble() * (_field.height - h));
-        vel = Offset(base, (_rng.nextDouble() - 0.5) * 1.5);
-      default: // right
-        pos = Offset(_field.width, _rng.nextDouble() * (_field.height - h));
-        vel = Offset(-base, (_rng.nextDouble() - 0.5) * 1.5);
+  void _armOnTouch() {
+    if (_finished || _world == null) return;
+    if (_waitingTouch) {
+      setState(() {
+        _waitingTouch = false;
+        _running = true;
+        _lastElapsed = Duration.zero;
+        _aliveMs = 0;
+      });
     }
-    _enemies.add(_Enemy(pos: pos, vel: vel, w: w, h: h));
   }
 
-  Future<void> _endGame() async {
+  void _onPanUpdate(DragUpdateDetails details) {
+    if (_finished || _world == null) return;
+    _armOnTouch();
+    if (!_running) return;
+
+    _world!.movePlayerBy(details.delta);
+    if (_world!.playerHitsBorder() || _world!.playerHitsEnemy()) {
+      _endGame();
+      return;
+    }
+    setState(() {});
+  }
+
+  void _endGame() {
     if (_finished) return;
     _finished = true;
     _running = false;
     _ticker.stop();
     final timeMs = _aliveMs;
-    if (!mounted) return;
-    await Navigator.of(context).pushReplacement(
-      MaterialPageRoute<void>(
-        builder: (_) => ResultScreen(timeMs: timeMs),
-      ),
-    );
+    widget.onFinished(timeMs);
   }
 
-  void _onPan(DragUpdateDetails details) {
-    if (!_running) return;
-    setState(() {
-      _player = Offset(
-        (_player.dx + details.delta.dx)
-            .clamp(0.0, _field.width - playerSize),
-        (_player.dy + details.delta.dy)
-            .clamp(0.0, _field.height - playerSize),
-      );
-    });
+  void _exit() {
+    _ticker.stop();
+    widget.onExit();
+  }
+
+  String _formatTime(int ms) {
+    final totalSec = ms ~/ 1000;
+    final minutes = (totalSec ~/ 60).toString().padLeft(2, '0');
+    final seconds = (totalSec % 60).toString().padLeft(2, '0');
+    final millis = (ms % 1000).toString().padLeft(3, '0');
+    return '$minutes:$seconds.$millis';
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
+    final config = context.watch<GameplayConfig>();
+    final world = _world;
+
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color(0xFF101820), Color(0xFF0E1419)],
+        ),
+      ),
+      child: SafeArea(
+        bottom: false,
+        child: Stack(
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Row(
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      _ticker.stop();
-                      Navigator.of(context).pop();
-                    },
-                    icon: const Icon(Icons.close),
-                  ),
-                  const Spacer(),
-                  Text(
-                    '${(_aliveMs / 1000).toStringAsFixed(1)} с',
-                    style: theme.textTheme.titleLarge,
-                  ),
-                ],
+            Positioned.fill(
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onPanStart: (_) => _armOnTouch(),
+                onPanUpdate: _onPanUpdate,
+                onTapDown: (_) => _armOnTouch(),
+                child: const SizedBox.expand(),
               ),
             ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    final side = min(constraints.maxWidth, constraints.maxHeight);
-                    final size = Size(side, side);
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      if (_field != size && !_finished) {
-                        _startIfNeeded(size);
+            Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 8, 4, 4),
+                  child: GameStatusBar(
+                    trailing: IconButton(
+                      onPressed: _exit,
+                      tooltip: 'В меню',
+                      icon: const Icon(Icons.close),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(
+                    _formatTime(_aliveMs),
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.headlineMedium?.copyWith(
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                      fontWeight: FontWeight.w900,
+                      fontSize: 30,
+                      letterSpacing: 1,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final side = min(constraints.maxWidth, 420.0);
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        _ensureWorld(Size(side, side), config);
+                      });
+                      if (world == null) {
+                        return SizedBox(width: side, height: side);
                       }
-                    });
-                    return Center(
-                      child: SizedBox(
-                        width: side,
-                        height: side,
-                        child: GestureDetector(
-                          onPanUpdate: _onPan,
+                      return Center(
+                        child: IgnorePointer(
                           child: CustomPaint(
-                            painter: _GamePainter(
-                              player: _player,
-                              playerSize: playerSize,
-                              enemies: _enemies,
+                            size: Size(side, side),
+                            painter: GameFieldPainter(
+                              world: world,
                               accent: theme.colorScheme.primary,
                               danger: theme.colorScheme.error,
                               fieldColor: theme.colorScheme.surface,
+                              borderColor: theme.colorScheme.primary,
+                              borderWidth: config.borderWidth,
                             ),
                           ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
-              ),
+                Expanded(
+                  child: IgnorePointer(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: _waitingTouch && config.game.startHintEnabled
+                          ? Center(
+                              child: Text(
+                                'Коснитесь экрана, чтобы начать',
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  color: theme.colorScheme.primary,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            )
+                          : kDebugMode
+                              ? _DebugPanel(
+                                  world: world,
+                                  aliveMs: _aliveMs,
+                                  config: config,
+                                )
+                              : const SizedBox.expand(),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -223,72 +252,43 @@ class _GamePlayScreenState extends State<GamePlayScreen>
   }
 }
 
-class _Enemy {
-  _Enemy({
-    required this.pos,
-    required this.vel,
-    required this.w,
-    required this.h,
+class _DebugPanel extends StatelessWidget {
+  const _DebugPanel({
+    required this.world,
+    required this.aliveMs,
+    required this.config,
   });
 
-  Offset pos;
-  Offset vel;
-  final double w;
-  final double h;
-}
-
-class _GamePainter extends CustomPainter {
-  _GamePainter({
-    required this.player,
-    required this.playerSize,
-    required this.enemies,
-    required this.accent,
-    required this.danger,
-    required this.fieldColor,
-  });
-
-  final Offset player;
-  final double playerSize;
-  final List<_Enemy> enemies;
-  final Color accent;
-  final Color danger;
-  final Color fieldColor;
+  final GameWorld? world;
+  final int aliveMs;
+  final GameplayConfig config;
 
   @override
-  void paint(Canvas canvas, Size size) {
-    final bg = Paint()..color = fieldColor;
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        Offset.zero & size,
-        const Radius.circular(12),
+  Widget build(BuildContext context) {
+    if (world == null) return const SizedBox.shrink();
+    final lines = <String>[
+      'area×: ${config.enemyAreaMultiplier}',
+      'angle: ${config.angleMinDeg.toStringAsFixed(0)}–${config.angleMaxDeg.toStringAsFixed(0)}° + 90·n',
+      'speed: ${config.speedMin.toStringAsFixed(0)}–${config.speedMax.toStringAsFixed(0)}',
+      'accel: ${config.accelMin.toStringAsFixed(0)}–${config.accelMax.toStringAsFixed(0)}',
+      ...world!.enemies.asMap().entries.map((e) {
+        final en = e.value;
+        final sp = en.speedAt(aliveMs / 1000.0);
+        return '#${e.key} ${en.w.toStringAsFixed(0)}×${en.h.toStringAsFixed(0)} '
+            'n=${en.quadrantN} ∠${en.angleDeg.toStringAsFixed(0)}° '
+            'v0=${en.initialSpeed.toStringAsFixed(0)} a=${en.acceleration.toStringAsFixed(1)} '
+            'v=${sp.toStringAsFixed(0)}';
+      }),
+    ];
+    return Align(
+      alignment: Alignment.topLeft,
+      child: Text(
+        lines.join('\n'),
+        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              fontFamily: 'monospace',
+              height: 1.35,
+            ),
       ),
-      bg,
-    );
-
-    final border = Paint()
-      ..color = accent.withValues(alpha: 0.35)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        Offset.zero & size,
-        const Radius.circular(12),
-      ),
-      border,
-    );
-
-    final enemyPaint = Paint()..color = danger;
-    for (final e in enemies) {
-      canvas.drawRect(Rect.fromLTWH(e.pos.dx, e.pos.dy, e.w, e.h), enemyPaint);
-    }
-
-    final playerPaint = Paint()..color = accent;
-    canvas.drawRect(
-      Rect.fromLTWH(player.dx, player.dy, playerSize, playerSize),
-      playerPaint,
     );
   }
-
-  @override
-  bool shouldRepaint(covariant _GamePainter oldDelegate) => true;
 }
