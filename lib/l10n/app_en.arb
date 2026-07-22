@@ -62,6 +62,7 @@
   "earnPreviewHint": "Preview until ads & SDKs are connected",
   "shop": "Shop",
   "plusActive": "Plus active",
+  "plusCancel": "Cancel subscription",
   "plusButton": "Plus · {price}",
   "@plusButton": {
     "placeholders": {
@@ -74,6 +75,26 @@
       "brand": {"type": "String"}
     }
   },
+  "plusCancelledToast": "Plus turned off",
+  "plusManageTitle": "Manage Plus",
+  "plusManageSubtitle": "Subscription perks for the game. This is a local preview — real billing will go through Google Play / App Store later.",
+  "plusManageBenefitAds": "No ads",
+  "plusManageBenefitDaily": "×2 crystals on the Daily bonus",
+  "plusManagePrice": "Price: {price}",
+  "@plusManagePrice": {
+    "placeholders": {
+      "price": {"type": "String"}
+    }
+  },
+  "plusManageNextCharge": "Next charge: {date}",
+  "@plusManageNextCharge": {
+    "placeholders": {
+      "date": {"type": "String"}
+    }
+  },
+  "resetDataTitle": "Reset all data?",
+  "resetDataBody": "Progress, crystals, lives, records and Plus will be cleared. The app will look like a fresh install.",
+  "resetDataDone": "Data reset",
   "giftCrystals": "+{count} crystals",
   "@giftCrystals": {
     "placeholders": {

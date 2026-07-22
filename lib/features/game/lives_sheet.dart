@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../data/economy_store.dart';
+import '../../data/scores_store.dart';
 import '../../domain/economy_config.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/crystal_cube_icon.dart';
@@ -21,6 +22,42 @@ Future<void> showLivesSheet(BuildContext context) {
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
     builder: (_) => const _LivesSheet(),
+  );
+}
+
+Future<void> _confirmResetData(BuildContext context) async {
+  final l10n = AppLocalizations.of(context);
+  final ok = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      backgroundColor: const Color(0xFF151C22),
+      title: Text(l10n.resetDataTitle),
+      content: Text(l10n.resetDataBody),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, false),
+          child: Text(l10n.cancel),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.pop(ctx, true),
+          child: Text(l10n.ok),
+        ),
+      ],
+    ),
+  );
+  if (ok != true || !context.mounted) return;
+
+  final economy = context.read<EconomyStore>();
+  final scores = context.read<ScoresStore>();
+  final messengerContext = context;
+  await economy.resetToFreshInstall();
+  await scores.clearLocalData();
+  if (!messengerContext.mounted) return;
+  Navigator.pop(messengerContext);
+  showGameToast(
+    messengerContext,
+    message: l10n.resetDataDone,
+    accent: const Color(0xFF7EE0FF),
   );
 }
 
@@ -55,32 +92,36 @@ class _LivesSheet extends StatelessWidget {
               style: theme.textTheme.bodyMedium,
             ),
             const SizedBox(height: 14),
-            GamePanel(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-              accent: _lifeCyan,
-              child: Row(
-                children: [
-                  const Icon(
-                    Icons.favorite_rounded,
-                    color: _heartRed,
-                    size: 22,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    l10n.livesBalance(economy.lives),
-                    style: const TextStyle(fontWeight: FontWeight.w800),
-                  ),
-                  const Spacer(),
-                  const CrystalCubeIcon(size: 18, glow: false),
-                  const SizedBox(width: 6),
-                  Text(
-                    '${economy.tokens}',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w800,
-                      color: _lifeCyan,
+            GestureDetector(
+              onLongPress: () => _confirmResetData(context),
+              child: GamePanel(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                accent: _lifeCyan,
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.favorite_rounded,
+                      color: _heartRed,
+                      size: 22,
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 8),
+                    Text(
+                      l10n.livesBalance(economy.lives),
+                      style: const TextStyle(fontWeight: FontWeight.w800),
+                    ),
+                    const Spacer(),
+                    const CrystalCubeIcon(size: 18, glow: false),
+                    const SizedBox(width: 6),
+                    Text(
+                      '${economy.tokens}',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w800,
+                        color: _lifeCyan,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 12),

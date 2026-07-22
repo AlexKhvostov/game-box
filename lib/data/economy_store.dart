@@ -18,6 +18,7 @@ class EconomyStore extends ChangeNotifier {
   static const _kDisplayName = 'display_name';
   static const _kBestTime = 'best_time_ms';
   static const _kPremium = 'has_premium';
+  static const _kPremiumNextCharge = 'premium_next_charge';
   static const _kEarnClaimed = 'earn_claimed_ids';
 
   late SharedPreferences _prefs;
@@ -31,6 +32,8 @@ class EconomyStore extends ChangeNotifier {
   String? displayName;
   int bestTimeMs = 0;
   bool hasPremium = false;
+  /// Preview: следующее списание Plus (после реального Billing заменится).
+  DateTime? premiumNextChargeAt;
   final Set<String> claimedEarnIds = {};
 
   Future<void> load() async {
@@ -51,6 +54,13 @@ class EconomyStore extends ChangeNotifier {
     bestTimeMs = _prefs.getInt(_kBestTime) ?? 0;
     displayName = _prefs.getString(_kDisplayName);
     hasPremium = _prefs.getBool(_kPremium) ?? false;
+    final nextChargeRaw = _prefs.getString(_kPremiumNextCharge);
+    if (nextChargeRaw != null) {
+      premiumNextChargeAt = DateTime.tryParse(nextChargeRaw);
+    }
+    if (hasPremium && premiumNextChargeAt == null) {
+      premiumNextChargeAt = DateTime.now().add(const Duration(days: 30));
+    }
     claimedEarnIds
       ..clear()
       ..addAll(_prefs.getStringList(_kEarnClaimed) ?? const []);
@@ -117,6 +127,14 @@ class EconomyStore extends ChangeNotifier {
     await _prefs.setInt(_kStreak, dailyStreak);
     await _prefs.setInt(_kBestTime, bestTimeMs);
     await _prefs.setBool(_kPremium, hasPremium);
+    if (premiumNextChargeAt != null) {
+      await _prefs.setString(
+        _kPremiumNextCharge,
+        premiumNextChargeAt!.toIso8601String(),
+      );
+    } else {
+      await _prefs.remove(_kPremiumNextCharge);
+    }
     await _prefs.setStringList(_kEarnClaimed, claimedEarnIds.toList());
     if (displayName != null) {
       await _prefs.setString(_kDisplayName, displayName!);
@@ -269,7 +287,44 @@ class EconomyStore extends ChangeNotifier {
   /// Локальный preview подписки.
   void activatePremiumPreview() {
     hasPremium = true;
+    premiumNextChargeAt = DateTime.now().add(const Duration(days: 30));
     _persist();
+  }
+
+  /// Локальная отмена подписки (preview до Billing).
+  void cancelPremium() {
+    if (!hasPremium) return;
+    hasPremium = false;
+    premiumNextChargeAt = null;
+    _persist();
+  }
+
+  /// Полный сброс локального прогресса — как после первой установки.
+  Future<void> resetToFreshInstall() async {
+    lives = config.initialLives;
+    tokens = 0;
+    dailyStreak = 0;
+    lastDailyClaimAt = null;
+    lastTimedBonusClaimAt = null;
+    displayName = null;
+    bestTimeMs = 0;
+    hasPremium = false;
+    premiumNextChargeAt = null;
+    claimedEarnIds.clear();
+
+    await _prefs.remove(_kLives);
+    await _prefs.remove(_kTokens);
+    await _prefs.remove(_kStreak);
+    await _prefs.remove(_kLastDaily);
+    await _prefs.remove(_kNextBonus);
+    await _prefs.remove(_kLastTimedBonus);
+    await _prefs.remove(_kDisplayName);
+    await _prefs.remove(_kBestTime);
+    await _prefs.remove(_kPremium);
+    await _prefs.remove(_kPremiumNextCharge);
+    await _prefs.remove(_kEarnClaimed);
+
+    await _persist();
   }
 
   /// Preview: награда за действие (реклама / соцсеть / …).

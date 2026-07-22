@@ -112,6 +112,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get plusActive => 'Plus active';
 
   @override
+  String get plusCancel => 'Cancel subscription';
+
+  @override
   String plusButton(String price) {
     return 'Plus · $price';
   }
@@ -120,6 +123,42 @@ class AppLocalizationsEn extends AppLocalizations {
   String plusToast(String brand) {
     return '$brand Plus · Daily ×2';
   }
+
+  @override
+  String get plusCancelledToast => 'Plus turned off';
+
+  @override
+  String get plusManageTitle => 'Manage Plus';
+
+  @override
+  String get plusManageSubtitle =>
+      'Subscription perks for the game. This is a local preview — real billing will go through Google Play / App Store later.';
+
+  @override
+  String get plusManageBenefitAds => 'No ads';
+
+  @override
+  String get plusManageBenefitDaily => '×2 crystals on the Daily bonus';
+
+  @override
+  String plusManagePrice(String price) {
+    return 'Price: $price';
+  }
+
+  @override
+  String plusManageNextCharge(String date) {
+    return 'Next charge: $date';
+  }
+
+  @override
+  String get resetDataTitle => 'Reset all data?';
+
+  @override
+  String get resetDataBody =>
+      'Progress, crystals, lives, records and Plus will be cleared. The app will look like a fresh install.';
+
+  @override
+  String get resetDataDone => 'Data reset';
 
   @override
   String giftCrystals(int count) {

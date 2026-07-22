@@ -271,116 +271,129 @@ class _GiftButtonState extends State<_GiftButton>
           borderRadius: BorderRadius.circular(16),
           child: Ink(
             width: 108,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(16),
+            child: SizedBox(
+              height: 78,
               child: Stack(
-                fit: StackFit.passthrough,
+                clipBehavior: Clip.none,
                 children: [
-                  // Праздничный «разблокированный» фон
-                  const DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Color(0xFFFF8A5C),
-                          Color(0xFFE85D75),
-                          Color(0xFFC44BFF),
-                        ],
-                      ),
-                    ),
-                    child: SizedBox(width: 108, height: 78),
-                  ),
-                  // Лёд: тает по часовой стрелке
-                  if (!canClaim)
-                    Positioned.fill(
-                      child: CustomPaint(
-                        painter: _FrostClockUnlockPainter(progress: progress),
-                      ),
-                    ),
-                  // Рамка только когда готово (в кулдауне контур рисует painter)
-                  if (canClaim)
-                    Positioned.fill(
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: const Color(0xFFFFD28A).withValues(alpha: 0.65),
-                            width: 1.4,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFFFF8A5C).withValues(alpha: 0.35),
-                              blurRadius: 12,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  // Контент
-                  Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 6, vertical: 7),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                  // Фон + контент (клип), обруч рисуем сверху без клипа
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: Stack(
+                      fit: StackFit.expand,
                       children: [
-                        _BonusGiftMark(ready: canClaim),
-                        const SizedBox(height: 3),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            CrystalCubeIcon(
-                              size: 13,
-                              glow: canClaim,
+                        DecoratedBox(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: canClaim
+                                  ? const [
+                                      Color(0xFFFF8A5C),
+                                      Color(0xFFE85D75),
+                                      Color(0xFFC44BFF),
+                                    ]
+                                  : const [
+                                      Color(0xFF1A2834),
+                                      Color(0xFF152230),
+                                      Color(0xFF1C3040),
+                                    ],
                             ),
-                            const SizedBox(width: 3),
-                            Text(
-                              '+${widget.amount}',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w900,
-                                fontSize: 16,
-                                height: 1.05,
-                                color: canClaim
-                                    ? const Color(0xFFFFF6DE)
-                                    : const Color(0xFFE8F6FF),
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
-                        const SizedBox(height: 1),
-                        ScaleTransition(
-                          scale: canClaim
-                              ? const AlwaysStoppedAnimation(1)
-                              : _pulseAnim,
-                          child: Text(
-                            canClaim
-                                ? widget.readyLabel
-                                : widget.format(
-                                    widget.remaining ?? Duration.zero,
-                                  ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w800,
-                              color: canClaim
-                                  ? Colors.white70
-                                  : Color.lerp(
-                                      const Color(0xFFB8E7FF),
-                                      const Color(0xFFFFFFFF),
-                                      _pulse.value,
-                                    ),
-                              fontFeatures: const [
-                                FontFeature.tabularFigures(),
+                        if (canClaim)
+                          DecoratedBox(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: const Color(0xFFFFD28A)
+                                    .withValues(alpha: 0.65),
+                                width: 1.4,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(0xFFFF8A5C)
+                                      .withValues(alpha: 0.35),
+                                  blurRadius: 12,
+                                  offset: const Offset(0, 4),
+                                ),
                               ],
                             ),
+                          ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 7,
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              _BonusGiftMark(ready: canClaim),
+                              const SizedBox(height: 3),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  CrystalCubeIcon(
+                                    size: 13,
+                                    glow: canClaim,
+                                  ),
+                                  const SizedBox(width: 3),
+                                  Text(
+                                    '+${widget.amount}',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w900,
+                                      fontSize: 16,
+                                      height: 1.05,
+                                      color: canClaim
+                                          ? const Color(0xFFFFF6DE)
+                                          : const Color(0xFFE8F6FF),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 1),
+                              ScaleTransition(
+                                scale: canClaim
+                                    ? const AlwaysStoppedAnimation(1)
+                                    : _pulseAnim,
+                                child: Text(
+                                  canClaim
+                                      ? widget.readyLabel
+                                      : widget.format(
+                                          widget.remaining ?? Duration.zero,
+                                        ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w800,
+                                    color: canClaim
+                                        ? Colors.white70
+                                        : Color.lerp(
+                                            const Color(0xFFB8E7FF),
+                                            const Color(0xFFFFFFFF),
+                                            _pulse.value,
+                                          ),
+                                    fontFeatures: const [
+                                      FontFeature.tabularFigures(),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
                     ),
                   ),
+                  if (!canClaim)
+                    Positioned.fill(
+                      child: CustomPaint(
+                        painter:
+                            _FrostClockUnlockPainter(progress: progress),
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -391,24 +404,26 @@ class _GiftButtonState extends State<_GiftButton>
   }
 }
 
-/// Кулдаун по контуру кнопки: трек всегда виден, заливка по часовой.
+/// Кулдаун по контуру: широкий непрозрачный обруч, заливка одним цветом.
 class _FrostClockUnlockPainter extends CustomPainter {
   _FrostClockUnlockPainter({required this.progress});
 
   final double progress;
 
   static const _radius = 16.0;
-  static const _stroke = 6.0;
+  static const _stroke = 11.0;
 
   Path _contourPath(Size size) {
-    final inset = _stroke / 2 + 0.5;
+    // Центр линии у края: половина stroke чуть снаружи, половина внутри —
+    // кромка кнопки полностью закрыта.
+    final inset = _stroke / 2;
     final rect = Rect.fromLTWH(
       inset,
       inset,
       size.width - inset * 2,
       size.height - inset * 2,
     );
-    final rr = math.min(_radius - 1, math.min(rect.width, rect.height) / 2);
+    final rr = math.min(_radius, math.min(rect.width, rect.height) / 2);
     final left = rect.left;
     final top = rect.top;
     final right = rect.right;
@@ -430,48 +445,21 @@ class _FrostClockUnlockPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final rect = Offset.zero & size;
-
-    final frostAlpha = (0.55 * (1.0 - progress)).clamp(0.0, 0.55);
-    if (frostAlpha > 0.02) {
-      canvas.drawRect(
-        rect,
-        Paint()
-          ..shader = LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color.fromRGBO(26, 48, 64, frostAlpha),
-              Color.fromRGBO(21, 40, 56, frostAlpha + 0.06),
-              Color.fromRGBO(30, 58, 78, frostAlpha),
-            ],
-          ).createShader(rect),
-      );
-    }
-
     final path = _contourPath(size);
     final metrics = path.computeMetrics().toList();
     if (metrics.isEmpty) return;
     final metric = metrics.first;
     final total = metric.length;
+    final full = metric.extractPath(0, total);
 
-    // Полный контур-трек — всегда виден
+    // Трек — один сплошной цвет, перекрывает край кнопки
     canvas.drawPath(
-      metric.extractPath(0, total),
+      full,
       Paint()
-        ..color = const Color(0xFF1A2E3C)
+        ..color = const Color(0xFF243848)
         ..style = PaintingStyle.stroke
         ..strokeWidth = _stroke
-        ..strokeCap = StrokeCap.round
-        ..strokeJoin = StrokeJoin.round,
-    );
-    canvas.drawPath(
-      metric.extractPath(0, total),
-      Paint()
-        ..color = const Color(0xFF7EE0FF).withValues(alpha: 0.35)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = _stroke - 1.5
-        ..strokeCap = StrokeCap.round
+        ..strokeCap = StrokeCap.butt
         ..strokeJoin = StrokeJoin.round,
     );
 
@@ -481,23 +469,7 @@ class _FrostClockUnlockPainter extends CustomPainter {
       canvas.drawPath(
         progressPath,
         Paint()
-          ..color = const Color(0xFF7EE0FF).withValues(alpha: 0.45)
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = _stroke + 3
-          ..strokeCap = StrokeCap.round
-          ..strokeJoin = StrokeJoin.round,
-      );
-      canvas.drawPath(
-        progressPath,
-        Paint()
-          ..shader = const LinearGradient(
-            colors: [
-              Color(0xFF7EE0FF),
-              Color(0xFFB8F4FF),
-              Color(0xFFFFD54F),
-              Color(0xFF7EE0FF),
-            ],
-          ).createShader(rect)
+          ..color = const Color(0xFF7EE0FF)
           ..style = PaintingStyle.stroke
           ..strokeWidth = _stroke
           ..strokeCap = StrokeCap.round
@@ -665,30 +637,254 @@ class _PlusStrip extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          TextButton(
-            onPressed: economy.hasPremium
-                ? null
-                : () {
-                    economy.activatePremiumPreview();
-                    showGameToast(
-                      context,
-                      message: l10n.plusToast(Currency.brand),
-                      accent: const Color(0xFF3DDC97),
-                    );
-                  },
-            style: TextButton.styleFrom(
-              visualDensity: VisualDensity.compact,
-              padding: const EdgeInsets.symmetric(horizontal: 10),
+          if (economy.hasPremium)
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () => showPlusManageSheet(context),
+                borderRadius: BorderRadius.circular(10),
+                child: Ink(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: const Color(0xFF3DDC97).withValues(alpha: 0.14),
+                    border: Border.all(
+                      color: const Color(0xFF3DDC97).withValues(alpha: 0.45),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.check_circle_rounded,
+                        size: 16,
+                        color: Color(0xFF3DDC97),
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        l10n.plusActive,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF3DDC97),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            )
+          else
+            TextButton(
+              onPressed: () {
+                economy.activatePremiumPreview();
+                showGameToast(
+                  context,
+                  message: l10n.plusToast(Currency.brand),
+                  accent: const Color(0xFF3DDC97),
+                );
+              },
+              style: TextButton.styleFrom(
+                visualDensity: VisualDensity.compact,
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+              ),
+              child: Text(
+                l10n.plusButton(ShopCatalog.subscribePrice),
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+              ),
             ),
-            child: Text(
-              economy.hasPremium
-                  ? l10n.plusActive
-                  : l10n.plusButton(ShopCatalog.subscribePrice),
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
-            ),
-          ),
         ],
       ),
+    );
+  }
+}
+
+Future<void> showPlusManageSheet(BuildContext context) {
+  return showModalBottomSheet<void>(
+    context: context,
+    backgroundColor: Colors.transparent,
+    isScrollControlled: true,
+    builder: (_) => const _PlusManageSheet(),
+  );
+}
+
+class _PlusManageSheet extends StatelessWidget {
+  const _PlusManageSheet();
+
+  String _fmtDate(DateTime d) {
+    final dd = d.day.toString().padLeft(2, '0');
+    final mm = d.month.toString().padLeft(2, '0');
+    return '$dd.$mm.${d.year}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final economy = context.watch<EconomyStore>();
+    final next = economy.premiumNextChargeAt ??
+        DateTime.now().add(const Duration(days: 30));
+
+    return GameSheetChrome(
+      heightFactor: 0.52,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(18, 8, 18, 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.workspace_premium_rounded,
+                  color: theme.colorScheme.primary,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    l10n.plusManageTitle,
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+                const Icon(
+                  Icons.check_circle_rounded,
+                  color: Color(0xFF3DDC97),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              l10n.plusTitle(Currency.brand),
+              style: const TextStyle(
+                fontWeight: FontWeight.w800,
+                fontSize: 15,
+                color: Color(0xFF3DDC97),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              l10n.plusManageSubtitle,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: Colors.white70,
+                height: 1.35,
+              ),
+            ),
+            const SizedBox(height: 14),
+            GamePanel(
+              accent: const Color(0xFF3DDC97),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _PlusBenefitRow(
+                    icon: Icons.videocam_off_outlined,
+                    text: l10n.plusManageBenefitAds,
+                  ),
+                  const SizedBox(height: 10),
+                  _PlusBenefitRow(
+                    icon: Icons.auto_awesome_rounded,
+                    text: l10n.plusManageBenefitDaily,
+                    trailing: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CrystalCubeIcon(size: 14, glow: false),
+                        SizedBox(width: 3),
+                        Text(
+                          '×2',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w900,
+                            color: Color(0xFF7EE0FF),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            GamePanel(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.plusManagePrice(ShopCatalog.subscribePrice),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    l10n.plusManageNextCharge(_fmtDate(next)),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                      color: Colors.white70,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Spacer(),
+            OutlinedButton(
+              onPressed: () {
+                economy.cancelPremium();
+                Navigator.pop(context);
+                showGameToast(
+                  context,
+                  message: l10n.plusCancelledToast,
+                  accent: Colors.white54,
+                );
+              },
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.white54,
+                side: BorderSide(color: Colors.white.withValues(alpha: 0.25)),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+              child: Text(l10n.plusCancel),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PlusBenefitRow extends StatelessWidget {
+  const _PlusBenefitRow({
+    required this.icon,
+    required this.text,
+    this.trailing,
+  });
+
+  final IconData icon;
+  final String text;
+  final Widget? trailing;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 18, color: const Color(0xFF3DDC97)),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 13,
+              height: 1.3,
+            ),
+          ),
+        ),
+        if (trailing != null) ...[
+          const SizedBox(width: 8),
+          trailing!,
+        ],
+      ],
     );
   }
 }
@@ -993,80 +1189,96 @@ class _CrystalRewardBadge extends StatelessWidget {
     final showActiveDouble =
         showPlusHint && hasPremium && amount != baseAmount;
     final showLockedHint = showPlusHint && !hasPremium;
-    final border = showActiveDouble
-        ? const Color(0xFFFFD54F).withValues(alpha: 0.55)
-        : const Color(0xFF7EE0FF).withValues(alpha: emphasized ? 0.55 : 0.3);
-    final glow = showActiveDouble
-        ? const Color(0xFFFFD54F).withValues(alpha: 0.22)
-        : const Color(0xFF7EE0FF).withValues(alpha: 0.2);
+    const cyan = Color(0xFF7EE0FF);
+    final border = cyan.withValues(alpha: emphasized ? 0.55 : 0.3);
+    final glow = cyan.withValues(alpha: showActiveDouble ? 0.32 : 0.2);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         gradient: LinearGradient(
-          colors: showActiveDouble
-              ? [
-                  const Color(0xFFFFD54F).withValues(alpha: 0.2),
-                  const Color(0xFF7EE0FF).withValues(alpha: 0.12),
-                ]
-              : [
-                  const Color(0xFF7EE0FF).withValues(alpha: 0.2),
-                  const Color(0xFF3DDC97).withValues(alpha: 0.14),
-                ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            cyan.withValues(alpha: showActiveDouble ? 0.28 : 0.2),
+            const Color(0xFF3DDC97).withValues(alpha: 0.14),
+            if (showActiveDouble) Colors.white.withValues(alpha: 0.08),
+          ],
         ),
         border: Border.all(color: border),
         boxShadow: [
-          BoxShadow(color: glow, blurRadius: 10),
+          BoxShadow(color: glow, blurRadius: showActiveDouble ? 14 : 10),
         ],
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
+      child: Stack(
+        clipBehavior: Clip.none,
         children: [
-          CrystalCubeIcon(size: 14, glow: emphasized),
-          const SizedBox(width: 4),
-          Text(
-            '+$amount',
-            style: TextStyle(
-              fontWeight: FontWeight.w900,
-              fontSize: 15,
-              color: showActiveDouble
-                  ? const Color(0xFFFFECB3)
-                  : const Color(0xFFB8F4FF),
-              letterSpacing: 0.2,
-              shadows: [
-                Shadow(
-                  color: showActiveDouble
-                      ? const Color(0x88FFD54F)
-                      : const Color(0x887EE0FF),
-                  blurRadius: 8,
+          if (showActiveDouble)
+            Positioned.fill(
+              child: IgnorePointer(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    gradient: LinearGradient(
+                      begin: const Alignment(-1.2, -0.8),
+                      end: const Alignment(0.6, 0.9),
+                      colors: [
+                        Colors.white.withValues(alpha: 0.0),
+                        Colors.white.withValues(alpha: 0.22),
+                        Colors.white.withValues(alpha: 0.0),
+                      ],
+                      stops: const [0.25, 0.48, 0.72],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CrystalCubeIcon(size: 14, glow: emphasized || showActiveDouble),
+              const SizedBox(width: 4),
+              Text(
+                '+$amount',
+                style: TextStyle(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 15,
+                  color: const Color(0xFFB8F4FF),
+                  letterSpacing: 0.2,
+                  shadows: [
+                    Shadow(
+                      color: cyan.withValues(alpha: showActiveDouble ? 0.75 : 0.55),
+                      blurRadius: showActiveDouble ? 10 : 8,
+                    ),
+                  ],
+                ),
+              ),
+              if (showActiveDouble) ...[
+                const SizedBox(width: 6),
+                Text(
+                  l10n.premiumTimesBase(baseAmount, label),
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                    color: cyan.withValues(alpha: 0.95),
+                    height: 1,
+                  ),
+                ),
+              ] else if (showLockedHint) ...[
+                const SizedBox(width: 6),
+                Text(
+                  l10n.premiumTimesLocked(label),
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    color: cyan.withValues(alpha: 0.55),
+                    height: 1,
+                  ),
                 ),
               ],
-            ),
+            ],
           ),
-          if (showActiveDouble) ...[
-            const SizedBox(width: 6),
-            Text(
-              l10n.premiumTimesBase(baseAmount, label),
-              style: const TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w800,
-                color: Color(0xFFFFD54F),
-                height: 1,
-              ),
-            ),
-          ] else if (showLockedHint) ...[
-            const SizedBox(width: 6),
-            Text(
-              l10n.premiumTimesLocked(label),
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
-                color: const Color(0xFFFFD54F).withValues(alpha: 0.6),
-                height: 1,
-              ),
-            ),
-          ],
         ],
       ),
     );

@@ -137,6 +137,15 @@ class ScoresStore extends ChangeNotifier {
     await _prefs.setString(_kAttempts, encoded);
   }
 
+  /// Сброс локальных очков и попыток (тех. сброс «как после установки»).
+  Future<void> clearLocalData() async {
+    _scores.clear();
+    _attempts.clear();
+    await _prefs.remove(_kScores);
+    await _prefs.remove(_kAttempts);
+    notifyListeners();
+  }
+
   /// Каждая партия (даже без Share) попадает в «Мои попытки».
   Future<void> recordAttempt(int timeMs) async {
     final safeTime = timeMs.clamp(0, _maxTimeMs);

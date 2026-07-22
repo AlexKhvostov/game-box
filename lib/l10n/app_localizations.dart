@@ -278,6 +278,12 @@ abstract class AppLocalizations {
   /// **'Plus active'**
   String get plusActive;
 
+  /// No description provided for @plusCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel subscription'**
+  String get plusCancel;
+
   /// No description provided for @plusButton.
   ///
   /// In en, this message translates to:
@@ -289,6 +295,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{brand} Plus · Daily ×2'**
   String plusToast(String brand);
+
+  /// No description provided for @plusCancelledToast.
+  ///
+  /// In en, this message translates to:
+  /// **'Plus turned off'**
+  String get plusCancelledToast;
+
+  /// No description provided for @plusManageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage Plus'**
+  String get plusManageTitle;
+
+  /// No description provided for @plusManageSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription perks for the game. This is a local preview — real billing will go through Google Play / App Store later.'**
+  String get plusManageSubtitle;
+
+  /// No description provided for @plusManageBenefitAds.
+  ///
+  /// In en, this message translates to:
+  /// **'No ads'**
+  String get plusManageBenefitAds;
+
+  /// No description provided for @plusManageBenefitDaily.
+  ///
+  /// In en, this message translates to:
+  /// **'×2 crystals on the Daily bonus'**
+  String get plusManageBenefitDaily;
+
+  /// No description provided for @plusManagePrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Price: {price}'**
+  String plusManagePrice(String price);
+
+  /// No description provided for @plusManageNextCharge.
+  ///
+  /// In en, this message translates to:
+  /// **'Next charge: {date}'**
+  String plusManageNextCharge(String date);
+
+  /// No description provided for @resetDataTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset all data?'**
+  String get resetDataTitle;
+
+  /// No description provided for @resetDataBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress, crystals, lives, records and Plus will be cleared. The app will look like a fresh install.'**
+  String get resetDataBody;
+
+  /// No description provided for @resetDataDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Data reset'**
+  String get resetDataDone;
 
   /// No description provided for @giftCrystals.
   ///

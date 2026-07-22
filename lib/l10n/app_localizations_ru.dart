@@ -112,6 +112,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get plusActive => 'Plus активна';
 
   @override
+  String get plusCancel => 'Отменить подписку';
+
+  @override
   String plusButton(String price) {
     return 'Plus · $price';
   }
@@ -120,6 +123,43 @@ class AppLocalizationsRu extends AppLocalizations {
   String plusToast(String brand) {
     return '$brand Plus · Daily ×2';
   }
+
+  @override
+  String get plusCancelledToast => 'Plus отключена';
+
+  @override
+  String get plusManageTitle => 'Управление Plus';
+
+  @override
+  String get plusManageSubtitle =>
+      'Подписка даёт бонусы в игре. Пока это локальный preview — после подключения магазина списание пойдёт через Google Play / App Store.';
+
+  @override
+  String get plusManageBenefitAds => 'Без рекламы';
+
+  @override
+  String get plusManageBenefitDaily =>
+      '×2 кристаллы в ежедневном бонусе (Daily)';
+
+  @override
+  String plusManagePrice(String price) {
+    return 'Стоимость: $price';
+  }
+
+  @override
+  String plusManageNextCharge(String date) {
+    return 'Следующее списание: $date';
+  }
+
+  @override
+  String get resetDataTitle => 'Сбросить данные?';
+
+  @override
+  String get resetDataBody =>
+      'Прогресс, кристалы, жизни, рекорды и подписка будут очищены. Приложение станет как после первой установки.';
+
+  @override
+  String get resetDataDone => 'Данные сброшены';
 
   @override
   String giftCrystals(int count) {
