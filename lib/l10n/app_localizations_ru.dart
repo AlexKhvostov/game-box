@@ -135,6 +135,24 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get dailyStreakHint => 'Забирайте награду каждый день подряд';
+
+  @override
+  String dailyStreakActive(int days) {
+    return 'Серия $days дн. · пропуск сбрасывает на день 1';
+  }
+
+  @override
+  String premiumTimesBase(int base, String mult) {
+    return '$base × $mult';
+  }
+
+  @override
+  String premiumTimesLocked(String mult) {
+    return '×$mult Plus';
+  }
+
+  @override
   String get claimed => 'Получено';
 
   @override
@@ -243,7 +261,10 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get plusBenefits => 'Без рекламы · ×2 ко всем кристалам';
+  String get plusBenefits => 'Без рекламы';
+
+  @override
+  String get plusDailyBoost => 'в Daily';
 
   @override
   String get giftReady => 'Готово!';

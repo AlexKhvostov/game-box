@@ -70,7 +70,7 @@ class EconomyConfig {
     this.lifePacks = defaultLifePacks,
     this.dailyRewardTokens = const [2, 4, 9, 16, 32, 64, 81],
     this.timedBonusTokens = 22,
-    this.timedBonusHours = 8,
+    this.timedBonusHours = 1,
     this.premiumDailyMultiplier = 2.0,
     this.earnActions = const [
       EarnAction(
@@ -205,7 +205,7 @@ class EconomyConfig {
         json['timedBonusTokens'] ?? json['timedBonusToken'],
         22,
       ),
-      timedBonusHours: _asInt(json['timedBonusHours'], 8),
+      timedBonusHours: _asInt(json['timedBonusHours'], 1),
       premiumDailyMultiplier: _asDouble(json['premiumDailyMultiplier'], 2.0),
       earnActions: earnRaw is List && earnRaw.isNotEmpty
           ? earnRaw

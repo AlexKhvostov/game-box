@@ -103,6 +103,7 @@ class _LivesSheet extends StatelessWidget {
                         context,
                         message: l10n.livesGained(pack.lives),
                         accent: _lifeMint,
+                        flyTo: ToastFlyTarget.lives,
                         icon: const Icon(
                           Icons.favorite_rounded,
                           color: _heartRed,

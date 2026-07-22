@@ -308,6 +308,30 @@ abstract class AppLocalizations {
   /// **'Day {day} · +{amount}'**
   String dayReward(int day, int amount);
 
+  /// No description provided for @dailyStreakHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Claim every day to keep your streak'**
+  String get dailyStreakHint;
+
+  /// No description provided for @dailyStreakActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Streak {days} days · miss a day = back to day 1'**
+  String dailyStreakActive(int days);
+
+  /// No description provided for @premiumTimesBase.
+  ///
+  /// In en, this message translates to:
+  /// **'{base} × {mult}'**
+  String premiumTimesBase(int base, String mult);
+
+  /// No description provided for @premiumTimesLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'×{mult} Plus'**
+  String premiumTimesLocked(String mult);
+
   /// No description provided for @claimed.
   ///
   /// In en, this message translates to:
@@ -515,8 +539,14 @@ abstract class AppLocalizations {
   /// No description provided for @plusBenefits.
   ///
   /// In en, this message translates to:
-  /// **'No ads · ×2 crystals everywhere'**
+  /// **'No ads'**
   String get plusBenefits;
+
+  /// No description provided for @plusDailyBoost.
+  ///
+  /// In en, this message translates to:
+  /// **'on Daily'**
+  String get plusDailyBoost;
 
   /// No description provided for @giftReady.
   ///

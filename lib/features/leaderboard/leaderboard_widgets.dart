@@ -176,7 +176,7 @@ class PeriodRanksCard extends StatelessWidget {
   }
 }
 
-/// Компактная полоска мест: 5 чипов в ряд (2 линии на узких экранах).
+/// Компактные карточки мест: сверху период, снизу номер — в один ряд.
 class PeriodRanksCompact extends StatelessWidget {
   const PeriodRanksCompact({
     super.key,
@@ -198,7 +198,7 @@ class PeriodRanksCompact extends StatelessWidget {
     ];
 
     return GamePanel(
-      padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+      padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
       accent: theme.colorScheme.primary,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -211,53 +211,82 @@ class PeriodRanksCompact extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 6),
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: items.map((item) {
-              final (label, info) = item;
-              final top = info.place <= 3;
-              return Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  color: top
-                      ? theme.colorScheme.primary.withValues(alpha: 0.18)
-                      : Colors.white.withValues(alpha: 0.05),
-                  border: Border.all(
-                    color: top
-                        ? theme.colorScheme.primary.withValues(alpha: 0.4)
-                        : Colors.white12,
+          Row(
+            children: [
+              for (var i = 0; i < items.length; i++) ...[
+                if (i > 0) const SizedBox(width: 4),
+                Expanded(
+                  child: _PeriodPlaceCard(
+                    label: items[i].$1,
+                    place: items[i].$2.place,
+                    highlight: items[i].$2.place <= 3,
                   ),
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      label,
-                      style: const TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white70,
-                      ),
-                    ),
-                    const SizedBox(width: 5),
-                    Text(
-                      '#${info.place}',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 12,
-                        color: top
-                            ? theme.colorScheme.primary
-                            : const Color(0xFFE8EEF4),
-                        fontFeatures: const [FontFeature.tabularFigures()],
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }).toList(),
+              ],
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PeriodPlaceCard extends StatelessWidget {
+  const _PeriodPlaceCard({
+    required this.label,
+    required this.place,
+    required this.highlight,
+  });
+
+  final String label;
+  final int place;
+  final bool highlight;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final accent = highlight
+        ? theme.colorScheme.primary
+        : const Color(0xFFE8EEF4);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 6),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: highlight
+            ? theme.colorScheme.primary.withValues(alpha: 0.16)
+            : Colors.white.withValues(alpha: 0.05),
+        border: Border.all(
+          color: highlight
+              ? theme.colorScheme.primary.withValues(alpha: 0.4)
+              : Colors.white12,
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 9.5,
+              fontWeight: FontWeight.w700,
+              color: Colors.white70,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            '$place',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontWeight: FontWeight.w900,
+              fontSize: 16,
+              height: 1.1,
+              color: accent,
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
           ),
         ],
       ),

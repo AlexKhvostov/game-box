@@ -85,7 +85,7 @@
   ],
   "dailyRewardTokens": [2, 4, 9, 16, 32, 64, 81],
   "timedBonusTokens": 22,
-  "timedBonusHours": 8,
+  "timedBonusHours": 1,
   "premiumDailyMultiplier": 2,
   "earnActions": [
     {"id": "watch_ad", "title": "Смотреть рекламу", "subtitle": "Короткий ролик", "reward": 5},
@@ -100,7 +100,8 @@
 - `lifePacks` — варианты обмена кристалов на жизни (окно по тапу на сердечко)  
 - `lifePackSize` / `lifePackCostTokens` — legacy (если `lifePacks` нет)  
 - `dailyRewardTokens` — только Daily-серия  
-- `timedBonusTokens` — подарок (таймер 8ч), **не** Daily  
+- `timedBonusTokens` — подарок (таймер `timedBonusHours`), **не** Daily  
+- `timedBonusHours` — интервал подарка; при смене RC таймер пересчитывается от времени последнего забора (остаток не длиннее нового интервала)  
 - `earnActions` — заработок кристалов (пока stubs в клиенте)
 
 - `forceLocale` — отдельный параметр Remote Config: `en` | `ru` | пусто  

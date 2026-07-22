@@ -28,7 +28,8 @@ class LeaderboardPanel extends StatefulWidget {
 
 class LeaderboardPanelState extends State<LeaderboardPanel> {
   /// 0 All · 1 Year · 2 Month · 3 Week · 4 Day · 5 Mine
-  int filter = 0;
+  /// По умолчанию — дневной рейтинг.
+  int filter = 4;
 
   bool get isMine => filter == 5;
 
@@ -57,7 +58,7 @@ class LeaderboardPanelState extends State<LeaderboardPanel> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
+          padding: const EdgeInsets.fromLTRB(10, 4, 10, 4),
           child: Row(
             children: [
               Expanded(
@@ -68,26 +69,31 @@ class LeaderboardPanelState extends State<LeaderboardPanel> {
                       LeaderboardFilterChip(
                         label: l10n.periodAll,
                         selected: filter == 0,
+                        compact: true,
                         onTap: () => setState(() => filter = 0),
                       ),
                       LeaderboardFilterChip(
                         label: l10n.periodYear,
                         selected: filter == 1,
+                        compact: true,
                         onTap: () => setState(() => filter = 1),
                       ),
                       LeaderboardFilterChip(
                         label: l10n.periodMonth,
                         selected: filter == 2,
+                        compact: true,
                         onTap: () => setState(() => filter = 2),
                       ),
                       LeaderboardFilterChip(
                         label: l10n.periodWeek,
                         selected: filter == 3,
+                        compact: true,
                         onTap: () => setState(() => filter = 3),
                       ),
                       LeaderboardFilterChip(
                         label: l10n.periodDay,
                         selected: filter == 4,
+                        compact: true,
                         onTap: () => setState(() => filter = 4),
                       ),
                     ],
@@ -96,7 +102,7 @@ class LeaderboardPanelState extends State<LeaderboardPanel> {
               ),
               Container(
                 width: 1,
-                height: 22,
+                height: 20,
                 margin: const EdgeInsets.symmetric(horizontal: 8),
                 color: Colors.white24,
               ),
@@ -104,6 +110,7 @@ class LeaderboardPanelState extends State<LeaderboardPanel> {
                 label: l10n.periodMine,
                 selected: isMine,
                 accent: true,
+                compact: true,
                 onTap: () => setState(() => filter = 5),
               ),
             ],
@@ -175,44 +182,58 @@ class LeaderboardFilterChip extends StatelessWidget {
     required this.selected,
     required this.onTap,
     this.accent = false,
+    this.compact = false,
   });
 
   final String label;
   final bool selected;
   final VoidCallback onTap;
   final bool accent;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final active = accent ? const Color(0xFF7EE0FF) : theme.colorScheme.primary;
+    // «Мои» — лёгкий золотисто-жёлтый оттенок
+    final active = accent ? const Color(0xFFFFD54F) : theme.colorScheme.primary;
+    final idleBorder = accent
+        ? const Color(0xFFFFD54F).withValues(alpha: 0.35)
+        : Colors.white12;
+    final idleBg = accent
+        ? const Color(0xFFFFD54F).withValues(alpha: 0.08)
+        : Colors.white.withValues(alpha: 0.04);
+    final idleText = accent
+        ? const Color(0xFFFFECB3).withValues(alpha: 0.9)
+        : Colors.white70;
 
     return Padding(
-      padding: const EdgeInsets.only(right: 6),
+      padding: EdgeInsets.only(right: compact ? 4 : 6),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(compact ? 8 : 10),
           child: Ink(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: EdgeInsets.symmetric(
+              horizontal: compact ? (accent ? 10 : 8) : 12,
+              vertical: compact ? 6 : 8,
+            ),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: selected
-                  ? active.withValues(alpha: 0.2)
-                  : Colors.white.withValues(alpha: 0.04),
+              borderRadius: BorderRadius.circular(compact ? 8 : 10),
+              color: selected ? active.withValues(alpha: 0.22) : idleBg,
               border: Border.all(
-                color: selected
-                    ? active.withValues(alpha: 0.55)
-                    : Colors.white12,
+                color: selected ? active.withValues(alpha: 0.65) : idleBorder,
               ),
             ),
             child: Text(
               label,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontWeight: FontWeight.w800,
-                fontSize: 12,
-                color: selected ? active : Colors.white70,
+                fontSize: compact ? 11 : 12,
+                color: selected ? active : idleText,
               ),
             ),
           ),

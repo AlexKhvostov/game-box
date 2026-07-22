@@ -14,6 +14,7 @@ class EconomyStore extends ChangeNotifier {
   static const _kStreak = 'daily_streak';
   static const _kLastDaily = 'last_daily_claim';
   static const _kNextBonus = 'next_token_bonus';
+  static const _kLastTimedBonus = 'last_timed_bonus_claim';
   static const _kDisplayName = 'display_name';
   static const _kBestTime = 'best_time_ms';
   static const _kPremium = 'has_premium';
@@ -25,7 +26,8 @@ class EconomyStore extends ChangeNotifier {
   int tokens = 0;
   int dailyStreak = 0;
   DateTime? lastDailyClaimAt;
-  DateTime? nextTokenBonusAt;
+  /// Момент последнего забора подарка; готовность = last + timedBonusHours из RC.
+  DateTime? lastTimedBonusClaimAt;
   String? displayName;
   int bestTimeMs = 0;
   bool hasPremium = false;
@@ -59,15 +61,53 @@ class EconomyStore extends ChangeNotifier {
     if (dailyRaw != null) {
       lastDailyClaimAt = DateTime.tryParse(dailyRaw);
     }
-    final bonusRaw = _prefs.getString(_kNextBonus);
-    if (bonusRaw != null) {
-      nextTokenBonusAt = DateTime.tryParse(bonusRaw);
+
+    final lastBonusRaw = _prefs.getString(_kLastTimedBonus);
+    if (lastBonusRaw != null) {
+      lastTimedBonusClaimAt = DateTime.tryParse(lastBonusRaw);
+    } else {
+      // Миграция со старого абсолютного next + кап по текущему RC.
+      final bonusRaw = _prefs.getString(_kNextBonus);
+      final next = bonusRaw != null ? DateTime.tryParse(bonusRaw) : null;
+      if (next != null) {
+        lastTimedBonusClaimAt = _inferLastClaimFromNext(next);
+        await _prefs.remove(_kNextBonus);
+        if (lastTimedBonusClaimAt != null) {
+          await _prefs.setString(
+            _kLastTimedBonus,
+            lastTimedBonusClaimAt!.toIso8601String(),
+          );
+        }
+      }
     }
     notifyListeners();
   }
 
+  /// Из абсолютного «готово в» восстанавливаем lastClaim с учётом текущего интервала RC.
+  DateTime? _inferLastClaimFromNext(DateTime next) {
+    final now = DateTime.now();
+    final remaining = next.difference(now);
+    if (remaining.isNegative) {
+      // Уже пора — можно забирать.
+      return null;
+    }
+    final maxWait = _timedBonusInterval;
+    final capped = remaining > maxWait ? maxWait : remaining;
+    return now.add(capped).subtract(maxWait);
+  }
+
+  Duration get _timedBonusInterval =>
+      Duration(hours: config.timedBonusHours.clamp(0, 24 * 30));
+
+  DateTime? get _timedBonusReadyAt {
+    final last = lastTimedBonusClaimAt;
+    if (last == null) return null;
+    return last.add(_timedBonusInterval);
+  }
+
   void applyConfig(EconomyConfig next) {
     config = next;
+    // Интервал берётся из RC → таймер пересчитывается от lastTimedBonusClaimAt.
     notifyListeners();
   }
 
@@ -84,9 +124,16 @@ class EconomyStore extends ChangeNotifier {
     if (lastDailyClaimAt != null) {
       await _prefs.setString(_kLastDaily, lastDailyClaimAt!.toIso8601String());
     }
-    if (nextTokenBonusAt != null) {
-      await _prefs.setString(_kNextBonus, nextTokenBonusAt!.toIso8601String());
+    if (lastTimedBonusClaimAt != null) {
+      await _prefs.setString(
+        _kLastTimedBonus,
+        lastTimedBonusClaimAt!.toIso8601String(),
+      );
+    } else {
+      await _prefs.remove(_kLastTimedBonus);
     }
+    // Старый ключ больше не пишем.
+    await _prefs.remove(_kNextBonus);
     notifyListeners();
   }
 
@@ -132,11 +179,6 @@ class EconomyStore extends ChangeNotifier {
     return 1;
   }
 
-  int _withPremium(int base) {
-    if (!hasPremium || base <= 0) return base;
-    return (base * config.premiumDailyMultiplier).round().clamp(base, 99999);
-  }
-
   /// Возвращает начисленные кристалы или null, если нельзя.
   int? claimDaily() {
     if (!canClaimDaily) return null;
@@ -168,25 +210,35 @@ class EconomyStore extends ChangeNotifier {
   }
 
   bool get canClaimTimedBonus {
-    final next = nextTokenBonusAt;
-    if (next == null) return true;
-    return !DateTime.now().isBefore(next);
+    final ready = _timedBonusReadyAt;
+    if (ready == null) return true;
+    return !DateTime.now().isBefore(ready);
   }
 
   Duration? get timedBonusRemaining {
-    final next = nextTokenBonusAt;
-    if (next == null) return null;
-    final left = next.difference(DateTime.now());
+    final ready = _timedBonusReadyAt;
+    if (ready == null) return null;
+    final left = ready.difference(DateTime.now());
     if (left.isNegative) return null;
     return left;
   }
 
+  /// 0 = только что забрали (полностью «лёд»), 1 = готово.
+  double get timedBonusUnlockProgress {
+    if (canClaimTimedBonus) return 1;
+    final last = lastTimedBonusClaimAt;
+    if (last == null) return 1;
+    final totalMs = _timedBonusInterval.inMilliseconds;
+    if (totalMs <= 0) return 1;
+    final elapsed = DateTime.now().difference(last).inMilliseconds;
+    return (elapsed / totalMs).clamp(0.0, 1.0);
+  }
+
   int? claimTimedBonus() {
     if (!canClaimTimedBonus) return null;
-    final amount = _withPremium(config.timedBonusTokens);
+    final amount = config.timedBonusTokens;
     tokens += amount;
-    nextTokenBonusAt =
-        DateTime.now().add(Duration(hours: config.timedBonusHours));
+    lastTimedBonusClaimAt = DateTime.now();
     _persist();
     return amount;
   }
@@ -208,12 +260,10 @@ class EconomyStore extends ChangeNotifier {
   }
 
   /// Локальный preview покупки пака (до Google Play Billing).
-  /// Plus удваивает начисление.
   int grantCrystals(int amount) {
-    final granted = _withPremium(amount);
-    tokens += granted;
+    tokens += amount;
     _persist();
-    return granted;
+    return amount;
   }
 
   /// Локальный preview подписки.
@@ -234,10 +284,9 @@ class EconomyStore extends ChangeNotifier {
     }
     if (action == null) return null;
     claimedEarnIds.add(id);
-    final granted = _withPremium(action.reward);
-    tokens += granted;
+    tokens += action.reward;
     _persist();
-    return granted;
+    return action.reward;
   }
 
   /// Реклама из магазина (FREE) — многоразовая, без «claimed».
@@ -250,12 +299,11 @@ class EconomyStore extends ChangeNotifier {
         break;
       }
     }
-    final granted = _withPremium(reward);
-    tokens += granted;
+    tokens += reward;
     // Не пишем в claimedEarnIds — рекламу можно смотреть снова.
     claimedEarnIds.remove(id);
     _persist();
-    return granted;
+    return reward;
   }
 
   bool isEarnClaimed(String id) => claimedEarnIds.contains(id);

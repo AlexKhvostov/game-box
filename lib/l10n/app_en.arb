@@ -88,6 +88,26 @@
       "amount": {"type": "int"}
     }
   },
+  "dailyStreakHint": "Claim every day to keep your streak",
+  "dailyStreakActive": "Streak {days} days · miss a day = back to day 1",
+  "@dailyStreakActive": {
+    "placeholders": {
+      "days": {"type": "int"}
+    }
+  },
+  "premiumTimesBase": "{base} × {mult}",
+  "@premiumTimesBase": {
+    "placeholders": {
+      "base": {"type": "int"},
+      "mult": {"type": "String"}
+    }
+  },
+  "premiumTimesLocked": "×{mult} Plus",
+  "@premiumTimesLocked": {
+    "placeholders": {
+      "mult": {"type": "String"}
+    }
+  },
   "claimed": "Claimed",
   "claim": "Claim",
   "dailyToast": "Daily +{count}",
@@ -137,7 +157,8 @@
       "brand": {"type": "String"}
     }
   },
-  "plusBenefits": "No ads · ×2 crystals everywhere",
+  "plusBenefits": "No ads",
+  "plusDailyBoost": "on Daily",
   "giftReady": "Ready!",
   "tapHintPlayful": "Tap anywhere to dodge",
   "livesBalance": "{count} lives",

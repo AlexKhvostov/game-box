@@ -135,6 +135,24 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get dailyStreakHint => 'Claim every day to keep your streak';
+
+  @override
+  String dailyStreakActive(int days) {
+    return 'Streak $days days · miss a day = back to day 1';
+  }
+
+  @override
+  String premiumTimesBase(int base, String mult) {
+    return '$base × $mult';
+  }
+
+  @override
+  String premiumTimesLocked(String mult) {
+    return '×$mult Plus';
+  }
+
+  @override
   String get claimed => 'Claimed';
 
   @override
@@ -243,7 +261,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get plusBenefits => 'No ads · ×2 crystals everywhere';
+  String get plusBenefits => 'No ads';
+
+  @override
+  String get plusDailyBoost => 'on Daily';
 
   @override
   String get giftReady => 'Ready!';

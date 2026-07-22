@@ -9,6 +9,7 @@ import '../../data/scores_store.dart';
 import '../../domain/gameplay_config.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/crystal_cube_icon.dart';
+import '../../ui/hud_fly_targets.dart';
 import '../balance/crystals_sheet.dart';
 import '../leaderboard/leaderboard_sheet.dart';
 import '../result/result_screen.dart';
@@ -508,23 +509,29 @@ class _Hud extends StatelessWidget {
         children: [
           GestureDetector(
             onTap: onLivesTap,
-            child: _HudChip(
-              icon: Icon(
-                Icons.favorite,
-                size: 16,
-                color: theme.colorScheme.error,
+            child: KeyedSubtree(
+              key: HudFlyTargets.livesKey,
+              child: _HudChip(
+                icon: Icon(
+                  Icons.favorite,
+                  size: 16,
+                  color: theme.colorScheme.error,
+                ),
+                label: '${economy.lives}',
+                highlight: true,
               ),
-              label: '${economy.lives}',
-              highlight: true,
             ),
           ),
           const SizedBox(width: 8),
           GestureDetector(
             onTap: onCrystalsTap,
-            child: _HudChip(
-              icon: const CrystalCubeIcon(size: 16, glow: false),
-              label: '${economy.tokens}',
-              highlight: true,
+            child: KeyedSubtree(
+              key: HudFlyTargets.crystalsKey,
+              child: _HudChip(
+                icon: const CrystalCubeIcon(size: 16, glow: false),
+                label: '${economy.tokens}',
+                highlight: true,
+              ),
             ),
           ),
           const Spacer(),

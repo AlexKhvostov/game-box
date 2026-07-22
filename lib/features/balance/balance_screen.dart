@@ -79,6 +79,8 @@ class _BalanceScreenState extends State<BalanceScreen>
                       showGameToast(
                         context,
                         message: 'Gift! +$n',
+                        flyTo: ToastFlyTarget.crystals,
+                        festive: true,
                       );
                     }
                   },
@@ -421,6 +423,7 @@ class _DailyTab extends StatelessWidget {
         context,
         message: 'Day ${economy.dailyStreak}: +$n',
         accent: const Color(0xFF3DDC97),
+        flyTo: ToastFlyTarget.crystals,
       );
     }
   }
@@ -794,6 +797,7 @@ class _ShopTab extends StatelessWidget {
                   showGameToast(
                     context,
                     message: '+${offer.crystals}',
+                    flyTo: ToastFlyTarget.crystals,
                   );
                 },
                 child: Padding(
