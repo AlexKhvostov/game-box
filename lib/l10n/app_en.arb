@@ -1,6 +1,6 @@
 {
   "@@locale": "en",
-  "appTitle": "Game Box",
+  "appTitle": "Untouch",
   "tapToStart": "Tap to start",
   "noLivesOpenCrystals": "Out of lives — open crystals",
   "noLivesTitle": "Out of lives",
@@ -28,7 +28,29 @@
       "percent": {"type": "int"}
     }
   },
-  "share": "Share",
+  "rankToday": "Better than {percent}% of players!",
+  "@rankToday": {
+    "placeholders": {
+      "percent": {"type": "int"}
+    }
+  },
+  "share": "Save",
+  "shareSocial": "Share",
+  "shareBoast": "I lasted {time}s in {app}!",
+  "@shareBoast": {
+    "placeholders": {
+      "time": {"type": "String"},
+      "app": {"type": "String"}
+    }
+  },
+  "shareSend": "Send",
+  "shareScoreCaption": "{app} — {time}s",
+  "@shareScoreCaption": {
+    "placeholders": {
+      "app": {"type": "String"},
+      "time": {"type": "String"}
+    }
+  },
   "ok": "OK",
   "saveScoreTitle": "Save score",
   "saveScoreSubtitle": "{time} s · top 20",
@@ -58,21 +80,58 @@
     }
   },
   "daily": "Daily",
+  "plusActiveShort": "On",
+  "plusNoAdsShort": "No ads",
+  "plusCrystalsDoubleShort": "×2",
+  "playInfoEnemies": "Enemies",
+  "playInfoSpeed": "Speed",
+  "playInfoRun": "Run",
+  "playInfoNear": "Risk",
+  "riskCrystalHint": "{every} risks = {reward} crystal",
+  "@riskCrystalHint": {
+    "placeholders": {
+      "every": {"type": "int"},
+      "reward": {"type": "int"}
+    }
+  },
+  "runCrystalHint": "{every} run = {reward} crystal",
+  "@runCrystalHint": {
+    "placeholders": {
+      "every": {"type": "int"},
+      "reward": {"type": "int"}
+    }
+  },
+  "riskCrystalsEarned": "+{count}",
+  "@riskCrystalsEarned": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "playInfoScore": "Score",
+  "attemptTapToSave": "Tap to save",
   "earn": "Earn",
   "earnPreviewHint": "Preview until ads & SDKs are connected",
   "shop": "Shop",
-  "plusActive": "Plus active",
+  "plusActive": "Boost active",
   "plusCancel": "Cancel subscription",
-  "plusButton": "Plus · {price}",
+  "plusButton": "Boost · {price}",
   "@plusButton": {
     "placeholders": {
       "price": {"type": "String"}
     }
   },
-  "plusToast": "Plus · Daily ×2",
-  "plusCancelledToast": "Plus turned off",
-  "plusManageTitle": "Manage Plus",
-  "plusManageSubtitle": "Subscription perks for the game. This is a local preview — real billing will go through Google Play / App Store later.",
+  "plusToast": "Boost · Daily ×2",
+  "plusCancelledToast": "Boost turned off",
+  "plusManageTitle": "Manage Boost",
+  "plusOfferTitle": "Boost subscription",
+  "plusOfferSubtitle": "Boost is a weekly subscription for $1. You get no ads and ×2 crystals on the Daily bonus. Cancel anytime in this window (billing via Google Play / App Store later).",
+  "plusSubscribe": "Subscribe · {price}",
+  "@plusSubscribe": {
+    "placeholders": {
+      "price": {"type": "String"}
+    }
+  },
+  "plusManageSubtitle": "Boost gives perks in the game. This is a local preview — real billing will go through Google Play / App Store later.",
   "plusManageBenefitAds": "No ads",
   "plusManageBenefitDaily": "×2 crystals on the Daily bonus",
   "plusManagePrice": "Price: {price}",
@@ -88,7 +147,7 @@
     }
   },
   "resetDataTitle": "Reset all data?",
-  "resetDataBody": "Progress, crystals, lives, records and Plus will be cleared. The app will look like a fresh install.",
+  "resetDataBody": "Progress, crystals, lives, records and Boost will be cleared. The app will look like a fresh install.",
   "resetDataDone": "Data reset",
   "giftCrystals": "+{count} crystals",
   "@giftCrystals": {
@@ -118,7 +177,7 @@
       "mult": {"type": "String"}
     }
   },
-  "premiumTimesLocked": "×{mult} with Plus",
+  "premiumTimesLocked": "×{mult} with Boost",
   "@premiumTimesLocked": {
     "placeholders": {
       "mult": {"type": "String"}
@@ -148,6 +207,38 @@
   "earnRateAppSub": "Stars in the store",
   "earnInviteFriend": "Invite a friend",
   "earnInviteFriendSub": "Share a link",
+  "earnInstallBonus": "Install bonus",
+  "earnInstallBonusSub": "Welcome gift for installing",
+  "earnSurvive10": "Survive 10 seconds",
+  "earnSurvive10Sub": "Stay alive for 10s in one run",
+  "earnRecord20": "20 second record",
+  "earnRecord20Sub": "Reach a 20s personal best",
+  "earnRisks5": "5 risks in one run",
+  "earnRisks5Sub": "Score 5 risks in a single game",
+  "earnBonusLocked": "Play to unlock",
+  "earnBonusUnlocked": "Unlocked: {title}",
+  "@earnBonusUnlocked": {
+    "placeholders": {
+      "title": {"type": "String"}
+    }
+  },
+  "earnUnlockedBannerTap": "Tap to claim in Earn",
+  "riskTipHow": "Risk counts when you barely miss an enemy — close, but no touch.",
+  "riskTipConvert": "At the end of the run: every {every} risks = {reward} crystal(s).",
+  "@riskTipConvert": {
+    "placeholders": {
+      "every": {"type": "int"},
+      "reward": {"type": "int"}
+    }
+  },
+  "runTipHow": "Run is the distance your cube travels during the round.",
+  "runTipConvert": "At the end of the run: every {every} run = {reward} crystal(s).",
+  "@runTipConvert": {
+    "placeholders": {
+      "every": {"type": "int"},
+      "reward": {"type": "int"}
+    }
+  },
   "earnReward": "Reward",
   "packHandful": "Handful",
   "packStack": "Stack",
@@ -164,14 +255,28 @@
   "colPlayer": "Player",
   "colCountry": "CC",
   "colTime": "Time",
+  "colBoosts": "Boosts",
   "tabDaily": "Daily",
   "tabShop": "Shop",
+  "tabRent": "Rent",
   "tabEarn": "Earn",
-  "plusTitle": "Plus",
+  "plusTitle": "Boost",
   "plusBenefits": "No ads",
   "plusDailyBoost": "on Daily",
   "giftReady": "Ready!",
-  "tapHintPlayful": "Tap anywhere to dodge",
+  "tapHintChallenge": "Can you last {seconds} sec?",
+  "@tapHintChallenge": {
+    "placeholders": {
+      "seconds": {"type": "int"}
+    }
+  },
+  "tapHintNextChallenge": "Think you can do {seconds} sec?",
+  "@tapHintNextChallenge": {
+    "placeholders": {
+      "seconds": {"type": "int"}
+    }
+  },
+  "tapHintPlayful": "Tap and dodge",
   "livesBalance": "{count} lives",
   "@livesBalance": {
     "placeholders": {
@@ -186,6 +291,7 @@
   "periodAll": "All",
   "livesConvertTitle": "Get lives",
   "livesConvertSubtitle": "Exchange crystals for lives",
+  "statLives": "Lives",
   "livesPackLabel": "+{count} lives",
   "@livesPackLabel": {
     "placeholders": {
@@ -195,6 +301,41 @@
   "shopFree": "FREE",
   "shopWatchAd": "Watch & get",
   "shopWatchAdSub": "Short video · free crystals",
+  "shopRentalsTitle": "Rent",
+  "rentJumpTitle": "Jump",
+  "rentJumpSub": "Second finger — jump over an enemy",
+  "rentHelmetTitle": "Helmet",
+  "rentHelmetSub": "Survive one hit per run",
+  "rentHourSub": "{minutes} min pack",
+  "@rentHourSub": {
+    "placeholders": {
+      "minutes": {"type": "int"}
+    }
+  },
+  "rentMinsLabel": "{minutes} min",
+  "@rentMinsLabel": {
+    "placeholders": {
+      "minutes": {"type": "int"}
+    }
+  },
+  "rentDiscountBadge": "−{percent}%",
+  "@rentDiscountBadge": {
+    "placeholders": {
+      "percent": {"type": "int"}
+    }
+  },
+  "rentActive": "Active · {time}",
+  "@rentActive": {
+    "placeholders": {
+      "time": {"type": "String"}
+    }
+  },
+  "rentExtend": "Extend",
+  "rentBuy": "Rent",
+  "rentNotEnough": "Not enough crystals",
+  "rentInactive": "Off",
+  "jumpRentalNeeded": "Rent Jump in Shop",
+  "helmetBroken": "Helmet shattered",
   "yourPlacesTitle": "Your places",
   "shareRankHint": "Where this score ranks if you save it",
   "rankSliceToday": "Today",
@@ -203,7 +344,7 @@
   "rankSliceYear": "This year",
   "rankSliceAll": "All time",
   "youGhost": "You",
-  "periodMine": "Mine",
+  "periodMine": "My attempts",
   "colAttempt": "Attempt",
   "myAttemptsEmpty": "No runs yet — play a round",
   "attemptShared": "Shared",

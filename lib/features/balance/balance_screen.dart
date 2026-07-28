@@ -91,7 +91,7 @@ class _BalanceScreenState extends State<BalanceScreen>
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
               child: Text(
-                'Plus активна · Daily ×2',
+                'Boost активен · Daily ×2',
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.primary,
                 ),
@@ -852,7 +852,7 @@ class _ShopTab extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                'Plus',
+                'Boost',
                 style: theme.textTheme.titleLarge,
               ),
               const SizedBox(height: 6),
@@ -868,7 +868,7 @@ class _ShopTab extends StatelessWidget {
                         economy.activatePremiumPreview();
                         showGameToast(
                           context,
-                          message: 'Plus · Daily ×2',
+                          message: 'Boost · Daily ×2',
                           accent: const Color(0xFF3DDC97),
                           icon: const Icon(
                             Icons.workspace_premium,
@@ -878,8 +878,8 @@ class _ShopTab extends StatelessWidget {
                       },
                 child: Text(
                   economy.hasPremium
-                      ? 'Plus'
-                      : 'Plus · ${ShopCatalog.subscribePrice}',
+                      ? 'Boost'
+                      : 'Boost · ${ShopCatalog.subscribePrice}',
                 ),
               ),
             ],

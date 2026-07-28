@@ -10,6 +10,10 @@ abstract final class L10nCatalog {
       'enable_notifications' => l10n.earnNotifications,
       'rate_app' => l10n.earnRateApp,
       'invite_friend' => l10n.earnInviteFriend,
+      'install_bonus' => l10n.earnInstallBonus,
+      'survive_10s' => l10n.earnSurvive10,
+      'record_20s' => l10n.earnRecord20,
+      'risks_5' => l10n.earnRisks5,
       _ => a.title.isEmpty ? l10n.earnReward : a.title,
     };
   }
@@ -21,6 +25,10 @@ abstract final class L10nCatalog {
       'enable_notifications' => l10n.earnNotificationsSub,
       'rate_app' => l10n.earnRateAppSub,
       'invite_friend' => l10n.earnInviteFriendSub,
+      'install_bonus' => l10n.earnInstallBonusSub,
+      'survive_10s' => l10n.earnSurvive10Sub,
+      'record_20s' => l10n.earnRecord20Sub,
+      'risks_5' => l10n.earnRisks5Sub,
       _ => a.subtitle,
     };
   }

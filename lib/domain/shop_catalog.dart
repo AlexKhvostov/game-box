@@ -41,5 +41,5 @@ class ShopCatalog {
     ),
   ];
 
-  static const subscribePrice = '\$4.99 / mo';
+  static const subscribePrice = '\$1.00 / week';
 }

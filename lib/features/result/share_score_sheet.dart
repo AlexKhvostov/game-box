@@ -12,19 +12,39 @@ import '../leaderboard/leaderboard_widgets.dart';
 Future<void> showShareScoreSheet(
   BuildContext context, {
   required int timeMs,
+  int riskCount = 0,
+  int runDistance = 0,
+  bool hadJump = false,
+  bool hadHelmet = false,
 }) {
   return showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
-    builder: (ctx) => _ShareScoreBody(timeMs: timeMs),
+    builder: (ctx) => _ShareScoreBody(
+      timeMs: timeMs,
+      riskCount: riskCount,
+      runDistance: runDistance,
+      hadJump: hadJump,
+      hadHelmet: hadHelmet,
+    ),
   );
 }
 
 class _ShareScoreBody extends StatefulWidget {
-  const _ShareScoreBody({required this.timeMs});
+  const _ShareScoreBody({
+    required this.timeMs,
+    this.riskCount = 0,
+    this.runDistance = 0,
+    this.hadJump = false,
+    this.hadHelmet = false,
+  });
 
   final int timeMs;
+  final int riskCount;
+  final int runDistance;
+  final bool hadJump;
+  final bool hadHelmet;
 
   @override
   State<_ShareScoreBody> createState() => _ShareScoreBodyState();
@@ -41,6 +61,7 @@ class _ShareScoreBodyState extends State<_ShareScoreBody> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       _name.text = context.read<EconomyStore>().displayName ?? '';
+      context.read<ScoresStore>().refreshIfStale();
     });
   }
 
@@ -71,6 +92,10 @@ class _ShareScoreBodyState extends State<_ShareScoreBody> {
       displayName: name,
       timeMs: widget.timeMs,
       countryCode: country,
+      riskCount: widget.riskCount,
+      runDistance: widget.runDistance,
+      hadJump: widget.hadJump,
+      hadHelmet: widget.hadHelmet,
     );
     if (!mounted) return;
     showGameToast(
@@ -122,6 +147,10 @@ class _ShareScoreBodyState extends State<_ShareScoreBody> {
               child: LeaderboardPanel(
                 ghostTimeMs: widget.timeMs,
                 ghostCountryCode: country,
+                ghostRiskCount: widget.riskCount,
+                ghostRunDistance: widget.runDistance,
+                ghostHadJump: widget.hadJump,
+                ghostHadHelmet: widget.hadHelmet,
                 listPadding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
               ),
             ),

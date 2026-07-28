@@ -1,9 +1,48 @@
 import 'package:flutter/material.dart';
 
+import '../../data/firebase_bootstrap.dart';
 import '../../domain/score_entry.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/country_flag.dart';
 import '../../ui/game_sheet.dart';
+
+/// Иконки прыжка / шлема в строке рейтинга.
+class ScoreBoostIcons extends StatelessWidget {
+  const ScoreBoostIcons({
+    super.key,
+    required this.hadJump,
+    required this.hadHelmet,
+  });
+
+  final bool hadJump;
+  final bool hadHelmet;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 34,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.keyboard_double_arrow_up_rounded,
+            size: 14,
+            color: hadJump
+                ? const Color(0xFF3DDC97)
+                : Colors.white.withValues(alpha: 0.18),
+          ),
+          Icon(
+            Icons.shield_outlined,
+            size: 13,
+            color: hadHelmet
+                ? const Color(0xFF7EE0FF)
+                : Colors.white.withValues(alpha: 0.18),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 /// Строка рейтинга — общий вид для лидерборда и Share.
 class LeaderboardRankRow extends StatelessWidget {
@@ -22,17 +61,15 @@ class LeaderboardRankRow extends StatelessWidget {
   final bool ghost;
   final String? ghostLabel;
 
-  String _dateLabel(DateTime d) {
-    final mm = d.month.toString().padLeft(2, '0');
-    final dd = d.day.toString().padLeft(2, '0');
-    return '$dd.$mm';
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     const youGold = Color(0xFFFFD54F);
     const youGoldSoft = Color(0xFFFFECB3);
+    final mine = !ghost &&
+        entry.uid != null &&
+        entry.uid == FirebaseBootstrap.uid;
+    // Свои строки: только жёлтое имя. Остальное как у всех.
     final accent = ghost
         ? youGold
         : highlight
@@ -61,7 +98,11 @@ class LeaderboardRankRow extends StatelessWidget {
             style: TextStyle(
               fontWeight: FontWeight.w800,
               fontStyle: ghost ? FontStyle.italic : FontStyle.normal,
-              color: ghost ? youGoldSoft : null,
+              color: ghost
+                  ? youGoldSoft
+                  : mine
+                      ? youGold
+                      : null,
               shadows: ghost
                   ? const [
                       Shadow(
@@ -81,8 +122,12 @@ class LeaderboardRankRow extends StatelessWidget {
             style: const TextStyle(fontSize: 16),
           ),
         ),
+        ScoreBoostIcons(
+          hadJump: entry.hadJump,
+          hadHelmet: entry.hadHelmet,
+        ),
         SizedBox(
-          width: 58,
+          width: 52,
           child: Text(
             '${entry.timeSec.toStringAsFixed(2)}s',
             textAlign: TextAlign.end,
@@ -103,14 +148,27 @@ class LeaderboardRankRow extends StatelessWidget {
           ),
         ),
         SizedBox(
-          width: 52,
+          width: 36,
           child: Text(
-            ghost ? '—' : _dateLabel(entry.createdAt),
+            '${entry.riskCount}',
             textAlign: TextAlign.end,
             style: TextStyle(
-              fontSize: 11,
-              color: ghost ? youGold.withValues(alpha: 0.85) : Colors.white54,
-              fontWeight: FontWeight.w600,
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: ghost ? youGold.withValues(alpha: 0.9) : Colors.white70,
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
+          ),
+        ),
+        SizedBox(
+          width: 44,
+          child: Text(
+            '${entry.runDistance}',
+            textAlign: TextAlign.end,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: ghost ? youGold.withValues(alpha: 0.9) : Colors.white70,
               fontFeatures: const [FontFeature.tabularFigures()],
             ),
           ),

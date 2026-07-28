@@ -1,6 +1,14 @@
-# Подключение Firebase (Game Box)
+# Подключение Firebase (Untouch)
 
-Статус: **Android подключён** (`google-services.json`, Auth, Firestore, Remote Config в коде).
+Бренд приложения: **Untouch**. Package Android: `com.boxgame.game_box`.
+
+Статус: **Android подключён** (`google-services.json`, Auth, Firestore, Remote Config, Analytics в коде).
+
+См. также операционные гайды:
+
+- [ANALYTICS_AND_ADMIN.md](ANALYTICS_AND_ADMIN.md) — сбор данных, админка, Amplitude  
+- [ADS_AND_BILLING.md](ADS_AND_BILLING.md) — реклама и платежи  
+- [GOOGLE_PLAY_PUBLISH.md](GOOGLE_PLAY_PUBLISH.md) — публикация в Google Play  
 
 ## Что уже сделано в проекте
 
@@ -9,6 +17,7 @@
 - `lib/firebase_options.dart` из вашего `google-services.json`
 - Анонимный вход при старте
 - Рейтинг → коллекция Firestore `scores`
+- Firebase Analytics → события MVP (`lib/data/app_analytics.dart`)
 - Параметры Remote Config блоками: `enemies`, `player`, `field`, `game`, `economy`  
   (см. [GAMEPLAY_ADMIN.md](GAMEPLAY_ADMIN.md))
 

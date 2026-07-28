@@ -1,5 +1,5 @@
 name: game_box
-description: "Game Box — dodge arcade with leaderboard and tokens."
+description: "Untouch Р Р†Р вЂљРІР‚Сњ dodge arcade with leaderboard and crystals."
 publish_to: 'none'
 
 # The following defines the version and build number for your application.
@@ -14,8 +14,7 @@ publish_to: 'none'
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.0+1
-
+version: 1.0.3+4
 environment:
   sdk: ^3.12.2
 
@@ -38,6 +37,10 @@ dependencies:
   firebase_auth: ^5.7.0
   cloud_firestore: ^5.6.12
   firebase_remote_config: ^5.5.0
+  audioplayers: ^6.5.0
+  firebase_analytics: ^11.6.0
+  share_plus: ^13.2.1
+  path_provider: ^2.1.6
 
 dev_dependencies:
   flutter_test:
@@ -62,10 +65,19 @@ flutter:
   uses-material-design: true
   generate: true
 
-  # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  assets:
+    - assets/branding/app_icon.png
+    - assets/sfx/wall_tick.wav
+    - assets/sfx/wall_hit.wav
+    - assets/sfx/mob_wall.wav
+    - assets/sfx/mob_collide.wav
+    - assets/sfx/hero_mob.wav
+    - assets/sfx/hero_wall.wav
+    - assets/sfx/near_miss.wav
+    - assets/sfx/helmet_break.wav
+    - assets/sfx/jump.wav
+    - assets/sfx/game_start.wav
+    - assets/sfx/bgm_loop.wav
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

@@ -209,9 +209,12 @@ class _GamePlayScreenState extends State<GamePlayScreen>
                               world: world,
                               accent: theme.colorScheme.primary,
                               danger: theme.colorScheme.error,
-                              fieldColor: theme.colorScheme.surface,
+                              fieldColor: config.field.resolveSurfaceColor(
+                                theme.colorScheme.surface,
+                              ),
                               borderColor: theme.colorScheme.primary,
                               borderWidth: config.borderWidth,
+                              shadowBrightness: config.field.shadowBrightness,
                             ),
                           ),
                         ),

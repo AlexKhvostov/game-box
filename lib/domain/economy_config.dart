@@ -61,18 +61,74 @@ class EconomyConfig {
     LifePackOffer(lives: 10, costTokens: 5),
     LifePackOffer(lives: 12, costTokens: 10),
     LifePackOffer(lives: 20, costTokens: 15),
+    LifePackOffer(lives: 200, costTokens: 100),
   ];
+
+  /// Id действия «бонус за установку» в earnActions.
+  static const installBonusId = 'install_bonus';
+  static const survive10Id = 'survive_10s';
+  static const record20Id = 'record_20s';
+  static const risks5Id = 'risks_5';
+
+  /// Earn-бонусы, которые открываются геймплеем (не по тапу-заглушке).
+  static const Set<String> gameplayEarnIds = {
+    survive10Id,
+    record20Id,
+    risks5Id,
+  };
 
   const EconomyConfig({
     this.initialLives = 10,
+    this.initialTokens = 40,
+    this.installBonusAutoClaim = true,
+    this.earnSurviveSeconds = 10,
+    this.earnRecordSeconds = 20,
+    this.earnRisksInRun = 5,
     this.lifePackSize = 10,
     this.lifePackCostTokens = 5,
     this.lifePacks = defaultLifePacks,
     this.dailyRewardTokens = const [2, 4, 9, 16, 32, 64, 81],
     this.timedBonusTokens = 22,
     this.timedBonusHours = 1,
+    this.watchAdCooldownSec = 60,
     this.premiumDailyMultiplier = 2.0,
+    this.jumpRentalCost = 20,
+    this.jumpRentalMinutes = 10,
+    this.jumpRentalHourCost = 60,
+    this.jumpRentalHourMinutes = 60,
+    this.helmetRentalCost = 40,
+    this.helmetRentalMinutes = 10,
+    this.helmetRentalHourCost = 120,
+    this.helmetRentalHourMinutes = 60,
+    this.riskRewardEvery = 5,
+    this.riskRewardTokens = 1,
+    this.runRewardEvery = 1000,
+    this.runRewardTokens = 1,
     this.earnActions = const [
+      EarnAction(
+        id: installBonusId,
+        title: 'Install bonus',
+        subtitle: 'Welcome gift for installing',
+        reward: 40,
+      ),
+      EarnAction(
+        id: survive10Id,
+        title: 'Survive 10 seconds',
+        subtitle: 'Stay alive for 10s in one run',
+        reward: 5,
+      ),
+      EarnAction(
+        id: record20Id,
+        title: '20 second record',
+        subtitle: 'Reach a 20s personal best',
+        reward: 10,
+      ),
+      EarnAction(
+        id: risks5Id,
+        title: '5 risks in one run',
+        subtitle: 'Score 5 risks in a single game',
+        reward: 5,
+      ),
       EarnAction(
         id: 'watch_ad',
         title: 'Watch an ad',
@@ -108,6 +164,22 @@ class EconomyConfig {
 
   final int initialLives;
 
+  /// Стартовые кристалы при первой установке (приз; в Earn — install_bonus).
+  final int initialTokens;
+
+  /// Если true — бонус за установку выдаётся сразу и отмечается выполненным в Earn.
+  /// Если false — игрок забирает сам во вкладке Earn.
+  final bool installBonusAutoClaim;
+
+  /// Порог Earn `survive_10s` (секунды в одной партии).
+  final int earnSurviveSeconds;
+
+  /// Порог Earn `record_20s` (личный рекорд, секунды).
+  final int earnRecordSeconds;
+
+  /// Порог Earn `risks_5` (рисков в одной партии).
+  final int earnRisksInRun;
+
   /// Legacy: первый пак (для старых клиентов / RC без lifePacks).
   final int lifePackSize;
   final int lifePackCostTokens;
@@ -118,13 +190,73 @@ class EconomyConfig {
   final List<int> dailyRewardTokens;
   final int timedBonusTokens;
   final int timedBonusHours;
+  /// Кулдаун кнопки «смотреть рекламу» в секундах (0 = без фриза).
+  final int watchAdCooldownSec;
   final double premiumDailyMultiplier;
+
+  /// Аренда прыжка (короткая). Вкл/выкл фичи — в `game.jumpEnabled`.
+  final int jumpRentalCost;
+  final int jumpRentalMinutes;
+
+  /// Аренда прыжка на час (со скидкой относительно 6× короткой).
+  final int jumpRentalHourCost;
+  final int jumpRentalHourMinutes;
+
+  /// Аренда шлема (короткая). Вкл/выкл — `game.helmetEnabled`.
+  final int helmetRentalCost;
+  final int helmetRentalMinutes;
+
+  /// Аренда шлема на час (со скидкой).
+  final int helmetRentalHourCost;
+  final int helmetRentalHourMinutes;
+
+  /// За каждые [riskRewardEvery] рисков в раунде — [riskRewardTokens] кристалов.
+  final int riskRewardEvery;
+  final int riskRewardTokens;
+
+  /// За каждые [runRewardEvery] единиц пробега — [runRewardTokens] кристалов.
+  final int runRewardEvery;
+  final int runRewardTokens;
+
   final List<EarnAction> earnActions;
+
+  /// «Полная» цена часа без скидки (как если купить короткими слотами).
+  int get jumpRentalHourListPrice {
+    final short = jumpRentalMinutes.clamp(1, 24 * 60);
+    final hour = jumpRentalHourMinutes.clamp(1, 24 * 60);
+    return ((jumpRentalCost * hour) / short).round().clamp(1, 99999);
+  }
+
+  int get helmetRentalHourListPrice {
+    final short = helmetRentalMinutes.clamp(1, 24 * 60);
+    final hour = helmetRentalHourMinutes.clamp(1, 24 * 60);
+    return ((helmetRentalCost * hour) / short).round().clamp(1, 99999);
+  }
+
+  int get jumpRentalHourDiscountPercent {
+    final list = jumpRentalHourListPrice;
+    if (list <= 0 || jumpRentalHourCost >= list) return 0;
+    return (((list - jumpRentalHourCost) / list) * 100).round().clamp(0, 99);
+  }
+
+  int get helmetRentalHourDiscountPercent {
+    final list = helmetRentalHourListPrice;
+    if (list <= 0 || helmetRentalHourCost >= list) return 0;
+    return (((list - helmetRentalHourCost) / list) * 100).round().clamp(0, 99);
+  }
 
   /// Актуальный список паков (из RC или fallback на legacy поля).
   List<LifePackOffer> get resolvedLifePacks {
     if (lifePacks.isNotEmpty) return lifePacks;
     return [LifePackOffer(lives: lifePackSize, costTokens: lifePackCostTokens)];
+  }
+
+  /// Награда за установку: reward из earn `install_bonus`, иначе [initialTokens].
+  int get resolvedInstallBonusTokens {
+    for (final a in earnActions) {
+      if (a.id == installBonusId) return a.reward.clamp(0, 99999);
+    }
+    return initialTokens.clamp(0, 99999);
   }
 
   int dailyTokensForStreak(int streak, {bool premium = false}) {
@@ -137,38 +269,95 @@ class EconomyConfig {
 
   EconomyConfig copyWith({
     int? initialLives,
+    int? initialTokens,
+    bool? installBonusAutoClaim,
+    int? earnSurviveSeconds,
+    int? earnRecordSeconds,
+    int? earnRisksInRun,
     int? lifePackSize,
     int? lifePackCostTokens,
     List<LifePackOffer>? lifePacks,
     List<int>? dailyRewardTokens,
     int? timedBonusTokens,
     int? timedBonusHours,
+    int? watchAdCooldownSec,
     double? premiumDailyMultiplier,
+    int? jumpRentalCost,
+    int? jumpRentalMinutes,
+    int? jumpRentalHourCost,
+    int? jumpRentalHourMinutes,
+    int? helmetRentalCost,
+    int? helmetRentalMinutes,
+    int? helmetRentalHourCost,
+    int? helmetRentalHourMinutes,
+    int? riskRewardEvery,
+    int? riskRewardTokens,
+    int? runRewardEvery,
+    int? runRewardTokens,
     List<EarnAction>? earnActions,
   }) {
     return EconomyConfig(
       initialLives: initialLives ?? this.initialLives,
+      initialTokens: initialTokens ?? this.initialTokens,
+      installBonusAutoClaim:
+          installBonusAutoClaim ?? this.installBonusAutoClaim,
+      earnSurviveSeconds: earnSurviveSeconds ?? this.earnSurviveSeconds,
+      earnRecordSeconds: earnRecordSeconds ?? this.earnRecordSeconds,
+      earnRisksInRun: earnRisksInRun ?? this.earnRisksInRun,
       lifePackSize: lifePackSize ?? this.lifePackSize,
       lifePackCostTokens: lifePackCostTokens ?? this.lifePackCostTokens,
       lifePacks: lifePacks ?? this.lifePacks,
       dailyRewardTokens: dailyRewardTokens ?? this.dailyRewardTokens,
       timedBonusTokens: timedBonusTokens ?? this.timedBonusTokens,
       timedBonusHours: timedBonusHours ?? this.timedBonusHours,
+      watchAdCooldownSec: watchAdCooldownSec ?? this.watchAdCooldownSec,
       premiumDailyMultiplier:
           premiumDailyMultiplier ?? this.premiumDailyMultiplier,
+      jumpRentalCost: jumpRentalCost ?? this.jumpRentalCost,
+      jumpRentalMinutes: jumpRentalMinutes ?? this.jumpRentalMinutes,
+      jumpRentalHourCost: jumpRentalHourCost ?? this.jumpRentalHourCost,
+      jumpRentalHourMinutes:
+          jumpRentalHourMinutes ?? this.jumpRentalHourMinutes,
+      helmetRentalCost: helmetRentalCost ?? this.helmetRentalCost,
+      helmetRentalMinutes: helmetRentalMinutes ?? this.helmetRentalMinutes,
+      helmetRentalHourCost: helmetRentalHourCost ?? this.helmetRentalHourCost,
+      helmetRentalHourMinutes:
+          helmetRentalHourMinutes ?? this.helmetRentalHourMinutes,
+      riskRewardEvery: riskRewardEvery ?? this.riskRewardEvery,
+      riskRewardTokens: riskRewardTokens ?? this.riskRewardTokens,
+      runRewardEvery: runRewardEvery ?? this.runRewardEvery,
+      runRewardTokens: runRewardTokens ?? this.runRewardTokens,
       earnActions: earnActions ?? this.earnActions,
     );
   }
 
   Map<String, dynamic> toJson() => {
         'initialLives': initialLives,
+        'initialTokens': initialTokens,
+        'installBonusAutoClaim': installBonusAutoClaim,
+        'earnSurviveSeconds': earnSurviveSeconds,
+        'earnRecordSeconds': earnRecordSeconds,
+        'earnRisksInRun': earnRisksInRun,
         'lifePackSize': lifePackSize,
         'lifePackCostTokens': lifePackCostTokens,
         'lifePacks': lifePacks.map((e) => e.toJson()).toList(),
         'dailyRewardTokens': dailyRewardTokens,
         'timedBonusTokens': timedBonusTokens,
         'timedBonusHours': timedBonusHours,
+        'watchAdCooldownSec': watchAdCooldownSec,
         'premiumDailyMultiplier': premiumDailyMultiplier,
+        'jumpRentalCost': jumpRentalCost,
+        'jumpRentalMinutes': jumpRentalMinutes,
+        'jumpRentalHourCost': jumpRentalHourCost,
+        'jumpRentalHourMinutes': jumpRentalHourMinutes,
+        'helmetRentalCost': helmetRentalCost,
+        'helmetRentalMinutes': helmetRentalMinutes,
+        'helmetRentalHourCost': helmetRentalHourCost,
+        'helmetRentalHourMinutes': helmetRentalHourMinutes,
+        'riskRewardEvery': riskRewardEvery,
+        'riskRewardTokens': riskRewardTokens,
+        'runRewardEvery': runRewardEvery,
+        'runRewardTokens': runRewardTokens,
         'earnActions': earnActions.map((e) => e.toJson()).toList(),
       };
 
@@ -192,9 +381,15 @@ class EconomyConfig {
       ];
     }
     if (packs.isEmpty) packs = List.of(defaultLifePacks);
+    packs = _mergeLifePacks(packs);
 
     return EconomyConfig(
       initialLives: _asInt(json['initialLives'], 10),
+      initialTokens: _asInt(json['initialTokens'], 40),
+      installBonusAutoClaim: _asBool(json['installBonusAutoClaim'], true),
+      earnSurviveSeconds: _asInt(json['earnSurviveSeconds'], 10),
+      earnRecordSeconds: _asInt(json['earnRecordSeconds'], 20),
+      earnRisksInRun: _asInt(json['earnRisksInRun'], 5),
       lifePackSize: packs.first.lives,
       lifePackCostTokens: packs.first.costTokens,
       lifePacks: packs,
@@ -206,13 +401,77 @@ class EconomyConfig {
         22,
       ),
       timedBonusHours: _asInt(json['timedBonusHours'], 1),
+      watchAdCooldownSec: _asInt(
+        json['watchAdCooldownSec'] ?? json['adCooldownSec'],
+        60,
+      ),
       premiumDailyMultiplier: _asDouble(json['premiumDailyMultiplier'], 2.0),
-      earnActions: earnRaw is List && earnRaw.isNotEmpty
-          ? earnRaw
-              .map((e) => EarnAction.fromJson(e as Map<String, dynamic>))
-              .toList()
-          : const EconomyConfig().earnActions,
+      jumpRentalCost: _asInt(json['jumpRentalCost'], 20),
+      jumpRentalMinutes: _asInt(json['jumpRentalMinutes'], 10),
+      jumpRentalHourCost: _asInt(json['jumpRentalHourCost'], 60),
+      jumpRentalHourMinutes: _asInt(json['jumpRentalHourMinutes'], 60),
+      helmetRentalCost: _asInt(json['helmetRentalCost'], 40),
+      helmetRentalMinutes: _asInt(json['helmetRentalMinutes'], 10),
+      helmetRentalHourCost: _asInt(json['helmetRentalHourCost'], 120),
+      helmetRentalHourMinutes: _asInt(json['helmetRentalHourMinutes'], 60),
+      riskRewardEvery: _asInt(json['riskRewardEvery'], 5),
+      riskRewardTokens: _asInt(json['riskRewardTokens'], 1),
+      runRewardEvery: _asInt(json['runRewardEvery'], 1000),
+      runRewardTokens: _asInt(json['runRewardTokens'], 1),
+      earnActions: _mergeEarnActions(
+        earnRaw is List && earnRaw.isNotEmpty
+            ? earnRaw
+                .map((e) => EarnAction.fromJson(e as Map<String, dynamic>))
+                .toList()
+            : null,
+      ),
     );
+  }
+
+  /// RC без новых паков — подмешиваем недостающие дефолты (например 200 жизней).
+  static List<LifePackOffer> _mergeLifePacks(List<LifePackOffer> fromRc) {
+    final byLives = <int, LifePackOffer>{
+      for (final p in fromRc) p.lives: p,
+    };
+    for (final p in defaultLifePacks) {
+      byLives.putIfAbsent(p.lives, () => p);
+    }
+    final ordered = <LifePackOffer>[];
+    final seen = <int>{};
+    for (final p in fromRc) {
+      ordered.add(byLives[p.lives]!);
+      seen.add(p.lives);
+    }
+    for (final p in defaultLifePacks) {
+      if (seen.add(p.lives)) ordered.add(byLives[p.lives]!);
+    }
+    return ordered;
+  }
+
+  /// RC может содержать устаревший список — недостающие дефолтные id
+  /// (install / 10с / 20с / 5 рисков / …) подмешиваем из клиента.
+  /// Совпадающие id: приоритет у RC (reward и т.д.).
+  static List<EarnAction> _mergeEarnActions(List<EarnAction>? fromRc) {
+    final defaults = const EconomyConfig().earnActions;
+    if (fromRc == null || fromRc.isEmpty) return List.of(defaults);
+
+    final byId = <String, EarnAction>{
+      for (final a in defaults) a.id: a,
+    };
+    for (final a in fromRc) {
+      byId[a.id] = a;
+    }
+
+    final result = <EarnAction>[];
+    final seen = <String>{};
+    for (final a in defaults) {
+      result.add(byId[a.id]!);
+      seen.add(a.id);
+    }
+    for (final a in fromRc) {
+      if (seen.add(a.id)) result.add(a);
+    }
+    return result;
   }
 
   static int _asInt(Object? value, int fallback) {
@@ -224,6 +483,17 @@ class EconomyConfig {
   static double _asDouble(Object? value, double fallback) {
     if (value is num) return value.toDouble();
     if (value is String) return double.tryParse(value.trim()) ?? fallback;
+    return fallback;
+  }
+
+  static bool _asBool(Object? value, bool fallback) {
+    if (value is bool) return value;
+    if (value is num) return value != 0;
+    if (value is String) {
+      final s = value.trim().toLowerCase();
+      if (s == 'true' || s == '1' || s == 'yes') return true;
+      if (s == 'false' || s == '0' || s == 'no') return false;
+    }
     return fallback;
   }
 }

@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import 'app/app.dart';
+import 'data/app_analytics.dart';
 import 'data/economy_store.dart';
 import 'data/firebase_bootstrap.dart';
 import 'data/remote_config_loader.dart';
@@ -30,6 +31,10 @@ Future<void> main() async {
     ]);
 
     final firebaseOk = await FirebaseBootstrap.init();
+    if (firebaseOk) {
+      await AppAnalytics.init();
+      await AppAnalytics.appOpen();
+    }
 
     var economyConfig = const EconomyConfig();
     var gameplayConfig = const GameplayConfig();
@@ -42,7 +47,9 @@ Future<void> main() async {
     }
     debugPrint(
       'Economy RC: timedBonus=${economyConfig.timedBonusTokens}, '
-      'daily=${economyConfig.dailyRewardTokens}',
+      'daily=${economyConfig.dailyRewardTokens}, '
+      'earn=${economyConfig.earnActions.map((e) => e.id).join(',')}, '
+      'firebaseOk=$firebaseOk',
     );
 
     final economy = EconomyStore(config: economyConfig);

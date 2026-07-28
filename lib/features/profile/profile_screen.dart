@@ -48,8 +48,8 @@ class ProfileScreen extends StatelessWidget {
                   value: '${economy.dailyStreak} дн.',
                 ),
                 _InfoRow(
-                  label: 'Plus',
-                  value: economy.hasPremium ? 'активна' : 'нет',
+                  label: 'Boost',
+                  value: economy.hasPremium ? 'активен' : 'нет',
                 ),
               ],
             ),

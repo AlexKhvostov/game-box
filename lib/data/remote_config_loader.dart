@@ -26,6 +26,7 @@ class RemoteConfigLoader {
   static const _playerKey = 'player';
   static const _fieldKey = 'field';
   static const _gameKey = 'game';
+  static const _audioKey = 'audio';
   /// Старый единый ключ — читаем, если новых блоков ещё нет.
   static const _legacyGameplayKey = 'gameplay';
   static const _forceLocaleKey = 'forceLocale';
@@ -36,8 +37,9 @@ class RemoteConfigLoader {
       await rc.setConfigSettings(
         RemoteConfigSettings(
           fetchTimeout: const Duration(seconds: 15),
-          minimumFetchInterval:
-              kDebugMode ? Duration.zero : const Duration(hours: 1),
+          // Пока активно крутим админку — всегда тянем свежий RC.
+          // Перед продом можно вернуть 1 час (меньше нагрузка / квоты Firebase).
+          minimumFetchInterval: Duration.zero,
         ),
       );
       await rc.setDefaults({
@@ -46,10 +48,17 @@ class RemoteConfigLoader {
         _playerKey: jsonEncode(const PlayerConfig().toJson()),
         _fieldKey: jsonEncode(const FieldConfig().toJson()),
         _gameKey: jsonEncode(const GameConfig().toJson()),
+        _audioKey: jsonEncode(const AudioConfig().toJson()),
         _legacyGameplayKey: '{}',
         _forceLocaleKey: '',
       });
-      await rc.fetchAndActivate();
+      final activated = await rc.fetchAndActivate();
+      debugPrint(
+        'Remote Config fetchAndActivate=$activated '
+        'lastFetch=${rc.lastFetchStatus} '
+        'economyLen=${rc.getString(_economyKey).length} '
+        'earnHint=${rc.getString(_economyKey).contains('install_bonus')}',
+      );
 
       final economy = _parse(
         rc.getString(_economyKey),
@@ -61,12 +70,14 @@ class RemoteConfigLoader {
       final playerRaw = rc.getString(_playerKey);
       final fieldRaw = rc.getString(_fieldKey);
       final gameRaw = rc.getString(_gameKey);
+      final audioRaw = rc.getString(_audioKey);
       final legacyRaw = rc.getString(_legacyGameplayKey);
 
       final hasBlocks = enemiesRaw.isNotEmpty ||
           playerRaw.isNotEmpty ||
           fieldRaw.isNotEmpty ||
-          gameRaw.isNotEmpty;
+          gameRaw.isNotEmpty ||
+          audioRaw.isNotEmpty;
 
       late final GameplayConfig gameplay;
       if (hasBlocks) {
@@ -90,6 +101,11 @@ class RemoteConfigLoader {
             gameRaw,
             GameConfig.fromJson,
             const GameConfig(),
+          ),
+          audio: _parse(
+            audioRaw,
+            AudioConfig.fromJson,
+            const AudioConfig(),
           ),
         );
       } else if (legacyRaw.isNotEmpty && legacyRaw != '{}') {

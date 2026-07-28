@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import 'game_world.dart';
+import 'impact_burst.dart';
 
 /// Отрисовка поля без MaskFilter.blur — blur на каждом кадре
 /// часто роняет Android-эмулятор (GPU / EGL).
@@ -16,6 +17,11 @@ class GameFieldPainter extends CustomPainter {
     this.borderWidth = 3,
     this.cornerRadius = 18,
     this.frame = 0,
+    this.playerPreview = false,
+    this.impacts = const [],
+    this.hasHelmet = false,
+    this.invulnerable = false,
+    this.shadowBrightness = 1.0,
   });
 
   final GameWorld world;
@@ -27,6 +33,20 @@ class GameFieldPainter extends CustomPainter {
   final double cornerRadius;
   /// Меняется каждый тик — иначе CustomPaint не перерисует mutable world.
   final int frame;
+  /// До первого касания: игрок полупрозрачный.
+  final bool playerPreview;
+  final List<ImpactBurst> impacts;
+  /// Активный шлем (1 заряд) — обводка на кубе.
+  final bool hasHelmet;
+  /// Мигание после разрушения шлема — неуязвимость.
+  final bool invulnerable;
+  /// >1 — тень светлее; <1 — темнее. Из RC `field.shadowBrightness`.
+  final double shadowBrightness;
+
+  double _shadowAlpha(double base) {
+    final b = shadowBrightness.clamp(0.4, 2.5);
+    return (base / b).clamp(0.02, 0.85);
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -55,7 +75,32 @@ class GameFieldPainter extends CustomPainter {
     // Тонкая сетка
     _drawSoftGrid(canvas, size, r);
 
-    // Враги (мягкая «ауры» = больший полупрозрачный rect, без blur)
+    // Слой «пола»: только тень по форме объекта (без овала).
+    const light = Offset(5.5, 7.0);
+    final enemyShadowPaint =
+        Paint()..color = Colors.black.withValues(alpha: _shadowAlpha(0.42));
+    for (final e in world.enemies) {
+      final rect = e.rect;
+      if (!_isFiniteRect(rect)) continue;
+      final er = RRect.fromRectAndRadius(rect, const Radius.circular(3));
+      canvas.drawRRect(er.shift(light), enemyShadowPaint);
+    }
+
+    // Тень игрока на полу — только вне прыжка (один уровень с мобами).
+    // В прыжке тень рисуется позже, поверх мобов.
+    final base = Rect.fromLTWH(
+      world.player.dx,
+      world.player.dy,
+      world.playerSize,
+      world.playerSize,
+    );
+    final lift = world.jumpLift;
+    final jumping = lift > 0.02;
+    if (_isFiniteRect(base) && !jumping) {
+      _paintPlayerShadow(canvas, base, lift: 0, preview: playerPreview);
+    }
+
+    // Тела мобов поверх всех напольных теней
     final enemyPaint = Paint()..color = danger;
     final enemyAura = Paint()..color = danger.withValues(alpha: 0.18);
     for (final e in world.enemies) {
@@ -66,25 +111,57 @@ class GameFieldPainter extends CustomPainter {
       canvas.drawRRect(er, enemyPaint);
     }
 
+    // В прыжке тень игрока падает на мобов
+    if (_isFiniteRect(base) && jumping) {
+      _paintPlayerShadow(canvas, base, lift: lift, preview: playerPreview);
+    }
+
     // Игрок
-    final playerRect = Rect.fromLTWH(
-      world.player.dx,
-      world.player.dy,
-      world.playerSize,
-      world.playerSize,
-    );
-    if (_isFiniteRect(playerRect)) {
-      final pr = RRect.fromRectAndRadius(playerRect, const Radius.circular(4));
+    if (_isFiniteRect(base)) {
+      final scale = world.visualScale;
+      final cx = base.center.dx;
+      final cy = base.center.dy;
+      final vis = world.playerSize * scale;
+      final visualRect = Rect.fromCenter(
+        center: Offset(cx, cy - lift * 8),
+        width: vis,
+        height: vis,
+      );
+      final pr = RRect.fromRectAndRadius(visualRect, const Radius.circular(4));
+      final blink = invulnerable
+          ? (0.22 + 0.78 * ((math.sin(frame * 1.35) + 1) * 0.5))
+          : 1.0;
+      final bodyAlpha = (playerPreview ? 0.38 : 1.0) * blink;
+
       canvas.drawRRect(
         pr.inflate(4),
-        Paint()..color = accent.withValues(alpha: 0.2),
+        Paint()..color = accent.withValues(alpha: 0.2 * bodyAlpha),
       );
-      canvas.drawRRect(pr, Paint()..color = accent);
-      final shine = world.playerSize * 0.18;
-      if (shine > 0 && shine * 2 < world.playerSize) {
+      canvas.drawRRect(
+        pr,
+        Paint()..color = accent.withValues(alpha: bodyAlpha),
+      );
+      if (hasHelmet) {
+        canvas.drawRRect(
+          pr.inflate(2.5),
+          Paint()
+            ..color = const Color(0xFF7EE0FF).withValues(alpha: 0.95 * bodyAlpha)
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 2.6,
+        );
+        canvas.drawRRect(
+          pr.inflate(5),
+          Paint()
+            ..color = Colors.white.withValues(alpha: 0.35 * bodyAlpha)
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 1.2,
+        );
+      }
+      final shine = vis * 0.18;
+      if (shine > 0 && shine * 2 < vis) {
         canvas.drawRRect(
           pr.deflate(shine),
-          Paint()..color = Colors.white.withValues(alpha: 0.2),
+          Paint()..color = Colors.white.withValues(alpha: 0.2 * bodyAlpha),
         );
       }
     }
@@ -117,6 +194,13 @@ class GameFieldPainter extends CustomPainter {
     }
 
     _drawCornerMarks(canvas, size, r, borderColor);
+
+    for (final burst in impacts) {
+      burst.paint(canvas);
+    }
+    for (final fx in world.nearMissFx) {
+      fx.paint(canvas);
+    }
   }
 
   bool _isFiniteRect(Rect rect) {
@@ -126,6 +210,31 @@ class GameFieldPainter extends CustomPainter {
         rect.height.isFinite &&
         rect.width >= 0 &&
         rect.height >= 0;
+  }
+
+  void _paintPlayerShadow(
+    Canvas canvas,
+    Rect base, {
+    required double lift,
+    required bool preview,
+  }) {
+    final scale = world.visualScale;
+    final cx = base.center.dx;
+    final cy = base.center.dy;
+    final vis = world.playerSize * scale;
+    final visualRect = Rect.fromCenter(
+      center: Offset(cx, cy - lift * 8),
+      width: vis,
+      height: vis,
+    );
+    final pr = RRect.fromRectAndRadius(visualRect, const Radius.circular(4));
+    final baseAlpha = (preview ? 0.22 : 0.4) * (1.0 - lift * 0.25);
+    final shadowAlpha = _shadowAlpha(baseAlpha);
+
+    canvas.drawRRect(
+      pr.shift(Offset(5 + lift * 10, 6 + lift * 12)),
+      Paint()..color = Colors.black.withValues(alpha: shadowAlpha),
+    );
   }
 
   void _drawSoftGrid(Canvas canvas, Size size, double r) {
@@ -242,6 +351,12 @@ class GameFieldPainter extends CustomPainter {
         oldDelegate.accent != accent ||
         oldDelegate.danger != danger ||
         oldDelegate.borderWidth != borderWidth ||
-        oldDelegate.cornerRadius != cornerRadius;
+        oldDelegate.cornerRadius != cornerRadius ||
+        oldDelegate.playerPreview != playerPreview ||
+        oldDelegate.impacts != impacts ||
+        oldDelegate.hasHelmet != hasHelmet ||
+        oldDelegate.invulnerable != invulnerable ||
+        oldDelegate.shadowBrightness != shadowBrightness ||
+        oldDelegate.fieldColor != fieldColor;
   }
 }

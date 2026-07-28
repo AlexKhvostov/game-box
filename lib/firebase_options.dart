@@ -7,7 +7,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError('Web is not configured for Game Box.');
+      throw UnsupportedError('Web is not configured for Untouch.');
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:

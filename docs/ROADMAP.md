@@ -1,4 +1,12 @@
-# Game Box — дорожная карта
+# Untouch — дорожная карта
+
+Бренд: **Untouch**. Технический package: `com.boxgame.game_box`.
+
+Операционные гайды (доступы, шаги, что нужно от менеджера):
+
+- [ANALYTICS_AND_ADMIN.md](ANALYTICS_AND_ADMIN.md)
+- [ADS_AND_BILLING.md](ADS_AND_BILLING.md)
+- [GOOGLE_PLAY_PUBLISH.md](GOOGLE_PLAY_PUBLISH.md)
 
 ## Этап 1 — MVP Android (сейчас)
 

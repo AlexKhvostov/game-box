@@ -9,7 +9,7 @@ class AppLocalizationsRu extends AppLocalizations {
   AppLocalizationsRu([String locale = 'ru']) : super(locale);
 
   @override
-  String get appTitle => 'Game Box';
+  String get appTitle => 'Untouch';
 
   @override
   String get tapToStart => 'Коснитесь, чтобы начать';
@@ -49,7 +49,28 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get share => 'Share';
+  String rankToday(int percent) {
+    return 'Лучше $percent% игроков!';
+  }
+
+  @override
+  String get share => 'Сохранить';
+
+  @override
+  String get shareSocial => 'Поделиться';
+
+  @override
+  String shareBoast(String time, String app) {
+    return 'Я продержался $time сек в $app!';
+  }
+
+  @override
+  String get shareSend => 'Отправить';
+
+  @override
+  String shareScoreCaption(String app, String time) {
+    return '$app — $time с';
+  }
 
   @override
   String get ok => 'OK';
@@ -97,7 +118,49 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get daily => 'Daily';
+  String get daily => 'Ежедневно';
+
+  @override
+  String get plusActiveShort => 'Вкл';
+
+  @override
+  String get plusNoAdsShort => 'Без рекламы';
+
+  @override
+  String get plusCrystalsDoubleShort => '×2';
+
+  @override
+  String get playInfoEnemies => 'Враги';
+
+  @override
+  String get playInfoSpeed => 'Скор.';
+
+  @override
+  String get playInfoRun => 'Пробег';
+
+  @override
+  String get playInfoNear => 'Риск';
+
+  @override
+  String riskCrystalHint(int every, int reward) {
+    return '$every рисков = $reward кристалл';
+  }
+
+  @override
+  String runCrystalHint(int every, int reward) {
+    return '$every пробега = $reward кристалл';
+  }
+
+  @override
+  String riskCrystalsEarned(int count) {
+    return '+$count';
+  }
+
+  @override
+  String get playInfoScore => 'Очки';
+
+  @override
+  String get attemptTapToSave => 'Нажмите, чтобы сохранить';
 
   @override
   String get earn => 'Заработать';
@@ -109,35 +172,46 @@ class AppLocalizationsRu extends AppLocalizations {
   String get shop => 'Магазин';
 
   @override
-  String get plusActive => 'Plus активна';
+  String get plusActive => 'Boost активен';
 
   @override
   String get plusCancel => 'Отменить подписку';
 
   @override
   String plusButton(String price) {
-    return 'Plus · $price';
+    return 'Boost · $price';
   }
 
   @override
-  String get plusToast => 'Plus · Daily ×2';
+  String get plusToast => 'Boost · ежедневно ×2';
 
   @override
-  String get plusCancelledToast => 'Plus отключена';
+  String get plusCancelledToast => 'Boost отключён';
 
   @override
-  String get plusManageTitle => 'Управление Plus';
+  String get plusManageTitle => 'Управление Boost';
+
+  @override
+  String get plusOfferTitle => 'Подписка Boost';
+
+  @override
+  String get plusOfferSubtitle =>
+      'Boost — еженедельная подписка за \$1. Без рекламы и ×2 кристаллы в ежедневном бонусе. Отменить можно в этом окне (оплата через Google Play / App Store — позже).';
+
+  @override
+  String plusSubscribe(String price) {
+    return 'Подписаться · $price';
+  }
 
   @override
   String get plusManageSubtitle =>
-      'Подписка даёт бонусы в игре. Пока это локальный preview — после подключения магазина списание пойдёт через Google Play / App Store.';
+      'Boost даёт бонусы в игре. Пока это локальный preview — после подключения магазина списание пойдёт через Google Play / App Store.';
 
   @override
   String get plusManageBenefitAds => 'Без рекламы';
 
   @override
-  String get plusManageBenefitDaily =>
-      '×2 кристаллы в ежедневном бонусе (Daily)';
+  String get plusManageBenefitDaily => '×2 кристаллы в ежедневном бонусе';
 
   @override
   String plusManagePrice(String price) {
@@ -154,7 +228,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get resetDataBody =>
-      'Прогресс, кристалы, жизни, рекорды и подписка будут очищены. Приложение станет как после первой установки.';
+      'Прогресс, кристалы, жизни, рекорды и Boost будут очищены. Приложение станет как после первой установки.';
 
   @override
   String get resetDataDone => 'Данные сброшены';
@@ -187,7 +261,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String premiumTimesLocked(String mult) {
-    return '×$mult with Plus';
+    return '×$mult с Boost';
   }
 
   @override
@@ -198,7 +272,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String dailyToast(int count) {
-    return 'Daily +$count';
+    return 'Ежедневно +$count';
   }
 
   @override
@@ -237,6 +311,59 @@ class AppLocalizationsRu extends AppLocalizations {
   String get earnInviteFriendSub => 'Поделиться ссылкой';
 
   @override
+  String get earnInstallBonus => 'Бонус за установку';
+
+  @override
+  String get earnInstallBonusSub => 'Приз за скачивание игры';
+
+  @override
+  String get earnSurvive10 => 'Продержаться 10 секунд';
+
+  @override
+  String get earnSurvive10Sub => '10 секунд в одной партии';
+
+  @override
+  String get earnRecord20 => 'Рекорд 20 секунд';
+
+  @override
+  String get earnRecord20Sub => 'Личный рекорд от 20 секунд';
+
+  @override
+  String get earnRisks5 => '5 рисков за партию';
+
+  @override
+  String get earnRisks5Sub => 'Набрать 5 рисков в одной игре';
+
+  @override
+  String get earnBonusLocked => 'Откроется в игре';
+
+  @override
+  String earnBonusUnlocked(String title) {
+    return 'Открыто: $title';
+  }
+
+  @override
+  String get earnUnlockedBannerTap => 'Нажмите, чтобы забрать в Earn';
+
+  @override
+  String get riskTipHow =>
+      'Риск засчитывается, когда вы едва разминулись с врагом — близко, но без касания.';
+
+  @override
+  String riskTipConvert(int every, int reward) {
+    return 'В конце партии: каждые $every рисков = $reward кристалл(ов).';
+  }
+
+  @override
+  String get runTipHow =>
+      'Пробег — расстояние, которое прошёл ваш кубик за партию.';
+
+  @override
+  String runTipConvert(int every, int reward) {
+    return 'В конце партии: каждые $every единиц пробега = $reward кристалл(ов).';
+  }
+
+  @override
   String get earnReward => 'Награда';
 
   @override
@@ -249,7 +376,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get packChest => 'Сундук';
 
   @override
-  String get packVault => 'Сокровищница';
+  String get packVault => 'Сейф';
 
   @override
   String get badgeDeal => 'Выгодно';
@@ -285,16 +412,22 @@ class AppLocalizationsRu extends AppLocalizations {
   String get colTime => 'Время';
 
   @override
-  String get tabDaily => 'Daily';
+  String get colBoosts => 'Бусты';
+
+  @override
+  String get tabDaily => 'Ежедневно';
 
   @override
   String get tabShop => 'Покупки';
 
   @override
+  String get tabRent => 'Аренда';
+
+  @override
   String get tabEarn => 'Действия';
 
   @override
-  String get plusTitle => 'Plus';
+  String get plusTitle => 'Boost';
 
   @override
   String get plusBenefits => 'Без рекламы';
@@ -306,7 +439,17 @@ class AppLocalizationsRu extends AppLocalizations {
   String get giftReady => 'Готово!';
 
   @override
-  String get tapHintPlayful => 'Коснись экрана и уворачивайся';
+  String tapHintChallenge(int seconds) {
+    return 'Продержишься хотя бы $seconds сек?';
+  }
+
+  @override
+  String tapHintNextChallenge(int seconds) {
+    return 'А слабо $seconds сек?';
+  }
+
+  @override
+  String get tapHintPlayful => 'Коснись и уворачивайся';
 
   @override
   String livesBalance(int count) {
@@ -338,6 +481,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get livesConvertSubtitle => 'Обменяйте кристалы на жизни';
 
   @override
+  String get statLives => 'Жизни';
+
+  @override
   String livesPackLabel(int count) {
     return '+$count жизней';
   }
@@ -350,6 +496,59 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get shopWatchAdSub => 'Короткое видео · бесплатно';
+
+  @override
+  String get shopRentalsTitle => 'Аренда';
+
+  @override
+  String get rentJumpTitle => 'Прыжок';
+
+  @override
+  String get rentJumpSub => 'Второй палец — перепрыгнуть врага';
+
+  @override
+  String get rentHelmetTitle => 'Шлем';
+
+  @override
+  String get rentHelmetSub => 'Один удар без смерти за партию';
+
+  @override
+  String rentHourSub(int minutes) {
+    return 'Пакет на $minutes мин';
+  }
+
+  @override
+  String rentMinsLabel(int minutes) {
+    return '$minutes мин';
+  }
+
+  @override
+  String rentDiscountBadge(int percent) {
+    return '−$percent%';
+  }
+
+  @override
+  String rentActive(String time) {
+    return 'Активно · $time';
+  }
+
+  @override
+  String get rentExtend => 'Продлить';
+
+  @override
+  String get rentBuy => 'Арендовать';
+
+  @override
+  String get rentNotEnough => 'Не хватает кристалов';
+
+  @override
+  String get rentInactive => 'Выкл';
+
+  @override
+  String get jumpRentalNeeded => 'Арендуйте прыжок в магазине';
+
+  @override
+  String get helmetBroken => 'Шлем разбит';
 
   @override
   String get yourPlacesTitle => 'Ваши места';
@@ -376,7 +575,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get youGhost => 'Вы';
 
   @override
-  String get periodMine => 'Мои';
+  String get periodMine => 'Мои попытки';
 
   @override
   String get colAttempt => 'Попытка';

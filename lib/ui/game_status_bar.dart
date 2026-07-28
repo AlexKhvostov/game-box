@@ -32,16 +32,17 @@ class GameStatusBar extends StatelessWidget {
           border: const Color(0xFF7EE0FF).withValues(alpha: 0.35),
         ),
         const Spacer(),
-        if (economy.bestTimeMs > 0)
-          _Chip(
-            icon: Icon(
-              Icons.star_rounded,
-              size: 18,
-              color: theme.colorScheme.primary,
-            ),
-            label: '${(economy.bestTimeMs / 1000).toStringAsFixed(2)}с',
-            border: theme.colorScheme.primary.withValues(alpha: 0.35),
+        _Chip(
+          icon: Icon(
+            Icons.star_rounded,
+            size: 18,
+            color: theme.colorScheme.primary,
           ),
+          label: economy.bestTimeMs > 0
+              ? '${(economy.bestTimeMs / 1000).toStringAsFixed(2)}с'
+              : '0',
+          border: theme.colorScheme.primary.withValues(alpha: 0.35),
+        ),
         if (trailing != null) ...[
           const SizedBox(width: 4),
           trailing!,

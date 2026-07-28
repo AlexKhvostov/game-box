@@ -1,6 +1,6 @@
 {
   "@@locale": "ru",
-  "appTitle": "Game Box",
+  "appTitle": "Untouch",
   "tapToStart": "Коснитесь, чтобы начать",
   "noLivesOpenCrystals": "Нет жизней — откройте кристалы",
   "noLivesTitle": "Нет жизней",
@@ -11,7 +11,29 @@
   "seconds": "секунд",
   "newScore": "Новый результат",
   "rankFaster": "#{place} · быстрее {percent}%",
-  "share": "Share",
+  "rankToday": "Лучше {percent}% игроков!",
+  "@rankToday": {
+    "placeholders": {
+      "percent": {"type": "int"}
+    }
+  },
+  "share": "Сохранить",
+  "shareSocial": "Поделиться",
+  "shareBoast": "Я продержался {time} сек в {app}!",
+  "@shareBoast": {
+    "placeholders": {
+      "time": {"type": "String"},
+      "app": {"type": "String"}
+    }
+  },
+  "shareSend": "Отправить",
+  "shareScoreCaption": "{app} — {time} с",
+  "@shareScoreCaption": {
+    "placeholders": {
+      "app": {"type": "String"},
+      "time": {"type": "String"}
+    }
+  },
   "ok": "OK",
   "saveScoreTitle": "Сохранить результат",
   "saveScoreSubtitle": "{time} с · топ 20",
@@ -25,23 +47,55 @@
   "crystals": "Кристалы",
   "crystalsGenitive": "кристалов",
   "giftToast": "Подарок! +{count} кристалов",
-  "daily": "Daily",
+  "daily": "Ежедневно",
   "earn": "Заработать",
+  "plusActiveShort": "Вкл",
+  "plusNoAdsShort": "Без рекламы",
+  "plusCrystalsDoubleShort": "×2",
+  "playInfoEnemies": "Враги",
+  "playInfoSpeed": "Скор.",
+  "playInfoRun": "Пробег",
+  "playInfoNear": "Риск",
+  "riskCrystalHint": "{every} рисков = {reward} кристалл",
+  "@riskCrystalHint": {
+    "placeholders": {
+      "every": {"type": "int"},
+      "reward": {"type": "int"}
+    }
+  },
+  "runCrystalHint": "{every} пробега = {reward} кристалл",
+  "@runCrystalHint": {
+    "placeholders": {
+      "every": {"type": "int"},
+      "reward": {"type": "int"}
+    }
+  },
+  "riskCrystalsEarned": "+{count}",
+  "@riskCrystalsEarned": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "playInfoScore": "Очки",
+  "attemptTapToSave": "Нажмите, чтобы сохранить",
   "earnPreviewHint": "Заглушки до подключения рекламы и SDK",
   "shop": "Магазин",
-  "plusActive": "Plus активна",
+  "plusActive": "Boost активен",
   "plusCancel": "Отменить подписку",
-  "plusButton": "Plus · {price}",
-  "plusToast": "Plus · Daily ×2",
-  "plusCancelledToast": "Plus отключена",
-  "plusManageTitle": "Управление Plus",
-  "plusManageSubtitle": "Подписка даёт бонусы в игре. Пока это локальный preview — после подключения магазина списание пойдёт через Google Play / App Store.",
+  "plusButton": "Boost · {price}",
+  "plusToast": "Boost · ежедневно ×2",
+  "plusCancelledToast": "Boost отключён",
+  "plusManageTitle": "Управление Boost",
+  "plusOfferTitle": "Подписка Boost",
+  "plusOfferSubtitle": "Boost — еженедельная подписка за $1. Без рекламы и ×2 кристаллы в ежедневном бонусе. Отменить можно в этом окне (оплата через Google Play / App Store — позже).",
+  "plusSubscribe": "Подписаться · {price}",
+  "plusManageSubtitle": "Boost даёт бонусы в игре. Пока это локальный preview — после подключения магазина списание пойдёт через Google Play / App Store.",
   "plusManageBenefitAds": "Без рекламы",
-  "plusManageBenefitDaily": "×2 кристаллы в ежедневном бонусе (Daily)",
+  "plusManageBenefitDaily": "×2 кристаллы в ежедневном бонусе",
   "plusManagePrice": "Стоимость: {price}",
   "plusManageNextCharge": "Следующее списание: {date}",
   "resetDataTitle": "Сбросить данные?",
-  "resetDataBody": "Прогресс, кристалы, жизни, рекорды и подписка будут очищены. Приложение станет как после первой установки.",
+  "resetDataBody": "Прогресс, кристалы, жизни, рекорды и Boost будут очищены. Приложение станет как после первой установки.",
   "resetDataDone": "Данные сброшены",
   "giftCrystals": "+{count} кристалла",
   "claimGift": "Забрать подарок",
@@ -49,10 +103,10 @@
   "dailyStreakHint": "Забирайте награду каждый день подряд",
   "dailyStreakActive": "Серия {days} дн. · пропуск сбрасывает на день 1",
   "premiumTimesBase": "{base} × {mult}",
-  "premiumTimesLocked": "×{mult} with Plus",
+  "premiumTimesLocked": "×{mult} с Boost",
   "claimed": "Получено",
   "claim": "Получить",
-  "dailyToast": "Daily +{count}",
+  "dailyToast": "Ежедневно +{count}",
   "crystalsPlus": "+{count} кристалов",
   "earnWatchAd": "Смотреть рекламу",
   "earnWatchAdSub": "Короткий ролик",
@@ -64,11 +118,43 @@
   "earnRateAppSub": "Звёзды в магазине",
   "earnInviteFriend": "Пригласить друга",
   "earnInviteFriendSub": "Поделиться ссылкой",
+  "earnInstallBonus": "Бонус за установку",
+  "earnInstallBonusSub": "Приз за скачивание игры",
+  "earnSurvive10": "Продержаться 10 секунд",
+  "earnSurvive10Sub": "10 секунд в одной партии",
+  "earnRecord20": "Рекорд 20 секунд",
+  "earnRecord20Sub": "Личный рекорд от 20 секунд",
+  "earnRisks5": "5 рисков за партию",
+  "earnRisks5Sub": "Набрать 5 рисков в одной игре",
+  "earnBonusLocked": "Откроется в игре",
+  "earnBonusUnlocked": "Открыто: {title}",
+  "@earnBonusUnlocked": {
+    "placeholders": {
+      "title": {"type": "String"}
+    }
+  },
+  "earnUnlockedBannerTap": "Нажмите, чтобы забрать в Earn",
+  "riskTipHow": "Риск засчитывается, когда вы едва разминулись с врагом — близко, но без касания.",
+  "riskTipConvert": "В конце партии: каждые {every} рисков = {reward} кристалл(ов).",
+  "@riskTipConvert": {
+    "placeholders": {
+      "every": {"type": "int"},
+      "reward": {"type": "int"}
+    }
+  },
+  "runTipHow": "Пробег — расстояние, которое прошёл ваш кубик за партию.",
+  "runTipConvert": "В конце партии: каждые {every} единиц пробега = {reward} кристалл(ов).",
+  "@runTipConvert": {
+    "placeholders": {
+      "every": {"type": "int"},
+      "reward": {"type": "int"}
+    }
+  },
   "earnReward": "Награда",
   "packHandful": "Горсть",
   "packStack": "Стопка",
   "packChest": "Сундук",
-  "packVault": "Сокровищница",
+  "packVault": "Сейф",
   "badgeDeal": "Выгодно",
   "badgeBest": "Лучшая цена",
   "badgeMax": "Максимум",
@@ -80,14 +166,28 @@
   "colPlayer": "Игрок",
   "colCountry": "Стр",
   "colTime": "Время",
-  "tabDaily": "Daily",
+  "colBoosts": "Бусты",
+  "tabDaily": "Ежедневно",
   "tabShop": "Покупки",
+  "tabRent": "Аренда",
   "tabEarn": "Действия",
-  "plusTitle": "Plus",
+  "plusTitle": "Boost",
   "plusBenefits": "Без рекламы",
   "plusDailyBoost": "в Daily",
   "giftReady": "Готово!",
-  "tapHintPlayful": "Коснись экрана и уворачивайся",
+  "tapHintChallenge": "Продержишься хотя бы {seconds} сек?",
+  "@tapHintChallenge": {
+    "placeholders": {
+      "seconds": {"type": "int"}
+    }
+  },
+  "tapHintNextChallenge": "А слабо {seconds} сек?",
+  "@tapHintNextChallenge": {
+    "placeholders": {
+      "seconds": {"type": "int"}
+    }
+  },
+  "tapHintPlayful": "Коснись и уворачивайся",
   "livesBalance": "{count} жизней",
   "colDate": "Дата",
   "periodDay": "День",
@@ -97,10 +197,26 @@
   "periodAll": "Всё",
   "livesConvertTitle": "Получить жизни",
   "livesConvertSubtitle": "Обменяйте кристалы на жизни",
+  "statLives": "Жизни",
   "livesPackLabel": "+{count} жизней",
   "shopFree": "FREE",
   "shopWatchAd": "Смотри и получи",
   "shopWatchAdSub": "Короткое видео · бесплатно",
+  "shopRentalsTitle": "Аренда",
+  "rentJumpTitle": "Прыжок",
+  "rentJumpSub": "Второй палец — перепрыгнуть врага",
+  "rentHelmetTitle": "Шлем",
+  "rentHelmetSub": "Один удар без смерти за партию",
+  "rentHourSub": "Пакет на {minutes} мин",
+  "rentMinsLabel": "{minutes} мин",
+  "rentDiscountBadge": "−{percent}%",
+  "rentActive": "Активно · {time}",
+  "rentExtend": "Продлить",
+  "rentBuy": "Арендовать",
+  "rentNotEnough": "Не хватает кристалов",
+  "rentInactive": "Выкл",
+  "jumpRentalNeeded": "Арендуйте прыжок в магазине",
+  "helmetBroken": "Шлем разбит",
   "yourPlacesTitle": "Ваши места",
   "shareRankHint": "Куда попадёт результат, если сохранить",
   "rankSliceToday": "Сегодня",
@@ -109,7 +225,7 @@
   "rankSliceYear": "В этом году",
   "rankSliceAll": "За всё время",
   "youGhost": "Вы",
-  "periodMine": "Мои",
+  "periodMine": "Мои попытки",
   "colAttempt": "Попытка",
   "myAttemptsEmpty": "Пока пусто — сыграйте раунд",
   "attemptShared": "В рейтинге",

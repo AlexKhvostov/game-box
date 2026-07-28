@@ -5,6 +5,7 @@ import '../../data/scores_store.dart';
 import '../../domain/score_entry.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/game_sheet.dart';
+import '../result/share_score_sheet.dart';
 import 'leaderboard_widgets.dart';
 
 /// Общий фильтр и список лидеров — один UI для Leaderboard и Share.
@@ -14,12 +15,20 @@ class LeaderboardPanel extends StatefulWidget {
     super.key,
     this.ghostTimeMs,
     this.ghostCountryCode = '--',
+    this.ghostRiskCount = 0,
+    this.ghostRunDistance = 0,
+    this.ghostHadJump = false,
+    this.ghostHadHelmet = false,
     this.listPadding = const EdgeInsets.fromLTRB(12, 8, 12, 20),
   });
 
   /// Если задано — в рейтинге периодов показывается строка «Вы».
   final int? ghostTimeMs;
   final String ghostCountryCode;
+  final int ghostRiskCount;
+  final int ghostRunDistance;
+  final bool ghostHadJump;
+  final bool ghostHadHelmet;
   final EdgeInsets listPadding;
 
   @override
@@ -46,6 +55,15 @@ class LeaderboardPanelState extends State<LeaderboardPanel> {
       default:
         return 'all';
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<ScoresStore>().refreshIfStale();
+    });
   }
 
   @override
@@ -117,7 +135,12 @@ class LeaderboardPanelState extends State<LeaderboardPanel> {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+          padding: EdgeInsets.fromLTRB(
+            widget.listPadding.left + 10,
+            8,
+            widget.listPadding.right + 10,
+            4,
+          ),
           child: Row(
             children: [
               SizedBox(
@@ -130,7 +153,16 @@ class LeaderboardPanelState extends State<LeaderboardPanel> {
                   style: theme.textTheme.bodySmall,
                 ),
               ),
-              if (!isMine)
+              if (isMine)
+                SizedBox(
+                  width: 52,
+                  child: Text(
+                    l10n.colDate,
+                    style: theme.textTheme.bodySmall,
+                    textAlign: TextAlign.end,
+                  ),
+                )
+              else
                 SizedBox(
                   width: 28,
                   child: Text(
@@ -140,7 +172,17 @@ class LeaderboardPanelState extends State<LeaderboardPanel> {
                   ),
                 ),
               SizedBox(
-                width: 58,
+                width: 34,
+                child: Text(
+                  l10n.colBoosts,
+                  style: theme.textTheme.bodySmall,
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              SizedBox(
+                width: 52,
                 child: Text(
                   l10n.colTime,
                   style: theme.textTheme.bodySmall,
@@ -148,11 +190,23 @@ class LeaderboardPanelState extends State<LeaderboardPanel> {
                 ),
               ),
               SizedBox(
-                width: 52,
+                width: 36,
                 child: Text(
-                  l10n.colDate,
+                  l10n.playInfoNear,
                   style: theme.textTheme.bodySmall,
                   textAlign: TextAlign.end,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              SizedBox(
+                width: 44,
+                child: Text(
+                  l10n.playInfoRun,
+                  style: theme.textTheme.bodySmall,
+                  textAlign: TextAlign.end,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -161,13 +215,20 @@ class LeaderboardPanelState extends State<LeaderboardPanel> {
         const Divider(height: 1),
         Expanded(
           child: isMine
-              ? _MineList(store: store, padding: widget.listPadding)
+              ? ColoredBox(
+                  color: const Color(0xFFFFD54F).withValues(alpha: 0.16),
+                  child: _MineList(store: store, padding: widget.listPadding),
+                )
               : _ScoresList(
                   store: store,
                   periodKey: periodKey,
                   padding: widget.listPadding,
                   ghostTimeMs: widget.ghostTimeMs,
                   ghostCountryCode: widget.ghostCountryCode,
+                  ghostRiskCount: widget.ghostRiskCount,
+                  ghostRunDistance: widget.ghostRunDistance,
+                  ghostHadJump: widget.ghostHadJump,
+                  ghostHadHelmet: widget.ghostHadHelmet,
                 ),
         ),
       ],
@@ -194,16 +255,16 @@ class LeaderboardFilterChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    // «Мои» — лёгкий золотисто-жёлтый оттенок
+    // «Мои попытки» — всегда лёгкий жёлтый фон
     final active = accent ? const Color(0xFFFFD54F) : theme.colorScheme.primary;
     final idleBorder = accent
-        ? const Color(0xFFFFD54F).withValues(alpha: 0.35)
+        ? const Color(0xFFFFD54F).withValues(alpha: 0.45)
         : Colors.white12;
     final idleBg = accent
-        ? const Color(0xFFFFD54F).withValues(alpha: 0.08)
+        ? const Color(0xFFFFD54F).withValues(alpha: 0.16)
         : Colors.white.withValues(alpha: 0.04);
     final idleText = accent
-        ? const Color(0xFFFFECB3).withValues(alpha: 0.9)
+        ? const Color(0xFFFFECB3)
         : Colors.white70;
 
     return Padding(
@@ -220,9 +281,13 @@ class LeaderboardFilterChip extends StatelessWidget {
             ),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(compact ? 8 : 10),
-              color: selected ? active.withValues(alpha: 0.22) : idleBg,
+              color: selected
+                  ? active.withValues(alpha: 0.28)
+                  : idleBg,
               border: Border.all(
-                color: selected ? active.withValues(alpha: 0.65) : idleBorder,
+                color: selected
+                    ? active.withValues(alpha: 0.75)
+                    : idleBorder,
               ),
             ),
             child: Text(
@@ -250,6 +315,10 @@ class _ScoresList extends StatelessWidget {
     required this.padding,
     this.ghostTimeMs,
     this.ghostCountryCode = '--',
+    this.ghostRiskCount = 0,
+    this.ghostRunDistance = 0,
+    this.ghostHadJump = false,
+    this.ghostHadHelmet = false,
   });
 
   final ScoresStore store;
@@ -257,6 +326,10 @@ class _ScoresList extends StatelessWidget {
   final EdgeInsets padding;
   final int? ghostTimeMs;
   final String ghostCountryCode;
+  final int ghostRiskCount;
+  final int ghostRunDistance;
+  final bool ghostHadJump;
+  final bool ghostHadHelmet;
 
   @override
   Widget build(BuildContext context) {
@@ -288,6 +361,10 @@ class _ScoresList extends StatelessWidget {
       timeMs: ghostMs,
       createdAt: DateTime.now(),
       countryCode: ghostCountryCode,
+      riskCount: ghostRiskCount,
+      runDistance: ghostRunDistance,
+      hadJump: ghostHadJump,
+      hadHelmet: ghostHadHelmet,
     );
 
     if (list.isEmpty) {
@@ -343,18 +420,15 @@ class _MineList extends StatelessWidget {
     if (attempts.isEmpty) {
       return Center(child: Text(l10n.myAttemptsEmpty));
     }
+    // Лучшие (дольше выжили) сверху — как в рейтинге.
     final byTime = [...attempts]..sort((a, b) => b.timeMs.compareTo(a.timeMs));
-    final placeOf = <String, int>{
-      for (var i = 0; i < byTime.length; i++) byTime[i].id: i + 1,
-    };
     return ListView.builder(
       padding: padding,
-      itemCount: attempts.length,
+      itemCount: byTime.length,
       itemBuilder: (context, i) {
-        final a = attempts[i];
         return MyAttemptRow(
-          place: placeOf[a.id] ?? (i + 1),
-          attempt: a,
+          place: i + 1,
+          attempt: byTime[i],
         );
       },
     );
@@ -374,9 +448,7 @@ class MyAttemptRow extends StatelessWidget {
   String _dateLabel(DateTime d) {
     final mm = d.month.toString().padLeft(2, '0');
     final dd = d.day.toString().padLeft(2, '0');
-    final hh = d.hour.toString().padLeft(2, '0');
-    final min = d.minute.toString().padLeft(2, '0');
-    return '$dd.$mm\n$hh:$min';
+    return '$dd.$mm';
   }
 
   @override
@@ -384,66 +456,143 @@ class MyAttemptRow extends StatelessWidget {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
     final top = place <= 3;
+    final name = attempt.displayName?.trim();
+    final title = attempt.shared
+        ? ((name != null && name.isNotEmpty) ? name : l10n.attemptShared)
+        : l10n.attemptLocal;
 
-    return GamePanel(
-      margin: const EdgeInsets.only(bottom: 6),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-      accent: attempt.shared
-          ? theme.colorScheme.primary
-          : const Color(0xFF7EE0FF),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 28,
-            child: Text(
-              '$place',
-              style: TextStyle(
-                fontWeight: FontWeight.w900,
-                fontSize: 15,
-                color: top ? theme.colorScheme.primary : Colors.white70,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: attempt.shared
+            ? null
+            : () => showShareScoreSheet(
+                  context,
+                  timeMs: attempt.timeMs,
+                  riskCount: attempt.riskCount,
+                  runDistance: attempt.runDistance,
+                  hadJump: attempt.hadJump,
+                  hadHelmet: attempt.hadHelmet,
+                ),
+        borderRadius: BorderRadius.circular(14),
+        child: GamePanel(
+          margin: const EdgeInsets.only(bottom: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+          accent: attempt.shared
+              ? theme.colorScheme.primary
+              : const Color(0xFF7EE0FF),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 28,
+                child: Text(
+                  '$place',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 15,
+                    color: top ? theme.colorScheme.primary : Colors.white70,
+                  ),
+                ),
               ),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              attempt.shared ? l10n.attemptShared : l10n.attemptLocal,
-              style: TextStyle(
-                fontWeight: FontWeight.w700,
-                fontSize: 13,
-                color: attempt.shared
-                    ? theme.colorScheme.primary
-                    : const Color(0xFF7EE0FF),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 13,
+                        color: attempt.shared
+                            ? theme.colorScheme.primary
+                            : const Color(0xFF7EE0FF),
+                      ),
+                    ),
+                    if (!attempt.shared) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        l10n.attemptTapToSave,
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white.withValues(alpha: 0.45),
+                        ),
+                      ),
+                    ] else if (name != null && name.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        l10n.attemptShared,
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white.withValues(alpha: 0.45),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
               ),
-            ),
-          ),
-          SizedBox(
-            width: 58,
-            child: Text(
-              '${attempt.timeSec.toStringAsFixed(2)}s',
-              textAlign: TextAlign.end,
-              style: TextStyle(
-                fontWeight: FontWeight.w900,
-                color: top ? theme.colorScheme.primary : Colors.white70,
-                fontSize: 13,
-                fontFeatures: const [FontFeature.tabularFigures()],
+              SizedBox(
+                width: 52,
+                child: Text(
+                  _dateLabel(attempt.createdAt),
+                  textAlign: TextAlign.end,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: Colors.white54,
+                    fontWeight: FontWeight.w600,
+                    fontFeatures: [FontFeature.tabularFigures()],
+                  ),
+                ),
               ),
-            ),
-          ),
-          SizedBox(
-            width: 52,
-            child: Text(
-              _dateLabel(attempt.createdAt),
-              textAlign: TextAlign.end,
-              style: const TextStyle(
-                fontSize: 10,
-                color: Colors.white54,
-                fontWeight: FontWeight.w600,
-                height: 1.2,
-                fontFeatures: [FontFeature.tabularFigures()],
+              ScoreBoostIcons(
+                hadJump: attempt.hadJump,
+                hadHelmet: attempt.hadHelmet,
               ),
-            ),
+              SizedBox(
+                width: 52,
+                child: Text(
+                  '${attempt.timeSec.toStringAsFixed(2)}s',
+                  textAlign: TextAlign.end,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w900,
+                    color: top ? theme.colorScheme.primary : Colors.white70,
+                    fontSize: 13,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 36,
+                child: Text(
+                  '${attempt.riskCount}',
+                  textAlign: TextAlign.end,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.white70,
+                    fontWeight: FontWeight.w700,
+                    fontFeatures: [FontFeature.tabularFigures()],
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 44,
+                child: Text(
+                  '${attempt.runDistance}',
+                  textAlign: TextAlign.end,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.white70,
+                    fontWeight: FontWeight.w700,
+                    fontFeatures: [FontFeature.tabularFigures()],
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

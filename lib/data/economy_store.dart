@@ -20,6 +20,12 @@ class EconomyStore extends ChangeNotifier {
   static const _kPremium = 'has_premium';
   static const _kPremiumNextCharge = 'premium_next_charge';
   static const _kEarnClaimed = 'earn_claimed_ids';
+  static const _kEarnUnlocked = 'earn_unlocked_ids';
+  static const _kGamesStarted = 'games_started_count';
+  static const _kLastWatchAd = 'last_watch_ad_claim';
+  static const _kJumpRentalUntil = 'jump_rental_until';
+  static const _kHelmetRentalUntil = 'helmet_rental_until';
+  static const swipeHintMaxGames = 5;
 
   late SharedPreferences _prefs;
 
@@ -32,9 +38,19 @@ class EconomyStore extends ChangeNotifier {
   String? displayName;
   int bestTimeMs = 0;
   bool hasPremium = false;
-  /// Preview: следующее списание Plus (после реального Billing заменится).
+  /// Preview: следующее списание Boost (после реального Billing заменится).
   DateTime? premiumNextChargeAt;
+  /// Сколько раз уже тратили жизнь на старт партии (для подсказки пальца).
+  int gamesStartedCount = 0;
+  /// Последний забор кристалов за рекламу (для кулдауна).
+  DateTime? lastWatchAdClaimAt;
+  /// Аренда прыжка действует до этого момента.
+  DateTime? jumpRentalUntil;
+  /// Аренда шлема действует до этого момента.
+  DateTime? helmetRentalUntil;
   final Set<String> claimedEarnIds = {};
+  /// Геймплей-бонусы Earn, которые уже открыты (можно забрать).
+  final Set<String> unlockedEarnIds = {};
 
   Future<void> load() async {
     _prefs = await SharedPreferences.getInstance();
@@ -42,8 +58,8 @@ class EconomyStore extends ChangeNotifier {
 
     if (!hasProfile) {
       lives = config.initialLives;
-      tokens = 0;
       dailyStreak = 0;
+      _seedInstallBonusOnFreshStart();
       await _persist();
       return;
     }
@@ -54,18 +70,47 @@ class EconomyStore extends ChangeNotifier {
     bestTimeMs = _prefs.getInt(_kBestTime) ?? 0;
     displayName = _prefs.getString(_kDisplayName);
     hasPremium = _prefs.getBool(_kPremium) ?? false;
+    gamesStartedCount = _prefs.getInt(_kGamesStarted) ?? 0;
     final nextChargeRaw = _prefs.getString(_kPremiumNextCharge);
     if (nextChargeRaw != null) {
       premiumNextChargeAt = DateTime.tryParse(nextChargeRaw);
     }
     if (hasPremium && premiumNextChargeAt == null) {
-      premiumNextChargeAt = DateTime.now().add(const Duration(days: 30));
+      premiumNextChargeAt = DateTime.now().add(const Duration(days: 7));
     }
     claimedEarnIds
       ..clear()
       ..addAll(_prefs.getStringList(_kEarnClaimed) ?? const []);
+    unlockedEarnIds
+      ..clear()
+      ..addAll(_prefs.getStringList(_kEarnUnlocked) ?? const []);
     // Реклама всегда многоразовая — убираем старый one-shot флаг.
     claimedEarnIds.remove('watch_ad');
+    // Старые профили при авто-бонусе: уже «прошли» установку — без повторной выдачи.
+    var claimedDirty = false;
+    if (config.installBonusAutoClaim &&
+        !claimedEarnIds.contains(EconomyConfig.installBonusId)) {
+      claimedEarnIds.add(EconomyConfig.installBonusId);
+      claimedDirty = true;
+    }
+    // Рекорд уже есть — открываем time-бонусы без тоста.
+    final unlockedBefore = unlockedEarnIds.length;
+    syncGameplayEarnUnlocks(aliveMs: 0, riskCount: 0, persist: false);
+    final unlockedDirty = unlockedEarnIds.length != unlockedBefore;
+
+    final lastWatchRaw = _prefs.getString(_kLastWatchAd);
+    if (lastWatchRaw != null) {
+      lastWatchAdClaimAt = DateTime.tryParse(lastWatchRaw);
+    }
+
+    final jumpUntilRaw = _prefs.getString(_kJumpRentalUntil);
+    if (jumpUntilRaw != null) {
+      jumpRentalUntil = DateTime.tryParse(jumpUntilRaw);
+    }
+    final helmetUntilRaw = _prefs.getString(_kHelmetRentalUntil);
+    if (helmetUntilRaw != null) {
+      helmetRentalUntil = DateTime.tryParse(helmetUntilRaw);
+    }
 
     final dailyRaw = _prefs.getString(_kLastDaily);
     if (dailyRaw != null) {
@@ -89,6 +134,12 @@ class EconomyStore extends ChangeNotifier {
           );
         }
       }
+    }
+    if (claimedDirty) {
+      await _prefs.setStringList(_kEarnClaimed, claimedEarnIds.toList());
+    }
+    if (unlockedDirty) {
+      await _prefs.setStringList(_kEarnUnlocked, unlockedEarnIds.toList());
     }
     notifyListeners();
   }
@@ -127,6 +178,7 @@ class EconomyStore extends ChangeNotifier {
     await _prefs.setInt(_kStreak, dailyStreak);
     await _prefs.setInt(_kBestTime, bestTimeMs);
     await _prefs.setBool(_kPremium, hasPremium);
+    await _prefs.setInt(_kGamesStarted, gamesStartedCount);
     if (premiumNextChargeAt != null) {
       await _prefs.setString(
         _kPremiumNextCharge,
@@ -136,6 +188,7 @@ class EconomyStore extends ChangeNotifier {
       await _prefs.remove(_kPremiumNextCharge);
     }
     await _prefs.setStringList(_kEarnClaimed, claimedEarnIds.toList());
+    await _prefs.setStringList(_kEarnUnlocked, unlockedEarnIds.toList());
     if (displayName != null) {
       await _prefs.setString(_kDisplayName, displayName!);
     }
@@ -150,6 +203,30 @@ class EconomyStore extends ChangeNotifier {
     } else {
       await _prefs.remove(_kLastTimedBonus);
     }
+    if (lastWatchAdClaimAt != null) {
+      await _prefs.setString(
+        _kLastWatchAd,
+        lastWatchAdClaimAt!.toIso8601String(),
+      );
+    } else {
+      await _prefs.remove(_kLastWatchAd);
+    }
+    if (jumpRentalUntil != null) {
+      await _prefs.setString(
+        _kJumpRentalUntil,
+        jumpRentalUntil!.toIso8601String(),
+      );
+    } else {
+      await _prefs.remove(_kJumpRentalUntil);
+    }
+    if (helmetRentalUntil != null) {
+      await _prefs.setString(
+        _kHelmetRentalUntil,
+        helmetRentalUntil!.toIso8601String(),
+      );
+    } else {
+      await _prefs.remove(_kHelmetRentalUntil);
+    }
     // Старый ключ больше не пишем.
     await _prefs.remove(_kNextBonus);
     notifyListeners();
@@ -157,9 +234,13 @@ class EconomyStore extends ChangeNotifier {
 
   bool get canPlay => lives > 0;
 
+  /// Палец-подсказка только пока сыграно меньше 5 партий (5 жизней).
+  bool get showSwipeHint => gamesStartedCount < swipeHintMaxGames;
+
   bool tryStartGame() {
     if (lives <= 0) return false;
     lives -= 1;
+    gamesStartedCount += 1;
     _persist();
     return true;
   }
@@ -284,10 +365,84 @@ class EconomyStore extends ChangeNotifier {
     return amount;
   }
 
-  /// Локальный preview подписки.
+  bool get hasJumpRental {
+    final until = jumpRentalUntil;
+    return until != null && until.isAfter(DateTime.now());
+  }
+
+  bool get hasHelmetRental {
+    final until = helmetRentalUntil;
+    return until != null && until.isAfter(DateTime.now());
+  }
+
+  Duration? get jumpRentalRemaining {
+    final until = jumpRentalUntil;
+    if (until == null) return null;
+    final left = until.difference(DateTime.now());
+    if (left.isNegative || left.inMilliseconds <= 0) return null;
+    return left;
+  }
+
+  Duration? get helmetRentalRemaining {
+    final until = helmetRentalUntil;
+    if (until == null) return null;
+    final left = until.difference(DateTime.now());
+    if (left.isNegative || left.inMilliseconds <= 0) return null;
+    return left;
+  }
+
+  bool canRentJump({bool hour = false}) {
+    final cost = hour ? config.jumpRentalHourCost : config.jumpRentalCost;
+    return tokens >= cost;
+  }
+
+  bool canRentHelmet({bool hour = false}) {
+    final cost = hour ? config.helmetRentalHourCost : config.helmetRentalCost;
+    return tokens >= cost;
+  }
+
+  /// Аренда прыжка: продлевает от max(now, текущий until).
+  bool rentJump({bool hour = false}) {
+    final cost = hour ? config.jumpRentalHourCost : config.jumpRentalCost;
+    final minutes = (hour
+            ? config.jumpRentalHourMinutes
+            : config.jumpRentalMinutes)
+        .clamp(1, 24 * 60);
+    if (tokens < cost) return false;
+    tokens -= cost;
+    final now = DateTime.now();
+    final base =
+        jumpRentalUntil != null && jumpRentalUntil!.isAfter(now)
+            ? jumpRentalUntil!
+            : now;
+    jumpRentalUntil = base.add(Duration(minutes: minutes));
+    _persist();
+    return true;
+  }
+
+  /// Аренда шлема: 1 касание без смерти за партию, пока аренда активна.
+  bool rentHelmet({bool hour = false}) {
+    final cost = hour ? config.helmetRentalHourCost : config.helmetRentalCost;
+    final minutes = (hour
+            ? config.helmetRentalHourMinutes
+            : config.helmetRentalMinutes)
+        .clamp(1, 24 * 60);
+    if (tokens < cost) return false;
+    tokens -= cost;
+    final now = DateTime.now();
+    final base =
+        helmetRentalUntil != null && helmetRentalUntil!.isAfter(now)
+            ? helmetRentalUntil!
+            : now;
+    helmetRentalUntil = base.add(Duration(minutes: minutes));
+    _persist();
+    return true;
+  }
+
+  /// Локальный preview подписки Boost (еженедельно).
   void activatePremiumPreview() {
     hasPremium = true;
-    premiumNextChargeAt = DateTime.now().add(const Duration(days: 30));
+    premiumNextChargeAt = DateTime.now().add(const Duration(days: 7));
     _persist();
   }
 
@@ -302,7 +457,6 @@ class EconomyStore extends ChangeNotifier {
   /// Полный сброс локального прогресса — как после первой установки.
   Future<void> resetToFreshInstall() async {
     lives = config.initialLives;
-    tokens = 0;
     dailyStreak = 0;
     lastDailyClaimAt = null;
     lastTimedBonusClaimAt = null;
@@ -310,7 +464,11 @@ class EconomyStore extends ChangeNotifier {
     bestTimeMs = 0;
     hasPremium = false;
     premiumNextChargeAt = null;
-    claimedEarnIds.clear();
+    gamesStartedCount = 0;
+    lastWatchAdClaimAt = null;
+    jumpRentalUntil = null;
+    helmetRentalUntil = null;
+    _seedInstallBonusOnFreshStart();
 
     await _prefs.remove(_kLives);
     await _prefs.remove(_kTokens);
@@ -323,29 +481,87 @@ class EconomyStore extends ChangeNotifier {
     await _prefs.remove(_kPremium);
     await _prefs.remove(_kPremiumNextCharge);
     await _prefs.remove(_kEarnClaimed);
+    await _prefs.remove(_kEarnUnlocked);
+    await _prefs.remove(_kGamesStarted);
+    await _prefs.remove(_kLastWatchAd);
+    await _prefs.remove(_kJumpRentalUntil);
+    await _prefs.remove(_kHelmetRentalUntil);
 
     await _persist();
+  }
+
+  /// Стартовый бонус за установку: авто-выдача или ожидание клика в Earn.
+  void _seedInstallBonusOnFreshStart() {
+    claimedEarnIds.clear();
+    unlockedEarnIds.clear();
+    if (config.installBonusAutoClaim) {
+      tokens = config.resolvedInstallBonusTokens;
+      claimedEarnIds.add(EconomyConfig.installBonusId);
+    } else {
+      tokens = 0;
+    }
+  }
+
+  EarnAction? _earnActionById(String id) {
+    for (final a in config.earnActions) {
+      if (a.id == id) return a;
+    }
+    return null;
+  }
+
+  /// Геймплей-бонус можно забирать только после разблокировки.
+  bool isEarnUnlocked(String id) {
+    if (!EconomyConfig.gameplayEarnIds.contains(id)) return true;
+    return unlockedEarnIds.contains(id) || claimedEarnIds.contains(id);
+  }
+
+  /// Открывает Earn-бонусы по времени / рискам. Возвращает только новые id.
+  List<String> syncGameplayEarnUnlocks({
+    required int aliveMs,
+    required int riskCount,
+    bool persist = true,
+  }) {
+    final newly = <String>[];
+    void tryUnlock(String id, bool condition) {
+      if (!condition) return;
+      if (claimedEarnIds.contains(id) || unlockedEarnIds.contains(id)) return;
+      if (_earnActionById(id) == null) return;
+      unlockedEarnIds.add(id);
+      newly.add(id);
+    }
+
+    final surviveMs =
+        (config.earnSurviveSeconds.clamp(1, 3600) * 1000);
+    final recordMs = (config.earnRecordSeconds.clamp(1, 3600) * 1000);
+    final risksTarget = config.earnRisksInRun.clamp(1, 999);
+    final bestOrRun = aliveMs > bestTimeMs ? aliveMs : bestTimeMs;
+
+    tryUnlock(EconomyConfig.survive10Id, bestOrRun >= surviveMs);
+    tryUnlock(EconomyConfig.record20Id, bestOrRun >= recordMs);
+    tryUnlock(EconomyConfig.risks5Id, riskCount >= risksTarget);
+
+    if (newly.isNotEmpty && persist) {
+      _persist();
+    }
+    return newly;
   }
 
   /// Preview: награда за действие (реклама / соцсеть / …).
   int? claimEarnAction(String id) {
     if (claimedEarnIds.contains(id)) return null;
-    EarnAction? action;
-    for (final a in config.earnActions) {
-      if (a.id == id) {
-        action = a;
-        break;
-      }
-    }
+    if (!isEarnUnlocked(id)) return null;
+    final action = _earnActionById(id);
     if (action == null) return null;
     claimedEarnIds.add(id);
+    unlockedEarnIds.add(id);
     tokens += action.reward;
     _persist();
     return action.reward;
   }
 
-  /// Реклама из магазина (FREE) — многоразовая, без «claimed».
-  int claimWatchAd({int fallbackReward = 5}) {
+  /// Реклама из магазина (FREE) — многоразовая, с кулдауном из RC.
+  int? claimWatchAd({int fallbackReward = 5}) {
+    if (!canClaimWatchAd) return null;
     const id = 'watch_ad';
     var reward = fallbackReward;
     for (final a in config.earnActions) {
@@ -355,10 +571,36 @@ class EconomyStore extends ChangeNotifier {
       }
     }
     tokens += reward;
-    // Не пишем в claimedEarnIds — рекламу можно смотреть снова.
+    lastWatchAdClaimAt = DateTime.now();
+    // Не пишем в claimedEarnIds — рекламу можно смотреть снова после кулдауна.
     claimedEarnIds.remove(id);
     _persist();
     return reward;
+  }
+
+  Duration get _watchAdCooldown =>
+      Duration(seconds: config.watchAdCooldownSec.clamp(0, 24 * 3600));
+
+  DateTime? get _watchAdReadyAt {
+    final last = lastWatchAdClaimAt;
+    if (last == null) return null;
+    final cd = _watchAdCooldown;
+    if (cd.inSeconds <= 0) return null;
+    return last.add(cd);
+  }
+
+  bool get canClaimWatchAd {
+    final ready = _watchAdReadyAt;
+    if (ready == null) return true;
+    return !DateTime.now().isBefore(ready);
+  }
+
+  Duration? get watchAdCooldownRemaining {
+    final ready = _watchAdReadyAt;
+    if (ready == null) return null;
+    final left = ready.difference(DateTime.now());
+    if (left.isNegative || left.inMilliseconds <= 0) return null;
+    return left;
   }
 
   bool isEarnClaimed(String id) => claimedEarnIds.contains(id);

@@ -101,7 +101,7 @@ abstract class AppLocalizations {
   /// No description provided for @appTitle.
   ///
   /// In en, this message translates to:
-  /// **'Game Box'**
+  /// **'Untouch'**
   String get appTitle;
 
   /// No description provided for @tapToStart.
@@ -164,11 +164,41 @@ abstract class AppLocalizations {
   /// **'#{place} · faster than {percent}%'**
   String rankFaster(int place, int percent);
 
+  /// No description provided for @rankToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Better than {percent}% of players!'**
+  String rankToday(int percent);
+
   /// No description provided for @share.
   ///
   /// In en, this message translates to:
-  /// **'Share'**
+  /// **'Save'**
   String get share;
+
+  /// No description provided for @shareSocial.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get shareSocial;
+
+  /// No description provided for @shareBoast.
+  ///
+  /// In en, this message translates to:
+  /// **'I lasted {time}s in {app}!'**
+  String shareBoast(String time, String app);
+
+  /// No description provided for @shareSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get shareSend;
+
+  /// No description provided for @shareScoreCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'{app} — {time}s'**
+  String shareScoreCaption(String app, String time);
 
   /// No description provided for @ok.
   ///
@@ -254,6 +284,78 @@ abstract class AppLocalizations {
   /// **'Daily'**
   String get daily;
 
+  /// No description provided for @plusActiveShort.
+  ///
+  /// In en, this message translates to:
+  /// **'On'**
+  String get plusActiveShort;
+
+  /// No description provided for @plusNoAdsShort.
+  ///
+  /// In en, this message translates to:
+  /// **'No ads'**
+  String get plusNoAdsShort;
+
+  /// No description provided for @plusCrystalsDoubleShort.
+  ///
+  /// In en, this message translates to:
+  /// **'×2'**
+  String get plusCrystalsDoubleShort;
+
+  /// No description provided for @playInfoEnemies.
+  ///
+  /// In en, this message translates to:
+  /// **'Enemies'**
+  String get playInfoEnemies;
+
+  /// No description provided for @playInfoSpeed.
+  ///
+  /// In en, this message translates to:
+  /// **'Speed'**
+  String get playInfoSpeed;
+
+  /// No description provided for @playInfoRun.
+  ///
+  /// In en, this message translates to:
+  /// **'Run'**
+  String get playInfoRun;
+
+  /// No description provided for @playInfoNear.
+  ///
+  /// In en, this message translates to:
+  /// **'Risk'**
+  String get playInfoNear;
+
+  /// No description provided for @riskCrystalHint.
+  ///
+  /// In en, this message translates to:
+  /// **'{every} risks = {reward} crystal'**
+  String riskCrystalHint(int every, int reward);
+
+  /// No description provided for @runCrystalHint.
+  ///
+  /// In en, this message translates to:
+  /// **'{every} run = {reward} crystal'**
+  String runCrystalHint(int every, int reward);
+
+  /// No description provided for @riskCrystalsEarned.
+  ///
+  /// In en, this message translates to:
+  /// **'+{count}'**
+  String riskCrystalsEarned(int count);
+
+  /// No description provided for @playInfoScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Score'**
+  String get playInfoScore;
+
+  /// No description provided for @attemptTapToSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to save'**
+  String get attemptTapToSave;
+
   /// No description provided for @earn.
   ///
   /// In en, this message translates to:
@@ -275,7 +377,7 @@ abstract class AppLocalizations {
   /// No description provided for @plusActive.
   ///
   /// In en, this message translates to:
-  /// **'Plus active'**
+  /// **'Boost active'**
   String get plusActive;
 
   /// No description provided for @plusCancel.
@@ -287,31 +389,49 @@ abstract class AppLocalizations {
   /// No description provided for @plusButton.
   ///
   /// In en, this message translates to:
-  /// **'Plus · {price}'**
+  /// **'Boost · {price}'**
   String plusButton(String price);
 
   /// No description provided for @plusToast.
   ///
   /// In en, this message translates to:
-  /// **'Plus · Daily ×2'**
+  /// **'Boost · Daily ×2'**
   String get plusToast;
 
   /// No description provided for @plusCancelledToast.
   ///
   /// In en, this message translates to:
-  /// **'Plus turned off'**
+  /// **'Boost turned off'**
   String get plusCancelledToast;
 
   /// No description provided for @plusManageTitle.
   ///
   /// In en, this message translates to:
-  /// **'Manage Plus'**
+  /// **'Manage Boost'**
   String get plusManageTitle;
+
+  /// No description provided for @plusOfferTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Boost subscription'**
+  String get plusOfferTitle;
+
+  /// No description provided for @plusOfferSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Boost is a weekly subscription for \$1. You get no ads and ×2 crystals on the Daily bonus. Cancel anytime in this window (billing via Google Play / App Store later).'**
+  String get plusOfferSubtitle;
+
+  /// No description provided for @plusSubscribe.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscribe · {price}'**
+  String plusSubscribe(String price);
 
   /// No description provided for @plusManageSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Subscription perks for the game. This is a local preview — real billing will go through Google Play / App Store later.'**
+  /// **'Boost gives perks in the game. This is a local preview — real billing will go through Google Play / App Store later.'**
   String get plusManageSubtitle;
 
   /// No description provided for @plusManageBenefitAds.
@@ -347,7 +467,7 @@ abstract class AppLocalizations {
   /// No description provided for @resetDataBody.
   ///
   /// In en, this message translates to:
-  /// **'Progress, crystals, lives, records and Plus will be cleared. The app will look like a fresh install.'**
+  /// **'Progress, crystals, lives, records and Boost will be cleared. The app will look like a fresh install.'**
   String get resetDataBody;
 
   /// No description provided for @resetDataDone.
@@ -395,7 +515,7 @@ abstract class AppLocalizations {
   /// No description provided for @premiumTimesLocked.
   ///
   /// In en, this message translates to:
-  /// **'×{mult} with Plus'**
+  /// **'×{mult} with Boost'**
   String premiumTimesLocked(String mult);
 
   /// No description provided for @claimed.
@@ -481,6 +601,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Share a link'**
   String get earnInviteFriendSub;
+
+  /// No description provided for @earnInstallBonus.
+  ///
+  /// In en, this message translates to:
+  /// **'Install bonus'**
+  String get earnInstallBonus;
+
+  /// No description provided for @earnInstallBonusSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome gift for installing'**
+  String get earnInstallBonusSub;
+
+  /// No description provided for @earnSurvive10.
+  ///
+  /// In en, this message translates to:
+  /// **'Survive 10 seconds'**
+  String get earnSurvive10;
+
+  /// No description provided for @earnSurvive10Sub.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay alive for 10s in one run'**
+  String get earnSurvive10Sub;
+
+  /// No description provided for @earnRecord20.
+  ///
+  /// In en, this message translates to:
+  /// **'20 second record'**
+  String get earnRecord20;
+
+  /// No description provided for @earnRecord20Sub.
+  ///
+  /// In en, this message translates to:
+  /// **'Reach a 20s personal best'**
+  String get earnRecord20Sub;
+
+  /// No description provided for @earnRisks5.
+  ///
+  /// In en, this message translates to:
+  /// **'5 risks in one run'**
+  String get earnRisks5;
+
+  /// No description provided for @earnRisks5Sub.
+  ///
+  /// In en, this message translates to:
+  /// **'Score 5 risks in a single game'**
+  String get earnRisks5Sub;
+
+  /// No description provided for @earnBonusLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Play to unlock'**
+  String get earnBonusLocked;
+
+  /// No description provided for @earnBonusUnlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlocked: {title}'**
+  String earnBonusUnlocked(String title);
+
+  /// No description provided for @earnUnlockedBannerTap.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to claim in Earn'**
+  String get earnUnlockedBannerTap;
+
+  /// No description provided for @riskTipHow.
+  ///
+  /// In en, this message translates to:
+  /// **'Risk counts when you barely miss an enemy — close, but no touch.'**
+  String get riskTipHow;
+
+  /// No description provided for @riskTipConvert.
+  ///
+  /// In en, this message translates to:
+  /// **'At the end of the run: every {every} risks = {reward} crystal(s).'**
+  String riskTipConvert(int every, int reward);
+
+  /// No description provided for @runTipHow.
+  ///
+  /// In en, this message translates to:
+  /// **'Run is the distance your cube travels during the round.'**
+  String get runTipHow;
+
+  /// No description provided for @runTipConvert.
+  ///
+  /// In en, this message translates to:
+  /// **'At the end of the run: every {every} run = {reward} crystal(s).'**
+  String runTipConvert(int every, int reward);
 
   /// No description provided for @earnReward.
   ///
@@ -578,6 +788,12 @@ abstract class AppLocalizations {
   /// **'Time'**
   String get colTime;
 
+  /// No description provided for @colBoosts.
+  ///
+  /// In en, this message translates to:
+  /// **'Boosts'**
+  String get colBoosts;
+
   /// No description provided for @tabDaily.
   ///
   /// In en, this message translates to:
@@ -590,6 +806,12 @@ abstract class AppLocalizations {
   /// **'Shop'**
   String get tabShop;
 
+  /// No description provided for @tabRent.
+  ///
+  /// In en, this message translates to:
+  /// **'Rent'**
+  String get tabRent;
+
   /// No description provided for @tabEarn.
   ///
   /// In en, this message translates to:
@@ -599,7 +821,7 @@ abstract class AppLocalizations {
   /// No description provided for @plusTitle.
   ///
   /// In en, this message translates to:
-  /// **'Plus'**
+  /// **'Boost'**
   String get plusTitle;
 
   /// No description provided for @plusBenefits.
@@ -620,10 +842,22 @@ abstract class AppLocalizations {
   /// **'Ready!'**
   String get giftReady;
 
+  /// No description provided for @tapHintChallenge.
+  ///
+  /// In en, this message translates to:
+  /// **'Can you last {seconds} sec?'**
+  String tapHintChallenge(int seconds);
+
+  /// No description provided for @tapHintNextChallenge.
+  ///
+  /// In en, this message translates to:
+  /// **'Think you can do {seconds} sec?'**
+  String tapHintNextChallenge(int seconds);
+
   /// No description provided for @tapHintPlayful.
   ///
   /// In en, this message translates to:
-  /// **'Tap anywhere to dodge'**
+  /// **'Tap and dodge'**
   String get tapHintPlayful;
 
   /// No description provided for @livesBalance.
@@ -680,6 +914,12 @@ abstract class AppLocalizations {
   /// **'Exchange crystals for lives'**
   String get livesConvertSubtitle;
 
+  /// No description provided for @statLives.
+  ///
+  /// In en, this message translates to:
+  /// **'Lives'**
+  String get statLives;
+
   /// No description provided for @livesPackLabel.
   ///
   /// In en, this message translates to:
@@ -703,6 +943,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Short video · free crystals'**
   String get shopWatchAdSub;
+
+  /// No description provided for @shopRentalsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rent'**
+  String get shopRentalsTitle;
+
+  /// No description provided for @rentJumpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Jump'**
+  String get rentJumpTitle;
+
+  /// No description provided for @rentJumpSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Second finger — jump over an enemy'**
+  String get rentJumpSub;
+
+  /// No description provided for @rentHelmetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Helmet'**
+  String get rentHelmetTitle;
+
+  /// No description provided for @rentHelmetSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Survive one hit per run'**
+  String get rentHelmetSub;
+
+  /// No description provided for @rentHourSub.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min pack'**
+  String rentHourSub(int minutes);
+
+  /// No description provided for @rentMinsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String rentMinsLabel(int minutes);
+
+  /// No description provided for @rentDiscountBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'−{percent}%'**
+  String rentDiscountBadge(int percent);
+
+  /// No description provided for @rentActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active · {time}'**
+  String rentActive(String time);
+
+  /// No description provided for @rentExtend.
+  ///
+  /// In en, this message translates to:
+  /// **'Extend'**
+  String get rentExtend;
+
+  /// No description provided for @rentBuy.
+  ///
+  /// In en, this message translates to:
+  /// **'Rent'**
+  String get rentBuy;
+
+  /// No description provided for @rentNotEnough.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough crystals'**
+  String get rentNotEnough;
+
+  /// No description provided for @rentInactive.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get rentInactive;
+
+  /// No description provided for @jumpRentalNeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Rent Jump in Shop'**
+  String get jumpRentalNeeded;
+
+  /// No description provided for @helmetBroken.
+  ///
+  /// In en, this message translates to:
+  /// **'Helmet shattered'**
+  String get helmetBroken;
 
   /// No description provided for @yourPlacesTitle.
   ///
@@ -755,7 +1085,7 @@ abstract class AppLocalizations {
   /// No description provided for @periodMine.
   ///
   /// In en, this message translates to:
-  /// **'Mine'**
+  /// **'My attempts'**
   String get periodMine;
 
   /// No description provided for @colAttempt.

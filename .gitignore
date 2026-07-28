@@ -48,3 +48,6 @@ app.*.map.json
 hs_err_pid*.log
 *.log
 
+# Локальные APK для телефона (версия в имени)
+/releases/
+

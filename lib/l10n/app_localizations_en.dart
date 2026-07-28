@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'Game Box';
+  String get appTitle => 'Untouch';
 
   @override
   String get tapToStart => 'Tap to start';
@@ -49,7 +49,28 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get share => 'Share';
+  String rankToday(int percent) {
+    return 'Better than $percent% of players!';
+  }
+
+  @override
+  String get share => 'Save';
+
+  @override
+  String get shareSocial => 'Share';
+
+  @override
+  String shareBoast(String time, String app) {
+    return 'I lasted ${time}s in $app!';
+  }
+
+  @override
+  String get shareSend => 'Send';
+
+  @override
+  String shareScoreCaption(String app, String time) {
+    return '$app — ${time}s';
+  }
 
   @override
   String get ok => 'OK';
@@ -100,6 +121,48 @@ class AppLocalizationsEn extends AppLocalizations {
   String get daily => 'Daily';
 
   @override
+  String get plusActiveShort => 'On';
+
+  @override
+  String get plusNoAdsShort => 'No ads';
+
+  @override
+  String get plusCrystalsDoubleShort => '×2';
+
+  @override
+  String get playInfoEnemies => 'Enemies';
+
+  @override
+  String get playInfoSpeed => 'Speed';
+
+  @override
+  String get playInfoRun => 'Run';
+
+  @override
+  String get playInfoNear => 'Risk';
+
+  @override
+  String riskCrystalHint(int every, int reward) {
+    return '$every risks = $reward crystal';
+  }
+
+  @override
+  String runCrystalHint(int every, int reward) {
+    return '$every run = $reward crystal';
+  }
+
+  @override
+  String riskCrystalsEarned(int count) {
+    return '+$count';
+  }
+
+  @override
+  String get playInfoScore => 'Score';
+
+  @override
+  String get attemptTapToSave => 'Tap to save';
+
+  @override
   String get earn => 'Earn';
 
   @override
@@ -109,28 +172,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shop => 'Shop';
 
   @override
-  String get plusActive => 'Plus active';
+  String get plusActive => 'Boost active';
 
   @override
   String get plusCancel => 'Cancel subscription';
 
   @override
   String plusButton(String price) {
-    return 'Plus · $price';
+    return 'Boost · $price';
   }
 
   @override
-  String get plusToast => 'Plus · Daily ×2';
+  String get plusToast => 'Boost · Daily ×2';
 
   @override
-  String get plusCancelledToast => 'Plus turned off';
+  String get plusCancelledToast => 'Boost turned off';
 
   @override
-  String get plusManageTitle => 'Manage Plus';
+  String get plusManageTitle => 'Manage Boost';
+
+  @override
+  String get plusOfferTitle => 'Boost subscription';
+
+  @override
+  String get plusOfferSubtitle =>
+      'Boost is a weekly subscription for \$1. You get no ads and ×2 crystals on the Daily bonus. Cancel anytime in this window (billing via Google Play / App Store later).';
+
+  @override
+  String plusSubscribe(String price) {
+    return 'Subscribe · $price';
+  }
 
   @override
   String get plusManageSubtitle =>
-      'Subscription perks for the game. This is a local preview — real billing will go through Google Play / App Store later.';
+      'Boost gives perks in the game. This is a local preview — real billing will go through Google Play / App Store later.';
 
   @override
   String get plusManageBenefitAds => 'No ads';
@@ -153,7 +228,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get resetDataBody =>
-      'Progress, crystals, lives, records and Plus will be cleared. The app will look like a fresh install.';
+      'Progress, crystals, lives, records and Boost will be cleared. The app will look like a fresh install.';
 
   @override
   String get resetDataDone => 'Data reset';
@@ -186,7 +261,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String premiumTimesLocked(String mult) {
-    return '×$mult with Plus';
+    return '×$mult with Boost';
   }
 
   @override
@@ -234,6 +309,59 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get earnInviteFriendSub => 'Share a link';
+
+  @override
+  String get earnInstallBonus => 'Install bonus';
+
+  @override
+  String get earnInstallBonusSub => 'Welcome gift for installing';
+
+  @override
+  String get earnSurvive10 => 'Survive 10 seconds';
+
+  @override
+  String get earnSurvive10Sub => 'Stay alive for 10s in one run';
+
+  @override
+  String get earnRecord20 => '20 second record';
+
+  @override
+  String get earnRecord20Sub => 'Reach a 20s personal best';
+
+  @override
+  String get earnRisks5 => '5 risks in one run';
+
+  @override
+  String get earnRisks5Sub => 'Score 5 risks in a single game';
+
+  @override
+  String get earnBonusLocked => 'Play to unlock';
+
+  @override
+  String earnBonusUnlocked(String title) {
+    return 'Unlocked: $title';
+  }
+
+  @override
+  String get earnUnlockedBannerTap => 'Tap to claim in Earn';
+
+  @override
+  String get riskTipHow =>
+      'Risk counts when you barely miss an enemy — close, but no touch.';
+
+  @override
+  String riskTipConvert(int every, int reward) {
+    return 'At the end of the run: every $every risks = $reward crystal(s).';
+  }
+
+  @override
+  String get runTipHow =>
+      'Run is the distance your cube travels during the round.';
+
+  @override
+  String runTipConvert(int every, int reward) {
+    return 'At the end of the run: every $every run = $reward crystal(s).';
+  }
 
   @override
   String get earnReward => 'Reward';
@@ -284,16 +412,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get colTime => 'Time';
 
   @override
+  String get colBoosts => 'Boosts';
+
+  @override
   String get tabDaily => 'Daily';
 
   @override
   String get tabShop => 'Shop';
 
   @override
+  String get tabRent => 'Rent';
+
+  @override
   String get tabEarn => 'Earn';
 
   @override
-  String get plusTitle => 'Plus';
+  String get plusTitle => 'Boost';
 
   @override
   String get plusBenefits => 'No ads';
@@ -305,7 +439,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get giftReady => 'Ready!';
 
   @override
-  String get tapHintPlayful => 'Tap anywhere to dodge';
+  String tapHintChallenge(int seconds) {
+    return 'Can you last $seconds sec?';
+  }
+
+  @override
+  String tapHintNextChallenge(int seconds) {
+    return 'Think you can do $seconds sec?';
+  }
+
+  @override
+  String get tapHintPlayful => 'Tap and dodge';
 
   @override
   String livesBalance(int count) {
@@ -337,6 +481,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get livesConvertSubtitle => 'Exchange crystals for lives';
 
   @override
+  String get statLives => 'Lives';
+
+  @override
   String livesPackLabel(int count) {
     return '+$count lives';
   }
@@ -349,6 +496,59 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shopWatchAdSub => 'Short video · free crystals';
+
+  @override
+  String get shopRentalsTitle => 'Rent';
+
+  @override
+  String get rentJumpTitle => 'Jump';
+
+  @override
+  String get rentJumpSub => 'Second finger — jump over an enemy';
+
+  @override
+  String get rentHelmetTitle => 'Helmet';
+
+  @override
+  String get rentHelmetSub => 'Survive one hit per run';
+
+  @override
+  String rentHourSub(int minutes) {
+    return '$minutes min pack';
+  }
+
+  @override
+  String rentMinsLabel(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String rentDiscountBadge(int percent) {
+    return '−$percent%';
+  }
+
+  @override
+  String rentActive(String time) {
+    return 'Active · $time';
+  }
+
+  @override
+  String get rentExtend => 'Extend';
+
+  @override
+  String get rentBuy => 'Rent';
+
+  @override
+  String get rentNotEnough => 'Not enough crystals';
+
+  @override
+  String get rentInactive => 'Off';
+
+  @override
+  String get jumpRentalNeeded => 'Rent Jump in Shop';
+
+  @override
+  String get helmetBroken => 'Helmet shattered';
 
   @override
   String get yourPlacesTitle => 'Your places';
@@ -375,7 +575,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get youGhost => 'You';
 
   @override
-  String get periodMine => 'Mine';
+  String get periodMine => 'My attempts';
 
   @override
   String get colAttempt => 'Attempt';

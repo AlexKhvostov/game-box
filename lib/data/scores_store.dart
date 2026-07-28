@@ -15,10 +15,14 @@ class ScoresStore extends ChangeNotifier {
   static const _maxTimeMs = 60 * 60 * 1000; // 1 час — античит-потолок
   static const _maxAttempts = 200;
 
-  late SharedPreferences _prefs;
+  SharedPreferences? _prefs;
   final List<ScoreEntry> _scores = [];
   final List<LocalAttempt> _attempts = [];
   bool online = false;
+  bool loading = false;
+  bool _localReady = false;
+  DateTime? _lastRemoteOkAt;
+  Future<void>? _inFlightLoad;
 
   List<ScoreEntry> get scores => scoresForPeriod(null);
 
@@ -56,54 +60,148 @@ class ScoresStore extends ChangeNotifier {
     }
   }
 
+  /// Обновить с сервера, если кэш устарел или офлайн.
+  Future<void> refreshIfStale({
+    Duration maxAge = const Duration(seconds: 20),
+  }) async {
+    final last = _lastRemoteOkAt;
+    if (online &&
+        last != null &&
+        DateTime.now().difference(last) < maxAge) {
+      return;
+    }
+    await load();
+  }
+
   Future<void> load() async {
-    _prefs = await SharedPreferences.getInstance();
-    await _loadLocal();
-    await _loadAttempts();
+    // Не запускаем параллельные load — ждём текущий.
+    if (_inFlightLoad != null) return _inFlightLoad!;
+    _inFlightLoad = _loadBody();
+    try {
+      await _inFlightLoad;
+    } finally {
+      _inFlightLoad = null;
+    }
+  }
+
+  Future<void> _loadBody() async {
+    loading = true;
+    notifyListeners();
+
+    _prefs ??= await SharedPreferences.getInstance();
+    if (!_localReady) {
+      await _loadLocal();
+      await _loadAttempts();
+      _localReady = true;
+      notifyListeners();
+    }
 
     if (!FirebaseBootstrap.ready) {
       online = false;
+      loading = false;
       notifyListeners();
       return;
     }
 
+    Object? lastError;
+    for (var attempt = 0; attempt < 3; attempt++) {
+      try {
+        final remote = await _fetchRemoteMerged();
+        _scores
+          ..clear()
+          ..addAll(remote);
+        online = true;
+        _lastRemoteOkAt = DateTime.now();
+        await _persistLocal();
+        loading = false;
+        notifyListeners();
+        return;
+      } catch (e, st) {
+        lastError = e;
+        debugPrint('Firestore leaderboard load attempt ${attempt + 1}: $e\n$st');
+        await Future<void>.delayed(
+          Duration(milliseconds: 350 * (attempt + 1)),
+        );
+      }
+    }
+
+    debugPrint('Firestore leaderboard load gave up: $lastError');
+    online = false;
+    loading = false;
+    notifyListeners();
+  }
+
+  /// Top по времени + свежие записи за ~31 день (для вкладок day/week/month).
+  Future<List<ScoreEntry>> _fetchRemoteMerged() async {
+    final byId = <String, ScoreEntry>{};
+
+    Future<void> take(QuerySnapshot<Map<String, dynamic>> snap) async {
+      for (final doc in snap.docs) {
+        byId[doc.id] = _fromDoc(doc);
+      }
+    }
+
+    // 1) All-time top
     try {
       final snap = await FirebaseFirestore.instance
           .collection(_collection)
           .where('fair', isEqualTo: true)
           .orderBy('timeMs', descending: true)
-          .limit(100)
+          .limit(150)
           .get();
+      await take(snap);
+    } catch (e) {
+      debugPrint('fair+timeMs query failed, fallback: $e');
+      final snap = await FirebaseFirestore.instance
+          .collection(_collection)
+          .orderBy('timeMs', descending: true)
+          .limit(150)
+          .get();
+      await take(snap);
+    }
 
-      _scores
-        ..clear()
-        ..addAll(snap.docs.map(_fromDoc));
-      online = true;
-      await _persistLocal();
-    } catch (e, st) {
-      debugPrint('Firestore leaderboard load failed: $e\n$st');
-      // Без индекса fair+timeMs — пробуем простой запрос
+    // 2) Recent window — иначе Day/Week пустые, если свежие не в all-time top
+    final since =
+        DateTime.now().toUtc().subtract(const Duration(days: 31));
+    try {
+      final snap = await FirebaseFirestore.instance
+          .collection(_collection)
+          .where('fair', isEqualTo: true)
+          .where('createdAt', isGreaterThanOrEqualTo: Timestamp.fromDate(since))
+          .orderBy('createdAt', descending: true)
+          .limit(300)
+          .get();
+      await take(snap);
+    } catch (e) {
+      debugPrint('fair+createdAt recent query failed, fallback: $e');
       try {
         final snap = await FirebaseFirestore.instance
             .collection(_collection)
-            .orderBy('timeMs', descending: true)
-            .limit(100)
+            .where(
+              'createdAt',
+              isGreaterThanOrEqualTo: Timestamp.fromDate(since),
+            )
+            .orderBy('createdAt', descending: true)
+            .limit(300)
             .get();
-        _scores
-          ..clear()
-          ..addAll(snap.docs.map(_fromDoc));
-        online = true;
-        await _persistLocal();
-      } catch (e2, st2) {
-        debugPrint('Firestore fallback failed: $e2\n$st2');
-        online = false;
+        await take(snap);
+      } catch (e2) {
+        debugPrint('createdAt recent query failed: $e2');
+        // Не валим весь load — all-time уже может быть
+        if (byId.isEmpty) rethrow;
       }
     }
-    notifyListeners();
+
+    if (byId.isEmpty) {
+      // Пустая коллекция — нормально для нового проекта.
+      return const [];
+    }
+    return byId.values.toList();
   }
 
   Future<void> _loadLocal() async {
-    final raw = _prefs.getString(_kScores);
+    final prefs = _prefs!;
+    final raw = prefs.getString(_kScores);
     _scores.clear();
     if (raw != null && raw.isNotEmpty) {
       final list = jsonDecode(raw) as List<dynamic>;
@@ -114,13 +212,14 @@ class ScoresStore extends ChangeNotifier {
   }
 
   Future<void> _persistLocal() async {
+    final prefs = _prefs!;
     final encoded = jsonEncode(_scores.map((e) => e.toJson()).toList());
-    await _prefs.setString(_kScores, encoded);
+    await prefs.setString(_kScores, encoded);
   }
 
   Future<void> _loadAttempts() async {
     _attempts.clear();
-    final raw = _prefs.getString(_kAttempts);
+    final raw = _prefs!.getString(_kAttempts);
     if (raw == null || raw.isEmpty) return;
     try {
       final list = jsonDecode(raw) as List<dynamic>;
@@ -134,20 +233,29 @@ class ScoresStore extends ChangeNotifier {
 
   Future<void> _persistAttempts() async {
     final encoded = jsonEncode(_attempts.map((e) => e.toJson()).toList());
-    await _prefs.setString(_kAttempts, encoded);
+    await _prefs!.setString(_kAttempts, encoded);
   }
 
   /// Сброс локальных очков и попыток (тех. сброс «как после установки»).
   Future<void> clearLocalData() async {
+    _prefs ??= await SharedPreferences.getInstance();
     _scores.clear();
     _attempts.clear();
-    await _prefs.remove(_kScores);
-    await _prefs.remove(_kAttempts);
+    _lastRemoteOkAt = null;
+    await _prefs!.remove(_kScores);
+    await _prefs!.remove(_kAttempts);
     notifyListeners();
+    await load();
   }
 
   /// Каждая партия (даже без Share) попадает в «Мои попытки».
-  Future<void> recordAttempt(int timeMs) async {
+  Future<void> recordAttempt(
+    int timeMs, {
+    int riskCount = 0,
+    int runDistance = 0,
+    bool hadJump = false,
+    bool hadHelmet = false,
+  }) async {
     final safeTime = timeMs.clamp(0, _maxTimeMs);
     _attempts.insert(
       0,
@@ -155,6 +263,10 @@ class ScoresStore extends ChangeNotifier {
         id: DateTime.now().microsecondsSinceEpoch.toString(),
         timeMs: safeTime,
         createdAt: DateTime.now(),
+        riskCount: riskCount.clamp(0, 99999),
+        runDistance: runDistance.clamp(0, 9999999),
+        hadJump: hadJump,
+        hadHelmet: hadHelmet,
       ),
     );
     if (_attempts.length > _maxAttempts) {
@@ -164,11 +276,17 @@ class ScoresStore extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> _markNearestAttemptShared(int timeMs) async {
+  Future<void> _markNearestAttemptShared(
+    int timeMs, {
+    String? displayName,
+  }) async {
     final safe = timeMs.clamp(0, _maxTimeMs);
     final i = _attempts.indexWhere((a) => !a.shared && a.timeMs == safe);
     if (i < 0) return;
-    _attempts[i] = _attempts[i].copyWith(shared: true);
+    _attempts[i] = _attempts[i].copyWith(
+      shared: true,
+      displayName: displayName,
+    );
     await _persistAttempts();
   }
 
@@ -187,6 +305,15 @@ class ScoresStore extends ChangeNotifier {
       timeMs: (data['timeMs'] as num?)?.toInt() ?? 0,
       createdAt: createdAt,
       countryCode: (data['countryCode'] as String?)?.toUpperCase() ?? '--',
+      uid: data['uid'] as String?,
+      riskCount: (data['riskCount'] as num?)?.toInt() ??
+          (data['nearMissCount'] as num?)?.toInt() ??
+          0,
+      runDistance: (data['runDistance'] as num?)?.toInt() ??
+          (data['playerDistance'] as num?)?.toInt() ??
+          0,
+      hadJump: data['hadJump'] as bool? ?? false,
+      hadHelmet: data['hadHelmet'] as bool? ?? false,
     );
   }
 
@@ -217,24 +344,40 @@ class ScoresStore extends ChangeNotifier {
     required String displayName,
     required int timeMs,
     String? countryCode,
+    int riskCount = 0,
+    int runDistance = 0,
+    bool hadJump = false,
+    bool hadHelmet = false,
   }) async {
     final safeTime = timeMs.clamp(0, _maxTimeMs);
     final cc = (countryCode ?? '--').toUpperCase();
+    final risk = riskCount.clamp(0, 99999);
+    final run = runDistance.clamp(0, 9999999);
+    final myUid = FirebaseBootstrap.uid;
     final entry = ScoreEntry(
       id: DateTime.now().microsecondsSinceEpoch.toString(),
       displayName: displayName,
       timeMs: safeTime,
       createdAt: DateTime.now(),
       countryCode: cc,
+      uid: myUid,
+      riskCount: risk,
+      runDistance: run,
+      hadJump: hadJump,
+      hadHelmet: hadHelmet,
     );
 
-    if (FirebaseBootstrap.ready && FirebaseBootstrap.uid != null) {
+    if (FirebaseBootstrap.ready && myUid != null) {
       try {
         final ref = await FirebaseFirestore.instance.collection(_collection).add({
-          'uid': FirebaseBootstrap.uid,
+          'uid': myUid,
           'displayName': displayName,
           'timeMs': safeTime,
           'countryCode': cc,
+          'riskCount': risk,
+          'runDistance': run,
+          'hadJump': hadJump,
+          'hadHelmet': hadHelmet,
           'fair': true,
           'createdAt': FieldValue.serverTimestamp(),
         });
@@ -244,12 +387,20 @@ class ScoresStore extends ChangeNotifier {
           timeMs: safeTime,
           createdAt: DateTime.now(),
           countryCode: cc,
+          uid: myUid,
+          riskCount: risk,
+          runDistance: run,
+          hadJump: hadJump,
+          hadHelmet: hadHelmet,
         );
-        _scores.add(onlineEntry);
-        online = true;
-        await _markNearestAttemptShared(safeTime);
+        // Временно добавим себя, пока ждём полный refresh
+        if (!_scores.any((s) => s.id == onlineEntry.id)) {
+          _scores.add(onlineEntry);
+        }
+        await _markNearestAttemptShared(safeTime, displayName: displayName);
         await _persistLocal();
         notifyListeners();
+        _lastRemoteOkAt = null; // форсируем полный reload
         await load();
         return rankFor(safeTime);
       } catch (e, st) {
@@ -258,7 +409,7 @@ class ScoresStore extends ChangeNotifier {
     }
 
     _scores.add(entry);
-    await _markNearestAttemptShared(safeTime);
+    await _markNearestAttemptShared(safeTime, displayName: displayName);
     await _persistLocal();
     notifyListeners();
     return rankFor(safeTime);
