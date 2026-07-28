@@ -162,13 +162,13 @@
   "earnSurviveSeconds": 10,
   "earnRecordSeconds": 20,
   "earnRisksInRun": 5,
-  "lifePackSize": 10,
+  "lifePackSize": 5,
   "lifePackCostTokens": 5,
   "lifePacks": [
-    {"lives": 10, "costTokens": 5},
-    {"lives": 12, "costTokens": 10},
-    {"lives": 20, "costTokens": 15},
-    {"lives": 200, "costTokens": 100}
+    {"lives": 5, "costTokens": 5},
+    {"lives": 15, "costTokens": 12},
+    {"lives": 50, "costTokens": 30},
+    {"lives": 250, "costTokens": 99}
   ],
   "dailyRewardTokens": [2, 4, 9, 16, 32, 64, 81],
   "timedBonusTokens": 22,
@@ -201,8 +201,8 @@
 }
 ```
 
-- `lifePacks` — варианты обмена кристалов на жизни (окно по тапу на сердечко)  
-- `lifePackSize` / `lifePackCostTokens` — legacy (если `lifePacks` нет)  
+- `lifePacks` — варианты обмена кристалов на жизни (окно по тапу на сердечко). Если массив задан и не пустой — клиент показывает **только его** (дефолты из APK не дописываются). Можно удалённо менять состав и цены без нового билда.  
+- `lifePackSize` / `lifePackCostTokens` — legacy (если `lifePacks` нет)
 - `initialTokens` — стартовые кристалы при первой установке (fallback, если в `earnActions` нет `install_bonus`)  
 - `installBonusAutoClaim` — `true` (по умолч.): бонус за установку выдаётся сразу и сразу отмечен в Earn; `false`: игрок забирает сам во вкладке Earn  
 - `earnSurviveSeconds` / `earnRecordSeconds` / `earnRisksInRun` — пороги one-shot бонусов Earn (`survive_10s`, `record_20s`, `risks_5`)  

@@ -58,10 +58,10 @@ class LifePackOffer {
 /// Конфиг экономики. Значения можно обновлять из Firebase Remote Config.
 class EconomyConfig {
   static const List<LifePackOffer> defaultLifePacks = [
-    LifePackOffer(lives: 10, costTokens: 5),
-    LifePackOffer(lives: 12, costTokens: 10),
-    LifePackOffer(lives: 20, costTokens: 15),
-    LifePackOffer(lives: 200, costTokens: 100),
+    LifePackOffer(lives: 5, costTokens: 5),
+    LifePackOffer(lives: 15, costTokens: 12),
+    LifePackOffer(lives: 50, costTokens: 30),
+    LifePackOffer(lives: 250, costTokens: 99),
   ];
 
   /// Id действия «бонус за установку» в earnActions.
@@ -84,7 +84,7 @@ class EconomyConfig {
     this.earnSurviveSeconds = 10,
     this.earnRecordSeconds = 20,
     this.earnRisksInRun = 5,
-    this.lifePackSize = 10,
+    this.lifePackSize = 5,
     this.lifePackCostTokens = 5,
     this.lifePacks = defaultLifePacks,
     this.dailyRewardTokens = const [2, 4, 9, 16, 32, 64, 81],
@@ -365,9 +365,11 @@ class EconomyConfig {
     final rewards = json['dailyRewardTokens'];
     final earnRaw = json['earnActions'];
     final packsRaw = json['lifePacks'];
-    final legacySize = _asInt(json['lifePackSize'], 10);
+    final legacySize = _asInt(json['lifePackSize'], 5);
     final legacyCost = _asInt(json['lifePackCostTokens'], 5);
 
+    // lifePacks из RC — источник истины (без дописки дефолтов из APK).
+    // Иначе удалённо нельзя убрать/заменить пак: клиент снова подмешает 10/20/…
     List<LifePackOffer> packs;
     if (packsRaw is List && packsRaw.isNotEmpty) {
       packs = packsRaw
@@ -375,13 +377,14 @@ class EconomyConfig {
           .where((p) => p.lives > 0 && p.costTokens > 0)
           .toList();
     } else {
+      // Старый RC без lifePacks: первый пак из legacy-полей + остальные дефолты.
       packs = [
         LifePackOffer(lives: legacySize, costTokens: legacyCost),
         ...defaultLifePacks.skip(1),
       ];
+      packs = _fillMissingDefaultLifePacks(packs);
     }
     if (packs.isEmpty) packs = List.of(defaultLifePacks);
-    packs = _mergeLifePacks(packs);
 
     return EconomyConfig(
       initialLives: _asInt(json['initialLives'], 10),
@@ -428,22 +431,14 @@ class EconomyConfig {
     );
   }
 
-  /// RC без новых паков — подмешиваем недостающие дефолты (например 200 жизней).
-  static List<LifePackOffer> _mergeLifePacks(List<LifePackOffer> fromRc) {
-    final byLives = <int, LifePackOffer>{
-      for (final p in fromRc) p.lives: p,
-    };
+  /// Только для legacy-RC без `lifePacks`: дописать дефолтные размеры, которых нет.
+  static List<LifePackOffer> _fillMissingDefaultLifePacks(
+    List<LifePackOffer> packs,
+  ) {
+    final seen = <int>{for (final p in packs) p.lives};
+    final ordered = List<LifePackOffer>.of(packs);
     for (final p in defaultLifePacks) {
-      byLives.putIfAbsent(p.lives, () => p);
-    }
-    final ordered = <LifePackOffer>[];
-    final seen = <int>{};
-    for (final p in fromRc) {
-      ordered.add(byLives[p.lives]!);
-      seen.add(p.lives);
-    }
-    for (final p in defaultLifePacks) {
-      if (seen.add(p.lives)) ordered.add(byLives[p.lives]!);
+      if (seen.add(p.lives)) ordered.add(p);
     }
     return ordered;
   }

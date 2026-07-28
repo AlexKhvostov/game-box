@@ -32,12 +32,13 @@
 ```json
 {
   "initialLives": 10,
-  "lifePackSize": 10,
+  "lifePackSize": 5,
   "lifePackCostTokens": 5,
   "lifePacks": [
-    {"lives": 10, "costTokens": 5},
-    {"lives": 12, "costTokens": 10},
-    {"lives": 20, "costTokens": 15}
+    {"lives": 5, "costTokens": 5},
+    {"lives": 15, "costTokens": 12},
+    {"lives": 50, "costTokens": 30},
+    {"lives": 250, "costTokens": 99}
   ],
   "dailyRewardTokens": [2, 4, 9, 16, 32, 64, 81],
   "timedBonusTokens": 22,
