@@ -1,5 +1,7 @@
 # Админка геймплея — блоки Remote Config
 
+См. также: [FIREBASE_SETUP.md](FIREBASE_SETUP.md) · [ANALYTICS_AND_ADMIN.md](ANALYTICS_AND_ADMIN.md) · [ADS_AND_BILLING.md](ADS_AND_BILLING.md) · [GOOGLE_PLAY_PUBLISH.md](GOOGLE_PLAY_PUBLISH.md)
+
 В Firebase Console → **Remote Config** заведите параметры **по блокам** (удобно сложить в Parameter groups с теми же именами).
 
 | Ключ параметра | Смысл |
@@ -53,9 +55,12 @@
 
 ```json
 {
-  "size": 36
+  "size": 36,
+  "showFace": false
 }
 ```
+
+- `showFace` — A/B: милое аниме-личико на кубе (`true`). По умолчанию `false` — просто квадрат без мордочки.
 
 ## `field`
 
@@ -94,7 +99,8 @@
   "jumpScale": 1.32,
   "helmetEnabled": true,
   "helmetInvulnSec": 0.3,
-  "hudSpeedScaleMax": 400
+  "hudSpeedScaleMax": 400,
+  "wallsKillPlayer": true
 }
 ```
 
@@ -105,6 +111,7 @@
 - `helmetEnabled` — `false` убирает шлем из HUD, Shop и игры
 - `helmetInvulnSec` — секунды неуязвимости (мигание) после разрушения шлема
 - `hudSpeedScaleMax` — верх шкалы скорости (полоска под полем); при 400 полоска заполняется быстрее, чем при 500
+- `wallsKillPlayer` — `true`: касание границы/стены убивает героя; `false`: только блокирует проход, без смерти
 
 Для теста аренды: `"jumpEnabled": true` / `"helmetEnabled": true` + купить в магазине.
 

@@ -9,6 +9,8 @@
 - [ANALYTICS_AND_ADMIN.md](ANALYTICS_AND_ADMIN.md) — сбор данных, админка, Amplitude  
 - [ADS_AND_BILLING.md](ADS_AND_BILLING.md) — реклама и платежи  
 - [GOOGLE_PLAY_PUBLISH.md](GOOGLE_PLAY_PUBLISH.md) — публикация в Google Play  
+- [FLOORS_MODE.md](FLOORS_MODE.md) — режим «Этажи» (карта, сложности, переходы)  
+ 
 
 ## Что уже сделано в проекте
 

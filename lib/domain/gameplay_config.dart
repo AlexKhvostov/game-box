@@ -30,6 +30,7 @@ class GameplayConfig {
   double get fieldBrightness => field.brightness;
   String? get fieldColorHex => field.colorHex;
   bool get enemiesCollide => enemies.collideWithEachOther;
+  double get enemySpinDegPerSec => enemies.spinDegPerSec;
   double get idleSpeedMultiplier => game.idleSpeedMultiplier;
   double get speedRampSeconds => game.speedRampSeconds;
   bool get jumpEnabled => game.jumpEnabled;
@@ -40,6 +41,9 @@ class GameplayConfig {
   double get helmetInvulnSec => game.helmetInvulnSec;
   /// Верх шкалы скорости в HUD (полоска под полем).
   double get hudSpeedScaleMax => game.hudSpeedScaleMax;
+
+  /// Этажи: касание стены/препятствия убивает героя.
+  bool get wallsKillPlayer => game.wallsKillPlayer;
 
   factory GameplayConfig.fromBlocks({
     required EnemiesConfig enemies,
@@ -81,6 +85,7 @@ class EnemiesConfig {
     this.accelMin = 9,
     this.accelMax = 15,
     this.collideWithEachOther = false,
+    this.spinDegPerSec = 0,
   });
 
   final double areaMultiplier;
@@ -93,6 +98,8 @@ class EnemiesConfig {
   final double accelMax;
   /// Мобы отскакивают друг от друга как от стены.
   final bool collideWithEachOther;
+  /// Медленное вращение тела (°/с). 0 = без вращения.
+  final double spinDegPerSec;
 
   Map<String, dynamic> toJson() => {
         'areaMultiplier': areaMultiplier,
@@ -104,6 +111,7 @@ class EnemiesConfig {
         'accelMin': accelMin,
         'accelMax': accelMax,
         'collideWithEachOther': collideWithEachOther,
+        'spinDegPerSec': spinDegPerSec,
       };
 
   factory EnemiesConfig.fromJson(Map<String, dynamic> json) {
@@ -126,23 +134,36 @@ class EnemiesConfig {
       collideWithEachOther: json['collideWithEachOther'] as bool? ??
           json['enemiesCollide'] as bool? ??
           false,
+      spinDegPerSec: (json['spinDegPerSec'] as num?)?.toDouble() ?? 0,
     );
   }
 }
 
 /// Блок Remote Config: `player`
 class PlayerConfig {
-  const PlayerConfig({this.size = 36});
+  const PlayerConfig({
+    this.size = 36,
+    this.showFace = false,
+  });
 
   final double size;
 
-  Map<String, dynamic> toJson() => {'size': size};
+  /// A/B: милое аниме-личико на кубе (по умолчанию выкл — просто квадрат).
+  final bool showFace;
+
+  Map<String, dynamic> toJson() => {
+        'size': size,
+        'showFace': showFace,
+      };
 
   factory PlayerConfig.fromJson(Map<String, dynamic> json) {
     return PlayerConfig(
       size: (json['size'] as num?)?.toDouble() ??
           (json['playerSize'] as num?)?.toDouble() ??
           36,
+      showFace: json['showFace'] as bool? ??
+          json['playerShowFace'] as bool? ??
+          false,
     );
   }
 }
@@ -228,6 +249,7 @@ class GameConfig {
     this.helmetEnabled = true,
     this.helmetInvulnSec = 0.3,
     this.hudSpeedScaleMax = 400,
+    this.wallsKillPlayer = true,
   });
 
   /// Показывать подсказку «коснитесь экрана».
@@ -257,6 +279,9 @@ class GameConfig {
   /// Максимум шкалы скорости в панели под полем (полоска 0…1).
   final double hudSpeedScaleMax;
 
+  /// Этажи: `true` — касание стены/препятствия убивает; `false` — только блок.
+  final bool wallsKillPlayer;
+
   Map<String, dynamic> toJson() => {
         'startHintEnabled': startHintEnabled,
         'idleSpeedMultiplier': idleSpeedMultiplier,
@@ -267,6 +292,7 @@ class GameConfig {
         'helmetEnabled': helmetEnabled,
         'helmetInvulnSec': helmetInvulnSec,
         'hudSpeedScaleMax': hudSpeedScaleMax,
+        'wallsKillPlayer': wallsKillPlayer,
       };
 
   factory GameConfig.fromJson(Map<String, dynamic> json) {
@@ -283,6 +309,7 @@ class GameConfig {
       helmetEnabled: json['helmetEnabled'] as bool? ?? true,
       helmetInvulnSec: (json['helmetInvulnSec'] as num?)?.toDouble() ?? 0.3,
       hudSpeedScaleMax: (json['hudSpeedScaleMax'] as num?)?.toDouble() ?? 400,
+      wallsKillPlayer: json['wallsKillPlayer'] as bool? ?? true,
     );
   }
 }

@@ -362,6 +362,7 @@ class EconomyStore extends ChangeNotifier {
   int grantCrystals(int amount) {
     tokens += amount;
     _persist();
+    notifyListeners();
     return amount;
   }
 

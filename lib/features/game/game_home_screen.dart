@@ -28,7 +28,10 @@ enum _Phase { idle, playing, impact, result }
 /// Гиперказуальный цикл: поле сверху, hint снизу.
 /// Касание в любой части экрана управляет игроком (кроме HUD-кнопок).
 class GameHomeScreen extends StatefulWidget {
-  const GameHomeScreen({super.key});
+  const GameHomeScreen({super.key, this.onLeave});
+
+  /// Возврат к выбору режима (если задан).
+  final VoidCallback? onLeave;
 
   @override
   State<GameHomeScreen> createState() => _GameHomeScreenState();
@@ -619,6 +622,7 @@ class _GameHomeScreenState extends State<GameHomeScreen>
                                                   _helmetInvulnLeft > 0,
                                               shadowBrightness: config
                                                   .field.shadowBrightness,
+                                              showFace: config.player.showFace,
                                             ),
                                           );
                                         },
@@ -713,6 +717,7 @@ class _GameHomeScreenState extends State<GameHomeScreen>
                 padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
                 child: _Hud(
                   jumpWarnLit: _jumpWarnLit,
+                  onLeave: widget.onLeave,
                   onLivesTap: () {
                     AppAnalytics.tapLives();
                     showLivesSheet(context);
@@ -1542,12 +1547,14 @@ class _Hud extends StatefulWidget {
     required this.onLivesTap,
     required this.onCrystalsTap,
     required this.onRecordTap,
+    this.onLeave,
     this.jumpWarnLit = false,
   });
 
   final VoidCallback onLivesTap;
   final VoidCallback onCrystalsTap;
   final VoidCallback onRecordTap;
+  final VoidCallback? onLeave;
   final bool jumpWarnLit;
 
   @override
@@ -1596,6 +1603,16 @@ class _HudState extends State<_Hud> {
       height: 44,
       child: Row(
         children: [
+          if (widget.onLeave != null) ...[
+            IconButton(
+              onPressed: widget.onLeave,
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+              icon: const Icon(Icons.arrow_back_rounded, size: 22),
+              color: Colors.white70,
+            ),
+            const SizedBox(width: 2),
+          ],
           GestureDetector(
             onTap: widget.onLivesTap,
             child: KeyedSubtree(

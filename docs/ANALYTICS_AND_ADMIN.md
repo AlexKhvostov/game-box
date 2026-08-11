@@ -3,7 +3,7 @@
 Документ для менеджера: **что сделать**, **что нужно от вас**, **где это взять**.  
 Код приложения пока не обязателен — сначала доступы и решения, потом разработка.
 
-Связанные документы: [ADS_AND_BILLING.md](ADS_AND_BILLING.md) · [GOOGLE_PLAY_PUBLISH.md](GOOGLE_PLAY_PUBLISH.md) · [FIREBASE_SETUP.md](FIREBASE_SETUP.md)
+См. также: [ADS_AND_BILLING.md](ADS_AND_BILLING.md) · [GOOGLE_PLAY_PUBLISH.md](GOOGLE_PLAY_PUBLISH.md) · [FIREBASE_SETUP.md](FIREBASE_SETUP.md) · [GAMEPLAY_ADMIN.md](GAMEPLAY_ADMIN.md)
 
 ---
 

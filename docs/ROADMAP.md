@@ -7,6 +7,7 @@
 - [ANALYTICS_AND_ADMIN.md](ANALYTICS_AND_ADMIN.md)
 - [ADS_AND_BILLING.md](ADS_AND_BILLING.md)
 - [GOOGLE_PLAY_PUBLISH.md](GOOGLE_PLAY_PUBLISH.md)
+- [FLOORS_MODE.md](FLOORS_MODE.md) — режим исследования этажей
 
 ## Этап 1 — MVP Android (сейчас)
 

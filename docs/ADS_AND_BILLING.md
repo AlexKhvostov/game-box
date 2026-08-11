@@ -3,7 +3,7 @@
 Документ для менеджера: **баннерная и rewarded-реклама**, **покупки кристалов**, **подписка Boost**.  
 Формат: шаги, что нужно от вас, где это взять.
 
-Связанные документы: [ANALYTICS_AND_ADMIN.md](ANALYTICS_AND_ADMIN.md) · [GOOGLE_PLAY_PUBLISH.md](GOOGLE_PLAY_PUBLISH.md) · [FIREBASE_SETUP.md](FIREBASE_SETUP.md)
+См. также: [ANALYTICS_AND_ADMIN.md](ANALYTICS_AND_ADMIN.md) · [GOOGLE_PLAY_PUBLISH.md](GOOGLE_PLAY_PUBLISH.md) · [FIREBASE_SETUP.md](FIREBASE_SETUP.md) · [GAMEPLAY_ADMIN.md](GAMEPLAY_ADMIN.md)
 
 ---
 

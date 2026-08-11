@@ -5,7 +5,7 @@
 
 Бренд (витрина / имя на устройстве): **Untouch**  
 Package: `com.boxgame.game_box`  
-Связанные документы: [ADS_AND_BILLING.md](ADS_AND_BILLING.md) · [ANALYTICS_AND_ADMIN.md](ANALYTICS_AND_ADMIN.md) · [FIREBASE_SETUP.md](FIREBASE_SETUP.md)
+См. также: [ADS_AND_BILLING.md](ADS_AND_BILLING.md) · [ANALYTICS_AND_ADMIN.md](ANALYTICS_AND_ADMIN.md) · [FIREBASE_SETUP.md](FIREBASE_SETUP.md) · [GAMEPLAY_ADMIN.md](GAMEPLAY_ADMIN.md)
 
 ---
 

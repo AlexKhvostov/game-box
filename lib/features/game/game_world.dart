@@ -56,6 +56,8 @@ class EnemyBody {
     required this.fieldQuadrant,
     required this.initialSpeed,
     required this.acceleration,
+    this.orientDeg = 0,
+    this.spinDegPerSec = 0,
   });
 
   Offset pos;
@@ -69,11 +71,145 @@ class EnemyBody {
   final int fieldQuadrant;
   final double initialSpeed;
   final double acceleration;
+  /// Угол тела (°). Физика — OBB (повёрнутый прямоугольник).
+  double orientDeg;
+  final double spinDegPerSec;
 
-  Rect get rect => Rect.fromLTWH(pos.dx, pos.dy, w, h);
+  Offset get center => Offset(pos.dx + w * 0.5, pos.dy + h * 0.5);
+
+  void setCenter(Offset c) {
+    pos = Offset(c.dx - w * 0.5, c.dy - h * 0.5);
+  }
+
+  bool get isSpinning => spinDegPerSec.abs() > 0.01;
+
+  Offset get axisX {
+    final r = orientDeg * pi / 180;
+    return Offset(cos(r), sin(r));
+  }
+
+  Offset get axisY {
+    final r = orientDeg * pi / 180;
+    return Offset(-sin(r), cos(r));
+  }
+
+  List<Offset> get corners {
+    final c = center;
+    final ax = axisX;
+    final ay = axisY;
+    final hx = w * 0.5;
+    final hy = h * 0.5;
+    Offset at(double lx, double ly) => Offset(
+          c.dx + ax.dx * lx + ay.dx * ly,
+          c.dy + ax.dy * lx + ay.dy * ly,
+        );
+    return [at(-hx, -hy), at(hx, -hy), at(hx, hy), at(-hx, hy)];
+  }
+
+  /// AABB оболочки (broadphase / near-miss).
+  Rect get rect {
+    final cs = corners;
+    var minX = cs.first.dx;
+    var maxX = cs.first.dx;
+    var minY = cs.first.dy;
+    var maxY = cs.first.dy;
+    for (final p in cs) {
+      if (p.dx < minX) minX = p.dx;
+      if (p.dx > maxX) maxX = p.dx;
+      if (p.dy < minY) minY = p.dy;
+      if (p.dy > maxY) maxY = p.dy;
+    }
+    return Rect.fromLTRB(minX, minY, maxX, maxY);
+  }
+
+  (double min, double max) project(Offset axis) {
+    final c = center;
+    final ax = axisX;
+    final ay = axisY;
+    final cen = c.dx * axis.dx + c.dy * axis.dy;
+    final ext = (w * 0.5) * (axis.dx * ax.dx + axis.dy * ax.dy).abs() +
+        (h * 0.5) * (axis.dx * ay.dx + axis.dy * ay.dy).abs();
+    return (cen - ext, cen + ext);
+  }
 
   double speedAt(double secondsAlive) =>
       initialSpeed + acceleration * secondsAlive;
+
+  /// Пересечение с осью-выровненным прямоугольником (игрок / препятствие).
+  bool overlapsAabb(Rect other) => mtvOutOfAabb(other) != null;
+
+  /// MTV: сдвиг центра, чтобы выйти из [other] (null = нет пересечения).
+  Offset? mtvOutOfAabb(Rect other) {
+    final axes = <Offset>[
+      const Offset(1, 0),
+      const Offset(0, 1),
+      axisX,
+      axisY,
+    ];
+    var minOverlap = double.infinity;
+    Offset? best;
+    final oc = other.center;
+    final ohx = other.width * 0.5;
+    final ohy = other.height * 0.5;
+
+    for (final axis in axes) {
+      final len2 = axis.dx * axis.dx + axis.dy * axis.dy;
+      if (len2 < 1e-12) continue;
+      final inv = 1.0 / sqrt(len2);
+      final n = Offset(axis.dx * inv, axis.dy * inv);
+      final (minA, maxA) = project(n);
+      final cenB = oc.dx * n.dx + oc.dy * n.dy;
+      final extB = ohx * n.dx.abs() + ohy * n.dy.abs();
+      final minB = cenB - extB;
+      final maxB = cenB + extB;
+      final overlap = min(maxA, maxB) - max(minA, minB);
+      if (overlap <= 0) return null;
+      if (overlap < minOverlap) {
+        minOverlap = overlap;
+        final side = (center.dx - oc.dx) * n.dx + (center.dy - oc.dy) * n.dy;
+        best = side >= 0 ? n : Offset(-n.dx, -n.dy);
+      }
+    }
+    if (best == null) return null;
+    return best * (minOverlap + 0.5);
+  }
+
+  /// MTV, чтобы развести this и [other] (сдвиг для this).
+  Offset? mtvOutOfObb(EnemyBody other) {
+    final axes = <Offset>[axisX, axisY, other.axisX, other.axisY];
+    var minOverlap = double.infinity;
+    Offset? best;
+    for (final axis in axes) {
+      final len2 = axis.dx * axis.dx + axis.dy * axis.dy;
+      if (len2 < 1e-12) continue;
+      final inv = 1.0 / sqrt(len2);
+      final n = Offset(axis.dx * inv, axis.dy * inv);
+      final (minA, maxA) = project(n);
+      final (minB, maxB) = other.project(n);
+      final overlap = min(maxA, maxB) - max(minA, minB);
+      if (overlap <= 0) return null;
+      if (overlap < minOverlap) {
+        minOverlap = overlap;
+        final side = (center.dx - other.center.dx) * n.dx +
+            (center.dy - other.center.dy) * n.dy;
+        best = side >= 0 ? n : Offset(-n.dx, -n.dy);
+      }
+    }
+    if (best == null) return null;
+    return best * (minOverlap + 0.5);
+  }
+
+  /// Отражение скорости от плоскости с нормалью [n] (наружу).
+  void reflectVelocity(Offset n) {
+    final len2 = n.dx * n.dx + n.dy * n.dy;
+    if (len2 < 1e-12) return;
+    final inv = 1.0 / sqrt(len2);
+    final nx = n.dx * inv;
+    final ny = n.dy * inv;
+    final vn = vel.dx * nx + vel.dy * ny;
+    if (vn >= 0) return; // уже уходит
+    vel = Offset(vel.dx - 2 * vn * nx, vel.dy - 2 * vn * ny);
+  }
 }
 
 class GameWorld {
@@ -81,11 +217,14 @@ class GameWorld {
     required this.config,
     required this.field,
     Random? rng,
+    this.wallInset = 0,
   }) : _rng = rng ?? Random();
 
   final GameplayConfig config;
   final Size field;
   final Random _rng;
+  /// Отступ от края поля для отскока врагов (рамка этажей).
+  final double wallInset;
 
   late Offset player;
   final List<EnemyBody> enemies = [];
@@ -208,6 +347,7 @@ class GameWorld {
           : Offset(e.vel.dx / dist, e.vel.dy / dist);
       e.vel = dir * speed;
       e.pos += e.vel * safeDt;
+      if (e.isSpinning) e.orientDeg += e.spinDegPerSec * safeDt;
       if (_bounce(e)) wall++;
     }
     final enemy = config.enemiesCollide ? _resolveEnemyCollisions() : 0;
@@ -228,6 +368,7 @@ class GameWorld {
           : Offset(e.vel.dx / dist, e.vel.dy / dist);
       e.vel = dir * speed;
       e.pos += e.vel * safeDt;
+      if (e.isSpinning) e.orientDeg += e.spinDegPerSec * safeDt;
       if (_bounce(e)) wall++;
     }
     final enemy = config.enemiesCollide ? _resolveEnemyCollisions() : 0;
@@ -333,7 +474,7 @@ class GameWorld {
     if (isJumping) return false;
     final pr = Rect.fromLTWH(player.dx, player.dy, playerSize, playerSize);
     for (final e in enemies) {
-      if (pr.overlaps(e.rect)) return true;
+      if (e.overlapsAabb(pr)) return true;
     }
     return false;
   }
@@ -361,6 +502,7 @@ class GameWorld {
     final initialSpeed = _lerpRandom(config.speedMin, config.speedMax);
     final acceleration = _lerpRandom(config.accelMin, config.accelMax);
     final vel = Offset(cos(rad), sin(rad)) * initialSpeed;
+    final spin = config.enemySpinDegPerSec;
 
     return EnemyBody(
       pos: safePos,
@@ -373,6 +515,8 @@ class GameWorld {
       fieldQuadrant: fieldQuadrant,
       initialSpeed: initialSpeed,
       acceleration: acceleration,
+      spinDegPerSec: spin,
+      orientDeg: spin.abs() > 0.01 ? _rng.nextDouble() * 360 : 0,
     );
   }
 
@@ -382,7 +526,7 @@ class GameWorld {
     required double w,
     required double h,
   }) {
-    const pad = 8.0;
+    final pad = max(8.0, wallInset + 2);
     final midX = field.width / 2;
     final midY = field.height / 2;
 
@@ -461,88 +605,74 @@ class GameWorld {
     return lo + _rng.nextDouble() * (hi - lo);
   }
 
-  /// true, если враг отразился от стены в этом кадре.
+  /// Отскок OBB от стен поля по реальным углам тела.
   bool _bounce(EnemyBody e) {
-    var x = e.pos.dx;
-    var y = e.pos.dy;
-    var vx = e.vel.dx;
-    var vy = e.vel.dy;
+    var cen = e.center;
     var hit = false;
 
-    if (x <= 0) {
-      x = 0;
-      vx = vx.abs();
-      hit = true;
-    } else if (x + e.w >= field.width) {
-      x = field.width - e.w;
-      vx = -vx.abs();
-      hit = true;
-    }
-    if (y <= 0) {
-      y = 0;
-      vy = vy.abs();
-      hit = true;
-    } else if (y + e.h >= field.height) {
-      y = field.height - e.h;
-      vy = -vy.abs();
-      hit = true;
+    for (var iter = 0; iter < 3; iter++) {
+      e.setCenter(cen);
+      final cs = e.corners;
+      var minX = cs.first.dx;
+      var maxX = cs.first.dx;
+      var minY = cs.first.dy;
+      var maxY = cs.first.dy;
+      for (final p in cs) {
+        if (p.dx < minX) minX = p.dx;
+        if (p.dx > maxX) maxX = p.dx;
+        if (p.dy < minY) minY = p.dy;
+        if (p.dy > maxY) maxY = p.dy;
+      }
+
+      final lo = wallInset;
+      final hiX = field.width - wallInset;
+      final hiY = field.height - wallInset;
+      var dx = 0.0;
+      var dy = 0.0;
+      if (minX < lo) {
+        dx = lo - minX;
+        e.reflectVelocity(const Offset(1, 0));
+        hit = true;
+      } else if (maxX > hiX) {
+        dx = hiX - maxX;
+        e.reflectVelocity(const Offset(-1, 0));
+        hit = true;
+      }
+      if (minY < lo) {
+        dy = lo - minY;
+        e.reflectVelocity(const Offset(0, 1));
+        hit = true;
+      } else if (maxY > hiY) {
+        dy = hiY - maxY;
+        e.reflectVelocity(const Offset(0, -1));
+        hit = true;
+      }
+      if (dx == 0 && dy == 0) break;
+      cen = Offset(cen.dx + dx, cen.dy + dy);
     }
 
-    e.pos = Offset(x, y);
-    e.vel = Offset(vx, vy);
+    e.setCenter(cen);
     return hit;
   }
 
-  /// Отскок мобов друг от друга (как от стены). Возвращает число столкновений.
+  /// Отскок мобов друг от друга (OBB + SAT / MTV).
   int _resolveEnemyCollisions() {
     var hits = 0;
     for (var i = 0; i < enemies.length; i++) {
       for (var j = i + 1; j < enemies.length; j++) {
         final a = enemies[i];
         final b = enemies[j];
-        final ar = a.rect;
-        final br = b.rect;
-        if (!ar.overlaps(br)) continue;
-
-        final overlapX =
-            min(ar.right, br.right) - max(ar.left, br.left);
-        final overlapY =
-            min(ar.bottom, br.bottom) - max(ar.top, br.top);
-        if (overlapX <= 0 || overlapY <= 0) continue;
-
+        // Broadphase
+        if (!a.rect.overlaps(b.rect)) continue;
+        final mtv = a.mtvOutOfObb(b);
+        if (mtv == null) continue;
         hits++;
-        final acx = ar.center.dx;
-        final acy = ar.center.dy;
-        final bcx = br.center.dx;
-        final bcy = br.center.dy;
-
-        if (overlapX < overlapY) {
-          final sep = overlapX / 2 + 0.5;
-          if (acx <= bcx) {
-            a.pos = Offset(a.pos.dx - sep, a.pos.dy);
-            b.pos = Offset(b.pos.dx + sep, b.pos.dy);
-            if (a.vel.dx > 0) a.vel = Offset(-a.vel.dx.abs(), a.vel.dy);
-            if (b.vel.dx < 0) b.vel = Offset(b.vel.dx.abs(), b.vel.dy);
-          } else {
-            a.pos = Offset(a.pos.dx + sep, a.pos.dy);
-            b.pos = Offset(b.pos.dx - sep, b.pos.dy);
-            if (a.vel.dx < 0) a.vel = Offset(a.vel.dx.abs(), a.vel.dy);
-            if (b.vel.dx > 0) b.vel = Offset(-b.vel.dx.abs(), b.vel.dy);
-          }
-        } else {
-          final sep = overlapY / 2 + 0.5;
-          if (acy <= bcy) {
-            a.pos = Offset(a.pos.dx, a.pos.dy - sep);
-            b.pos = Offset(b.pos.dx, b.pos.dy + sep);
-            if (a.vel.dy > 0) a.vel = Offset(a.vel.dx, -a.vel.dy.abs());
-            if (b.vel.dy < 0) b.vel = Offset(b.vel.dx, b.vel.dy.abs());
-          } else {
-            a.pos = Offset(a.pos.dx, a.pos.dy + sep);
-            b.pos = Offset(b.pos.dx, b.pos.dy - sep);
-            if (a.vel.dy < 0) a.vel = Offset(a.vel.dx, a.vel.dy.abs());
-            if (b.vel.dy > 0) b.vel = Offset(b.vel.dx, -b.vel.dy.abs());
-          }
-        }
+        final half = Offset(mtv.dx * 0.5, mtv.dy * 0.5);
+        a.setCenter(a.center + half);
+        b.setCenter(b.center - half);
+        // Нормаль контакта: направление MTV (от b к a).
+        a.reflectVelocity(mtv);
+        b.reflectVelocity(Offset(-mtv.dx, -mtv.dy));
         _bounce(a);
         _bounce(b);
       }

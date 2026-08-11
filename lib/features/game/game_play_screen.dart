@@ -215,6 +215,7 @@ class _GamePlayScreenState extends State<GamePlayScreen>
                               borderColor: theme.colorScheme.primary,
                               borderWidth: config.borderWidth,
                               shadowBrightness: config.field.shadowBrightness,
+                              showFace: config.player.showFace,
                             ),
                           ),
                         ),
