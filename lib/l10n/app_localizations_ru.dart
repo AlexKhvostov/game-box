@@ -356,11 +356,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get runTipHow =>
-      'Пробег — расстояние, которое прошёл ваш кубик за партию.';
+      'Пробег — путь кубика в шагах. 1 шаг = 0,1 ширины героя (на всех экранах одинаково).';
 
   @override
   String runTipConvert(int every, int reward) {
-    return 'В конце партии: каждые $every единиц пробега = $reward кристалл(ов).';
+    return 'В конце партии: каждые $every шагов = $reward кристалл(ов).';
   }
 
   @override

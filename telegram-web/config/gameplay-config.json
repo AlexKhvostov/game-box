@@ -77,7 +77,7 @@
     "helmetRentalHourMinutes": 60,
     "riskRewardEvery": 5,
     "riskRewardTokens": 1,
-    "runRewardEvery": 1000,
+    "runRewardEvery": 200,
     "runRewardTokens": 1,
     "timedBonusTokens": 22,
     "timedBonusHours": 1,

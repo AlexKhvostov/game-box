@@ -398,7 +398,12 @@ class _GameHomeScreenState extends State<GameHomeScreen>
     setState(() {
       _phase = _Phase.result;
       _resultMs = _aliveMs;
-      _resultRun = world?.playerDistance ?? 0;
+      _resultRun = () {
+        final w = world;
+        if (w == null) return 0.0;
+        final step = (w.playerSize * 0.1).clamp(1e-6, 1e9);
+        return w.playerDistance / step;
+      }();
       _resultRisk = world?.nearMissCount ?? 0;
       _impacts.clear();
       _clearPointers();
@@ -693,8 +698,13 @@ class _GameHomeScreenState extends State<GameHomeScreen>
                                   speedMult: speedMult,
                                 );
                               },
-                              playerRun: () =>
-                                  _world?.playerDistance ?? 0.0,
+                              playerRun: () {
+                                final world = _world;
+                                if (world == null) return 0.0;
+                                final step =
+                                    (world.playerSize * 0.1).clamp(1e-6, 1e9);
+                                return world.playerDistance / step;
+                              },
                               nearMiss: () =>
                                   _world?.nearMissCount ?? 0,
                             ),

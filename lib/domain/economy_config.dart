@@ -102,7 +102,7 @@ class EconomyConfig {
     this.helmetRentalHourMinutes = 60,
     this.riskRewardEvery = 5,
     this.riskRewardTokens = 1,
-    this.runRewardEvery = 1000,
+    this.runRewardEvery = 200,
     this.runRewardTokens = 1,
     this.earnActions = const [
       EarnAction(
@@ -214,7 +214,8 @@ class EconomyConfig {
   final int riskRewardEvery;
   final int riskRewardTokens;
 
-  /// За каждые [runRewardEvery] единиц пробега — [runRewardTokens] кристалов.
+  /// За каждые [runRewardEvery] шагов пробега — [runRewardTokens] кристалов.
+  /// 1 шаг = 0.1 × ширина героя.
   final int runRewardEvery;
   final int runRewardTokens;
 
@@ -419,7 +420,7 @@ class EconomyConfig {
       helmetRentalHourMinutes: _asInt(json['helmetRentalHourMinutes'], 60),
       riskRewardEvery: _asInt(json['riskRewardEvery'], 5),
       riskRewardTokens: _asInt(json['riskRewardTokens'], 1),
-      runRewardEvery: _asInt(json['runRewardEvery'], 1000),
+      runRewardEvery: _asInt(json['runRewardEvery'], 200),
       runRewardTokens: _asInt(json['runRewardTokens'], 1),
       earnActions: _mergeEarnActions(
         earnRaw is List && earnRaw.isNotEmpty

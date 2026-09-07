@@ -799,7 +799,7 @@ export class EconomyStore {
     const re = Math.max(1, this.e.riskRewardEvery ?? 5);
     const rt = this.e.riskRewardTokens ?? 1;
     if (rt > 0) t += Math.floor(riskCount / re) * rt;
-    const rne = Math.max(1, this.e.runRewardEvery ?? 1000);
+    const rne = Math.max(1, this.e.runRewardEvery ?? 200);
     const rnt = this.e.runRewardTokens ?? 1;
     if (rnt > 0) t += Math.floor(runDistance / rne) * rnt;
     return t;

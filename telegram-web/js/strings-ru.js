@@ -147,6 +147,10 @@ export const RU = {
   shareBotHandle: '@UntouchGameBot',
   shareBotUrl: 'https://t.me/UntouchGameBot',
   shareImageSavedToast: 'Картинка сохранена!',
+  riskTipHow: 'Риск засчитывается, когда вы едва разминулись с врагом — близко, но без касания.',
+  riskTipConvert: (every, reward) => `В конце партии: каждые ${every} рисков = ${reward} кристалл(ов).`,
+  runTipHow: 'Пробег — путь кубика в шагах. 1 шаг = 0,1 ширины героя (на всех экранах одинаково).',
+  runTipConvert: (every, reward) => `В конце партии: каждые ${every} шагов = ${reward} кристалл(ов).`,
 };
 
 export function earnTitle(id) {

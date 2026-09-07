@@ -356,11 +356,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get runTipHow =>
-      'Run is the distance your cube travels during the round.';
+      'Run is distance in steps. 1 step = 0.1 of hero width (same on all screens).';
 
   @override
   String runTipConvert(int every, int reward) {
-    return 'At the end of the run: every $every run = $reward crystal(s).';
+    return 'At the end of the run: every $every steps = $reward crystal(s).';
   }
 
   @override

@@ -182,9 +182,18 @@ export function fmtRent(seconds) {
 }
 
 /**
+ * 1 шаг = 0.1 × ширина героя — пробег соизмерим на разных экранах.
+ */
+export const RUN_STEP_OF_HERO = 0.1;
+
+export function runStepsFromPx(pxDistance, playerSize = 36) {
+  const stepPx = Math.max(1e-6, (playerSize || 36) * RUN_STEP_OF_HERO);
+  return Math.max(0, (pxDistance || 0) / stepPx);
+}
+
+/**
  * Подсчет очков заезда:
- * Секунды (с тремя знаками) * пробег (м) * множитель рисков.
- * Множитель рисков: (1 + riskCount), то есть каждый риск добавляет +100% к множителю очков!
+ * Секунды * пробег (шаги) * множитель рисков (1 + riskCount).
  */
 export function calcScore(timeMs, runDistance = 0, riskCount = 0) {
   const sec = Math.max(0, timeMs || 0) / 1000;

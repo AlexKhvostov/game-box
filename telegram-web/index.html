@@ -120,7 +120,7 @@
         </div>
         <div class="result-rank" id="result-rank">Новый результат</div>
         <div class="result-stats-row">
-          <div class="result-stat risk">
+          <button type="button" class="result-stat risk" id="result-stat-risk" aria-label="Риск — подробнее">
             <div class="result-stat-head">
               <span class="result-stat-label">РИСК</span>
               <span class="result-stat-rate" id="result-risk-rate"></span>
@@ -129,8 +129,8 @@
               <span class="result-stat-value" id="result-risk">0</span>
               <span class="result-stat-earn" id="result-risk-earn" hidden></span>
             </div>
-          </div>
-          <div class="result-stat run">
+          </button>
+          <button type="button" class="result-stat run" id="result-stat-run" aria-label="Пробег — подробнее">
             <div class="result-stat-head">
               <span class="result-stat-label">ПРОБЕГ</span>
               <span class="result-stat-rate" id="result-run-rate"></span>
@@ -139,7 +139,11 @@
               <span class="result-stat-value" id="result-run">0</span>
               <span class="result-stat-earn" id="result-run-earn" hidden></span>
             </div>
-          </div>
+          </button>
+        </div>
+        <div class="result-tip" id="result-tip" hidden>
+          <div class="result-tip-body" id="result-tip-body"></div>
+          <div class="result-tip-foot" id="result-tip-foot"></div>
         </div>
       </div>
       <div class="result-actions-row">
@@ -151,6 +155,7 @@
   </div>
 
   <div id="fly-toast-root" class="fly-toast-root" aria-hidden="true"></div>
+  <div id="sys-toast-root" class="sys-toast-root" aria-live="polite"></div>
 
   <div id="sheet-root" class="sheet-root" hidden>
     <div id="sheet-backdrop" class="sheet-backdrop"></div>

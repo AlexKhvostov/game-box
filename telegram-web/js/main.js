@@ -1,4 +1,4 @@
-import { calcScore, clamp, easeOut, fmtScore, fmtTimeMs, fmtTimerChip, lerpColor, resolveSurfaceColor, visualWallInset } from './util.js';
+import { calcScore, clamp, easeOut, fmtScore, fmtTimeMs, fmtTimerChip, lerpColor, resolveSurfaceColor, runStepsFromPx, visualWallInset } from './util.js';
 import { GameWorld } from './game-world.js';
 import { FieldRenderer } from './renderer.js';
 import { ImpactBurst } from './impact-burst.js';
@@ -7,6 +7,7 @@ import { EconomyStore } from './economy.js';
 import { telegram } from './telegram.js';
 import { SheetUI } from './sheets.js';
 import { showGameToast } from './game-toast.js';
+import { showSystemNotice } from './sys-toast.js';
 import { restingCubeImg } from './game-icons.js';
 import { RU } from './strings-ru.js';
 import { remoteConfig } from './remote-config.js';
@@ -164,15 +165,25 @@ class UntouchApp {
 
   showToast(message, opts = {}) {
     if (typeof opts === 'string') {
-      showGameToast({ message, accent: opts, flyTo: 'none' });
+      showSystemNotice({ message, accent: opts });
       return;
     }
-    showGameToast({
+    const flyTo = opts.flyTo ?? 'none';
+    // Награды (кристаллы/жизни) — летающая вспышка; всё остальное — системная плашка сверху
+    if (flyTo === 'crystals' || flyTo === 'lives') {
+      showGameToast({
+        message,
+        accent: opts.accent ?? '#3DDC97',
+        flyTo,
+        festive: opts.festive ?? false,
+        icon: opts.icon,
+      });
+      return;
+    }
+    showSystemNotice({
       message,
-      accent: opts.accent ?? '#3DDC97',
-      flyTo: opts.flyTo ?? 'none',
-      festive: opts.festive ?? false,
-      icon: opts.icon,
+      accent: opts.accent ?? '#7EE0FF',
+      holdMs: opts.holdMs ?? 1000,
     });
   }
 
@@ -317,7 +328,7 @@ class UntouchApp {
   _finishImpact() {
     this.phase = Phase.result;
     this.resultMs = this.aliveMs;
-    this.resultRun = this.world.playerDistance;
+    this.resultRun = Math.round(runStepsFromPx(this.world.playerDistance, this.world.playerSize));
     this.resultRisk = this.world.nearMissCount;
     this.resultScore = calcScore(this.resultMs, this.resultRun, this.resultRisk);
     const playerInfo = {
@@ -397,7 +408,7 @@ class UntouchApp {
     const ec = this.config.economy;
     const riskEvery = Math.max(1, ec.riskRewardEvery ?? 5);
     const riskReward = ec.riskRewardTokens ?? 1;
-    const runEvery = Math.max(1, ec.runRewardEvery ?? 1000);
+    const runEvery = Math.max(1, ec.runRewardEvery ?? 200);
     const runReward = ec.runRewardTokens ?? 1;
     const runDist = Math.round(this.resultRun);
     const riskEarned = riskReward > 0 ? Math.floor(this.resultRisk / riskEvery) * riskReward : 0;
@@ -424,8 +435,62 @@ class UntouchApp {
     this._setResultEarn('result-risk-earn', riskEarned);
     this._setResultEarn('result-run-earn', runEarned);
 
+    this._bindResultStatTips({
+      riskEvery,
+      riskReward,
+      runEvery,
+      runReward,
+    });
+
     this._scheduleResultCrystalFlights(this.lastRunTokens);
     this._updateOverlay();
+  }
+
+  _bindResultStatTips({ riskEvery, riskReward, runEvery, runReward }) {
+    const tip = this.$('result-tip');
+    const tipBody = this.$('result-tip-body');
+    const tipFoot = this.$('result-tip-foot');
+    const riskBtn = this.$('result-stat-risk');
+    const runBtn = this.$('result-stat-run');
+    if (!tip || !tipBody || !tipFoot || !riskBtn || !runBtn) return;
+
+    let active = null;
+    const hide = () => {
+      active = null;
+      tip.hidden = true;
+      riskBtn.classList.remove('selected');
+      runBtn.classList.remove('selected');
+    };
+    hide();
+
+    const show = (kind) => {
+      if (active === kind) {
+        hide();
+        return;
+      }
+      active = kind;
+      riskBtn.classList.toggle('selected', kind === 'risk');
+      runBtn.classList.toggle('selected', kind === 'run');
+      tip.style.setProperty('--tip-accent', kind === 'risk' ? '#ffc107' : '#7ee0ff');
+      if (kind === 'risk') {
+        tipBody.textContent = RU.riskTipHow;
+        tipFoot.textContent = RU.riskTipConvert(riskEvery, riskReward > 0 ? riskReward : 1);
+      } else {
+        tipBody.textContent = RU.runTipHow;
+        tipFoot.textContent = RU.runTipConvert(runEvery, runReward > 0 ? runReward : 1);
+      }
+      tip.hidden = false;
+      telegram.haptic('impact', 'light');
+    };
+
+    riskBtn.onclick = (ev) => {
+      ev.stopPropagation();
+      show('risk');
+    };
+    runBtn.onclick = (ev) => {
+      ev.stopPropagation();
+      show('run');
+    };
   }
 
   _setResultEarn(id, amount) {
@@ -608,9 +673,10 @@ class UntouchApp {
     const infoTimer = this.$('info-timer');
     if (infoTimer) infoTimer.textContent = timerText;
 
-    // Набор очков в верхней полосе по формуле (секунды * пробег * множитель рисков)
+    // Набор очков в верхней полосе по формуле (секунды * шаги * множитель рисков)
+    const runSteps = runStepsFromPx(this.world.playerDistance, this.world.playerSize);
     const currentScore = isPlaying
-      ? calcScore(this.aliveMs, this.world.playerDistance, this.world.nearMissCount)
+      ? calcScore(this.aliveMs, runSteps, this.world.nearMissCount)
       : (this.resultScore || 0);
 
     const topScore = this.$('top-score');
@@ -625,7 +691,7 @@ class UntouchApp {
     }
 
     this.$('info-enemies').textContent = String(this.world.enemies.length);
-    this.$('info-run').textContent = String(Math.round(this.world.playerDistance));
+    this.$('info-run').textContent = String(Math.round(runSteps));
     this.$('info-risk').textContent = String(this.world.nearMissCount);
   }
 

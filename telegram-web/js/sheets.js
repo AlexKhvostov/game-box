@@ -243,7 +243,7 @@ export class SheetUI {
     return this.app.economy;
   }
 
-  _toast(msg, { accent = '#3DDC97', flyTo = 'crystals', festive = false, icon } = {}) {
+  _toast(msg, { accent = '#3DDC97', flyTo = 'none', festive = false, icon } = {}) {
     this.app.showToast(msg, { accent, flyTo, festive, icon });
   }
 
@@ -992,8 +992,12 @@ export class SheetUI {
             .map((att, idx) => {
               const rank = idx + 1;
               const isMineView = filter === 'mine';
-              const rankClass = rank === 1 ? 'top-1' : rank === 2 ? 'top-2' : rank === 3 ? 'top-3' : '';
-              const rankLabel = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
+              const rankClass = isMineView
+                ? ''
+                : (rank === 1 ? 'top-1' : rank === 2 ? 'top-2' : rank === 3 ? 'top-3' : '');
+              const rankLabel = isMineView
+                ? `#${rank}`
+                : (rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`);
               const timeStr = fmtMs3(att.timeMs);
               const score = att.score != null ? att.score : calcScore(att.timeMs, att.runDistance, att.riskCount);
               const isMe = Boolean(att.isMe) ||
@@ -1017,14 +1021,14 @@ export class SheetUI {
               const hadHelmet = Boolean(att.hadHelmet);
 
               return `
-                <div class="lb-card ${isMe ? 'is-me' : ''} ${rankClass}" data-attempt-idx="${idx}">
+                <div class="lb-card ${isMe && !isMineView ? 'is-me' : ''} ${rankClass}" data-attempt-idx="${idx}">
                   <div class="lb-card-rank ${rankClass}">${rankLabel}</div>
                   <div class="lb-card-player-col">
                     <div class="lb-card-user-line">
-                      <span class="lb-card-username ${isMe ? 'is-me' : ''}">${nameToDisplay}</span>
+                      <span class="lb-card-username ${isMe && !isMineView ? 'is-me' : ''}">${nameToDisplay}</span>
                       ${showTg ? `<span class="lb-card-tg-pill">${showTg}</span>` : ''}
                     </div>
-                    <div class="lb-card-run-meta">${dateShort} · 🏃 ${att.runDistance || 0}м · ⚡ ${att.riskCount || 0}</div>
+                    <div class="lb-card-run-meta">${dateShort} · 🏃 ${att.runDistance || 0} · ⚡ ${att.riskCount || 0}</div>
                   </div>
                   <div class="lb-card-boosts" title="Бусты">
                     <span class="lb-boost ${hadJump ? 'jump-on' : 'boost-off'}" title="${hadJump ? 'Прыжок' : 'Без прыжка'}">
@@ -1195,7 +1199,7 @@ export class SheetUI {
             <div class="player-modal-stat-item">
               <span class="stat-icon">🏃</span>
               <div class="stat-text">
-                <span class="stat-value">${att.runDistance || 0} м</span>
+                <span class="stat-value">${att.runDistance || 0}</span>
                 <span class="stat-label">Пробег</span>
               </div>
             </div>
@@ -1748,7 +1752,7 @@ function drawShareCardCanvas(canvas, timeMs, runDist = 0, riskCount = 0, onReady
     ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(`🏃 ${Math.round(runDist)}м   ⚡ ${riskCount}   ⭐ ${fmtScore(scoreVal)} очков`, w / 2, statsY + statsH / 2);
+    ctx.fillText(`🏃 ${Math.round(runDist)}   ⚡ ${riskCount}   ⭐ ${fmtScore(scoreVal)} очков`, w / 2, statsY + statsH / 2);
   }
 
   // 11. Bot handle at bottom

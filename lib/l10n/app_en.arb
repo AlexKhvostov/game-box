@@ -231,8 +231,8 @@
       "reward": {"type": "int"}
     }
   },
-  "runTipHow": "Run is the distance your cube travels during the round.",
-  "runTipConvert": "At the end of the run: every {every} run = {reward} crystal(s).",
+  "runTipHow": "Run is distance in steps. 1 step = 0.1 of hero width (same on all screens).",
+  "runTipConvert": "At the end of the run: every {every} steps = {reward} crystal(s).",
   "@runTipConvert": {
     "placeholders": {
       "every": {"type": "int"},
