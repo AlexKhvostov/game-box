@@ -1,6 +1,8 @@
 # Telegram Web App — Untouch (аркада)
 
-См. также: [FLOORS_MODE.md](FLOORS_MODE.md) · [GAMEPLAY_ADMIN.md](GAMEPLAY_ADMIN.md)
+См. также: [TELEGRAM_CANVAS_PARITY.md](TELEGRAM_CANVAS_PARITY.md) · [GAMEPLAY_ADMIN.md](GAMEPLAY_ADMIN.md)
+
+Этажи в Mini App **на паузе**. Работаем только с аркадой.
 
 ## Продакшен
 
@@ -9,9 +11,23 @@
 | Бот | [@UntouchGameBot](https://t.me/UntouchGameBot) |
 | URL | https://untouch.ballaball.xyz/ |
 | Хостинг | HostLand, каталог поддомена `untouch` |
-| Сборка | `tools/build_telegram_web.ps1` → `build/web/` |
+| Сборка | `tools/build_telegram_web.ps1` → папка **`hosting/`** (для FTP) |
+| Рейтинг / профиль | MySQL `api/scores.php` |
+| Stars | `api/payments.php` + webhook `api/telegram_webhook.php` |
 
-Токен бота — **только в секретах / личке**, не в git.
+Токен бота и пароль БД — **только на хостинге**, не в git (`api/db_config.php`, `api/bot_config.php`).
+
+## Админка бота
+
+Адрес: [https://untouch.ballaball.xyz/admin/](https://untouch.ballaball.xyz/admin/)
+
+Это отдельная web-страница, не внутри игры. Там видно, кто писал боту, и срезы: сегодня / неделя / 30 дней, новые, активные, /start, кто уже играл.
+
+1. В `api/bot_config.php` на HostLand добавьте строку `'admin_key' => 'длинный-секрет',` — не токен бота. Если `admin_key` пустой, подойдёт уже существующий `diag_key`.
+2. Залейте свежие `api/admin.php`, `api/tg_common.php`, `api/telegram_webhook.php` и папку `admin/`.
+3. Откройте `/admin/`, введите ключ. Cookie живёт 30 дней.
+
+Список начинает копиться **после заливки**: каждый апдейт webhook пишется в таблицы `bot_users` и `bot_daily`. Старых игроков админка один раз подтянет из рейтинга, рефералов и кошельков. Кто написал боту до заливки и больше ничего не делал — в истории нет.
 
 ## Идея
 
@@ -19,109 +35,117 @@
 
 | Сборка | Команда | Стек | Что внутри |
 |--------|---------|------|------------|
-| Android APK | `tools/build_phone_apk.ps1` | Flutter | Аркада + Этажи (пока морозим) |
+| Android APK | `tools/build_phone_apk.ps1` | Flutter | Аркада (+ Этажи заморожены) |
 | Telegram Web | `tools/build_telegram_web.ps1` | **Canvas + JS** | Только аркада «на рекорд» |
 
-Исходники Telegram Web: `telegram-web/` (не Flutter).  
-Паритет с APK: [TELEGRAM_CANVAS_PARITY.md](TELEGRAM_CANVAS_PARITY.md).
+Исходники Telegram: `telegram-web/` (не Flutter Web).
 
-Старый Flutter Web (`flutter build web`) **больше не используется** для Telegram — был тяжёлый и давал фризы.
+## Как обновлять
 
-## Как обновлять (ваш процесс)
-
-1. Мы правим код в `telegram-web/` (и при необходимости `lib/` для APK).
-2. Вы (или CI) запускаете:
+1. Правим код в `telegram-web/`.
+2. Сборка:
    ```powershell
    powershell -File tools/build_telegram_web.ps1
    ```
-3. Содержимое папки **`build/web/`** заливаете **в корень каталога поддомена**  
-   `https://untouch.ballaball.xyz/`  
-   (не папку `web` целиком — именно файлы внутри: `index.html`, `js/`, `css/`, `assets/`, …).
-4. Обновление в Telegram: пользователи открывают бота заново (кэш браузера Telegram иногда держится — при странностях Hard Reload / очистка данных WebView).
-
-Удобно: упаковать `build/web` в zip и распаковать на хостинге в каталог поддомена.
+3. Содержимое папки **`hosting/`** (её собирает скрипт) заливаете по FTP в корень `https://untouch.ballaball.xyz/`  
+   Не папку `web/` — это старый шаблон Flutter, не Mini App.
+4. Секреты на хосте не перезаписывать: `api/db_config.php`, `api/bot_config.php`.
+5. В Telegram при странном кэше — закрыть Mini App и открыть снова.
 
 ```
-untouch.ballaball.xyz/          ← корень поддомена на HostLand
+untouch.ballaball.xyz/
   index.html
   js/
   css/
   config/
+  api/          ← PHP: scores, payments, webhook
   assets/
   icons/
-  favicon.png
-  manifest.json
 ```
 
-## BotFather
+## Telegram Stars (бета)
 
-После первой заливки (когда по HTTPS открывается игра):
+Каталог живёт в Remote Config, ключ `economy` → объект `starsShop` (не отдельный параметр).  
+Дефолты — в [`telegram-web/config/gameplay-config.json`](../telegram-web/config/gameplay-config.json).
 
-1. [@BotFather](https://t.me/BotFather) → ваш бот `@UntouchGameBot`
-2. `/setmenubutton` → текст **Играть** → URL `https://untouch.ballaball.xyz/`
-3. Опционально: `/newapp` / Mini App с тем же URL
+Сейчас: Горсть 40кр / 49⭐, Стопка 120/149, Сундук 350/349, Сейф 900/749, Plus 199⭐ / 30 дней.
 
-Проверка: открыть [@UntouchGameBot](https://t.me/UntouchGameBot) → кнопка меню → игра.
+Цена счёта и выдача кристаллов берутся **с сервера** (PHP читает тот же RC). Витрина в Mini App — для отображения.
+
+Plus: ×2 daily, без навязчивого баннера (если появится). Ролик за кристаллы у Plus **остаётся**.
+
+### Что сделать один раз на HostLand / BotFather
+
+1. Скопировать [`api/bot_config.example.php`](../telegram-web/api/bot_config.example.php) → `api/bot_config.php`, вписать токен `@UntouchGameBot`.
+2. BotFather: включить платежи / Stars для бота.
+3. Поставить webhook на **Cloudflare Worker**, не на HostLand.  
+   Telegram часто не достучаться до РФ-хостинга (`Connection timed out` в `ping.php` → `webhook.last_error`).
+   ```
+   https://untouch-tg-api.lihach-ok.workers.dev/bot<TOKEN>/setWebhook?url=https://untouch-tg-api.lihach-ok.workers.dev/webhook
+   ```
+   Код Worker: [`tools/telegram-api-proxy.worker.js`](../tools/telegram-api-proxy.worker.js).  
+   В Cloudflare у Worker должен быть secret `BOT_TOKEN`. Worker отвечает на `/start` сам и пытается переслать платежи на HostLand.
+4. PHP на хосте: `pdo_mysql`, `curl`.
+5. Проверка: `https://untouch.ballaball.xyz/api/ping.php`  
+   - `"telegram":{"ok":true}` — HostLand пишет в Telegram через Worker.  
+   - `"webhook":{"url":"...workers.dev/webhook"}` и пустой `last_error` — команды доходят.
+6. Проверка оплаты: открыть игру в боте → магазин → купить тестовый пак → кристаллы после оплаты; Plus → daily ×2; перезапуск Mini App — баланс на месте.
+
+Отмена Plus — в платежах Telegram (Stars), не кнопкой в игре.
+
+## BotFather (игра)
+
+Картинки: [`telegram-web/assets/branding/`](../telegram-web/assets/branding/).
+
+1. `/newapp` → title `Untouch`, short name `untouch`, URL `https://untouch.ballaball.xyz/`  
+   Фото Web App: `botfather_webapp_640x360.jpg` (ровно 640×360).
+2. `/setuserpic` → `bot_avatar_640.jpg` (640×640).
+3. `/setabouttext` → `Аркада: уводите кубик от красных и бейте рекорд.`
+4. `/setdescription` → текст приветствия (см. `tg_start_text()` в `api/tg_common.php`).
+5. `/setmenubutton` → **Играть** → `https://untouch.ballaball.xyz/`
+6. `/setinline` → любой placeholder, например `Untouch` — нужно для красивой ссылки в приглашении.
+
+Ответ на `/start` шлёт webhook (`api/telegram_webhook.php`) — кнопка Mini App «Играть». Нужна заливка PHP на хост.
 
 ## Полноэкран и жесты
 
-Игра управляется свайпами — Telegram не должен перехватывать вертикальный жест.
+`telegram-web/js/telegram.js`: `ready` / `expand` / `disableVerticalSwipes` / `requestFullscreen` / safe area.
 
-В `web/index.html` и `TelegramBridge.bootstrapFullscreen()` вызываются:
+## Приглашения и уведомления
 
-1. `ready()` / `expand()` — максимальная высота
-2. `disableVerticalSwipes()` — не сворачивать Mini App свайпом вниз
-3. `requestFullscreen()` — настоящий fullscreen (Bot API 8.0+)
-4. CSS: `overflow: hidden`, `touch-action: none`, `overscroll-behavior: none`
+Личная ссылка игрока: `https://t.me/UntouchGameBot?start=r<telegramUserId>`. В сообщении она показывается как фраза **«Перейти в бот с игрой»** (HTML-ссылка + кнопка), а не длинный URL.
 
-### Safe area (не перекрывать статус-бар / шапку TG)
+Для этого один раз в BotFather: `/setinline` → `@UntouchGameBot` → любой placeholder, например `Untouch`. Без inline-режима Mini App не сможет открыть красивый шаринг: бот пришлёт то же сообщение в чат, его нужно переслать.
 
-Telegram отдаёт два inset:
+Когда друг открывает бота по этой ссылке (`/start r…`), PHP пишет пару «кто пригласил → кто пришёл» в таблицу `referrals`. У пригласившего во вкладке **Действия** ниже кнопки — список тех, кто открыл игру. За каждого друга `reward` кристаллов (сейчас 20), не за нажатие «Поделиться».
 
-| Поле | Смысл |
-|------|--------|
-| `safeAreaInset` | вырез, статус-бар, home indicator |
-| `contentSafeAreaInset` | зона без UI Telegram (кнопки Close / …) |
+Уведомления: `requestWriteAccess`. Награда `enable_notifications` только после согласия писать в чат. Флаг хранится в `user_flags`.
 
-В fullscreen HUD сдвигается на **сумму** top-inset’ов (`TelegramBridge.viewPadding`).  
-Если клиент отдал нули — запас ~54 px.
+После заливки PHP таблицы создаются сами. Код Worker (`tools/telegram-api-proxy.worker.js`) тоже обновить: если друг пришёл через `/start r123`, кнопка «Играть» сохраняет тот же код.
 
-Закрыть приложение можно крестиком / кнопкой Back в шапке Telegram.
+## Рейтинг
 
-## Firebase на web
+Онлайн через HostLand MySQL (`scores.php`). На сервере хранится **лучший заезд игрока за календарный день**.  
+Локально на телефоне — только свои попытки (вкладка «Мои»). Чужой рейтинг не кэшируется: при открытии таблицы игра заново читает БД.  
+Пробег в рейтинге — в **шагах** (не метры). При первой заливке этого кода таблица `scores` один раз очищается.  
+POST рекорда и профиля проверяет HMAC `initData`, если настроен `bot_config.php`.  
+Публичный `?diag=1` закрыт; диагностика только с `diag_key` из `bot_config.php`.
 
-Сейчас **не подключён**: `FirebaseBootstrap` на web сразу возвращает offline.  
-Игра идёт на локальных дефолтах (жизни/конфиг из APK defaults, рейтинг без сервера).  
-Подключение Firebase Web + ник из Telegram — следующий этап после UI/лагов.
+## Яндекс.Метрика
 
-## Что уже сделано в коде
+Счётчик `112365078` — в `config/gameplay-config.json`, поле `yandexMetrikaId`. Отчёты: [metrika.yandex.ru](https://metrika.yandex.ru/).
 
-- `web/` — Flutter Web + `telegram-web-app.js` в `index.html`
-- Telegram-сборка сразу открывает аркаду (без Этажей)
-- `lib/telegram/telegram_bridge.dart` — заглушка SDK (ник / expand — следующий этап)
-- Firebase на web пока выключен (офлайн-игра; рейтинг + ник из Telegram — дальше)
-
-## Локальная проверка
+## Локальная проверка UI
 
 ```powershell
 powershell -File tools/build_telegram_web.ps1
-flutter run -d chrome --dart-define=APP_TARGET=telegram
 ```
 
-## Дальнейшие этапы
+Открыть `build/web/` локально можно для вёрстки; **оплата Stars работает только внутри Telegram**.
 
-1. Первая заливка на `untouch.ballaball.xyz` + Menu Button в BotFather
-2. `TelegramBridge` — user id / @username, убрать ввод имени
-3. Firebase Web + рейтинг с `telegram_user_id`
-4. Валидация `initData` (backend) — по необходимости
-5. Этажи в Telegram — когда аркада стабильна
+## Не в этой бете
 
-## Структура
-
-```
-web/                      — исходники оболочки Web
-lib/app/app_target.dart
-lib/telegram/
-tools/build_telegram_web.ps1
-build/web/                — артефакт для HostLand (в git не коммитим)
-```
+- Этажи
+- Rewarded-реклама
+- Google Play IAP / Flutter billing
+- Firebase как платёжный бэкенд

@@ -43,8 +43,8 @@ export class RemoteConfigService {
       this.templateVersion = cached.version;
     }
 
-    // 3. Запускаем фоновое обновление с Firebase Remote Config
-    this.fetchRemote(config).catch(() => {});
+    // 3. Ждём свежий Remote Config, чтобы старт раунда шёл уже с RC
+    await this.fetchRemote(config);
 
     return config;
   }
@@ -56,7 +56,7 @@ export class RemoteConfigService {
     try {
       const url = `https://firebaseremoteconfig.googleapis.com/v1/projects/${FIREBASE_RC.projectId}/namespaces/firebase:fetch?key=${FIREBASE_RC.apiKey}`;
       const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
-      const t = ctrl ? setTimeout(() => ctrl.abort(), 4000) : null;
+      const t = ctrl ? setTimeout(() => ctrl.abort(), 5000) : null;
 
       const res = await fetch(url, {
         method: 'POST',

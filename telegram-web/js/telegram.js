@@ -6,6 +6,7 @@ export class TelegramBridge {
     this.safeArea = { top: 0, right: 0, bottom: 0, left: 0 };
     this.contentSafeArea = { top: 0, right: 0, bottom: 0, left: 0 };
     this._tg = null;
+    this.hapticEnabled = true;
     this.onResize = null;
     this._syncInsets();
   }
@@ -16,6 +17,7 @@ export class TelegramBridge {
       this._tg = tg;
       try {
         tg.ready();
+        this.rememberStartParam();
         tg.expand();
         if (typeof tg.disableVerticalSwipes === 'function') tg.disableVerticalSwipes();
         if (typeof tg.requestFullscreen === 'function') tg.requestFullscreen();
@@ -47,6 +49,7 @@ export class TelegramBridge {
     } else {
       this._syncInsets();
     }
+    this.rememberStartParam();
   }
 
   _syncInsets() {
@@ -127,6 +130,155 @@ export class TelegramBridge {
     return this.user?.photo_url ?? null;
   }
 
+  get initData() {
+    return this._tg?.initData || '';
+  }
+
+  _looksLikeRef(value) {
+    return typeof value === 'string' && /^r\d{1,20}$/.test(value.trim());
+  }
+
+  _readStoredRef() {
+    try {
+      return localStorage.getItem('untouch_pending_ref') || '';
+    } catch (_) {
+      return '';
+    }
+  }
+
+  rememberStartParam(value = this.startParam) {
+    if (!this._looksLikeRef(value)) return;
+    try {
+      localStorage.setItem('untouch_pending_ref', value.trim());
+    } catch (_) {}
+  }
+
+  clearStoredRef() {
+    try {
+      localStorage.removeItem('untouch_pending_ref');
+    } catch (_) {}
+    try {
+      document.cookie = 'untouch_ref=; Max-Age=0; path=/';
+    } catch (_) {}
+  }
+
+  get startParam() {
+    const fromTg = this._tg?.initDataUnsafe?.start_param;
+    if (this._looksLikeRef(fromTg)) return String(fromTg).trim();
+
+    const init = this.initData;
+    if (init) {
+      const match = /(?:^|&)start_param=([^&]+)/.exec(init);
+      if (match) {
+        const decoded = decodeURIComponent(match[1].replace(/\+/g, ' '));
+        if (this._looksLikeRef(decoded)) return decoded.trim();
+      }
+    }
+
+    try {
+      const url = new URL(window.location.href);
+      for (const key of ['ref', 'startapp', 'tgWebAppStartParam']) {
+        const q = url.searchParams.get(key);
+        if (this._looksLikeRef(q)) return q.trim();
+      }
+    } catch (_) {}
+
+    const hash = String(window.location.hash || '');
+    const hm = /(?:^|[&#])tgWebAppStartParam=([^&]+)/.exec(hash);
+    if (hm) {
+      const decoded = decodeURIComponent(hm[1].replace(/\+/g, ' '));
+      if (this._looksLikeRef(decoded)) return decoded.trim();
+    }
+
+    const cookie = typeof document !== 'undefined'
+      ? /(?:^|; )untouch_ref=([^;]+)/.exec(document.cookie)
+      : null;
+    if (cookie) {
+      const decoded = decodeURIComponent(cookie[1]);
+      if (this._looksLikeRef(decoded)) return decoded.trim();
+    }
+
+    const stored = this._readStoredRef();
+    return this._looksLikeRef(stored) ? stored.trim() : '';
+  }
+
+  get inviteStartapp() {
+    const id = this.user?.id;
+    return id != null ? `r${id}` : '';
+  }
+
+  inviteUrl() {
+    const param = this.inviteStartapp;
+    return param
+      ? `https://t.me/UntouchGameBot/untouch?startapp=${param}`
+      : 'https://t.me/UntouchGameBot/untouch';
+  }
+
+  /** Короткая ссылка в бота с кодом /start r123. */
+  inviteShareUrl() {
+    const id = this.user?.id;
+    return id != null
+      ? `https://t.me/UntouchGameBot?start=r${id}`
+      : 'https://t.me/UntouchGameBot';
+  }
+
+  canSharePreparedMessage() {
+    return typeof this._tg?.shareMessage === 'function';
+  }
+
+  sharePreparedMessage(id) {
+    return new Promise((resolve) => {
+      if (!id || !this.canSharePreparedMessage()) {
+        resolve(false);
+        return;
+      }
+      try {
+        this._tg.shareMessage(String(id), (ok) => resolve(Boolean(ok)));
+      } catch (e) {
+        console.warn('shareMessage', e);
+        resolve(false);
+      }
+    });
+  }
+
+  openBotChat() {
+    return this.openUserChat('UntouchGameBot');
+  }
+
+  requestWriteAccess() {
+    return new Promise((resolve) => {
+      const tg = this._tg;
+      if (!tg || typeof tg.requestWriteAccess !== 'function') {
+        resolve(false);
+        return;
+      }
+      try {
+        tg.requestWriteAccess((ok) => resolve(Boolean(ok)));
+      } catch (e) {
+        console.warn('requestWriteAccess', e);
+        resolve(false);
+      }
+    });
+  }
+
+  /**
+   * Opens Stars invoice. Resolves with Telegram status: paid | cancelled | failed | pending.
+   */
+  openInvoice(url) {
+    return new Promise((resolve, reject) => {
+      const tg = this._tg;
+      if (!tg || typeof tg.openInvoice !== 'function') {
+        reject(new Error('openInvoice unavailable'));
+        return;
+      }
+      try {
+        tg.openInvoice(url, (status) => resolve(status || 'unknown'));
+      } catch (e) {
+        reject(e);
+      }
+    });
+  }
+
   openUserChat(username, userId) {
     this.haptic('impact', 'light');
     let url = null;
@@ -152,22 +304,43 @@ export class TelegramBridge {
   }
 
   haptic(type = 'impact', style = 'light') {
+    if (this.hapticEnabled === false) return;
+    const hf = this._tg?.HapticFeedback;
     try {
-      this._tg?.HapticFeedback?.[type]?.(style);
+      if (hf) {
+        if (type === 'impact') {
+          if (typeof hf.impactOccurred === 'function') hf.impactOccurred(style);
+          else hf.impact?.(style);
+        } else if (type === 'notification') {
+          if (typeof hf.notificationOccurred === 'function') hf.notificationOccurred(style);
+          else hf.notification?.(style);
+        } else if (type === 'selection') {
+          if (typeof hf.selectionChanged === 'function') hf.selectionChanged();
+          else hf.selection?.();
+        }
+      }
     } catch (_) {}
+  }
+
+  /** Тот же канал, что проигрыш: notificationOccurred. style: success | warning | error */
+  timerPulse(style = 'warning') {
+    if (this.hapticEnabled === false) return;
+    const kind = style === 'success' || style === 'error' ? style : 'warning';
+    this.haptic('notification', kind);
   }
 
   async share(text, url = 'https://t.me/UntouchGameBot', blob = null) {
     const tg = this._tg;
     this.haptic('impact', 'medium');
+    const fileName = blob ? 'untouch-invite.png' : 'untouch-record.png';
 
     if (blob && typeof File !== 'undefined' && navigator.canShare) {
       try {
-        const file = new File([blob], 'untouch-record.png', { type: 'image/png' });
+        const file = new File([blob], fileName, { type: 'image/png' });
         if (navigator.canShare({ files: [file] })) {
           await navigator.share({
             title: 'Untouch',
-            text: `${text}\n${url}`,
+            text: `${text}\n\n${url}`,
             files: [file],
           });
           return true;

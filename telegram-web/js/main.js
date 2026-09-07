@@ -11,6 +11,8 @@ import { showSystemNotice } from './sys-toast.js';
 import { restingCubeImg } from './game-icons.js';
 import { RU } from './strings-ru.js';
 import { remoteConfig } from './remote-config.js';
+import { bindGameTips, hideGameTip } from './tip-pop.js';
+import { initMetrika, metrikaGoal } from './metrika.js';
 
 const Phase = { idle: 'idle', playing: 'playing', impact: 'impact', result: 'result' };
 
@@ -35,6 +37,9 @@ class UntouchApp {
     this.impactHoldSec = 0;
     this.runHelmetActive = false;
     this.helmetInvulnLeft = 0;
+    this.startInvulnLeft = 0;
+    this._hadStartInvuln = false;
+    this._hbStrongSec = 0;
     this.sfxRiskCount = 0;
     this.idleSpeedWobble = 0;
     this.idleSpeedWobbleTarget = 0;
@@ -54,20 +59,63 @@ class UntouchApp {
     telegram.boot();
     telegram.onResize = () => this._resize();
     this.config = await remoteConfig.loadConfig();
+    initMetrika(this.config.yandexMetrikaId);
     this.economy = new EconomyStore(this.config);
+    await this.economy.syncWallet();
+    let social = await this.economy.syncSocial();
+    if (telegram.startParam && social && !social.bound && social.bindReason !== 'already') {
+      await new Promise((r) => setTimeout(r, 500));
+      social = (await this.economy.syncSocial()) || social;
+    }
+    if (social?.inviteReward) {
+      showGameToast({
+        message: RU.earnInviteRewardToast(social.inviteReward, social.inviteRewardFriends || 1),
+        accent: '#7EE0FF',
+        flyTo: 'crystals',
+      });
+      this._updateHud();
+    } else if (social?.bound) {
+      showSystemNotice({ message: RU.earnInviteWelcome, accent: '#7EE0FF' });
+      metrikaGoal('invite_bound');
+    }
     this.audio = new GameAudio(this.config);
     this.renderer = new FieldRenderer(this.config.theme);
     this.sheets = new SheetUI(this);
+    telegram.hapticEnabled = this.economy.hapticEnabled !== false;
+    this.audio.userMusicEnabled = this.economy.musicEnabled !== false;
     await this.audio.init();
-    await this.audio.ensureMusic();
+    if (this.economy.musicEnabled !== false) {
+      await this.audio.ensureMusic();
+    }
     this._bindInput();
     this._bindHud();
     this._resize();
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) return;
+      this.economy.syncSocial().then((social) => {
+        if (!social?.inviteReward) return;
+        showGameToast({
+          message: RU.earnInviteRewardToast(social.inviteReward, social.inviteRewardFriends || 1),
+          accent: '#7EE0FF',
+          flyTo: 'crystals',
+        });
+        this._updateHud();
+        if (this.sheets?._tab === 3) this.sheets._refreshSocialEarn();
+      });
+    });
     window.addEventListener('resize', () => this._resize());
     window.addEventListener('orientationchange', () => setTimeout(() => this._resize(), 100));
     this._resetWorld();
     this._updateHud();
+    this._hideBootLoader();
     requestAnimationFrame((ts) => this._loop(ts));
+  }
+
+  _hideBootLoader() {
+    const el = this.$('boot-loader');
+    if (!el) return;
+    el.classList.add('hidden');
+    setTimeout(() => el.remove(), 280);
   }
 
   _resize() {
@@ -226,7 +274,8 @@ class UntouchApp {
     if (dx === 0 && dy === 0) return;
     const delta = { dx, dy };
     this.world.movePlayerBy(delta);
-    if (this.helmetInvulnLeft > 0) return;
+    this._pulseTimerSecond(Math.floor(this.aliveMs / 1000));
+    if (this._isInvulnerable()) return;
     if (this.world.playerHitsBorder()) this._triggerImpact(true);
     else if (this.world.playerHitsEnemy()) this._triggerImpact(false);
   }
@@ -250,8 +299,12 @@ class UntouchApp {
     this.runHadHelmet = this.config.game.helmetEnabled && this.economy.hasHelmetRental();
     this.runHelmetActive = this.runHadHelmet;
     this.helmetInvulnLeft = 0;
+    this.startInvulnLeft = this._startInvulnSec();
+    this._hadStartInvuln = this.startInvulnLeft > 0;
+    this._hbStrongSec = 0;
     this.impacts = [];
     this.audio.gameStart();
+    metrikaGoal('game_start');
     telegram.haptic('impact', 'medium');
     this._updateOverlay();
     this._updateHud();
@@ -270,8 +323,44 @@ class UntouchApp {
     }
   }
 
+  _startInvulnSec() {
+    const n = Number(this.config?.game?.startInvulnSec);
+    return Number.isFinite(n) ? clamp(n, 0, 5) : 1;
+  }
+
+  _isInvulnerable() {
+    return this.startInvulnLeft > 0 || this.helmetInvulnLeft > 0;
+  }
+
+  _heartbeatEnabled() {
+    const g = this.config?.game || {};
+    if (g.timerHaptic === false || g.heartbeatHaptic === false) return false;
+    return this.economy?.hapticEnabled !== false;
+  }
+
+  _timerHapticStyle(sec) {
+    const g = this.config?.game || {};
+    const usual = String(g.timerHapticStyle || 'warning');
+    if (sec % 10 === 0) return String(g.timerHapticStyle10 || usual);
+    if (sec % 5 === 0) return String(g.timerHapticStyle5 || usual);
+    return usual;
+  }
+
+  _pulseTimerSecond(sec) {
+    if (this.phase !== Phase.playing) return;
+    if (!this._heartbeatEnabled()) return;
+    const n = Math.floor(Number(sec) || 0);
+    if (n < 1 || n === this._hbStrongSec) return;
+    this._hbStrongSec = n;
+    telegram.timerPulse(this._timerHapticStyle(n));
+  }
+
+  _tickPlayHaptics() {
+    this._pulseTimerSecond(Math.floor(this.aliveMs / 1000));
+  }
+
   _triggerImpact(againstWall) {
-    if (this.helmetInvulnLeft > 0) return;
+    if (this._isInvulnerable()) return;
     if (this.runHelmetActive) {
       this.runHelmetActive = false;
       this.helmetInvulnLeft = this.config.game.helmetInvulnSec;
@@ -348,6 +437,7 @@ class UntouchApp {
     );
     this.lastRunResult = runResult;
     this.lastRunTokens = runResult?.gainedTokens ?? 0;
+    metrikaGoal('game_finish');
     this._showResult();
   }
 
@@ -364,6 +454,7 @@ class UntouchApp {
     this._updateOverlay();
     this._updateHud();
     this.$('result-overlay').hidden = true;
+    hideGameTip();
   }
 
   _showResult() {
@@ -382,6 +473,8 @@ class UntouchApp {
 
     const scoreEl = this.$('result-score');
     if (scoreEl) scoreEl.textContent = fmtScore(this.resultScore);
+    const scoreTag = el.querySelector('.result-score-tag');
+    if (scoreTag) scoreTag.textContent = RU.resultScoreTag;
 
     const rr = this.lastRunResult;
     if (rr?.isAllTimeBest && (rr?.oldBestTimeMs ?? 0) > 0) {
@@ -447,50 +540,28 @@ class UntouchApp {
   }
 
   _bindResultStatTips({ riskEvery, riskReward, runEvery, runReward }) {
-    const tip = this.$('result-tip');
-    const tipBody = this.$('result-tip-body');
-    const tipFoot = this.$('result-tip-foot');
     const riskBtn = this.$('result-stat-risk');
     const runBtn = this.$('result-stat-run');
-    if (!tip || !tipBody || !tipFoot || !riskBtn || !runBtn) return;
-
-    let active = null;
-    const hide = () => {
-      active = null;
-      tip.hidden = true;
-      riskBtn.classList.remove('selected');
-      runBtn.classList.remove('selected');
-    };
-    hide();
-
-    const show = (kind) => {
-      if (active === kind) {
-        hide();
-        return;
-      }
-      active = kind;
-      riskBtn.classList.toggle('selected', kind === 'risk');
-      runBtn.classList.toggle('selected', kind === 'run');
-      tip.style.setProperty('--tip-accent', kind === 'risk' ? '#ffc107' : '#7ee0ff');
-      if (kind === 'risk') {
-        tipBody.textContent = RU.riskTipHow;
-        tipFoot.textContent = RU.riskTipConvert(riskEvery, riskReward > 0 ? riskReward : 1);
-      } else {
-        tipBody.textContent = RU.runTipHow;
-        tipFoot.textContent = RU.runTipConvert(runEvery, runReward > 0 ? runReward : 1);
-      }
-      tip.hidden = false;
-      telegram.haptic('impact', 'light');
-    };
-
-    riskBtn.onclick = (ev) => {
-      ev.stopPropagation();
-      show('risk');
-    };
-    runBtn.onclick = (ev) => {
-      ev.stopPropagation();
-      show('run');
-    };
+    if (!riskBtn || !runBtn) return;
+    bindGameTips(
+      [
+        {
+          id: 'result-risk',
+          el: riskBtn,
+          accent: '#ffc107',
+          body: RU.riskTipHow,
+          foot: RU.riskTipConvert(riskEvery, riskReward > 0 ? riskReward : 1),
+        },
+        {
+          id: 'result-run',
+          el: runBtn,
+          accent: '#7ee0ff',
+          body: RU.runTipHow,
+          foot: RU.runTipConvert(runEvery, runReward > 0 ? runReward : 1),
+        },
+      ],
+      { haptic: () => telegram.haptic('impact', 'light') },
+    );
   }
 
   _setResultEarn(id, amount) {
@@ -567,9 +638,13 @@ class UntouchApp {
       if (b.enemy > 0) this.audio.mobCollide();
       this._sfxRiskIfNeeded();
 
+      if (this.startInvulnLeft > 0) {
+        this.startInvulnLeft = Math.max(0, this.startInvulnLeft - dt);
+      }
       if (this.helmetInvulnLeft > 0) {
         this.helmetInvulnLeft = Math.max(0, this.helmetInvulnLeft - dt);
-      } else {
+      }
+      if (!this._isInvulnerable()) {
         if (this.world.playerHitsBorder()) {
           this._triggerImpact(true);
           return;
@@ -579,6 +654,7 @@ class UntouchApp {
           return;
         }
       }
+      this._tickPlayHaptics();
 
       if (this.impacts.length > 0) {
         this.impacts = this.impacts.filter((b) => b.update(dt));
@@ -623,7 +699,7 @@ class UntouchApp {
       playerPreview: this.phase === Phase.idle,
       impacts: this.impacts,
       hasHelmet: this.runHelmetActive,
-      invulnerable: this.helmetInvulnLeft > 0,
+      invulnerable: this._isInvulnerable(),
       shadowBrightness: this.config.field.shadowBrightness,
       showFace: this.config.player.showFace,
     });
@@ -668,6 +744,9 @@ class UntouchApp {
     const isPlaying = this.phase === Phase.playing || this.phase === Phase.impact;
     const ms = isPlaying ? this.aliveMs : 0;
     const timerText = fmtTimerChip(ms);
+    if (this.phase === Phase.playing) {
+      this._pulseTimerSecond(Math.floor(ms / 1000));
+    }
 
     // Секундомер под полем
     const infoTimer = this.$('info-timer');
@@ -754,7 +833,10 @@ class UntouchApp {
 
 const app = new UntouchApp();
 window.app = app;
-app.init().catch((e) => console.error('Untouch init', e));
+app.init().catch((e) => {
+  console.error('Untouch init', e);
+  app._hideBootLoader();
+});
 
 document.getElementById('result-ok')?.addEventListener('click', () => app._resetToIdle());
 document.getElementById('result-share-social')?.addEventListener('click', () => {

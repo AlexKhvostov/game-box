@@ -12,8 +12,9 @@
 | 4. Экран результата | ✅ MVP | упрощённый overlay |
 | 5. Telegram SDK + safe area | ✅ MVP | `telegram.js` |
 | 6. Листы жизней / кристаллы | ✅ MVP | `sheets.js` — покупка жизней, daily, аренда |
-| 7. Рейтинг / Firebase | ⏳ | локальный рекорд есть; онлайн — позже |
-| 8. Share / Stars | ⏳ | позже |
+| 7. Рейтинг | ✅ MVP | MySQL HostLand `api/scores.php` |
+| 8. Share | ✅ MVP | `telegram.js` share в Telegram |
+| 9. Stars | ✅ Бета | пакеты кристаллов + Plus 30 дней |
 
 ## Визуал поля
 
@@ -43,7 +44,8 @@
 ## Экономика
 
 - [x] localStorage: lives, tokens, bestTime, daily, rentals
-- [ ] Полный паритет EconomyStore (earn in-run, shop IAP)
+- [x] Stars: пакеты кристаллов + Plus 30 дней (`api/payments.php`, webhook)
+- [ ] Полный паритет EconomyStore (earn in-run, реальная реклама)
 
 ## Конфиг
 

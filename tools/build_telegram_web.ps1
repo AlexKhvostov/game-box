@@ -18,7 +18,11 @@ if (-not (Test-Path $src)) {
 
 Write-Host 'Building Telegram Canvas Web...'
 
-if (Test-Path $out) { Remove-Item $out -Recurse -Force }
+try {
+  if (Test-Path $out) { Remove-Item $out -Recurse -Force }
+} catch {
+  Write-Host "build\web is in use, overlaying files instead of a clean wipe"
+}
 New-Item -ItemType Directory -Force -Path $out | Out-Null
 
 # Core app
@@ -71,13 +75,23 @@ $latestZip = Join-Path $releasesDir 'untouch-telegram-web.zip'
 
 Write-Host "Creating versioned archive: $versionedZip"
 Compress-Archive -Path (Join-Path $out '*') -DestinationPath $versionedZip -Force
-
-# Также обновляем latest untouch-telegram-web.zip для удобства быстрой загрузки
 Copy-Item -Path $versionedZip -Destination $latestZip -Force
+
+# FTP-папка: готовый сайт, который можно сразу перелить на хостинг
+$ftpDir = Join-Path $root 'hosting'
+if (Test-Path $ftpDir) { Remove-Item $ftpDir -Recurse -Force }
+New-Item -ItemType Directory -Force -Path $ftpDir | Out-Null
+Copy-Item -Path (Join-Path $out '*') -Destination $ftpDir -Recurse -Force
+$htOut = Join-Path $out '.htaccess'
+if (Test-Path $htOut) {
+  Copy-Item -Path $htOut -Destination $ftpDir -Force
+}
 
 Write-Host ''
 Write-Host "Done: $out"
+Write-Host "FTP folder:    $ftpDir"
 Write-Host "Versioned Zip: $versionedZip"
 Write-Host "Latest Zip:    $latestZip"
-Write-Host 'Upload CONTENTS of build/web/ (or unpack the zip) into HostLand folder for https://untouch.ballaball.xyz/'
-Write-Host 'See docs/TELEGRAM_WEBAPP.md and docs/TELEGRAM_CANVAS_PARITY.md'
+Write-Host "FTP: upload CONTENTS of build\web\ (or hosting\) to https://untouch.ballaball.xyz/"
+Write-Host "Do not overwrite api/db_config.php or api/bot_config.php on the host"
+Write-Host "See docs/TELEGRAM_WEBAPP.md"

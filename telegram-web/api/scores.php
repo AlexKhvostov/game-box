@@ -2,12 +2,14 @@
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Allow-Headers: Content-Type, X-Telegram-Init-Data');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204);
     exit;
 }
+
+require_once __DIR__ . '/tg_common.php';
 
 // 1. Подключение к MySQL через db_config.php
 $pdo = null;
@@ -122,6 +124,19 @@ if (file_exists($configFile)) {
                     $pdo->exec("ALTER TABLE `scores` ADD COLUMN `hide_telegram` TINYINT(1) NOT NULL DEFAULT 0 AFTER `photo_url`");
                 } catch (Exception $colEx) {}
 
+                // Пробег больше не в метрах, а в шагах — старый рейтинг несовместим.
+                // Один раз очищаем таблицу и scores.json; флаг остаётся на хосте.
+                $resetFlag = __DIR__ . '/scores_steps_v1.flag';
+                if (!is_file($resetFlag)) {
+                    try {
+                        $pdo->exec('TRUNCATE TABLE `scores`');
+                    } catch (Exception $wipeEx) {
+                        error_log('[scores.php] scores unit reset: ' . $wipeEx->getMessage());
+                    }
+                    @unlink(__DIR__ . '/scores.json');
+                    @file_put_contents($resetFlag, date('c') . "\n");
+                }
+
                 // Заполняем score_day для старых записей, где он пуст
                 try {
                     $pdo->exec("UPDATE `scores` SET `score_day` = DATE_FORMAT(FROM_UNIXTIME(`created_at` / 1000), '%Y-%m-%d') WHERE `score_day` = ''");
@@ -194,7 +209,8 @@ function fetchMergedScoresFromMysql($pdo) {
         SELECT id, user_id as userId, username, first_name as firstName, last_name as lastName,
                player_name as playerName, photo_url as photoUrl, hide_telegram as hideTelegram,
                time_ms as timeMs, run_distance as runDistance, risk_count as riskCount, score,
-               had_jump as hadJump, had_helmet as hadHelmet, created_at as createdAt
+               had_jump as hadJump, had_helmet as hadHelmet, created_at as createdAt,
+               score_day as scoreDay
         FROM `scores`
         ORDER BY `time_ms` DESC
         LIMIT 150
@@ -207,7 +223,8 @@ function fetchMergedScoresFromMysql($pdo) {
         SELECT id, user_id as userId, username, first_name as firstName, last_name as lastName,
                player_name as playerName, photo_url as photoUrl, hide_telegram as hideTelegram,
                time_ms as timeMs, run_distance as runDistance, risk_count as riskCount, score,
-               had_jump as hadJump, had_helmet as hadHelmet, created_at as createdAt
+               had_jump as hadJump, had_helmet as hadHelmet, created_at as createdAt,
+               score_day as scoreDay
         FROM `scores`
         WHERE `created_at` >= :since
         ORDER BY `created_at` DESC
@@ -234,6 +251,11 @@ function fetchMergedScoresFromMysql($pdo) {
 
         $hideTg = !empty($r['hideTelegram']);
         $uname = $hideTg ? null : ($r['username'] ?: null);
+        $createdAt = (int)$r['createdAt'];
+        $scoreDay = trim((string)($r['scoreDay'] ?? ''));
+        if ($scoreDay === '' && $createdAt > 0) {
+            $scoreDay = date('Y-m-d', (int)($createdAt / 1000));
+        }
 
         return [
             'id'           => (string)$r['id'],
@@ -250,7 +272,8 @@ function fetchMergedScoresFromMysql($pdo) {
             'score'        => $scoreVal,
             'hadJump'      => (bool)$r['hadJump'],
             'hadHelmet'    => (bool)$r['hadHelmet'],
-            'createdAt'    => (int)$r['createdAt'],
+            'createdAt'    => $createdAt,
+            'scoreDay'     => $scoreDay,
         ];
     }, array_values($byId));
 
@@ -305,37 +328,20 @@ if ($pdo !== null) {
     }
 }
 
-// Диагностический эндпоинт (?diag=1) для мгновенной проверки соединения с MySQL
+// Диагностика только с ключом из bot_config.php (diag_key). Без ключа — 404.
 if (isset($_GET['diag'])) {
-    $tables = [];
-    $scoresCount = 0;
-    if ($pdo !== null) {
-        try {
-            $tStmt = $pdo->query("SHOW TABLES");
-            $tables = $tStmt->fetchAll(PDO::FETCH_COLUMN);
-            $cStmt = $pdo->query("SELECT COUNT(*) FROM `scores`");
-            $scoresCount = (int)$cStmt->fetchColumn();
-        } catch (Exception $e) {
-            $tables = ['error' => $e->getMessage()];
-        }
+    $diagKey = trim((string)(tg_bot_config()['diag_key'] ?? ''));
+    $got = (string)$_GET['diag'];
+    if ($diagKey === '' || $got !== $diagKey) {
+        http_response_code(404);
+        echo json_encode(['ok' => false, 'error' => 'not found']);
+        exit;
     }
     echo json_encode([
         'ok' => true,
-        'php_version' => PHP_VERSION,
-        'pdo_mysql_available' => in_array('mysql', PDO::getAvailableDrivers()),
-        'config_file_exists' => file_exists($configFile),
-        'db_user' => $user ?? null,
-        'db_name' => $db ?? null,
-        'config_port' => $port ?? null,
-        'connected_host' => $connectedHost,
-        'connected_port' => $connectedPort ?? null,
         'db_status' => ($pdo !== null ? 'connected' : 'error'),
-        'db_error' => $dbError,
-        'visible_databases' => $visibleDatabases ?? [],
-        'tables' => $tables,
-        'scores_count' => $scoresCount,
-        'fallback_json_count' => count(getFileScores($dataFile)),
-    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        'scores_fallback' => count(getFileScores($dataFile)),
+    ]);
     exit;
 }
 
@@ -357,16 +363,23 @@ if ($method === 'GET') {
         } catch (Exception $e) {
             $dbError = 'SELECT failed: ' . $e->getMessage();
             error_log('[scores.php] ' . $dbError);
+            echo json_encode([
+                'ok' => false,
+                'source' => 'mysql',
+                'dbStatus' => 'error',
+                'error' => $dbError,
+                'scores' => [],
+            ]);
+            exit;
         }
     }
 
-    $scores = getFileScores($dataFile);
     echo json_encode([
-        'ok' => true,
-        'source' => 'file',
-        'dbStatus' => 'fallback_file',
-        'dbError' => $dbError,
-        'scores' => $scores,
+        'ok' => false,
+        'source' => 'none',
+        'dbStatus' => 'error',
+        'error' => $dbError ?: 'База недоступна',
+        'scores' => [],
     ]);
     exit;
 }
@@ -383,9 +396,27 @@ if ($method === 'POST') {
 
     $action = $input['action'] ?? 'save_score';
 
+    $authUserId = null;
+    $authUser = null;
+    $authStartParam = '';
+    if (tg_bot_token() !== '') {
+        $auth = tg_validate_init_data(tg_read_init_data_from_request($input));
+        if (!$auth['ok']) {
+            http_response_code(401);
+            echo json_encode(['ok' => false, 'error' => $auth['error'] ?? 'Unauthorized']);
+            exit;
+        }
+        $authUserId = $auth['userId'];
+        $authUser = is_array($auth['user'] ?? null) ? $auth['user'] : null;
+        $authStartParam = isset($auth['startParam']) ? (string)$auth['startParam'] : '';
+    }
+
     // 1) ОБНОВЛЕНИЕ ПРОФИЛЯ ИГРОКА (ник, скрытие telegram) В БАЗЕ ДАННЫХ
     if ($action === 'update_profile') {
         $userId = isset($input['userId']) && $input['userId'] !== '' ? (string)$input['userId'] : null;
+        if ($authUserId !== null) {
+            $userId = $authUserId;
+        }
         $rawUsername = isset($input['rawUsername']) ? trim(strip_tags((string)$input['rawUsername'])) : null;
         if ($rawUsername !== null && $rawUsername !== '' && mb_strpos($rawUsername, '@') !== 0) {
             $rawUsername = '@' . $rawUsername;
@@ -504,6 +535,85 @@ if ($method === 'POST') {
         exit;
     }
 
+    if ($action === 'sync_social' || $action === 'grant_write_access') {
+        $invited = [];
+        $bound = false;
+        $writeAccess = false;
+        $bindReason = null;
+        $newlyRewarded = 0;
+
+        if ($pdo !== null && $authUserId !== null) {
+            try {
+                if ($action === 'grant_write_access') {
+                    tg_set_write_access($pdo, $authUserId, true);
+                }
+                $writeAccess = tg_has_write_access($pdo, $authUserId);
+
+                $startParam = $authStartParam;
+                if ($startParam === '' && !empty($input['startParam'])) {
+                    $startParam = trim((string)$input['startParam']);
+                }
+                $inviterId = tg_parse_ref_param($startParam);
+                if ($inviterId) {
+                    $bind = tg_bind_referral($pdo, $authUserId, $inviterId, $authUser);
+                    $bound = !empty($bind['bound']);
+                    $bindReason = $bind['reason'] ?? null;
+                }
+                $newlyRewarded = tg_claim_pending_invite_rewards($pdo, $authUserId);
+                $invited = tg_list_invited($pdo, $authUserId);
+            } catch (Exception $e) {
+                error_log('[scores.php] social: ' . $e->getMessage());
+                http_response_code(500);
+                echo json_encode(['ok' => false, 'error' => 'social failed']);
+                exit;
+            }
+        }
+
+        echo json_encode([
+            'ok' => true,
+            'action' => $action,
+            'bound' => $bound,
+            'bindReason' => $bindReason,
+            'writeAccess' => $writeAccess,
+            'invited' => $invited,
+            'inviteCount' => count($invited),
+            'newlyRewarded' => $newlyRewarded,
+        ]);
+        exit;
+    }
+
+    if ($action === 'prepare_invite') {
+        if ($authUserId === null) {
+            http_response_code(401);
+            echo json_encode(['ok' => false, 'error' => 'Unauthorized']);
+            exit;
+        }
+        $timeLabel = isset($input['timeSec']) ? trim(strip_tags((string)$input['timeSec'])) : '';
+        $bonus = isset($input['bonus']) ? max(0, (int)$input['bonus']) : 40;
+        $preparedId = null;
+        $sentToChat = false;
+        try {
+            $prepared = tg_prepare_invite_share($authUserId, $timeLabel, $bonus);
+            $preparedId = is_array($prepared) ? ($prepared['id'] ?? null) : null;
+        } catch (Exception $e) {
+            error_log('[scores.php] prepare_invite: ' . $e->getMessage());
+            try {
+                tg_send_invite_to_self($authUserId, $timeLabel, $bonus);
+                $sentToChat = true;
+            } catch (Exception $e2) {
+                error_log('[scores.php] send_invite: ' . $e2->getMessage());
+            }
+        }
+        echo json_encode([
+            'ok' => true,
+            'action' => 'prepare_invite',
+            'preparedId' => $preparedId,
+            'sentToChat' => $sentToChat,
+            'inviteUrl' => tg_invite_start_url($authUserId),
+        ]);
+        exit;
+    }
+
     // 2) СОХРАНЕНИЕ РЕЗУЛЬТАТА ЗАЕЗДА
     $timeMs = isset($input['timeMs']) ? (int)$input['timeMs'] : 0;
     if ($timeMs <= 0 || $timeMs > 3600000) {
@@ -525,6 +635,9 @@ if ($method === 'POST') {
     $photoUrl = isset($input['photoUrl']) ? filter_var((string)$input['photoUrl'], FILTER_SANITIZE_URL) : null;
 
     $userId = isset($input['userId']) && $input['userId'] !== '' ? (string)$input['userId'] : null;
+    if ($authUserId !== null) {
+        $userId = $authUserId;
+    }
     $runDistance = isset($input['runDistance']) ? max(0, (int)$input['runDistance']) : 0;
     $riskCount = isset($input['riskCount']) ? max(0, (int)$input['riskCount']) : 0;
     $score = isset($input['score']) && is_numeric($input['score'])
@@ -672,74 +785,17 @@ if ($method === 'POST') {
         } catch (Exception $e) {
             $dbError = 'INSERT/UPDATE failed: ' . $e->getMessage();
             error_log('[scores.php] ' . $dbError);
+            http_response_code(500);
+            echo json_encode(['ok' => false, 'error' => $dbError, 'source' => 'mysql']);
+            exit;
         }
     }
 
-    // Резервная запись в JSON, если MySQL временно недоступна (тоже 1 запись в сутки на игрока)
-    $scores = getFileScores($dataFile);
-    $found = false;
-    foreach ($scores as &$entry) {
-        $entryDay = date('Y-m-d', (int)(($entry['createdAt'] ?? 0) / 1000));
-        if ($entryDay !== $scoreDay) continue;
-
-        $matches = false;
-        if ($userId !== null && isset($entry['userId']) && (string)$entry['userId'] === $userId) {
-            $matches = true;
-        } elseif ($username !== null && $username !== '' && isset($entry['username']) && strtolower($entry['username']) === strtolower($username)) {
-            $matches = true;
-        } elseif ($userId === null && empty($username) && isset($entry['playerName']) && $entry['playerName'] === $playerName) {
-            $matches = true;
-        }
-
-        if ($matches) {
-            $found = true;
-            if ($timeMs > ($entry['timeMs'] ?? 0)) {
-                $entry['timeMs'] = $timeMs;
-                $entry['runDistance'] = $runDistance;
-                $entry['riskCount'] = $riskCount;
-                $entry['score'] = $score;
-                $entry['hadJump'] = (bool)$hadJump;
-                $entry['hadHelmet'] = (bool)$hadHelmet;
-                $entry['createdAt'] = $createdAt;
-            }
-            if ($playerName !== '') $entry['playerName'] = $playerName;
-            if ($username !== null) $entry['username'] = $username;
-            if ($firstName !== null) $entry['firstName'] = $firstName;
-            if ($lastName !== null) $entry['lastName'] = $lastName;
-            if ($photoUrl !== null) $entry['photoUrl'] = $photoUrl;
-            if ($userId !== null) $entry['userId'] = $userId;
-            break;
-        }
-    }
-    unset($entry);
-
-    if (!$found) {
-        $scores[] = [
-            'id'          => uniqid('sc_'),
-            'scoreDay'    => $scoreDay,
-            'playerName'  => $playerName,
-            'username'    => $username,
-            'firstName'   => $firstName,
-            'lastName'    => $lastName,
-            'photoUrl'    => $photoUrl,
-            'userId'      => $userId,
-            'timeMs'      => $timeMs,
-            'runDistance' => $runDistance,
-            'riskCount'   => $riskCount,
-            'score'       => $score,
-            'hadJump'     => (bool)$hadJump,
-            'hadHelmet'   => (bool)$hadHelmet,
-            'createdAt'   => $createdAt,
-        ];
-    }
-
-    $saved = saveFileScores($dataFile, $scores);
+    http_response_code(503);
     echo json_encode([
-        'ok' => true,
-        'source' => 'file',
-        'dbStatus' => 'fallback_file',
-        'dbError' => $dbError,
-        'scores' => $saved,
+        'ok' => false,
+        'error' => $dbError ?: 'База недоступна',
+        'source' => 'none',
     ]);
     exit;
 }

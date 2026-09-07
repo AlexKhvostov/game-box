@@ -99,6 +99,8 @@
   "jumpScale": 1.32,
   "helmetEnabled": true,
   "helmetInvulnSec": 0.3,
+  "startInvulnSec": 1,
+  "heartbeatHaptic": true,
   "hudSpeedScaleMax": 400,
   "wallsKillPlayer": true
 }
@@ -110,6 +112,10 @@
 - `jumpDurationSec` / `jumpScale` — длительность и визуальный масштаб прыжка
 - `helmetEnabled` — `false` убирает шлем из HUD, Shop и игры
 - `helmetInvulnSec` — секунды неуязвимости (мигание) после разрушения шлема
+- `startInvulnSec` — секунды неуязвимости в начале раунда (мигание). `0` — сразу можно погибнуть. Сейчас `1`
+- `timerHaptic` — вибро на 1.00, 2.00, 3.00… `false` выключает
+- `timerHapticStyle` — сила обычных секунд: `success` тише, `warning` обычно, `error` как проигрыш
+- `timerHapticStyle5` / `timerHapticStyle10` — сила на 5 и 10 сек (те же значения). Потом можно сделать тише без новой заливки
 - `hudSpeedScaleMax` — верх шкалы скорости (полоска под полем); при 400 полоска заполняется быстрее, чем при 500
 - `wallsKillPlayer` — `true`: касание границы/стены убивает героя; `false`: только блокирует проход, без смерти
 
@@ -181,6 +187,7 @@
   "timedBonusTokens": 22,
   "timedBonusHours": 1,
   "watchAdCooldownSec": 60,
+  "adsgramBlockId": "46656",
   "premiumDailyMultiplier": 2,
   "jumpRentalCost": 20,
   "jumpRentalMinutes": 10,
@@ -194,21 +201,44 @@
   "riskRewardTokens": 1,
   "runRewardEvery": 1000,
   "runRewardTokens": 1,
+  "starsShop": {
+    "packs": [
+      {"id": "pack_s", "title": "Горсть", "crystals": 40, "stars": 49},
+      {"id": "pack_m", "title": "Стопка", "crystals": 120, "stars": 149, "badge": "deal"},
+      {"id": "pack_l", "title": "Сундук", "crystals": 350, "stars": 349, "badge": "best"},
+      {"id": "pack_xl", "title": "Сейф", "crystals": 900, "stars": 749, "badge": "max"}
+    ],
+    "plus": {"id": "plus_monthly", "title": "Plus", "stars": 199, "days": 30}
+  },
   "earnActions": [
     {"id": "install_bonus", "title": "Бонус за установку", "subtitle": "Приз за скачивание игры", "reward": 40},
     {"id": "survive_10s", "title": "Продержаться 10 секунд", "subtitle": "10 секунд в одной партии", "reward": 5},
     {"id": "record_20s", "title": "Рекорд 20 секунд", "subtitle": "Личный рекорд от 20 секунд", "reward": 10},
     {"id": "risks_5", "title": "5 рисков за партию", "subtitle": "Набрать 5 рисков в одной игре", "reward": 5},
     {"id": "watch_ad", "title": "Смотреть рекламу", "subtitle": "Короткий ролик", "reward": 5},
-    {"id": "social_post", "title": "Пост в соцсети", "subtitle": "Расскажите друзьям", "reward": 10},
-    {"id": "enable_notifications", "title": "Уведомления", "subtitle": "Разрешить пуши", "reward": 5},
-    {"id": "rate_app", "title": "Оценить игру", "subtitle": "Звёзды в магазине", "reward": 5},
-    {"id": "invite_friend", "title": "Пригласить друга", "subtitle": "Поделиться ссылкой", "reward": 10}
+    {"id": "enable_notifications", "title": "Уведомления", "subtitle": "Разрешить боту писать", "reward": 5},
+    {"id": "invite_friend", "title": "Пригласить друга", "subtitle": "20 кристаллов за каждого друга", "reward": 20}
   ]
 }
 ```
 
 - `lifePacks` — варианты обмена кристалов на жизни (окно по тапу на сердечко). Если массив задан и не пустой — клиент показывает **только его** (дефолты из APK не дописываются). Можно удалённо менять состав и цены без нового билда.  
+- `starsShop` — пакеты кристаллов за Telegram Stars и подписка Plus (Mini App). Android этот блок игнорирует.  
+  Править **внутри существующего** JSON `economy`, не публиковать `starsShop` отдельным параметром.  
+  После Publish PHP (счёт Stars) и витрина Mini App берут те же числа; кэш PHP до 3 минут.
+```json
+"starsShop": {
+  "packs": [
+    { "id": "pack_s", "title": "Горсть", "crystals": 40, "stars": 49 },
+    { "id": "pack_m", "title": "Стопка", "crystals": 120, "stars": 149, "badge": "deal" },
+    { "id": "pack_l", "title": "Сундук", "crystals": 350, "stars": 349, "badge": "best" },
+    { "id": "pack_xl", "title": "Сейф", "crystals": 900, "stars": 749, "badge": "max" }
+  ],
+  "plus": { "id": "plus_monthly", "title": "Plus", "stars": 199, "days": 30 }
+}
+```
+  `badge`: `deal` (Выгодно), `best` (Лучшая цена), `max` (Максимум), или пусто.  
+  `id` пакета лучше не менять у уже продающихся позиций — это ключ счёта. Новый пакет = новый `id`.  
 - `lifePackSize` / `lifePackCostTokens` — legacy (если `lifePacks` нет)
 - `initialTokens` — стартовые кристалы при первой установке (fallback, если в `earnActions` нет `install_bonus`)  
 - `installBonusAutoClaim` — `true` (по умолч.): бонус за установку выдаётся сразу и сразу отмечен в Earn; `false`: игрок забирает сам во вкладке Earn  
@@ -223,7 +253,11 @@
 - `timedBonusTokens` — подарок (таймер `timedBonusHours`), **не** Daily  
 - `timedBonusHours` — интервал подарка; при смене RC таймер пересчитывается от времени последнего забора (остаток не длиннее нового интервала)  
 - `watchAdCooldownSec` — фриз кнопки «смотреть рекламу» после забора (секунды; `60` = 1 мин; `0` = без фриза)  
+- `adsgramBlockId` — ID блока **Reward** из [partner.adsgram.ai](https://partner.adsgram.ai). Сейчас `46656`. Пусто = кнопка в магазине не выдаёт кристаллы (ролик не открывается). Plus **не** прячет эту кнопку. Правка — **внутри** JSON `economy`, затем Publish.  
 - `earnActions` — заработок кристалов; `install_bonus` — приз за установку; `survive_10s` / `record_20s` / `risks_5` — one-shot за геймплей (сначала открываются в игре, потом забор во вкладке Earn).  
+  `invite_friend` — личная ссылка `startapp=r<id>`. За **каждого** друга, который открыл игру, `reward` кристаллов (сейчас 20). Кнопка «Поделиться» не закрывается. Ниже — список пришедших.  
+  `enable_notifications` — награда после согласия боту писать (`requestWriteAccess`).  
+  `rate_app` в Mini App не показываем (в Telegram нечего оценивать в магазине).  
   Клиент **подмешивает** недостающие дефолтные id, даже если в RC старый список; совпадающие id берут `reward` из RC.  
 
 - `forceLocale` — отдельный параметр Remote Config: `en` | `ru` | пусто  

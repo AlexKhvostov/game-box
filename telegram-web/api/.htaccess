@@ -1,0 +1,8 @@
+<IfModule mod_authz_core.c>
+  <FilesMatch "^(db_config|bot_config)\.php$">
+    Require all denied
+  </FilesMatch>
+  <FilesMatch "^(admin_guard|webhook_last|scores)\.json$">
+    Require all denied
+  </FilesMatch>
+</IfModule>

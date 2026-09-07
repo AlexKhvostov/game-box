@@ -42,6 +42,15 @@
     {"lives": 50, "costTokens": 30},
     {"lives": 250, "costTokens": 99}
   ],
+  "starsShop": {
+    "packs": [
+      {"id": "pack_s", "title": "Горсть", "crystals": 40, "stars": 49},
+      {"id": "pack_m", "title": "Стопка", "crystals": 120, "stars": 149, "badge": "deal"},
+      {"id": "pack_l", "title": "Сундук", "crystals": 350, "stars": 349, "badge": "best"},
+      {"id": "pack_xl", "title": "Сейф", "crystals": 900, "stars": 749, "badge": "max"}
+    ],
+    "plus": {"id": "plus_monthly", "title": "Plus", "stars": 199, "days": 30}
+  },
   "dailyRewardTokens": [2, 4, 9, 16, 32, 64, 81],
   "timedBonusTokens": 22,
   "timedBonusHours": 8

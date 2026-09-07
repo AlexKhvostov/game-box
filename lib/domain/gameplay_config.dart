@@ -39,6 +39,8 @@ class GameplayConfig {
   bool get helmetEnabled => game.helmetEnabled;
   /// Секунды неуязвимости (мигание) после разрушения шлема.
   double get helmetInvulnSec => game.helmetInvulnSec;
+  /// Секунды неуязвимости в начале раунда.
+  double get startInvulnSec => game.startInvulnSec;
   /// Верх шкалы скорости в HUD (полоска под полем).
   double get hudSpeedScaleMax => game.hudSpeedScaleMax;
 
@@ -248,6 +250,12 @@ class GameConfig {
     this.jumpScale = 1.32,
     this.helmetEnabled = true,
     this.helmetInvulnSec = 0.3,
+    this.startInvulnSec = 1,
+    this.heartbeatHaptic = true,
+    this.timerHaptic = true,
+    this.timerHapticStyle = 'warning',
+    this.timerHapticStyle5 = 'warning',
+    this.timerHapticStyle10 = 'warning',
     this.hudSpeedScaleMax = 400,
     this.wallsKillPlayer = true,
   });
@@ -276,6 +284,20 @@ class GameConfig {
   /// Неуязвимость после разрушения шлема (секунды). Герой мигает.
   final double helmetInvulnSec;
 
+  /// Неуязвимость в начале раунда (секунды). 0 — сразу уязвим.
+  final double startInvulnSec;
+
+  /// Вибро-сердцебиение в Mini App: сильный удар на целую секунду, слабый следом.
+  final bool heartbeatHaptic;
+
+  /// Вибро на целые секунды секундомера.
+  final bool timerHaptic;
+
+  /// Сила удара: success (тише) | warning (обычно) | error (как проигрыш).
+  final String timerHapticStyle;
+  final String timerHapticStyle5;
+  final String timerHapticStyle10;
+
   /// Максимум шкалы скорости в панели под полем (полоска 0…1).
   final double hudSpeedScaleMax;
 
@@ -291,6 +313,12 @@ class GameConfig {
         'jumpScale': jumpScale,
         'helmetEnabled': helmetEnabled,
         'helmetInvulnSec': helmetInvulnSec,
+        'startInvulnSec': startInvulnSec,
+        'heartbeatHaptic': heartbeatHaptic,
+        'timerHaptic': timerHaptic,
+        'timerHapticStyle': timerHapticStyle,
+        'timerHapticStyle5': timerHapticStyle5,
+        'timerHapticStyle10': timerHapticStyle10,
         'hudSpeedScaleMax': hudSpeedScaleMax,
         'wallsKillPlayer': wallsKillPlayer,
       };
@@ -308,6 +336,12 @@ class GameConfig {
       jumpScale: (json['jumpScale'] as num?)?.toDouble() ?? 1.32,
       helmetEnabled: json['helmetEnabled'] as bool? ?? true,
       helmetInvulnSec: (json['helmetInvulnSec'] as num?)?.toDouble() ?? 0.3,
+      startInvulnSec: (json['startInvulnSec'] as num?)?.toDouble() ?? 1,
+      heartbeatHaptic: json['heartbeatHaptic'] as bool? ?? true,
+      timerHaptic: json['timerHaptic'] as bool? ?? true,
+      timerHapticStyle: json['timerHapticStyle'] as String? ?? 'warning',
+      timerHapticStyle5: json['timerHapticStyle5'] as String? ?? 'warning',
+      timerHapticStyle10: json['timerHapticStyle10'] as String? ?? 'warning',
       hudSpeedScaleMax: (json['hudSpeedScaleMax'] as num?)?.toDouble() ?? 400,
       wallsKillPlayer: json['wallsKillPlayer'] as bool? ?? true,
     );

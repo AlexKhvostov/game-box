@@ -7,6 +7,7 @@ export class GameAudio {
     this.buffers = new Map();
     this._musicNode = null;
     this._musicGain = null;
+    this.userMusicEnabled = true;
     this._lastWall = 0;
     this._lastNear = 0;
   }
@@ -105,8 +106,30 @@ export class GameAudio {
     this._play('game_start');
   }
 
+  stopMusic() {
+    if (this._musicNode) {
+      try { this._musicNode.stop(); } catch (_) {}
+      try { this._musicNode.disconnect(); } catch (_) {}
+      this._musicNode = null;
+    }
+    if (this._musicGain) {
+      try { this._musicGain.disconnect(); } catch (_) {}
+      this._musicGain = null;
+    }
+  }
+
+  setUserMusicEnabled(on) {
+    this.userMusicEnabled = Boolean(on);
+    if (this.userMusicEnabled) {
+      this.resume();
+      this.ensureMusic();
+    } else {
+      this.stopMusic();
+    }
+  }
+
   async ensureMusic() {
-    if (!this.config.music || !this.ctx) return;
+    if (!this.userMusicEnabled || !this.config.music || !this.ctx) return;
     if (this._musicNode) return;
     const buf = this.buffers.get('bgm_loop');
     if (!buf) return;

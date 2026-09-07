@@ -1,10 +1,12 @@
 import { calcScore } from './util.js';
 import { telegram } from './telegram.js';
+import { starsShopFromEconomy } from './shop-catalog.js';
 
 /** Local economy — mirrors lib/data/economy_store.dart (offline Telegram). */
 
 const KEY = 'untouch_tg_economy';
 const COMM_KEY = 'untouch_community_scores_v2';
+const REF_INIT_KEY = 'untouch_ref_initdata';
 
 function dayStart(d = new Date()) {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate());
@@ -29,6 +31,20 @@ function getPeriodStartMs(period) {
   return 0;
 }
 
+function scoreDayLocal(ms = Date.now()) {
+  const d = new Date(ms);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function playerKey(s) {
+  if (s?.userId != null && String(s.userId) !== '') return `id_${s.userId}`;
+  if (s?.username) return `u_${String(s.username).toLowerCase()}`;
+  return `name_${s?.playerName || 'Игрок'}`;
+}
+
 function sameDay(a, b) {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 }
@@ -50,106 +66,186 @@ export class EconomyStore {
     this.unlockedEarnIds = new Set();
     this.hasPremium = false;
     this.premiumNextChargeMs = 0;
+    this.plusUntilMs = 0;
+    this.appliedStarsTokens = 0;
     this.customNickname = null;
     this.hideTelegramUsername = false;
+    this.musicEnabled = true;
+    this.hapticEnabled = true;
     this.recentAttempts = [];
     this.communityScores = [];
+    this.invitedFriends = [];
+    this.writeAccessGranted = false;
     this._fresh = true;
     this._load();
-    this._loadCommunityScores();
+    this._forgetCachedCommunity();
     this.syncCommunityScores();
     if (this._fresh && e.installBonusAutoClaim !== false) {
       this._claimInstallBonus();
     }
   }
 
-  _loadCommunityScores() {
-    try {
-      const raw = localStorage.getItem(COMM_KEY);
-      if (raw) {
-        const arr = JSON.parse(raw);
-        if (Array.isArray(arr)) {
-          // Исключаем старые фейковые seed-записи, оставляем только реальных людей
-          this.communityScores = arr.filter((s) => !String(s.id || '').startsWith('seed_'));
-          return;
-        }
-      }
-    } catch (e) {
-      console.warn('community scores load', e);
-    }
+  _forgetCachedCommunity() {
     this.communityScores = [];
-    this._saveCommunityScores();
+    try {
+      localStorage.removeItem(COMM_KEY);
+      localStorage.removeItem('untouch_community_scores_v1');
+    } catch (e) {
+      // ignore quota / private mode
+    }
   }
 
-  _saveCommunityScores() {
+  _authPayload(extra = {}) {
+    return {
+      ...extra,
+      initData: extra.initData || telegram.initData || '',
+    };
+  }
+
+  _rememberRefInitData(initData) {
+    if (!initData) return;
     try {
-      localStorage.setItem(COMM_KEY, JSON.stringify(this.communityScores.slice(0, 300)));
-    } catch (e) {
-      console.warn('community scores save', e);
+      localStorage.setItem(REF_INIT_KEY, initData);
+    } catch (_) {}
+  }
+
+  _readRefInitData() {
+    try {
+      return localStorage.getItem(REF_INIT_KEY) || '';
+    } catch (_) {
+      return '';
     }
+  }
+
+  _clearRefInitData() {
+    try {
+      localStorage.removeItem(REF_INIT_KEY);
+    } catch (_) {}
+  }
+
+  _initDataForSocial() {
+    const current = telegram.initData || '';
+    if (telegram.startParam && current) {
+      this._rememberRefInitData(current);
+      return current;
+    }
+    return this._readRefInitData() || current;
+  }
+
+  _authHeaders() {
+    return { 'Content-Type': 'application/json' };
+  }
+
+  _isMeScore(row) {
+    const myId = telegram.user?.id != null ? String(telegram.user.id) : '';
+    if (myId && row?.userId != null && String(row.userId) === myId) return true;
+    if (row?.isMe) return true;
+    return false;
+  }
+
+  _applyRemoteScores(remoteScores) {
+    const list = Array.isArray(remoteScores) ? remoteScores : [];
+    this.communityScores = list
+      .filter((r) => r && r.timeMs > 0 && !String(r.id || '').startsWith('seed_'))
+      .map((r) => {
+        const row = { ...r };
+        if (row.score == null) {
+          row.score = calcScore(row.timeMs, row.runDistance, row.riskCount);
+        }
+        if (!row.scoreDay) row.scoreDay = scoreDayLocal(row.createdAt);
+        row.isMe = this._isMeScore(row);
+        return row;
+      });
+    this.communityScores.sort((a, b) => b.timeMs - a.timeMs);
   }
 
   async syncCommunityScores(onUpdated = null) {
+    await this._uploadLocalDayBest();
     try {
       const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
-      const timeout = ctrl ? setTimeout(() => ctrl.abort(), 4000) : null;
+      const timeout = ctrl ? setTimeout(() => ctrl.abort(), 8000) : null;
       const res = await fetch('api/scores.php', { signal: ctrl?.signal });
       if (timeout) clearTimeout(timeout);
-      if (!res.ok) return;
-      const data = await res.json();
+      const data = await res.json().catch(() => null);
       if (data && Array.isArray(data.scores)) {
-        this._mergeRemoteScores(data.scores);
-        this._saveCommunityScores();
-        if (typeof onUpdated === 'function') onUpdated();
+        this._applyRemoteScores(data.scores);
       }
     } catch (e) {
-      // Offline / fallback to local community scores
+      console.warn('syncCommunityScores', e);
     }
+    if (typeof onUpdated === 'function') onUpdated();
   }
 
-  _mergeRemoteScores(remoteScores) {
-    if (!Array.isArray(remoteScores)) return;
-    for (const r of remoteScores) {
-      if (!r || !r.timeMs || String(r.id || '').startsWith('seed_')) continue;
-      if (r.score == null) {
-        r.score = calcScore(r.timeMs, r.runDistance, r.riskCount);
-      }
-      const key = r.userId != null ? `id_${r.userId}` : (r.username ? `u_${r.username.toLowerCase()}` : `name_${r.playerName || 'Игрок'}`);
-      const idx = this.communityScores.findIndex((s) => {
-        const k = s.userId != null ? `id_${s.userId}` : (s.username ? `u_${s.username.toLowerCase()}` : `name_${s.playerName || 'Игрок'}`);
-        return k === key;
-      });
-      if (idx >= 0) {
-        if (r.timeMs >= (this.communityScores[idx].timeMs || 0)) {
-          this.communityScores[idx] = { ...this.communityScores[idx], ...r };
-        }
-      } else {
-        this.communityScores.push(r);
-      }
+  _bestAttemptSince(startMs) {
+    let best = null;
+    for (const a of this.recentAttempts) {
+      if ((a.createdAt || 0) < startMs) continue;
+      if (!best || a.timeMs > best.timeMs) best = a;
     }
-    this.communityScores.sort((a, b) => b.timeMs - a.timeMs);
+    return best;
+  }
+
+  _attemptToScorePayload(att) {
+    return {
+      playerName: att.playerName || this.effectivePlayerName,
+      username: this.hideTelegramUsername ? null : (att.username || this.effectiveUsername),
+      hideTelegram: this.hideTelegramUsername,
+      firstName: att.firstName || telegram.user?.first_name || null,
+      lastName: att.lastName || telegram.user?.last_name || null,
+      photoUrl: att.photoUrl || telegram.userPhotoUrl || null,
+      userId: att.userId || (telegram.user?.id != null ? String(telegram.user.id) : null),
+      timeMs: att.timeMs,
+      runDistance: Math.round(att.runDistance || 0),
+      riskCount: att.riskCount || 0,
+      score: att.score,
+      hadJump: Boolean(att.hadJump),
+      hadHelmet: Boolean(att.hadHelmet),
+      createdAt: att.createdAt || Date.now(),
+    };
+  }
+
+  async _uploadLocalDayBest() {
+    if (!telegram.initData) return false;
+    const best = this._bestAttemptSince(getPeriodStartMs('day'));
+    if (!best || best.timeMs <= 0) return false;
+    return this._postScoreToServer(this._attemptToScorePayload(best));
   }
 
   async _postScoreToServer(payload) {
     try {
-      await fetch('api/scores.php', {
+      const res = await fetch('api/scores.php', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        headers: this._authHeaders(),
+        body: JSON.stringify(this._authPayload(payload)),
       });
+      const text = await res.text();
+      let data = null;
+      try {
+        data = text ? JSON.parse(text) : null;
+      } catch (e) {
+        console.warn('save_score: not JSON', res.status, text?.slice(0, 120));
+        return false;
+      }
+      if (!res.ok || !data || data.ok === false) {
+        console.warn('save_score failed', (data && data.error) || res.status);
+        return false;
+      }
+      if (Array.isArray(data.scores)) this._applyRemoteScores(data.scores);
+      return true;
     } catch (e) {
-      // Silent catch on offline
+      console.warn('save_score', e);
+      return false;
     }
   }
 
   async _postProfileToServer(payload) {
     const res = await fetch('api/scores.php', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+      headers: this._authHeaders(),
+      body: JSON.stringify(this._authPayload({
         action: 'update_profile',
         ...payload,
-      }),
+      })),
     });
     const text = await res.text();
     let data = null;
@@ -162,8 +258,7 @@ export class EconomyStore {
       throw new Error((data && data.error) || `Ошибка сервера HTTP ${res.status}`);
     }
     if (data && Array.isArray(data.scores)) {
-      this._mergeRemoteScores(data.scores);
-      this._saveCommunityScores();
+      this._applyRemoteScores(data.scores);
     }
     return data;
   }
@@ -177,6 +272,12 @@ export class EconomyStore {
       if (typeof d.lives === 'number') this.lives = d.lives;
       if (typeof d.tokens === 'number') this.tokens = d.tokens;
       if (typeof d.bestTimeMs === 'number') this.bestTimeMs = d.bestTimeMs;
+      if (Array.isArray(d.recentAttempts)) this.recentAttempts = d.recentAttempts;
+      // Старые попытки с пробегом в метрах больше не показываем
+      if (d.attemptsUnit !== 'steps') {
+        this.recentAttempts = [];
+        this.bestTimeMs = 0;
+      }
       if (typeof d.jumpRentalUntil === 'number') this.jumpRentalUntil = d.jumpRentalUntil;
       if (typeof d.helmetRentalUntil === 'number') this.helmetRentalUntil = d.helmetRentalUntil;
       if (typeof d.dailyStreak === 'number') this.dailyStreak = d.dailyStreak;
@@ -185,14 +286,13 @@ export class EconomyStore {
       if (typeof d.lastWatchAdClaimMs === 'number') this.lastWatchAdClaimMs = d.lastWatchAdClaimMs;
       if (Array.isArray(d.claimedEarnIds)) this.claimedEarnIds = new Set(d.claimedEarnIds);
       if (Array.isArray(d.unlockedEarnIds)) this.unlockedEarnIds = new Set(d.unlockedEarnIds);
-      if (typeof d.hasPremium === 'boolean') this.hasPremium = d.hasPremium;
-      if (typeof d.premiumNextChargeMs === 'number') this.premiumNextChargeMs = d.premiumNextChargeMs;
+      if (typeof d.appliedStarsTokens === 'number') this.appliedStarsTokens = d.appliedStarsTokens;
+      if (typeof d.plusUntilMs === 'number') this.plusUntilMs = d.plusUntilMs;
       if (typeof d.customNickname === 'string') this.customNickname = d.customNickname;
       if (typeof d.hideTelegramUsername === 'boolean') this.hideTelegramUsername = d.hideTelegramUsername;
-      if (Array.isArray(d.recentAttempts)) this.recentAttempts = d.recentAttempts;
-      if (this.hasPremium && !this.premiumNextChargeMs) {
-        this.premiumNextChargeMs = Date.now() + 7 * 86400000;
-      }
+      if (typeof d.musicEnabled === 'boolean') this.musicEnabled = d.musicEnabled;
+      if (typeof d.hapticEnabled === 'boolean') this.hapticEnabled = d.hapticEnabled;
+      this._refreshPremiumFromUntil();
     } catch (err) {
       console.warn('economy load', err);
     }
@@ -216,9 +316,14 @@ export class EconomyStore {
           unlockedEarnIds: [...this.unlockedEarnIds],
           hasPremium: this.hasPremium,
           premiumNextChargeMs: this.premiumNextChargeMs,
+          plusUntilMs: this.plusUntilMs,
+          appliedStarsTokens: this.appliedStarsTokens,
           customNickname: this.customNickname,
           hideTelegramUsername: this.hideTelegramUsername,
+          musicEnabled: this.musicEnabled,
+          hapticEnabled: this.hapticEnabled,
           recentAttempts: this.recentAttempts.slice(0, 50),
+          attemptsUnit: 'steps',
         }),
       );
     } catch (err) {
@@ -238,6 +343,13 @@ export class EconomyStore {
     return telegram.user?.username ? `@${telegram.user.username.replace(/^@/, '')}` : null;
   }
 
+  updateDevicePrefs({ musicEnabled, hapticEnabled } = {}) {
+    if (typeof musicEnabled === 'boolean') this.musicEnabled = musicEnabled;
+    if (typeof hapticEnabled === 'boolean') this.hapticEnabled = hapticEnabled;
+    this._save();
+    return { musicEnabled: this.musicEnabled, hapticEnabled: this.hapticEnabled };
+  }
+
   async updateProfile({ customNickname, hideTelegramUsername }) {
     if (customNickname !== undefined) {
       const clean = typeof customNickname === 'string' ? customNickname.trim().slice(0, 30) : null;
@@ -248,7 +360,7 @@ export class EconomyStore {
     }
     this._save();
 
-    // Обновляем ник текущего пользователя в локальном кэше recentAttempts
+    // Обновляем ник в своих локальных попытках
     for (const att of this.recentAttempts) {
       if (att.isMe) {
         att.playerName = this.effectivePlayerName;
@@ -257,19 +369,9 @@ export class EconomyStore {
       }
     }
 
-    // Обновляем ник текущего пользователя в локальном кэше communityScores
     const myId = telegram?.user?.id ? String(telegram.user.id) : null;
     const rawUsername = telegram?.user?.username ? `@${telegram.user.username.replace(/^@/, '')}` : null;
     const myUsername = this.effectiveUsername;
-
-    for (const item of this.communityScores) {
-      if ((myId && String(item.userId) === myId) || (rawUsername && item.username === rawUsername) || item.isMe) {
-        item.playerName = this.effectivePlayerName;
-        item.username = myUsername;
-        item.hideTelegram = this.hideTelegramUsername;
-      }
-    }
-    this._saveCommunityScores();
 
     // Сохраняем обновление профиля на сервере (MySQL / HostLand)
     try {
@@ -297,17 +399,191 @@ export class EconomyStore {
     return this.config.economy;
   }
 
-  activatePremiumPreview() {
-    this.hasPremium = true;
-    this.premiumNextChargeMs = Date.now() + 7 * 86400000;
+  _refreshPremiumFromUntil() {
+    this.hasPremium = this.plusUntilMs > Date.now();
+    this.premiumNextChargeMs = this.hasPremium ? this.plusUntilMs : 0;
+  }
+
+  applyWallet(wallet) {
+    if (!wallet || typeof wallet !== 'object') return { crystalsDelta: 0, plusActivated: false };
+    const serverTokens = Math.max(0, Number(wallet.tokens) || 0);
+    const plusUntil = Math.max(0, Number(wallet.plusUntilMs) || 0);
+    const crystalsDelta = Math.max(0, serverTokens - this.appliedStarsTokens);
+    if (crystalsDelta > 0) {
+      this.tokens += crystalsDelta;
+      this.appliedStarsTokens = serverTokens;
+    } else if (serverTokens > 0 && this.appliedStarsTokens !== serverTokens) {
+      this.appliedStarsTokens = serverTokens;
+    }
+    const wasPremium = this.hasPremium;
+    this.plusUntilMs = plusUntil;
+    this._refreshPremiumFromUntil();
     this._save();
+    return {
+      crystalsDelta,
+      plusActivated: this.hasPremium && !wasPremium,
+    };
+  }
+
+  async syncWallet() {
+    if (!telegram.initData) return null;
+    try {
+      const res = await fetch('api/payments.php', {
+        method: 'POST',
+        headers: this._authHeaders(),
+        body: JSON.stringify(this._authPayload({ action: 'wallet' })),
+      });
+      if (!res.ok) return null;
+      const data = await res.json();
+      if (!data || !data.ok || !data.wallet) return null;
+      return this.applyWallet(data.wallet);
+    } catch (e) {
+      console.warn('syncWallet', e);
+      return null;
+    }
+  }
+
+  _applySocial(data) {
+    if (!data || typeof data !== 'object') return;
+    this.invitedFriends = Array.isArray(data.invited) ? data.invited : [];
+    this.writeAccessGranted = Boolean(data.writeAccess);
+  }
+
+  get inviteRewardPerFriend() {
+    const action = this.earnActions.find((a) => a.id === 'invite_friend');
+    const n = Number(action?.reward);
+    return Number.isFinite(n) && n >= 20 ? n : 20;
+  }
+
+  _applyInviteRewards(newlyRewarded) {
+    const count = Math.max(0, Number(newlyRewarded) || 0);
+    if (count < 1) return null;
+    const total = count * this.inviteRewardPerFriend;
+    this.tokens += total;
+    this._save();
+    return { crystals: total, friends: count };
+  }
+
+  async syncSocial() {
+    const initData = this._initDataForSocial();
+    if (!initData) return null;
+    try {
+      const res = await fetch('api/scores.php', {
+        method: 'POST',
+        headers: this._authHeaders(),
+        body: JSON.stringify(this._authPayload({
+          action: 'sync_social',
+          initData,
+          startParam: telegram.startParam || '',
+        })),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data || data.ok === false) return null;
+      this._applySocial(data);
+      if (data.bound || data.bindReason === 'already') {
+        this._clearRefInitData();
+        telegram.clearStoredRef();
+      }
+      const paid = this._applyInviteRewards(data.newlyRewarded);
+      return {
+        ...data,
+        inviteReward: paid ? paid.crystals : null,
+        inviteRewardFriends: paid ? paid.friends : 0,
+      };
+    } catch (e) {
+      console.warn('syncSocial', e);
+      return null;
+    }
+  }
+
+  async prepareInviteShare({ timeSec = '', bonus = 40 } = {}) {
+    if (!telegram.initData) return null;
+    try {
+      const res = await fetch('api/scores.php', {
+        method: 'POST',
+        headers: this._authHeaders(),
+        body: JSON.stringify(this._authPayload({
+          action: 'prepare_invite',
+          timeSec,
+          bonus,
+        })),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data || data.ok === false) return null;
+      return data;
+    } catch (e) {
+      console.warn('prepareInviteShare', e);
+      return null;
+    }
+  }
+
+  async grantWriteAccess() {
+    if (telegram.initData) {
+      try {
+        const res = await fetch('api/scores.php', {
+          method: 'POST',
+          headers: this._authHeaders(),
+          body: JSON.stringify(this._authPayload({ action: 'grant_write_access' })),
+        });
+        const data = await res.json().catch(() => null);
+        if (data && data.ok) this._applySocial(data);
+      } catch (e) {
+        console.warn('grantWriteAccess', e);
+      }
+    }
+    this.writeAccessGranted = true;
+    if (this.claimedEarnIds.has('enable_notifications')) {
+      return { already: true, reward: null };
+    }
+    return { already: false, reward: this.claimEarnAction('enable_notifications') };
+  }
+
+  async waitForWalletUpdate({ expectCrystals = 0, expectPlus = false } = {}) {
+    const startTokens = this.appliedStarsTokens;
+    const startPlus = this.plusUntilMs;
+    for (let i = 0; i < 10; i++) {
+      const applied = await this.syncWallet();
+      if (!applied) {
+        await new Promise((r) => setTimeout(r, 700));
+        continue;
+      }
+      const crystalsOk = !expectCrystals || this.appliedStarsTokens >= startTokens + expectCrystals;
+      const plusOk = !expectPlus || this.plusUntilMs > startPlus;
+      if (crystalsOk && plusOk) return applied;
+      await new Promise((r) => setTimeout(r, 700));
+    }
+    return this.syncWallet();
+  }
+
+  async createStarsInvoice(productId) {
+    const res = await fetch('api/payments.php', {
+      method: 'POST',
+      headers: this._authHeaders(),
+      body: JSON.stringify(this._authPayload({
+        action: 'create_invoice',
+        productId,
+      })),
+    });
+    const text = await res.text();
+    let data = null;
+    try {
+      data = text ? JSON.parse(text) : null;
+    } catch (e) {
+      const snippet = (text || '').replace(/\s+/g, ' ').slice(0, 120);
+      throw new Error(`Сервер HTTP ${res.status}${snippet ? ': ' + snippet : ' (пустой ответ)'}`);
+    }
+    if (!res.ok || !data || data.ok === false || !data.invoiceUrl) {
+      throw new Error((data && data.error) || `Ошибка счёта HTTP ${res.status}`);
+    }
+    return data;
+  }
+
+  activatePremiumPreview() {
+    // Preview отключён: Plus только через Stars.
   }
 
   cancelPremium() {
-    if (!this.hasPremium) return;
-    this.hasPremium = false;
-    this.premiumNextChargeMs = 0;
-    this._save();
+    // Отмена Stars-подписки — в Telegram, не локально.
   }
 
   get premiumNextChargeDate() {
@@ -321,6 +597,18 @@ export class EconomyStore {
 
   get lifePacks() {
     return this.e.lifePacks ?? [{ lives: 5, costTokens: 5 }];
+  }
+
+  get starsShop() {
+    return starsShopFromEconomy(this.e);
+  }
+
+  get starPacks() {
+    return this.starsShop.packs;
+  }
+
+  get plusProduct() {
+    return this.starsShop.plus;
   }
 
   get earnActions() {
@@ -620,26 +908,30 @@ export class EconomyStore {
       return [...this.recentAttempts];
     }
     const start = getPeriodStartMs(period);
-    // Берем записи сообщества за указанный период
-    const pool = [...this.communityScores.filter((a) => (a.createdAt || 0) >= start)];
+    const today = scoreDayLocal();
+    const inPeriod = (a) => {
+      if (period === 'day' && a.scoreDay) return a.scoreDay === today;
+      return (a.createdAt || 0) >= start;
+    };
+    const pool = this.communityScores.filter(inPeriod).map((a) => ({
+      ...a,
+      isMe: this._isMeScore(a),
+    }));
 
-    // Добавляем лучший результат текущего игрока за этот период из его попыток (если есть)
-    for (const myAtt of this.recentAttempts) {
-      if ((myAtt.createdAt || 0) >= start) {
-        pool.push({
-          ...myAtt,
-          isMe: true,
-        });
+    const myBest = this._bestAttemptSince(start);
+    if (myBest && inPeriod({ ...myBest, scoreDay: scoreDayLocal(myBest.createdAt) })) {
+      const key = playerKey(myBest);
+      if (!pool.some((s) => playerKey(s) === key)) {
+        pool.push({ ...myBest, isMe: true, scoreDay: scoreDayLocal(myBest.createdAt) });
       }
     }
 
     pool.sort((a, b) => b.timeMs - a.timeMs);
 
-    // Только лучший результат каждого игрока (без дублей одного человека)
     const seenUsers = new Set();
     const uniqueByPlayer = [];
     for (const att of pool) {
-      const userKey = att.userId != null ? `id_${att.userId}` : `name_${att.playerName || 'player'}`;
+      const userKey = playerKey(att);
       if (!seenUsers.has(userKey)) {
         seenUsers.add(userKey);
         uniqueByPlayer.push(att);
@@ -697,70 +989,8 @@ export class EconomyStore {
     if (this.recentAttempts.length > 50) this.recentAttempts.length = 50;
     this._save();
 
-    // Обновляем результат текущего пользователя в общем рейтинге сообщества
-    const myKey = playerInfo.userId != null ? `id_${playerInfo.userId}` : (pUsername ? `u_${pUsername.toLowerCase()}` : `name_${pName}`);
-    const commIdx = this.communityScores.findIndex((s) => {
-      const k = s.userId != null ? `id_${s.userId}` : (s.username ? `u_${s.username.toLowerCase()}` : `name_${s.playerName || 'Игрок'}`);
-      return k === myKey;
-    });
-
-    if (commIdx >= 0) {
-      if (timeMs > (this.communityScores[commIdx].timeMs || 0)) {
-        this.communityScores[commIdx].timeMs = timeMs;
-        this.communityScores[commIdx].runDistance = Math.round(runDistance);
-        this.communityScores[commIdx].riskCount = riskCount;
-        this.communityScores[commIdx].score = score;
-        this.communityScores[commIdx].hadJump = Boolean(playerInfo.hadJump);
-        this.communityScores[commIdx].hadHelmet = Boolean(playerInfo.hadHelmet);
-        this.communityScores[commIdx].createdAt = Date.now();
-      }
-      this.communityScores[commIdx].playerName = pName;
-      this.communityScores[commIdx].username = pUsername;
-      this.communityScores[commIdx].hideTelegram = this.hideTelegramUsername;
-      if (playerInfo.firstName) this.communityScores[commIdx].firstName = playerInfo.firstName;
-      if (playerInfo.lastName) this.communityScores[commIdx].lastName = playerInfo.lastName;
-      if (playerInfo.photoUrl) this.communityScores[commIdx].photoUrl = playerInfo.photoUrl;
-      this.communityScores[commIdx].isMe = true;
-    } else {
-      this.communityScores.push({
-        id: 'usr_' + Date.now().toString(36),
-        playerName: pName,
-        username: pUsername,
-        hideTelegram: this.hideTelegramUsername,
-        firstName: playerInfo.firstName || null,
-        lastName: playerInfo.lastName || null,
-        photoUrl: playerInfo.photoUrl || null,
-        userId: playerInfo.userId || null,
-        timeMs,
-        runDistance: Math.round(runDistance),
-        riskCount,
-        score,
-        hadJump: Boolean(playerInfo.hadJump),
-        hadHelmet: Boolean(playerInfo.hadHelmet),
-        createdAt: Date.now(),
-        isMe: true,
-      });
-    }
-    this._saveCommunityScores();
-    // Отправляем новый результат на сервер (MySQL / HostLand)
-    // Отправляем только когда игрок показал свой лучший результат за сегодня (или первый заезд за день)
     if (isDayBest || oldDayBest <= 0) {
-      this._postScoreToServer({
-        playerName: pName,
-        username: pUsername,
-        hideTelegram: this.hideTelegramUsername,
-        firstName: playerInfo.firstName || null,
-        lastName: playerInfo.lastName || null,
-        photoUrl: playerInfo.photoUrl || null,
-        userId: playerInfo.userId || null,
-        timeMs,
-        runDistance: Math.round(runDistance),
-        riskCount,
-        score,
-        hadJump: Boolean(playerInfo.hadJump),
-        hadHelmet: Boolean(playerInfo.hadHelmet),
-        createdAt: Date.now(),
-      });
+      this._postScoreToServer(this._attemptToScorePayload(item));
     }
 
     return {

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Untouch · Админка</title>
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <div id="login" class="login">
+    <form id="login-form" class="login-card" autocomplete="off">
+      <p class="brand">UNTOUCH</p>
+      <h1>Админка</h1>
+      <label for="admin-key">Ключ доступа</label>
+      <input id="admin-key" name="key" type="password" required autofocus>
+      <p id="login-error" class="error" hidden></p>
+      <button type="submit">Войти</button>
+    </form>
+  </div>
+
+  <div id="app" class="app hidden">
+    <header class="top">
+      <div>
+        <p class="brand">UNTOUCH</p>
+        <h1>Кто пишет боту</h1>
+        <p class="sub">Дни по Москве (UTC+3)</p>
+      </div>
+      <div class="top-actions">
+        <button type="button" id="reload" class="ghost">Обновить</button>
+        <button type="button" id="logout" class="ghost">Выйти</button>
+      </div>
+    </header>
+
+    <section id="cards" class="cards"></section>
+    <section class="panel">
+      <h2>14 дней</h2>
+      <div id="chart" class="chart"></div>
+    </section>
+    <section class="panel">
+      <div class="list-head">
+        <h2>Пользователи</h2>
+        <p id="list-meta" class="sub"></p>
+      </div>
+      <div class="toolbar">
+        <input id="search" type="search" placeholder="Имя, @username или ID">
+        <div id="filters" class="filters"></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Кто</th>
+              <th>ID</th>
+              <th>Первый раз</th>
+              <th>Последний раз</th>
+              <th>Сообщ.</th>
+              <th>/start</th>
+              <th>Статус</th>
+              <th>Последнее</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+      <div id="pager" class="pager"></div>
+    </section>
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>

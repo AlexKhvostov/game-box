@@ -32,6 +32,7 @@ migrate_working_dir/
 .pub/
 /build/
 /coverage/
+/hosting/
 
 # Symbolication related
 app.*.symbols
@@ -53,5 +54,10 @@ hs_err_pid*.log
 
 # Секреты и runtime-данные Telegram Mini App API
 telegram-web/api/db_config.php
+telegram-web/api/bot_config.php
 telegram-web/api/scores.json
+telegram-web/api/rc_economy_cache.json
+telegram-web/api/scores_steps_v1.flag
+telegram-web/api/webhook_last.json
+telegram-web/api/admin_guard.json
 

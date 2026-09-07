@@ -2,7 +2,7 @@
 
 import { RU, earnTitle, earnSubtitle } from './strings-ru.js';
 import { crystalImg, crystalRewardBadge } from './crystal-icon.js';
-import { SHOP_PACKS, PACK_TITLES, PACK_BADGES, SUBSCRIBE_PRICE } from './shop-catalog.js';
+import { PACK_BADGES, starsLabel, subscribePriceLabel } from './shop-catalog.js';
 import {
   heartIcon,
   uiIconImg,
@@ -13,7 +13,10 @@ import {
   restingCubeImg,
 } from './game-icons.js';
 import { telegram } from './telegram.js';
+import { adsgramBlockId, showRewardedAd, showAdLoadStub } from './adsgram.js';
 import { calcScore, fmtScore } from './util.js';
+import { bindGameTips, hideGameTip, unbindGameTips } from './tip-pop.js';
+import { metrikaGoal } from './metrika.js';
 
 function fmtDuration(ms) {
   const total = Math.max(0, Math.floor(ms / 1000));
@@ -163,6 +166,7 @@ export class SheetUI {
     this._tick = null;
     this._fromPlus = false;
     this._lbFilter = 'day';
+    this._lbLoading = false;
 
     this.backdrop?.addEventListener('click', () => this.close());
   }
@@ -181,6 +185,8 @@ export class SheetUI {
     this._setPanelMode(type);
     if (type === 'leaderboard') {
       this._lbFilter = opts.filter || 'day';
+      this._lbLoading = true;
+      this._refreshLeaderboardFromServer();
     }
 
     this.root.hidden = false;
@@ -197,6 +203,7 @@ export class SheetUI {
     }
     this.root.classList.remove('open');
     this._stopTick();
+    hideGameTip();
     const onCloseCb = this._onClose;
     this._onClose = null;
     setTimeout(() => {
@@ -445,6 +452,31 @@ export class SheetUI {
       requestAnimationFrame(() => panel.classList.add('pane-in'));
     }
     this._bindCrystalsPane(tab);
+    if (tab === 3) this._refreshSocialEarn();
+  }
+
+  async _refreshSocialEarn() {
+    if (this._socialRefreshing || this._inviteBusy) return;
+    this._socialRefreshing = true;
+    try {
+      const e = this._economy();
+      const social = await e.syncSocial();
+      if (!social) return;
+      if (social.inviteReward) {
+        this._toast(RU.earnInviteRewardToast(social.inviteReward, social.inviteRewardFriends || 1), {
+          accent: '#7EE0FF',
+          flyTo: 'crystals',
+        });
+        this.app._updateHud();
+      }
+      if (this._tab !== 3 || this._inviteBusy) return;
+      const panel = this.body.querySelector('#crystals-pane');
+      if (!panel) return;
+      panel.innerHTML = this._renderCrystalsPane(3, e);
+      this._bindCrystalsPane(3);
+    } finally {
+      this._socialRefreshing = false;
+    }
   }
 
   _softUpdateCrystals() {
@@ -599,18 +631,9 @@ export class SheetUI {
         });
       });
     } else if (tab === 1) {
-      this.body.querySelector('#watch-ad-row')?.addEventListener('click', () => {
-        if (!e.canClaimWatchAd) return;
-        const ad = e.earnActions.find((a) => a.id === 'watch_ad');
-        const got = e.claimWatchAd(ad?.reward ?? 5);
-        if (got != null) {
-          this._toast(RU.crystalsPlus(got), { accent: '#7EE0FF', flyTo: 'crystals' });
-          this.app._updateHud();
-          this._renderCrystals(1);
-        }
-      });
+      this.body.querySelector('#watch-ad-row')?.addEventListener('click', () => this._watchAdForCrystals());
       this.body.querySelectorAll('[data-iap]').forEach((btn) => {
-        btn.addEventListener('click', () => this._toast(RU.shopIapHint, { flyTo: 'none' }));
+        btn.addEventListener('click', () => this._buyStars(btn.dataset.iap));
       });
     } else if (tab === 2) {
       this.body.querySelector('[data-rent-jump-s]')?.addEventListener('click', () => this._rent('jump', false));
@@ -621,6 +644,14 @@ export class SheetUI {
       this.body.querySelectorAll('[data-earn]').forEach((btn) => {
         btn.addEventListener('click', () => {
           const id = btn.dataset.earn;
+          if (id === 'invite_friend') {
+            this._inviteFriend(btn);
+            return;
+          }
+          if (id === 'enable_notifications') {
+            this._enableNotifications();
+            return;
+          }
           const got = e.claimEarnAction(id);
           if (got != null) {
             this._toast(RU.crystalsPlus(got), { accent: '#7EE0FF', flyTo: 'crystals' });
@@ -704,22 +735,51 @@ export class SheetUI {
     return `<div class="tab-pane tab-pane-daily"><p class="daily-hint">${hint}</p>${rows}</div>`;
   }
 
+  async _watchAdForCrystals() {
+    if (this._watchingAd) return;
+    const e = this._economy();
+    if (!e.canClaimWatchAd) return;
+    const blockId = adsgramBlockId(this.app.config);
+    if (!blockId) {
+      showAdLoadStub();
+      return;
+    }
+    this._watchingAd = true;
+    this._toast(RU.shopAdWait, { accent: '#7EE0FF', flyTo: 'none' });
+    try {
+      await showRewardedAd(blockId);
+      const ad = e.earnActions.find((a) => a.id === 'watch_ad');
+      const got = e.claimWatchAd(ad?.reward ?? 5);
+      if (got != null) {
+        this._toast(RU.crystalsPlus(got), { accent: '#7EE0FF', flyTo: 'crystals' });
+        this.app._updateHud();
+        if (this._type === 'crystals') this._renderCrystals(this._tab);
+      }
+    } catch (err) {
+      const kind = err?.adFail || (/skip|close|cancel/i.test(String(err?.message || '')) ? 'skip' : 'load');
+      if (kind === 'skip') this._toast(RU.shopAdSkipped, { accent: '#FFC857', flyTo: 'none' });
+      else showAdLoadStub();
+    } finally {
+      this._watchingAd = false;
+    }
+  }
+
   _renderShopPane(e) {
     const ad = e.earnActions.find((a) => a.id === 'watch_ad') ?? { reward: 5 };
     const frozen = !e.canClaimWatchAd;
     const cdLabel = frozen ? fmtCooldownSec(e.watchAdCooldownRemainingMs / 1000) : RU.shopFree;
 
-    const packs = SHOP_PACKS.map(
+    const packs = e.starPacks.map(
       (offer) => `
       <div class="game-panel accent-cyan mb-6 shop-pack" data-iap="${offer.id}">
         <div class="shop-row">
           ${crystalImg(28, true)}
           <div class="shop-text-col">
-            <div class="t1">${PACK_TITLES[offer.id] ?? offer.id}</div>
+            <div class="t1">${offer.title}</div>
             ${offer.badgeKey ? `<div class="badge">${PACK_BADGES[offer.badgeKey] ?? ''}</div>` : ''}
           </div>
           <div class="shop-mid">${rewardBadge(offer.crystals)}</div>
-          <div class="shop-price">${offer.priceLabel}</div>
+          <div class="shop-price">${starsLabel(offer.stars)}</div>
         </div>
       </div>`,
     ).join('');
@@ -858,27 +918,185 @@ export class SheetUI {
     this._renderCrystals(2);
   }
 
+  _setShareBusy(button, busy) {
+    if (!button) return;
+    button.disabled = busy;
+    button.classList.toggle('busy', busy);
+    button.setAttribute('aria-busy', busy ? 'true' : 'false');
+    button.innerHTML = busy
+      ? `<span class="earn-share-spin" aria-hidden="true"></span><span>${RU.earnInvitePreparing}</span>`
+      : RU.shareSocial;
+  }
+
+  async _inviteFriend(btn) {
+    if (this._inviteBusy) return;
+    const button = btn?.classList?.contains('earn-share-btn')
+      ? btn
+      : this.body.querySelector('.earn-share-btn');
+    if (!telegram.user?.id) {
+      this._toast(RU.earnInviteNeedTelegram, { accent: '#FFC857', flyTo: 'none' });
+      return;
+    }
+    this._inviteBusy = true;
+    telegram.haptic('impact', 'medium');
+    this._setShareBusy(button, true);
+    try {
+      const e = this._economy();
+      const timeSec = formatInviteBest(e.bestTimeMs);
+      const bonus = e.earnActions.find((a) => a.id === 'install_bonus')?.reward || 40;
+      const text = RU.earnInviteShareText({ timeSec, bonus });
+      const prepared = await e.prepareInviteShare({ timeSec, bonus });
+      if (prepared?.preparedId && telegram.canSharePreparedMessage()) {
+        const sent = await telegram.sharePreparedMessage(prepared.preparedId);
+        if (sent) {
+          metrikaGoal('invite_share');
+          this._toast(RU.earnInviteShared, { accent: '#7EE0FF', flyTo: 'none' });
+        }
+        return;
+      }
+      if (prepared?.sentToChat) {
+        telegram.openBotChat();
+        metrikaGoal('invite_share');
+        this._toast(RU.earnInviteForwardFromBot, { accent: '#7EE0FF', flyTo: 'none' });
+        return;
+      }
+      const url = prepared?.inviteUrl || telegram.inviteShareUrl();
+      let blob = null;
+      try {
+        blob = await makeInviteShareBlob({
+          playerName: telegram.playerName,
+          timeSec,
+          bonus,
+        });
+      } catch (err) {
+        console.warn('invite card', err);
+      }
+      await telegram.share(`${text}\n\n${RU.earnInviteLinkLabel}`, url, blob);
+      metrikaGoal('invite_share');
+      this._toast(RU.earnInviteShared, { accent: '#7EE0FF', flyTo: 'none' });
+    } finally {
+      this._inviteBusy = false;
+      const live = this.body.querySelector('.earn-share-btn') || button;
+      this._setShareBusy(live, false);
+    }
+  }
+
+  async _enableNotifications() {
+    const e = this._economy();
+    if (!telegram.user?.id) {
+      this._toast(RU.earnNotificationsNeedTelegram, { accent: '#FFC857', flyTo: 'none' });
+      return;
+    }
+    const granted = await telegram.requestWriteAccess();
+    if (!granted) {
+      this._toast(
+        e.isEarnClaimed('enable_notifications') ? RU.earnNotificationsAlready : RU.earnNotificationsNeedGrant,
+        { accent: '#FFC857', flyTo: 'none' },
+      );
+      return;
+    }
+    const result = await e.grantWriteAccess();
+    if (result.reward != null) {
+      this._toast(RU.crystalsPlus(result.reward), { accent: '#7EE0FF', flyTo: 'crystals' });
+      this.app._updateHud();
+    } else {
+      this._toast(RU.earnNotificationsAlready, { accent: '#7EE0FF', flyTo: 'none' });
+    }
+    this._renderCrystals(3);
+  }
+
+  _escText(value) {
+    return String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  _renderInvitedList(e) {
+    const people = e.invitedFriends || [];
+    const per = e.inviteRewardPerFriend;
+    const items = people.length
+      ? people
+          .map((p) => {
+            const name = this._escText(p.name || 'Игрок');
+            const nick = p.username ? this._escText(p.username) : '';
+            const photo = p.photoUrl ? this._escText(p.photoUrl) : '';
+            const avatar = photo
+              ? `<img src="${photo}" class="earn-invite-avatar" alt="">`
+              : restingCubeImg(22, 'earn-invite-cube');
+            return `
+            <div class="earn-invite-person visited">
+              ${avatar}
+              <div class="earn-invite-who">
+                <div class="earn-invite-name">${name}</div>
+                <div class="earn-invite-meta">
+                  ${nick ? `<span class="earn-invite-nick">${nick}</span>` : ''}
+                  <span class="earn-invite-status">${RU.earnInviteVisited}</span>
+                </div>
+              </div>
+              <span class="earn-invite-trail">
+                <span class="earn-check">${checkMarkHtml(18)}</span>
+                ${rewardBadge(per)}
+              </span>
+            </div>`;
+          })
+          .join('')
+      : `<div class="earn-invite-empty">${RU.earnInviteWaiting}</div>`;
+
+    const count = people.length ? ` · ${people.length}` : '';
+    return `
+      <div class="earn-invite-list">
+        <div class="earn-invite-list-title">${RU.earnInviteListTitle}${count}</div>
+        ${items}
+      </div>`;
+  }
+
   _renderEarnPane(e) {
-    const actions = e.earnActions.filter((a) => a.id !== 'watch_ad');
+    const hiddenEarn = new Set(['watch_ad', 'rate_app', 'social_post']);
+    const actions = e.earnActions.filter((a) => !hiddenEarn.has(a.id));
     const rows = actions
       .map((a) => {
-        const done = e.isEarnClaimed(a.id);
+        const isInvite = a.id === 'invite_friend';
+        const done = !isInvite && e.isEarnClaimed(a.id);
         const unlocked = e.isEarnUnlocked(a.id);
-        const locked = !done && !unlocked;
+        const locked = !isInvite && !done && !unlocked;
+        const alwaysOpen = isInvite || a.id === 'enable_notifications';
         let trailing = rewardBadge(a.reward);
-        if (done) trailing = `<span class="earn-check">${checkMarkHtml(20)}</span>`;
-        else if (locked) trailing = `<span class="earn-lock">${uiIconImg('lock', 18)}</span>`;
+        if (done) {
+          trailing = `<span class="earn-done">${checkMarkHtml(18)}${rewardBadge(a.reward)}</span>`;
+        } else if (locked) {
+          trailing = `<span class="earn-lock">${uiIconImg('lock', 18)}</span>`;
+        }
 
-        return `
-        <div class="game-panel mb-6 ${done ? 'accent-mint' : unlocked && !done ? 'accent-warn' : ''} earn-panel ${locked ? 'locked' : ''}" data-earn="${a.id}" style="cursor:${done || locked ? 'default' : 'pointer'}">
+        let sub = locked ? RU.earnBonusLocked : earnSubtitle(a.id);
+        if (isInvite) sub = RU.earnInviteFriendSub(e.inviteRewardPerFriend);
+
+        const clickable = alwaysOpen || (!done && !locked);
+        const accent = isInvite ? 'accent-warn' : done ? 'accent-mint' : unlocked && !done ? 'accent-warn' : '';
+        const card = isInvite
+          ? `
+        <div class="game-panel mb-6 ${accent} earn-panel earn-invite-card">
+          <div class="earn-row">
+            <div class="earn-text">
+              <div class="t1">${earnTitle(a.id)}</div>
+              <div class="t2">${sub}</div>
+            </div>
+            ${rewardBadge(e.inviteRewardPerFriend)}
+          </div>
+          <button type="button" class="earn-share-btn" data-earn="invite_friend">${RU.shareSocial}</button>
+        </div>`
+          : `
+        <div class="game-panel mb-6 ${accent} earn-panel ${locked ? 'locked' : ''}" data-earn="${a.id}" style="cursor:${clickable ? 'pointer' : 'default'}">
           <div class="earn-row ${locked ? 'locked' : ''}">
             <div class="earn-text">
               <div class="t1">${earnTitle(a.id)}</div>
-              <div class="t2">${locked ? RU.earnBonusLocked : earnSubtitle(a.id)}</div>
+              <div class="t2">${sub}</div>
             </div>
             ${trailing}
           </div>
         </div>`;
+        return isInvite ? `${card}${this._renderInvitedList(e)}` : card;
       })
       .join('');
 
@@ -887,8 +1105,10 @@ export class SheetUI {
 
   _renderPlus() {
     const e = this._economy();
+    const plus = e.plusProduct;
+    const price = subscribePriceLabel(plus);
     const active = e.hasPremium;
-    const next = e.premiumNextChargeDate ?? new Date(Date.now() + 7 * 86400000);
+    const next = e.premiumNextChargeDate ?? new Date(Date.now() + plus.days * 86400000);
 
     this.body.innerHTML = `
       <div class="plus-sheet">
@@ -899,7 +1119,7 @@ export class SheetUI {
           ${active ? `<span class="plus-head-check">${checkMarkHtml(20)}</span>` : ''}
         </div>
         <div class="plus-subtitle mint">${RU.plusTitle}</div>
-        <p class="plus-desc">${active ? RU.plusManageSubtitle : RU.plusOfferSubtitle}</p>
+        <p class="plus-desc">${active ? RU.plusManageSubtitle : RU.plusOfferSubtitle(plus.days)}</p>
         <div class="game-panel accent-mint mb-10 plus-benefits">
           <div class="plus-benefit">
             <span class="plus-benefit-ico">${uiIconImg('no-ads', 18)}</span>
@@ -912,24 +1132,69 @@ export class SheetUI {
           </div>
         </div>
         <div class="game-panel mb-10 plus-price-panel">
-          <div class="plus-price-line">${RU.plusManagePrice(SUBSCRIBE_PRICE)}</div>
+          <div class="plus-price-line">${RU.plusManagePrice(price)}</div>
           ${active ? `<div class="plus-next-charge">${RU.plusManageNextCharge(fmtChargeDate(next))}</div>` : ''}
         </div>
         ${active
           ? `<button type="button" class="plus-btn cancel" id="plus-cancel">${RU.plusCancel}</button>`
-          : `<button type="button" class="plus-btn subscribe" id="plus-subscribe">${RU.plusSubscribe(SUBSCRIBE_PRICE)}</button>`}
+          : `<button type="button" class="plus-btn subscribe" id="plus-subscribe">${RU.plusSubscribe(price)}</button>`}
       </div>`;
 
     this.body.querySelector('#plus-back')?.addEventListener('click', () => this._returnFromPlus());
-    this.body.querySelector('#plus-subscribe')?.addEventListener('click', () => {
-      e.activatePremiumPreview();
-      this._toast(RU.plusToast, { accent: '#3DDC97', flyTo: 'none' });
-      this._returnFromPlus();
-    });
+    this.body.querySelector('#plus-subscribe')?.addEventListener('click', () => this._buyStars(plus.id));
     this.body.querySelector('#plus-cancel')?.addEventListener('click', () => {
-      e.cancelPremium();
-      this._toast(RU.plusCancelledToast, { accent: '#ffffff88', flyTo: 'none' });
-      this._returnFromPlus();
+      this._toast(RU.plusCancelInTelegram, { accent: '#7EE0FF', flyTo: 'none' });
+    });
+  }
+
+  async _buyStars(productId) {
+    if (this._buyingStars) return;
+    const e = this._economy();
+    if (!telegram.initData) {
+      this._toast(RU.shopPayNeedTelegram, { accent: '#FFC857', flyTo: 'none' });
+      return;
+    }
+    this._buyingStars = true;
+    this._toast(RU.shopPayWait, { accent: '#7EE0FF', flyTo: 'none' });
+    try {
+      const invoice = await e.createStarsInvoice(productId);
+      const status = await telegram.openInvoice(invoice.invoiceUrl);
+      if (status === 'cancelled') {
+        this._toast(RU.shopPayCancelled, { accent: '#ffffff88', flyTo: 'none' });
+        return;
+      }
+      if (status === 'failed') {
+        this._toast(RU.shopPayFailed, { accent: '#FF5A5F', flyTo: 'none' });
+        return;
+      }
+      this._toast(RU.shopPayPending, { accent: '#7EE0FF', flyTo: 'none' });
+      const expectPlus = productId === e.plusProduct.id;
+      const expectCrystals = expectPlus ? 0 : (invoice.crystals || 0);
+      const applied = await e.waitForWalletUpdate({ expectCrystals, expectPlus });
+      this.app._updateHud();
+      if (applied?.crystalsDelta > 0) {
+        this._toast(RU.shopPaidCrystals(applied.crystalsDelta), { accent: '#3DDC97', flyTo: 'crystals' });
+      } else if (applied?.plusActivated || (expectPlus && e.hasPremium)) {
+        this._toast(RU.shopPaidPlus(e.plusProduct.days), { accent: '#3DDC97', flyTo: 'none' });
+      } else if (status === 'paid') {
+        this._toast(RU.shopPayPending, { accent: '#FFC857', flyTo: 'none' });
+      }
+      if (this._type === 'plus') this._renderPlus();
+      else if (this._type === 'crystals') this._renderCrystals(this._tab);
+    } catch (err) {
+      console.warn('buyStars', err);
+      this._toast(err?.message || RU.shopPayFailed, { accent: '#FF5A5F', flyTo: 'none' });
+    } finally {
+      this._buyingStars = false;
+    }
+  }
+
+  _refreshLeaderboardFromServer() {
+    this._economy().syncCommunityScores(() => {
+      this._lbLoading = false;
+      if (this.isOpen && this._type === 'leaderboard') {
+        this._renderLeaderboard();
+      }
     });
   }
 
@@ -938,16 +1203,6 @@ export class SheetUI {
     const playerName = e.effectivePlayerName || telegram.playerName || 'Игрок';
     const userPhoto = telegram.userPhotoUrl;
     const filter = this._lbFilter || 'day';
-
-    // Фоновая синхронизация с сервером при открытии рейтинга
-    if (!this._lbSynced) {
-      this._lbSynced = true;
-      e.syncCommunityScores(() => {
-        if (this.isOpen && this._type === 'leaderboard') {
-          this._renderLeaderboard();
-        }
-      });
-    }
 
     const PERIODS = [
       { id: 'all', label: RU.periodAll },
@@ -974,7 +1229,7 @@ export class SheetUI {
     const tableHeaderHtml = `
       <div class="lb-table-header">
         <span class="lb-th col-rank">${RU.colRank || '#'}</span>
-        <span class="lb-th col-user">Игрок / Заезд</span>
+        <span class="lb-th col-user">Игрок / Попытка</span>
         <span class="lb-th col-boosts">Бусты</span>
         <span class="lb-th col-time">Время / Очки</span>
       </div>`;
@@ -983,7 +1238,7 @@ export class SheetUI {
     let contentHtml = '';
 
     if (entries.length === 0) {
-      contentHtml = `<div class="lb-empty">${RU.emptyPeriodRecords}</div>`;
+      contentHtml = `<div class="lb-empty">${this._lbLoading ? RU.leaderboardLoading : RU.emptyPeriodRecords}</div>`;
     } else {
       contentHtml = `
         <div class="lb-attempts-list">
@@ -1040,7 +1295,7 @@ export class SheetUI {
                   </div>
                   <div class="lb-card-result-col">
                     <div class="lb-card-time">${timeStr}</div>
-                    <div class="lb-card-score-badge">⭐ ${fmtScore(score)}</div>
+                    <div class="lb-card-score-badge">🎯 ${fmtScore(score)}</div>
                   </div>
                 </div>`;
             })
@@ -1190,40 +1445,40 @@ export class SheetUI {
           </div>
 
           <div class="player-modal-points-badge">
-            <span class="modal-pts-label">🎯 ОЧКИ ЗАЕЗДА:</span>
+            <span class="modal-pts-label">🎯 ОЧКИ ПОПЫТКИ:</span>
             <span class="modal-pts-val">${fmtScore(score)}</span>
             ${(att.riskCount || 0) > 0 ? `<span class="modal-pts-mult">×${1 + (att.riskCount || 0)} за риски</span>` : ''}
           </div>
 
           <div class="player-modal-stats-grid">
-            <div class="player-modal-stat-item">
+            <button type="button" class="player-modal-stat-item" data-tip="run" aria-label="Шаги — подробнее">
               <span class="stat-icon">🏃</span>
               <div class="stat-text">
                 <span class="stat-value">${att.runDistance || 0}</span>
-                <span class="stat-label">Пробег</span>
+                <span class="stat-label">Шаги</span>
               </div>
-            </div>
-            <div class="player-modal-stat-item">
+            </button>
+            <button type="button" class="player-modal-stat-item" data-tip="risk" aria-label="Риск — подробнее">
               <span class="stat-icon">⚡</span>
               <div class="stat-text">
                 <span class="stat-value">${att.riskCount || 0}</span>
                 <span class="stat-label">Риски</span>
               </div>
-            </div>
-            <div class="player-modal-stat-item">
+            </button>
+            <button type="button" class="player-modal-stat-item" data-tip="jump" aria-label="Прыжок — подробнее">
               <span class="stat-icon">🦘</span>
               <div class="stat-text">
                 <span class="stat-value ${att.hadJump ? 'boost-active' : ''}">${att.hadJump ? 'Включен ✓' : 'Нет'}</span>
                 <span class="stat-label">Прыжок</span>
               </div>
-            </div>
-            <div class="player-modal-stat-item">
+            </button>
+            <button type="button" class="player-modal-stat-item" data-tip="helmet" aria-label="Шлем — подробнее">
               <span class="stat-icon">🛡️</span>
               <div class="stat-text">
                 <span class="stat-value ${att.hadHelmet ? 'boost-active' : ''}">${att.hadHelmet ? 'Включен ✓' : 'Нет'}</span>
                 <span class="stat-label">Шлем</span>
               </div>
-            </div>
+            </button>
           </div>
 
           <div class="player-modal-date-line">Установлен: ${dateFormatted}</div>
@@ -1242,8 +1497,11 @@ export class SheetUI {
     const backdrop = this.body.querySelector('.player-modal-backdrop');
     const closeBtn = backdrop?.querySelector('.player-modal-close');
     const dismissBtn = backdrop?.querySelector('#player-modal-dismiss');
+    const tipEls = [...(backdrop?.querySelectorAll('[data-tip]') || [])];
 
     const closeModal = () => {
+      unbindGameTips(tipEls);
+      hideGameTip();
       backdrop?.classList.add('closing');
       setTimeout(() => backdrop?.remove(), 160);
     };
@@ -1253,6 +1511,46 @@ export class SheetUI {
     backdrop?.addEventListener('click', (ev) => {
       if (ev.target === backdrop) closeModal();
     });
+
+    const ec = e.e || {};
+    const riskEvery = Math.max(1, ec.riskRewardEvery ?? 5);
+    const riskReward = ec.riskRewardTokens ?? 1;
+    const runEvery = Math.max(1, ec.runRewardEvery ?? 200);
+    const runReward = ec.runRewardTokens ?? 1;
+    const tipBy = (id) => backdrop?.querySelector(`[data-tip="${id}"]`);
+    bindGameTips(
+      [
+        {
+          id: 'lb-run',
+          el: tipBy('run'),
+          accent: '#7ee0ff',
+          body: RU.runTipHow,
+          foot: RU.runTipConvert(runEvery, runReward > 0 ? runReward : 1),
+        },
+        {
+          id: 'lb-risk',
+          el: tipBy('risk'),
+          accent: '#ffc107',
+          body: RU.riskTipHow,
+          foot: RU.riskTipConvert(riskEvery, riskReward > 0 ? riskReward : 1),
+        },
+        {
+          id: 'lb-jump',
+          el: tipBy('jump'),
+          accent: '#3ddc97',
+          body: RU.jumpTipHow,
+          foot: RU.jumpTipState(Boolean(att.hadJump)),
+        },
+        {
+          id: 'lb-helmet',
+          el: tipBy('helmet'),
+          accent: '#7ee0ff',
+          body: RU.helmetTipHow,
+          foot: RU.helmetTipState(Boolean(att.hadHelmet)),
+        },
+      ],
+      { haptic: () => telegram.haptic('impact', 'light') },
+    );
   }
 
   _renderShare() {
@@ -1412,6 +1710,24 @@ export class SheetUI {
             </div>
           </div>
 
+          <div class="profile-card profile-settings-card">
+            <div class="profile-stats-title">${RU.profileSettings}</div>
+            <label class="profile-privacy-toggle" for="profile-music-cb">
+              <input type="checkbox" id="profile-music-cb" ${e.musicEnabled !== false ? 'checked' : ''}>
+              <span class="profile-toggle-box">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </span>
+              <span class="profile-toggle-label">${RU.profileMusic}</span>
+            </label>
+            <label class="profile-privacy-toggle" for="profile-haptic-cb">
+              <input type="checkbox" id="profile-haptic-cb" ${e.hapticEnabled !== false ? 'checked' : ''}>
+              <span class="profile-toggle-box">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </span>
+              <span class="profile-toggle-label">${RU.profileHaptic}</span>
+            </label>
+          </div>
+
           <!-- Личные рекорды (информативно) -->
           <div class="profile-card profile-stats-card">
             <div class="profile-stats-title">Личные рекорды</div>
@@ -1429,7 +1745,7 @@ export class SheetUI {
               <div class="profile-stat-box">
                 <div class="profile-stat-icon">⚡</div>
                 <div class="profile-stat-val">${totalRuns}</div>
-                <div class="profile-stat-lbl">Всего заездов</div>
+                <div class="profile-stat-lbl">Всего попыток</div>
               </div>
             </div>
           </div>
@@ -1516,6 +1832,21 @@ export class SheetUI {
 
     hideCb?.addEventListener('change', onTogglePrivacy);
     hideCb?.addEventListener('input', onTogglePrivacy);
+
+    const musicCb = this.body.querySelector('#profile-music-cb');
+    const hapticCb = this.body.querySelector('#profile-haptic-cb');
+    musicCb?.addEventListener('change', () => {
+      const on = Boolean(musicCb.checked);
+      e.updateDevicePrefs({ musicEnabled: on });
+      this.app.audio?.setUserMusicEnabled(on);
+      telegram.haptic('impact', 'light');
+    });
+    hapticCb?.addEventListener('change', () => {
+      const on = Boolean(hapticCb.checked);
+      e.updateDevicePrefs({ hapticEnabled: on });
+      telegram.hapticEnabled = on;
+      if (on) telegram.haptic('impact', 'light');
+    });
 
     nickInput?.addEventListener('input', () => {
       updateActionBtnState();
@@ -1752,7 +2083,7 @@ function drawShareCardCanvas(canvas, timeMs, runDist = 0, riskCount = 0, onReady
     ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(`🏃 ${Math.round(runDist)}   ⚡ ${riskCount}   ⭐ ${fmtScore(scoreVal)} очков`, w / 2, statsY + statsH / 2);
+    ctx.fillText(`🏃 ${Math.round(runDist)}   ⚡ ${riskCount}   🎯 ${fmtScore(scoreVal)} очков`, w / 2, statsY + statsH / 2);
   }
 
   // 11. Bot handle at bottom
@@ -1785,4 +2116,115 @@ function drawShareCardCanvas(canvas, timeMs, runDist = 0, riskCount = 0, onReady
   if (onReadyCb) {
     onReadyCb();
   }
+}
+
+let _inviteCoverImg = null;
+
+function getInviteCoverImage(onLoadCb) {
+  if (typeof Image === 'undefined') return null;
+  if (_inviteCoverImg) {
+    if (_inviteCoverImg.complete && _inviteCoverImg.naturalWidth > 0 && onLoadCb) {
+      setTimeout(onLoadCb, 0);
+    }
+    return _inviteCoverImg;
+  }
+  _inviteCoverImg = new Image();
+  _inviteCoverImg.src = 'assets/branding/botfather_webapp_640x360.jpg';
+  if (onLoadCb) _inviteCoverImg.onload = onLoadCb;
+  return _inviteCoverImg;
+}
+
+function formatInviteBest(ms) {
+  const n = Number(ms) || 0;
+  if (n < 100) return '';
+  const sec = n / 1000;
+  if (sec >= 10) return String(Math.round(sec * 10) / 10).replace('.', ',');
+  return sec.toFixed(1).replace('.', ',');
+}
+
+function drawInviteShareCanvas(canvas, opts = {}) {
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+  const w = canvas.width;
+  const h = canvas.height;
+  const timeSec = opts.timeSec || '';
+  const bonus = opts.bonus || 40;
+  ctx.clearRect(0, 0, w, h);
+  ctx.save();
+  drawRoundRect(ctx, 0, 0, w, h, 36);
+  ctx.clip();
+  ctx.fillStyle = '#0a1014';
+  ctx.fillRect(0, 0, w, h);
+
+  const cover = getInviteCoverImage(() => drawInviteShareCanvas(canvas, opts));
+  if (cover && cover.complete && cover.naturalWidth > 0) {
+    const scale = Math.max(w / cover.naturalWidth, h / cover.naturalHeight);
+    const dw = cover.naturalWidth * scale;
+    const dh = cover.naturalHeight * scale;
+    ctx.drawImage(cover, (w - dw) / 2, (h - dh) / 2, dw, dh);
+  } else {
+    const icon = getAppIconImage(() => drawInviteShareCanvas(canvas, opts));
+    if (icon && icon.complete && icon.naturalWidth > 0) {
+      ctx.drawImage(icon, 0, 0, w, h);
+    }
+  }
+
+  const veil = ctx.createLinearGradient(0, 0, 0, h);
+  veil.addColorStop(0, 'rgba(10, 16, 20, 0.28)');
+  veil.addColorStop(0.45, 'rgba(10, 16, 20, 0.4)');
+  veil.addColorStop(1, 'rgba(7, 11, 14, 0.92)');
+  ctx.fillStyle = veil;
+  ctx.fillRect(0, 0, w, h);
+
+  ctx.font = '800 22px "Segoe UI", Roboto, system-ui, sans-serif';
+  ctx.fillStyle = '#7EE0FF';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('UNTOUCH', w / 2, 64);
+
+  ctx.font = '900 36px "Segoe UI", Roboto, system-ui, sans-serif';
+  ctx.fillStyle = '#F2F7FA';
+  ctx.fillText('Попробуй побить мой рекорд!', w / 2, 160);
+
+  ctx.font = '800 26px "Segoe UI", Roboto, system-ui, sans-serif';
+  ctx.fillStyle = '#FFC857';
+  ctx.fillText(timeSec ? `Я продержался ${timeSec} сек` : 'Заходи — будет интересно', w / 2, 220);
+
+  ctx.font = '700 20px "Segoe UI", Roboto, system-ui, sans-serif';
+  ctx.fillStyle = '#3DDC97';
+  ctx.fillText(`Новичкам бонус — ${bonus} кристаллов`, w / 2, 320);
+
+  drawRoundRect(ctx, (w - 360) / 2, 400, 360, 48, 24);
+  ctx.fillStyle = 'rgba(126, 224, 255, 0.14)';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(126, 224, 255, 0.45)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.font = '800 18px "Segoe UI", Roboto, system-ui, sans-serif';
+  ctx.fillStyle = '#B8F4FF';
+  ctx.fillText('Играть · @UntouchGameBot', w / 2, 424);
+
+  ctx.restore();
+}
+
+function makeInviteShareBlob(opts = {}) {
+  return new Promise((resolve) => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 800;
+    canvas.height = 500;
+    const finish = () => {
+      if (!canvas.toBlob) {
+        resolve(null);
+        return;
+      }
+      canvas.toBlob((blob) => resolve(blob), 'image/png');
+    };
+    const cover = getInviteCoverImage(() => {
+      drawInviteShareCanvas(canvas, opts);
+      finish();
+    });
+    drawInviteShareCanvas(canvas, opts);
+    if (cover && cover.complete && cover.naturalWidth > 0) finish();
+    else setTimeout(finish, 350);
+  });
 }

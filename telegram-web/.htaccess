@@ -4,3 +4,8 @@
   Header set Pragma "no-cache"
   Header set Expires 0
 </IfModule>
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule ^i/([0-9]{1,20})/?$ i.php?r=$1 [L,QSA]
+</IfModule>

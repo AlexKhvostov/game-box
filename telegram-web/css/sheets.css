@@ -1491,9 +1491,167 @@
   font-size: 11px;
   color: rgba(255, 255, 255, 0.54);
   margin-top: 2px;
+  line-height: 1.35;
 }
 
 .earn-row.locked { opacity: 0.55; }
+
+.earn-share-lbl {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 800;
+  color: #ffc857;
+}
+
+.earn-invite-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.earn-share-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 12px;
+  background: linear-gradient(135deg, #ffc857 0%, #f0a202 100%);
+  box-shadow: 0 3px 10px rgba(240, 162, 2, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  color: #1a1408;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  pointer-events: auto;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.12s ease, filter 0.12s ease;
+}
+
+.earn-share-btn:active:not(:disabled) {
+  transform: scale(0.97);
+  filter: brightness(0.92);
+}
+
+.earn-share-btn.busy,
+.earn-share-btn:disabled {
+  cursor: wait;
+  filter: brightness(0.96);
+}
+
+.earn-share-spin {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(26, 20, 8, 0.22);
+  border-top-color: #1a1408;
+  border-radius: 50%;
+  animation: earn-share-spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes earn-share-spin {
+  to { transform: rotate(360deg); }
+}
+
+.earn-invite-list {
+  margin: -2px 0 10px;
+  padding: 10px 12px 8px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.earn-invite-list-title {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.48);
+  margin-bottom: 8px;
+}
+
+.earn-invite-empty {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  padding: 4px 0 6px;
+}
+
+.earn-invite-person {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.earn-invite-person:first-of-type {
+  border-top: 0;
+}
+
+.earn-invite-avatar,
+.earn-invite-cube {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.earn-invite-who {
+  min-width: 0;
+  flex: 1;
+}
+
+.earn-invite-name {
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.earn-invite-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 3px;
+}
+
+.earn-invite-nick {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.earn-invite-status {
+  font-size: 10px;
+  font-weight: 800;
+  color: #0e1419;
+  background: #3ddc97;
+  border-radius: 999px;
+  padding: 2px 7px;
+}
+
+.earn-invite-plus {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 800;
+  color: #7ee0ff;
+}
+
+.earn-done,
+.earn-invite-trail {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
 
 .earn-check,
 .earn-lock {
@@ -2205,6 +2363,19 @@
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.07);
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  width: 100%;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.player-modal-stat-item.selected {
+  box-shadow:
+    0 0 0 1.5px color-mix(in srgb, var(--tip-accent, #7EE0FF) 70%, transparent),
+    0 0 12px color-mix(in srgb, var(--tip-accent, #7EE0FF) 22%, transparent);
 }
 
 .stat-icon {
@@ -2615,6 +2786,10 @@
 }
 
 /* Чекбокс скрытия ника */
+.profile-settings-card .profile-privacy-toggle + .profile-privacy-toggle {
+  margin-top: 8px;
+}
+
 .profile-privacy-toggle {
   display: flex;
   align-items: center;

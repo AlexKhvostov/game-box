@@ -16,8 +16,13 @@
   <link rel="stylesheet" href="css/app.css">
   <link rel="stylesheet" href="css/sheets.css">
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
 </head>
 <body>
+  <div id="boot-loader" class="boot-loader" aria-live="polite">
+    <div class="boot-spin" aria-hidden="true"></div>
+    <p>Загрузка…</p>
+  </div>
   <div class="score-strip idle" id="score-strip">
     <div class="score-strip-pill" id="score-strip-pill">
       <span class="score-strip-label">ОЧКИ</span>
@@ -79,7 +84,7 @@
             <div class="info-value risk" id="info-risk">0</div>
           </div>
           <div class="info-chip col-run">
-            <div class="info-label">Пробег</div>
+            <div class="info-label">Шаги</div>
             <div class="info-value" id="info-run">0</div>
           </div>
         </div>
@@ -115,7 +120,7 @@
         <div class="result-time" id="result-time">0.000</div>
         <div class="result-time-unit">секунд</div>
         <div class="result-score-banner" id="result-score-banner">
-          <span class="result-score-tag">⚡ ОЧКИ ЗАЕЗДА</span>
+          <span class="result-score-tag">⚡ ОЧКИ ПОПЫТКИ</span>
           <span class="result-score-number" id="result-score">0</span>
         </div>
         <div class="result-rank" id="result-rank">Новый результат</div>
@@ -130,9 +135,9 @@
               <span class="result-stat-earn" id="result-risk-earn" hidden></span>
             </div>
           </button>
-          <button type="button" class="result-stat run" id="result-stat-run" aria-label="Пробег — подробнее">
+          <button type="button" class="result-stat run" id="result-stat-run" aria-label="Шаги — подробнее">
             <div class="result-stat-head">
-              <span class="result-stat-label">ПРОБЕГ</span>
+              <span class="result-stat-label">ШАГИ</span>
               <span class="result-stat-rate" id="result-run-rate"></span>
             </div>
             <div class="result-stat-body">
@@ -140,10 +145,6 @@
               <span class="result-stat-earn" id="result-run-earn" hidden></span>
             </div>
           </button>
-        </div>
-        <div class="result-tip" id="result-tip" hidden>
-          <div class="result-tip-body" id="result-tip-body"></div>
-          <div class="result-tip-foot" id="result-tip-foot"></div>
         </div>
       </div>
       <div class="result-actions-row">
@@ -165,6 +166,17 @@
     </div>
   </div>
 
+  <div id="ad-fail-overlay" class="ad-fail-overlay" hidden>
+    <button type="button" class="ad-fail-backdrop" id="ad-fail-backdrop" aria-label="Закрыть"></button>
+    <div class="ad-fail-card" role="dialog" aria-modal="true" aria-labelledby="ad-fail-title">
+      <img class="ad-fail-art" src="assets/branding/ad_tv_sad.jpg" width="280" height="280" alt="">
+      <h3 class="ad-fail-title" id="ad-fail-title">Телевизор барахлит</h3>
+      <p class="ad-fail-body" id="ad-fail-body">Ролик не загрузился. Кубик уже чинит — загляните чуть позже.</p>
+      <button type="button" class="ad-fail-ok" id="ad-fail-ok">Понятно</button>
+    </div>
+  </div>
+
   <script type="module" src="js/main.js"></script>
+  <noscript><div><img src="https://mc.yandex.ru/watch/112365078" style="position:absolute;left:-9999px" alt=""></div></noscript>
 </body>
 </html>

@@ -8,7 +8,7 @@
 - [ADS_AND_BILLING.md](ADS_AND_BILLING.md)
 - [GOOGLE_PLAY_PUBLISH.md](GOOGLE_PLAY_PUBLISH.md)
 - [FLOORS_MODE.md](FLOORS_MODE.md) — режим исследования этажей
-- [TELEGRAM_WEBAPP.md](TELEGRAM_WEBAPP.md) — Telegram Mini App (аркада на web)
+- [TELEGRAM_WEBAPP.md](TELEGRAM_WEBAPP.md) — Telegram Mini App (аркада, Stars)
 
 ## Этап 1 — MVP Android (сейчас)
 
