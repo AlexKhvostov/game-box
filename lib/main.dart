@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import 'app/app.dart';
+import 'app/app_target.dart';
 import 'data/app_analytics.dart';
 import 'data/economy_store.dart';
 import 'data/firebase_bootstrap.dart';
@@ -13,6 +14,7 @@ import 'data/remote_config_loader.dart';
 import 'data/scores_store.dart';
 import 'domain/economy_config.dart';
 import 'domain/gameplay_config.dart';
+import 'telegram/telegram_bridge.dart';
 
 Future<void> main() async {
   await runZonedGuarded(() async {
@@ -26,9 +28,16 @@ Future<void> main() async {
       return true;
     };
 
-    await SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-    ]);
+    if (AppTargetConfig.isTelegram || kIsWeb) {
+      // Жесты игры не должны тянуть шторку Telegram.
+      TelegramBridge.bootstrapFullscreen();
+    }
+
+    if (!kIsWeb) {
+      await SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+      ]);
+    }
 
     final firebaseOk = await FirebaseBootstrap.init();
     if (firebaseOk) {

@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'game_world.dart';
@@ -84,8 +85,10 @@ class GameFieldPainter extends CustomPainter {
         ..strokeWidth = size.shortestSide * 0.08,
     );
 
-    // Тонкая сетка
-    _drawSoftGrid(canvas, size, r);
+    // Сетка — заметный расход на web; на Telegram без неё плавнее.
+    if (!kIsWeb) {
+      _drawSoftGrid(canvas, size, r);
+    }
 
     // Слой «пола»: только тень по форме объекта (без овала).
     const light = Offset(5.5, 7.0);

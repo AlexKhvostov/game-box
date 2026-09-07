@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../app/app_target.dart';
 import '../features/floors/floors_home_screen.dart';
 import '../features/game/game_home_screen.dart';
 
-/// Корень: выбор режима. Аркада (рекорд) не меняется.
+/// Корень: выбор режима (mobile) или сразу аркада (telegram).
 class ShellScreen extends StatefulWidget {
   const ShellScreen({super.key});
 
@@ -14,21 +15,30 @@ class ShellScreen extends StatefulWidget {
 enum _AppMode { picker, arcade, floors }
 
 class _ShellScreenState extends State<ShellScreen> {
-  _AppMode _mode = _AppMode.picker;
+  late _AppMode _mode = AppTargetConfig.isTelegram
+      ? _AppMode.arcade
+      : _AppMode.picker;
 
-  void _backToPicker() => setState(() => _mode = _AppMode.picker);
+  void _backToPicker() {
+    if (!AppTargetConfig.showModePicker) return;
+    setState(() => _mode = _AppMode.picker);
+  }
 
   @override
   Widget build(BuildContext context) {
     switch (_mode) {
       case _AppMode.arcade:
-        return GameHomeScreen(onLeave: _backToPicker);
+        return GameHomeScreen(
+          onLeave: AppTargetConfig.showModePicker ? _backToPicker : null,
+        );
       case _AppMode.floors:
         return FloorsHomeScreen(onBack: _backToPicker);
       case _AppMode.picker:
         return _ModePicker(
           onArcade: () => setState(() => _mode = _AppMode.arcade),
-          onFloors: () => setState(() => _mode = _AppMode.floors),
+          onFloors: AppTargetConfig.showFloorsMode
+              ? () => setState(() => _mode = _AppMode.floors)
+              : null,
         );
     }
   }
@@ -37,11 +47,11 @@ class _ShellScreenState extends State<ShellScreen> {
 class _ModePicker extends StatelessWidget {
   const _ModePicker({
     required this.onArcade,
-    required this.onFloors,
+    this.onFloors,
   });
 
   final VoidCallback onArcade;
-  final VoidCallback onFloors;
+  final VoidCallback? onFloors;
 
   @override
   Widget build(BuildContext context) {
@@ -79,14 +89,16 @@ class _ModePicker extends StatelessWidget {
                 accent: theme.colorScheme.primary,
                 onTap: onArcade,
               ),
-              const SizedBox(height: 14),
-              _ModeCard(
-                title: 'Этажи',
-                subtitle:
-                    'Черновик: одна комната, выходы на стенах, путь к выходу этажа.',
-                accent: const Color(0xFF3DDC97),
-                onTap: onFloors,
-              ),
+              if (onFloors != null) ...[
+                const SizedBox(height: 14),
+                _ModeCard(
+                  title: 'Этажи',
+                  subtitle:
+                      'Черновик: одна комната, выходы на стенах, путь к выходу этажа.',
+                  accent: const Color(0xFF3DDC97),
+                  onTap: onFloors!,
+                ),
+              ],
               const Spacer(),
             ],
           ),

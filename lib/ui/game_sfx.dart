@@ -29,6 +29,9 @@ class GameSfx {
   static final AudioPlayer _start = AudioPlayer();
   static final AudioPlayer _music = AudioPlayer();
 
+  /// Уже привязанный источник — на web не пересоздаём BytesSource каждый hit.
+  static final Expando<Object> _boundSource = Expando<Object>('sfxSrc');
+
   static Uint8List? _mobWallBytes;
   static Uint8List? _mobCollideBytes;
   static Uint8List? _heroMobBytes;
@@ -42,28 +45,37 @@ class GameSfx {
   static DateTime? _lastMobCollideAt;
   static DateTime? _lastNearMissAt;
   static bool _musicStarted = false;
-  /// Приложение в фоне — не крутим музыку и не запускаем её заново.
   static bool _backgrounded = false;
+
+  /// На web частые one-shot сильнее дают микрофризы.
+  static Duration get _wallGap =>
+      kIsWeb ? const Duration(milliseconds: 70) : const Duration(milliseconds: 28);
+  static Duration get _collideGap =>
+      kIsWeb ? const Duration(milliseconds: 90) : const Duration(milliseconds: 45);
+  static Duration get _nearMissGap =>
+      kIsWeb ? const Duration(milliseconds: 140) : const Duration(milliseconds: 90);
 
   static Future<void> _ensureReady() async {
     if (_ready || _loading) return;
     _loading = true;
     try {
-      await AudioPlayer.global.setAudioContext(
-        AudioContext(
-          android: const AudioContextAndroid(
-            isSpeakerphoneOn: false,
-            stayAwake: false,
-            contentType: AndroidContentType.sonification,
-            usageType: AndroidUsageType.game,
-            audioFocus: AndroidAudioFocus.none,
+      if (!kIsWeb) {
+        await AudioPlayer.global.setAudioContext(
+          AudioContext(
+            android: const AudioContextAndroid(
+              isSpeakerphoneOn: false,
+              stayAwake: false,
+              contentType: AndroidContentType.sonification,
+              usageType: AndroidUsageType.game,
+              audioFocus: AndroidAudioFocus.none,
+            ),
+            iOS: AudioContextIOS(
+              category: AVAudioSessionCategory.ambient,
+              options: {AVAudioSessionOptions.mixWithOthers},
+            ),
           ),
-          iOS: AudioContextIOS(
-            category: AVAudioSessionCategory.ambient,
-            options: {AVAudioSessionOptions.mixWithOthers},
-          ),
-        ),
-      );
+        );
+      }
 
       _mobWallBytes = (await rootBundle.load('assets/sfx/mob_wall.wav'))
           .buffer
@@ -99,7 +111,9 @@ class GameSfx {
         _jump,
         _start,
       ]) {
-        await p.setPlayerMode(PlayerMode.mediaPlayer);
+        await p.setPlayerMode(
+          kIsWeb ? PlayerMode.mediaPlayer : PlayerMode.lowLatency,
+        );
         await p.setReleaseMode(ReleaseMode.stop);
       }
       await _music.setPlayerMode(PlayerMode.mediaPlayer);
@@ -113,6 +127,22 @@ class GameSfx {
   }
 
   static void applyConfig(AudioConfig config) {
+    if (identical(_cfg, config) ||
+        (_cfg.music == config.music &&
+            _cfg.musicVolume == config.musicVolume &&
+            _cfg.sfxVolume == config.sfxVolume &&
+            _cfg.sfxMobWall == config.sfxMobWall &&
+            _cfg.sfxMobCollide == config.sfxMobCollide &&
+            _cfg.sfxHeroMob == config.sfxHeroMob &&
+            _cfg.sfxHeroWall == config.sfxHeroWall &&
+            _cfg.sfxNearMiss == config.sfxNearMiss &&
+            _cfg.sfxHelmet == config.sfxHelmet &&
+            _cfg.sfxJump == config.sfxJump &&
+            _cfg.sfxStart == config.sfxStart)) {
+      // Тот же конфиг — не трогаем audio pipeline.
+      if (!_ready) unawaited(_ensureReady());
+      return;
+    }
     _cfg = config;
     if (!config.music) {
       stopMusic();
@@ -132,7 +162,6 @@ class GameSfx {
     if (_musicStarted) {
       try {
         await _music.setVolume(vol);
-        // После паузы в фоне — продолжить.
         final st = _music.state;
         if (st == PlayerState.paused) {
           await _music.resume();
@@ -149,7 +178,6 @@ class GameSfx {
     }
   }
 
-  /// Свернули приложение / ушли с экрана — пауза BGM.
   static Future<void> onAppPaused() async {
     _backgrounded = true;
     try {
@@ -157,7 +185,6 @@ class GameSfx {
     } catch (_) {}
   }
 
-  /// Вернулись в приложение — продолжить BGM, если включён в RC.
   static Future<void> onAppResumed() async {
     _backgrounded = false;
     if (!_cfg.music) return;
@@ -182,20 +209,34 @@ class GameSfx {
     await _ensureReady();
     if (bytes == null || bytes.isEmpty) return;
     try {
-      await player.stop();
       await player.setVolume(_sfxVol(volume));
-      // BytesSource надёжнее AssetSource на Android при частых one-shot.
-      await player.play(BytesSource(bytes, mimeType: 'audio/wav'));
+      // На web stop()+новый BytesSource каждый кадр → микрофризы.
+      // Держим источник и переигрываем через seek/resume.
+      if (!identical(_boundSource[player], bytes)) {
+        await player.setSource(BytesSource(bytes, mimeType: 'audio/wav'));
+        _boundSource[player] = bytes;
+      }
+      await player.seek(Duration.zero);
+      await player.resume();
     } catch (e) {
-      debugPrint('GameSfx.playBytes: $e');
+      // Fallback: полный play (старые/капризные плееры).
+      try {
+        await player.stop();
+        await player.setVolume(_sfxVol(volume));
+        await player.play(BytesSource(bytes, mimeType: 'audio/wav'));
+        _boundSource[player] = bytes;
+      } catch (e2) {
+        debugPrint('GameSfx.playBytes: $e2');
+      }
     }
   }
 
   static Future<void> mobWall() async {
-    if (!_cfg.sfxMobWall) return;
+    // На web/Telegram WebView one-shot при каждом ударе моба о стену
+    // даёт периодические микрофризы кадра — отключаем.
+    if (kIsWeb || !_cfg.sfxMobWall) return;
     final now = DateTime.now();
-    if (_lastMobWallAt != null &&
-        now.difference(_lastMobWallAt!) < const Duration(milliseconds: 28)) {
+    if (_lastMobWallAt != null && now.difference(_lastMobWallAt!) < _wallGap) {
       return;
     }
     _lastMobWallAt = now;
@@ -205,11 +246,10 @@ class GameSfx {
   }
 
   static Future<void> mobCollide() async {
-    if (!_cfg.sfxMobCollide) return;
+    if (kIsWeb || !_cfg.sfxMobCollide) return;
     final now = DateTime.now();
     if (_lastMobCollideAt != null &&
-        now.difference(_lastMobCollideAt!) <
-            const Duration(milliseconds: 45)) {
+        now.difference(_lastMobCollideAt!) < _collideGap) {
       return;
     }
     _lastMobCollideAt = now;
@@ -226,26 +266,22 @@ class GameSfx {
     unawaited(_playBytes(_heroWall, _heroWallBytes, volume: 0.7));
   }
 
-  /// Risk / near-miss: лёгкий свист-скольжение.
   static Future<void> nearMiss() async {
     if (!_cfg.sfxNearMiss) return;
     final now = DateTime.now();
     if (_lastNearMissAt != null &&
-        now.difference(_lastNearMissAt!) <
-            const Duration(milliseconds: 90)) {
+        now.difference(_lastNearMissAt!) < _nearMissGap) {
       return;
     }
     _lastNearMissAt = now;
     unawaited(_playBytes(_nearMiss, _nearMissBytes, volume: 0.42));
   }
 
-  /// Шлем разбился — короткое стекло.
   static Future<void> helmetBreak() async {
     if (!_cfg.sfxHelmet) return;
     unawaited(_playBytes(_helmet, _helmetBytes, volume: 0.58));
   }
 
-  /// Прыжок.
   static Future<void> jump() async {
     if (!_cfg.sfxJump) return;
     unawaited(_playBytes(_jump, _jumpBytes, volume: 0.45));

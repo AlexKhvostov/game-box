@@ -12,6 +12,11 @@ class FirebaseBootstrap {
 
   /// Инициализация Firebase + анонимный вход. При ошибке приложение работает офлайн.
   static Future<bool> init() async {
+    if (kIsWeb) {
+      // Web Firebase — отдельный app в консоли; подключим на этапе рейтинга в Telegram.
+      debugPrint('Firebase Web: not configured yet, offline mode');
+      return false;
+    }
     try {
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,

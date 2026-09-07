@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta name="description" content="Untouch — dodge and beat your record.">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Untouch</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/sheets.css">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+  <div class="score-strip idle" id="score-strip">
+    <div class="score-strip-pill" id="score-strip-pill">
+      <span class="score-strip-label">ОЧКИ</span>
+      <span class="score-strip-value" id="top-score">0</span>
+    </div>
+  </div>
+
+  <div id="app">
+    <header class="hud">
+      <div class="hud-chip lives" id="hud-lives-chip">
+        <img src="icons/ui-heart.svg" class="game-icon hud-icon heart" width="14" height="14" alt="" draggable="false">
+        <span id="hud-lives">0</span>
+      </div>
+      <div class="hud-chip crystals" id="hud-crystals-chip">
+        <img src="icons/crystal.svg" class="crystal-img hud-crystal" width="14" height="14" alt="" draggable="false">
+        <span id="hud-crystals">0</span>
+      </div>
+      <div class="rent-chip jump" id="jump-chip">
+        <span class="rent-label">Прыжок</span>
+        <span class="rent-value" id="jump-rent">--:--</span>
+      </div>
+      <div class="rent-chip helmet">
+        <span class="rent-label">Шлем</span>
+        <span class="rent-value" id="helmet-rent">--:--</span>
+      </div>
+      <div class="hud-spacer"></div>
+      <div class="hud-chip record" id="hud-record-chip">
+        <img src="icons/ui-trophy.svg" class="game-icon hud-icon trophy" width="14" height="14" alt="" draggable="false">
+        <span id="hud-record">0</span>
+      </div>
+      <button type="button" class="hud-profile-btn" id="hud-profile-btn" aria-label="Профиль игрока" title="Профиль игрока">
+        <img src="" class="hud-profile-avatar" id="hud-profile-avatar" alt="" style="display:none;" draggable="false">
+        <span class="hud-profile-cube" id="hud-profile-cube"></span>
+      </button>
+    </header>
+
+    <div class="game-column" id="touch-zone">
+      <div class="field-wrap">
+        <div class="field-frame">
+          <canvas id="game-canvas" width="380" height="380"></canvas>
+        </div>
+      </div>
+
+      <div class="info-bar">
+        <div class="info-row">
+          <div class="info-chip col-enemies">
+            <div class="info-label">Враги</div>
+            <div class="info-value" id="info-enemies">0</div>
+          </div>
+          <div class="info-chip col-speed">
+            <div class="info-label">Скорость</div>
+            <div class="speed-inline">
+              <div class="speed-track"><div id="speed-bar"></div></div>
+            </div>
+          </div>
+          <div class="info-timer col-timer" id="info-timer">00:00.000</div>
+          <div class="info-chip col-risk">
+            <div class="info-label">Риск</div>
+            <div class="info-value risk" id="info-risk">0</div>
+          </div>
+          <div class="info-chip col-run">
+            <div class="info-label">Пробег</div>
+            <div class="info-value" id="info-run">0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="touch-pad">
+        <div class="touchpad-hint" aria-hidden="true"></div>
+        <div class="start-banner" id="start-banner">
+          <div class="start-card">
+            <div class="brand-pill">
+              <img src="icons/resting-cube.svg" class="game-icon resting-cube-img brand-cube-img" width="18" height="18" alt="" draggable="false">
+              <span class="brand-name">Untouch</span>
+            </div>
+            <div class="start-hero-cube" id="start-hero-cube" hidden>
+              <img src="icons/resting-cube.svg" class="game-icon resting-cube-img start-hero-cube-img" width="72" height="72" alt="" draggable="false">
+            </div>
+            <p class="start-text" id="start-text">Коснитесь экрана и уводите куб</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="result-overlay" id="result-overlay" hidden>
+    <div class="result-bg"></div>
+    <div class="result-inner">
+      <div class="result-card" id="result-card">
+        <div class="result-brand-pill">
+          <img src="icons/resting-cube.svg" class="game-icon resting-cube-img result-brand-cube-img" width="18" height="18" alt="" draggable="false">
+          <span class="result-brand-name">Untouch</span>
+        </div>
+        <div class="result-kicker">НОВЫЙ РЕЗУЛЬТАТ</div>
+        <div class="result-time" id="result-time">0.000</div>
+        <div class="result-time-unit">секунд</div>
+        <div class="result-score-banner" id="result-score-banner">
+          <span class="result-score-tag">⚡ ОЧКИ ЗАЕЗДА</span>
+          <span class="result-score-number" id="result-score">0</span>
+        </div>
+        <div class="result-rank" id="result-rank">Новый результат</div>
+        <div class="result-stats-row">
+          <div class="result-stat risk">
+            <div class="result-stat-head">
+              <span class="result-stat-label">РИСК</span>
+              <span class="result-stat-rate" id="result-risk-rate"></span>
+            </div>
+            <div class="result-stat-body">
+              <span class="result-stat-value" id="result-risk">0</span>
+              <span class="result-stat-earn" id="result-risk-earn" hidden></span>
+            </div>
+          </div>
+          <div class="result-stat run">
+            <div class="result-stat-head">
+              <span class="result-stat-label">ПРОБЕГ</span>
+              <span class="result-stat-rate" id="result-run-rate"></span>
+            </div>
+            <div class="result-stat-body">
+              <span class="result-stat-value" id="result-run">0</span>
+              <span class="result-stat-earn" id="result-run-earn" hidden></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="result-actions-row">
+        <button type="button" class="result-btn outline accent" id="result-share-social">Поделиться</button>
+        <button type="button" class="result-btn outline auto-saved" id="result-save">Сохранено ✓</button>
+      </div>
+      <button type="button" class="result-btn primary" id="result-ok">Ещё раз</button>
+    </div>
+  </div>
+
+  <div id="fly-toast-root" class="fly-toast-root" aria-hidden="true"></div>
+
+  <div id="sheet-root" class="sheet-root" hidden>
+    <div id="sheet-backdrop" class="sheet-backdrop"></div>
+    <div id="sheet-panel" class="sheet-panel">
+      <div class="sheet-handle"></div>
+      <div id="sheet-body" class="sheet-body"></div>
+    </div>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

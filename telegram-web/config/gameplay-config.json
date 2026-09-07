@@ -1,0 +1,101 @@
+{
+  "theme": {
+    "bg": "#0E1419",
+    "surface": "#172028",
+    "primary": "#3DDC97",
+    "danger": "#FF5A5F",
+    "text": "#E8EEF4",
+    "muted": "#8B9AAB",
+    "cyan": "#7EE0FF"
+  },
+  "enemies": {
+    "areaMultiplier": 2.0,
+    "aspects": [1.0, 0.25, 0.5, 3.0],
+    "angleMinDeg": 30,
+    "angleMaxDeg": 60,
+    "speedMin": 75,
+    "speedMax": 105,
+    "accelMin": 9,
+    "accelMax": 15,
+    "collideWithEachOther": false,
+    "spinDegPerSec": 0
+  },
+  "player": {
+    "size": 36,
+    "showFace": false
+  },
+  "field": {
+    "borderWidth": 3,
+    "brightness": 1.0,
+    "shadowBrightness": 1.0,
+    "colorHex": null,
+    "cornerRadius": 18,
+    "maxSide": 380
+  },
+  "game": {
+    "startHintEnabled": true,
+    "idleSpeedMultiplier": 0.5,
+    "speedRampSeconds": 0.5,
+    "jumpEnabled": true,
+    "jumpDurationSec": 0.38,
+    "jumpScale": 1.32,
+    "helmetEnabled": true,
+    "helmetInvulnSec": 0.3,
+    "hudSpeedScaleMax": 400
+  },
+  "audio": {
+    "music": true,
+    "musicVolume": 0.35,
+    "sfxVolume": 0.85,
+    "sfxMobWall": true,
+    "sfxMobCollide": false,
+    "sfxHeroMob": true,
+    "sfxHeroWall": true,
+    "sfxNearMiss": true,
+    "sfxHelmet": true,
+    "sfxJump": true,
+    "sfxStart": true
+  },
+  "economy": {
+    "initialLives": 10,
+    "initialTokens": 40,
+    "installBonusAutoClaim": true,
+    "lifePacks": [
+      { "lives": 5, "costTokens": 5 },
+      { "lives": 15, "costTokens": 12 },
+      { "lives": 50, "costTokens": 30 },
+      { "lives": 250, "costTokens": 99 }
+    ],
+    "dailyRewardTokens": [2, 4, 9, 16, 32, 64, 81],
+    "jumpRentalCost": 20,
+    "jumpRentalMinutes": 10,
+    "jumpRentalHourCost": 60,
+    "jumpRentalHourMinutes": 60,
+    "helmetRentalCost": 40,
+    "helmetRentalMinutes": 10,
+    "helmetRentalHourCost": 120,
+    "helmetRentalHourMinutes": 60,
+    "riskRewardEvery": 5,
+    "riskRewardTokens": 1,
+    "runRewardEvery": 1000,
+    "runRewardTokens": 1,
+    "timedBonusTokens": 22,
+    "timedBonusHours": 1,
+    "watchAdCooldownSec": 300,
+    "premiumDailyMultiplier": 2,
+    "earnSurviveSeconds": 10,
+    "earnRecordSeconds": 20,
+    "earnRisksInRun": 5,
+    "earnActions": [
+      { "id": "install_bonus", "reward": 40 },
+      { "id": "survive_10s", "reward": 5 },
+      { "id": "record_20s", "reward": 10 },
+      { "id": "risks_5", "reward": 5 },
+      { "id": "watch_ad", "reward": 5 },
+      { "id": "social_post", "reward": 10 },
+      { "id": "enable_notifications", "reward": 5 },
+      { "id": "rate_app", "reward": 5 },
+      { "id": "invite_friend", "reward": 10 }
+    ]
+  }
+}

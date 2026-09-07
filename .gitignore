@@ -51,3 +51,7 @@ hs_err_pid*.log
 # Локальные APK для телефона (версия в имени)
 /releases/
 
+# Секреты и runtime-данные Telegram Mini App API
+telegram-web/api/db_config.php
+telegram-web/api/scores.json
+

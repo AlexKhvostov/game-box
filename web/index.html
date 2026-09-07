@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="description" content="Untouch — dodge and beat your record.">
+
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Untouch">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <link rel="icon" type="image/png" href="favicon.png"/>
+
+  <title>Untouch</title>
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Telegram Mini Apps SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      overscroll-behavior: none;
+      touch-action: none;
+      background: #0E1419;
+      position: fixed;
+      inset: 0;
+    }
+    flt-glass-pane, flutter-view {
+      touch-action: none;
+      overscroll-behavior: none;
+    }
+  </style>
+  <script>
+    (function () {
+      function bootTg() {
+        var tg = window.Telegram && window.Telegram.WebApp;
+        if (!tg) return;
+        try {
+          tg.ready();
+          tg.expand();
+          if (typeof tg.disableVerticalSwipes === 'function') {
+            tg.disableVerticalSwipes();
+          }
+          if (typeof tg.requestFullscreen === 'function') {
+            tg.requestFullscreen();
+          }
+          if (typeof tg.lockOrientation === 'function') {
+            tg.lockOrientation();
+          }
+          if (typeof tg.setHeaderColor === 'function') {
+            tg.setHeaderColor('#0E1419');
+          }
+          if (typeof tg.setBackgroundColor === 'function') {
+            tg.setBackgroundColor('#0E1419');
+          }
+          if (typeof tg.requestSafeArea === 'function') {
+            tg.requestSafeArea();
+          }
+          if (typeof tg.requestContentSafeArea === 'function') {
+            tg.requestContentSafeArea();
+          }
+        } catch (e) {
+          console.warn('Telegram WebApp boot', e);
+        }
+      }
+      bootTg();
+      document.addEventListener('DOMContentLoaded', bootTg);
+      window.addEventListener('load', bootTg);
+    })();
+  </script>
+</head>
+<body>
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>
