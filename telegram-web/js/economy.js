@@ -143,27 +143,29 @@ export class EconomyStore {
   }
 
   async _postProfileToServer(payload) {
+    const res = await fetch('api/scores.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'update_profile',
+        ...payload,
+      }),
+    });
+    const text = await res.text();
+    let data = null;
     try {
-      const res = await fetch('api/scores.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'update_profile',
-          ...payload,
-        }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (data && Array.isArray(data.scores)) {
-          this._mergeRemoteScores(data.scores);
-          this._saveCommunityScores();
-        }
-        return data;
-      }
+      data = text ? JSON.parse(text) : null;
     } catch (e) {
-      console.warn('postProfileToServer error', e);
+      throw new Error(`Сервер вернул не JSON (HTTP ${res.status})`);
     }
-    return null;
+    if (!res.ok || !data || data.ok === false) {
+      throw new Error((data && data.error) || `Ошибка сервера HTTP ${res.status}`);
+    }
+    if (data && Array.isArray(data.scores)) {
+      this._mergeRemoteScores(data.scores);
+      this._saveCommunityScores();
+    }
+    return data;
   }
 
   _load() {
@@ -270,16 +272,25 @@ export class EconomyStore {
     this._saveCommunityScores();
 
     // Сохраняем обновление профиля на сервере (MySQL / HostLand)
-    return await this._postProfileToServer({
-      userId: myId,
-      username: myUsername,
-      rawUsername: rawUsername,
-      hideTelegram: this.hideTelegramUsername,
-      playerName: this.effectivePlayerName,
-      firstName: telegram?.user?.first_name || null,
-      lastName: telegram?.user?.last_name || null,
-      photoUrl: telegram?.userPhotoUrl,
-    });
+    try {
+      return await this._postProfileToServer({
+        userId: myId,
+        username: myUsername,
+        rawUsername: rawUsername,
+        hideTelegram: this.hideTelegramUsername,
+        playerName: this.effectivePlayerName,
+        firstName: telegram?.user?.first_name || null,
+        lastName: telegram?.user?.last_name || null,
+        photoUrl: telegram?.userPhotoUrl,
+      });
+    } catch (err) {
+      console.warn('updateProfile remote failed', err);
+      return {
+        ok: false,
+        local: true,
+        error: err?.message || String(err),
+      };
+    }
   }
 
   get e() {

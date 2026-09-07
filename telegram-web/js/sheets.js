@@ -1534,14 +1534,25 @@ export class SheetUI {
       this._toast('Сохраняем профиль в базу...', { accent: '#ffd54f' });
 
       try {
-        await e.updateProfile({
+        const remote = await e.updateProfile({
           customNickname: newNick,
           hideTelegramUsername: newHide,
         });
         savedNick = newNick;
         savedHideTg = newHide;
         telegram.haptic('notification', 'success');
-        this._toast('Профиль сохранён в базу ✓', { accent: '#3DDC97' });
+        if (remote?.ok && remote?.source === 'mysql') {
+          this._toast('Профиль сохранён в базу ✓', { accent: '#3DDC97' });
+        } else if (remote?.ok) {
+          this._toast('Профиль сохранён (резерв сервера) ✓', { accent: '#ffd54f' });
+        } else if (remote?.local) {
+          this._toast(
+            `Сохранено на устройстве. Сервер: ${remote.error || 'нет ответа'}`,
+            { accent: '#ffd54f' },
+          );
+        } else {
+          this._toast('Профиль сохранён ✓', { accent: '#3DDC97' });
+        }
         if (actionBtn) {
           actionBtn.textContent = 'Сохранено ✓';
         }
@@ -1551,7 +1562,10 @@ export class SheetUI {
         }, 300);
       } catch (err) {
         console.warn('save profile failed', err);
-        this._toast('Ошибка сохранения, попробуйте позже', { accent: '#ff5a5f' });
+        this._toast(
+          `Ошибка сохранения: ${err?.message || 'неизвестная ошибка'}`,
+          { accent: '#ff5a5f' },
+        );
         updateActionBtnState();
       }
     };
