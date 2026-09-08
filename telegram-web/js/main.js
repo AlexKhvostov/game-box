@@ -51,7 +51,10 @@ class UntouchApp {
     this.lastRunTokens = 0;
 
     this.canvas = document.getElementById('game-canvas');
-    this.ctx = this.canvas.getContext('2d', { alpha: false });
+    this.ctx = this.canvas.getContext('2d', { alpha: false, desynchronized: true })
+      || this.canvas.getContext('2d', { alpha: false });
+    if (this.ctx) this.ctx.imageSmoothingEnabled = false;
+    this._hudAcc = 0;
     this.$ = (id) => document.getElementById(id);
   }
 
@@ -83,6 +86,7 @@ class UntouchApp {
     this.sheets = new SheetUI(this);
     telegram.hapticEnabled = this.economy.hapticEnabled !== false;
     this.audio.userMusicEnabled = this.economy.musicEnabled !== false;
+    telegram.applyUiTheme(this.economy.lightTheme === true);
     await this.audio.init();
     if (this.economy.musicEnabled !== false) {
       await this.audio.ensureMusic();
@@ -150,6 +154,7 @@ class UntouchApp {
       this.canvas.height = targetPx;
     }
     this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    this.ctx.imageSmoothingEnabled = false;
 
     const inset = visualWallInset(this.config?.field?.borderWidth ?? 3);
     if (this.world) {
@@ -176,10 +181,10 @@ class UntouchApp {
   _bindInput() {
     const zone = this.$('touch-zone');
     this._touchZone = zone;
-    zone.addEventListener('pointerdown', (e) => this._onPointerDown(e));
-    zone.addEventListener('pointermove', (e) => this._onPointerMove(e));
-    zone.addEventListener('pointerup', (e) => this._onPointerUp(e));
-    zone.addEventListener('pointercancel', (e) => this._onPointerUp(e));
+    zone.addEventListener('pointerdown', (e) => this._onPointerDown(e), { passive: false });
+    zone.addEventListener('pointermove', (e) => this._onPointerMove(e), { passive: true });
+    zone.addEventListener('pointerup', (e) => this._onPointerUp(e), { passive: true });
+    zone.addEventListener('pointercancel', (e) => this._onPointerUp(e), { passive: true });
   }
 
   _bindHud() {
@@ -245,6 +250,7 @@ class UntouchApp {
       this.pointers.clear();
       this.pointers.set(e.pointerId, true);
       this.primaryPointer = e.pointerId;
+      this._rememberPointer(e);
       if (!this.economy.canPlay) {
         this.pointers.clear();
         this.primaryPointer = null;
@@ -260,22 +266,38 @@ class UntouchApp {
     if (this.pointers.size === 0) {
       this.pointers.set(e.pointerId, true);
       this.primaryPointer = e.pointerId;
+      this._rememberPointer(e);
       return;
     }
     this.pointers.set(e.pointerId, true);
     this._tryJump();
   }
 
+  _rememberPointer(e) {
+    this.primaryLastPos = { x: e.clientX, y: e.clientY };
+  }
+
   _onPointerMove(e) {
     if (this.phase !== Phase.playing || !this.world) return;
     if (e.pointerId !== this.primaryPointer) return;
-    const dx = e.movementX ?? 0;
-    const dy = e.movementY ?? 0;
-    if (dx === 0 && dy === 0) return;
-    const delta = { dx, dy };
-    this.world.movePlayerBy(delta);
-    this._pulseTimerSecond(Math.floor(this.aliveMs / 1000));
-    if (this._isInvulnerable()) return;
+    const coalesced = typeof e.getCoalescedEvents === 'function' ? e.getCoalescedEvents() : null;
+    const batch = coalesced && coalesced.length ? coalesced : [e];
+    let moved = false;
+    for (let i = 0; i < batch.length; i++) {
+      const ev = batch[i];
+      const x = ev.clientX;
+      const y = ev.clientY;
+      if (!Number.isFinite(x) || !Number.isFinite(y)) continue;
+      const last = this.primaryLastPos;
+      this.primaryLastPos = { x, y };
+      if (!last) continue;
+      const dx = x - last.x;
+      const dy = y - last.y;
+      if (dx === 0 && dy === 0) continue;
+      this.world.movePlayerBy({ dx, dy });
+      moved = true;
+    }
+    if (!moved || this._isInvulnerable()) return;
     if (this.world.playerHitsBorder()) this._triggerImpact(true);
     else if (this.world.playerHitsEnemy()) this._triggerImpact(false);
   }
@@ -291,6 +313,9 @@ class UntouchApp {
   _startGame() {
     if (!this.economy.canPlay) return;
     this.economy.spendLife();
+    if (this.world && !this.world.idleEnemiesMove()) {
+      this.world.snapEnemiesToHome();
+    }
     this.phase = Phase.playing;
     this.aliveMs = 0;
     this.rampT = 0;
@@ -306,6 +331,7 @@ class UntouchApp {
     this.audio.gameStart();
     metrikaGoal('game_start');
     telegram.haptic('impact', 'medium');
+    this._hudAcc = 999;
     this._updateOverlay();
     this._updateHud();
   }
@@ -599,7 +625,12 @@ class UntouchApp {
     if (rawDt > 0) this._tick(Math.min(50, rawDt) / 1000);
     this._draw();
     this.hintPulse = (Math.sin(ts / 800) + 1) / 2;
-    this._updateInfoBar();
+    this._hudAcc += rawDt;
+    const hudEvery = this.phase === Phase.playing ? 33 : 80;
+    if (this._hudAcc >= hudEvery) {
+      this._hudAcc = 0;
+      this._updateInfoBar();
+    }
     requestAnimationFrame((t) => this._loop(t));
   }
 
@@ -626,7 +657,9 @@ class UntouchApp {
 
     if (this.phase === Phase.playing) {
       const rampSec = Math.max(0.05, this.config.game.speedRampSeconds);
-      const idleMult = this.config.game.idleSpeedMultiplier;
+      const idleMult = this.world.idleEnemiesMove()
+        ? this.config.game.idleSpeedMultiplier
+        : 0;
       this.rampT = Math.min(rampSec, this.rampT + dt);
       const t = clamp(this.rampT / rampSec, 0, 1);
       const speedMult = idleMult + (1 - idleMult) * easeOut(t);
@@ -683,10 +716,26 @@ class UntouchApp {
     }
   }
 
+  _activeTheme() {
+    const base = this.config?.theme || {};
+    if (!this.economy?.lightTheme) return base;
+    return {
+      ...base,
+      bg: '#D7E2EA',
+      surface: '#F7FBFD',
+      text: '#102028',
+      muted: '#3D5160',
+      cyan: '#0A6A88',
+    };
+  }
+
   _draw() {
     if (!this.world) return;
-    const theme = this.config.theme;
-    const fieldColor = resolveSurfaceColor(theme.surface, this.config.field);
+    const theme = this._activeTheme();
+    const light = this.economy?.lightTheme === true;
+    const fieldColor = light
+      ? '#F7FBFD'
+      : resolveSurfaceColor(theme.surface, this.config.field);
     this.renderer.paint(this.ctx, this.world, {
       fieldSize: { width: this.fieldSide, height: this.fieldSide },
       fieldColor,
@@ -700,17 +749,21 @@ class UntouchApp {
       impacts: this.impacts,
       hasHelmet: this.runHelmetActive,
       invulnerable: this._isInvulnerable(),
-      shadowBrightness: this.config.field.shadowBrightness,
+      shadowBrightness: light ? 1.7 : this.config.field.shadowBrightness,
+      lightField: light,
       showFace: this.config.player.showFace,
     });
   }
 
   _speedMult() {
     if (this.phase === Phase.idle) {
+      if (this.world && !this.world.idleEnemiesMove()) return 0;
       return this.config.game.idleSpeedMultiplier;
     }
     const rampSec = Math.max(0.05, this.config.game.speedRampSeconds);
-    const idleMult = this.config.game.idleSpeedMultiplier;
+    const idleMult = this.world && !this.world.idleEnemiesMove()
+      ? 0
+      : this.config.game.idleSpeedMultiplier;
     const t = clamp(this.rampT / rampSec, 0, 1);
     return idleMult + (1 - idleMult) * easeOut(t);
   }
@@ -750,19 +803,19 @@ class UntouchApp {
 
     // Секундомер под полем
     const infoTimer = this.$('info-timer');
-    if (infoTimer) infoTimer.textContent = timerText;
+    if (infoTimer && infoTimer.textContent !== timerText) infoTimer.textContent = timerText;
 
-    // Набор очков в верхней полосе по формуле (секунды * шаги * множитель рисков)
     const runSteps = runStepsFromPx(this.world.playerDistance, this.world.playerSize);
     const currentScore = isPlaying
       ? calcScore(this.aliveMs, runSteps, this.world.nearMissCount)
       : (this.resultScore || 0);
 
     const topScore = this.$('top-score');
-    if (topScore) topScore.textContent = fmtScore(currentScore);
+    const scoreText = fmtScore(currentScore);
+    if (topScore && topScore.textContent !== scoreText) topScore.textContent = scoreText;
 
     const topTimer = this.$('top-timer');
-    if (topTimer) topTimer.textContent = timerText;
+    if (topTimer && topTimer.textContent !== timerText) topTimer.textContent = timerText;
 
     const scoreStrip = this.$('score-strip') || this.$('timer-strip');
     if (scoreStrip) {
@@ -770,8 +823,12 @@ class UntouchApp {
     }
 
     this.$('info-enemies').textContent = String(this.world.enemies.length);
-    this.$('info-run').textContent = String(Math.round(runSteps));
-    this.$('info-risk').textContent = String(this.world.nearMissCount);
+    const runText = String(Math.round(runSteps));
+    const riskText = String(this.world.nearMissCount);
+    const runEl = this.$('info-run');
+    const riskEl = this.$('info-risk');
+    if (runEl && runEl.textContent !== runText) runEl.textContent = runText;
+    if (riskEl && riskEl.textContent !== riskText) riskEl.textContent = riskText;
   }
 
   _updateHud() {

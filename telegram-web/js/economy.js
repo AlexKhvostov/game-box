@@ -72,6 +72,7 @@ export class EconomyStore {
     this.hideTelegramUsername = false;
     this.musicEnabled = true;
     this.hapticEnabled = true;
+    this.lightTheme = false;
     this.recentAttempts = [];
     this.communityScores = [];
     this.invitedFriends = [];
@@ -292,6 +293,7 @@ export class EconomyStore {
       if (typeof d.hideTelegramUsername === 'boolean') this.hideTelegramUsername = d.hideTelegramUsername;
       if (typeof d.musicEnabled === 'boolean') this.musicEnabled = d.musicEnabled;
       if (typeof d.hapticEnabled === 'boolean') this.hapticEnabled = d.hapticEnabled;
+      if (typeof d.lightTheme === 'boolean') this.lightTheme = d.lightTheme;
       this._refreshPremiumFromUntil();
     } catch (err) {
       console.warn('economy load', err);
@@ -322,6 +324,7 @@ export class EconomyStore {
           hideTelegramUsername: this.hideTelegramUsername,
           musicEnabled: this.musicEnabled,
           hapticEnabled: this.hapticEnabled,
+          lightTheme: this.lightTheme,
           recentAttempts: this.recentAttempts.slice(0, 50),
           attemptsUnit: 'steps',
         }),
@@ -343,11 +346,16 @@ export class EconomyStore {
     return telegram.user?.username ? `@${telegram.user.username.replace(/^@/, '')}` : null;
   }
 
-  updateDevicePrefs({ musicEnabled, hapticEnabled } = {}) {
+  updateDevicePrefs({ musicEnabled, hapticEnabled, lightTheme } = {}) {
     if (typeof musicEnabled === 'boolean') this.musicEnabled = musicEnabled;
     if (typeof hapticEnabled === 'boolean') this.hapticEnabled = hapticEnabled;
+    if (typeof lightTheme === 'boolean') this.lightTheme = lightTheme;
     this._save();
-    return { musicEnabled: this.musicEnabled, hapticEnabled: this.hapticEnabled };
+    return {
+      musicEnabled: this.musicEnabled,
+      hapticEnabled: this.hapticEnabled,
+      lightTheme: this.lightTheme,
+    };
   }
 
   async updateProfile({ customNickname, hideTelegramUsername }) {
@@ -756,6 +764,15 @@ export class EconomyStore {
   get watchAdCooldownRemainingMs() {
     if (this.canClaimWatchAd) return 0;
     return Math.max(0, this.lastWatchAdClaimMs + this._watchAdCooldownMs - Date.now());
+  }
+
+  get watchAdUnlockProgress() {
+    if (this.canClaimWatchAd) return 1;
+    if (!this.lastWatchAdClaimMs) return 1;
+    const total = this._watchAdCooldownMs;
+    if (total <= 0) return 1;
+    const elapsed = Date.now() - this.lastWatchAdClaimMs;
+    return Math.max(0, Math.min(1, elapsed / total));
   }
 
   claimWatchAd(fallbackReward = 5) {

@@ -266,8 +266,27 @@ export class GameWorld {
     }
   }
 
+  idleEnemiesMove() {
+    const v = this.config?.game?.idleEnemiesMove;
+    return v !== false && v !== 0 && v !== 'false' && v !== '0';
+  }
+
+  /** Вернуть врагов на спавн с исходным направлением — перед стартом раунда. */
+  snapEnemiesToHome() {
+    for (const e of this.enemies) {
+      if (e.homePos) e.pos = { dx: e.homePos.dx, dy: e.homePos.dy };
+      const src = e.homeVel || e.vel;
+      const d = vecLen(src);
+      const dir = d < 1e-6 ? { dx: 1, dy: 1 } : normalize(src);
+      e.vel = vecScale(dir, e.initialSpeed);
+    }
+  }
+
   tickIdle(dt) {
     const safeDt = clamp(dt, 0, 0.05);
+    if (!this.idleEnemiesMove()) {
+      return this._tickIdleDrowsy(safeDt);
+    }
     const mult = clamp(this.config.game.idleSpeedMultiplier, 0.05, 1);
     let wall = 0;
     for (const e of this.enemies) {
@@ -285,9 +304,38 @@ export class GameWorld {
     return new BounceReport(wall, enemy);
   }
 
+  _tickIdleDrowsy(safeDt) {
+    for (const e of this.enemies) {
+      e.idleT = (e.idleT || 0) + safeDt;
+      const home = e.homePos || e.pos;
+      const amp = Math.min(e.w, e.h) * 0.5;
+      const src = e.homeVel || e.vel;
+      const d = vecLen(src);
+      const dir = d < 1e-6 ? { dx: 1, dy: 0 } : normalize(src);
+      const perp = { dx: -dir.dy, dy: dir.dx };
+      const wx = Number.isFinite(e.idleWx) ? e.idleWx : 1.4;
+      const wy = Number.isFinite(e.idleWy) ? e.idleWy : 1.1;
+      const ph = Number.isFinite(e.idlePhase) ? e.idlePhase : 0;
+      const ph2 = Number.isFinite(e.idlePhase2) ? e.idlePhase2 : 1;
+      const along = Math.cos(e.idleT * wx + ph) * amp;
+      const side = Math.sin(e.idleT * wy + ph2) * amp * 0.35;
+      let ox = dir.dx * along + perp.dx * side;
+      let oy = dir.dy * along + perp.dy * side;
+      const len = Math.hypot(ox, oy);
+      if (len > amp && len > 1e-6) {
+        ox = (ox * amp) / len;
+        oy = (oy * amp) / len;
+      }
+      e.pos = { dx: home.dx + ox, dy: home.dy + oy };
+      if (e.isSpinning) e.orientDeg += e.spinDegPerSec * safeDt * 0.35;
+      this._nudgeInside(e);
+    }
+    return new BounceReport(0, 0);
+  }
+
   tickPlay(dt, secondsAlive, speedMult = 1) {
     const safeDt = clamp(dt, 0, 0.05);
-    const mult = clamp(speedMult, 0.05, 2);
+    const mult = clamp(speedMult, 0, 2);
     const t = clamp(secondsAlive, 0, 3600);
     let wall = 0;
     for (const e of this.enemies) {
@@ -308,7 +356,7 @@ export class GameWorld {
 
   averageSpeed(secondsAlive, speedMult = 1) {
     if (this.enemies.length === 0) return 0;
-    const mult = clamp(speedMult, 0.05, 2);
+    const mult = clamp(speedMult, 0, 2);
     const t = clamp(secondsAlive, 0, 3600);
     let sum = 0;
     for (const e of this.enemies) {
@@ -445,7 +493,7 @@ export class GameWorld {
     );
     const vel = { dx: Math.cos(rad) * initialSpeed, dy: Math.sin(rad) * initialSpeed };
     const spin = this.config.enemies.spinDegPerSec;
-    return new EnemyBody({
+    const body = new EnemyBody({
       pos: safePos,
       vel,
       w,
@@ -459,6 +507,14 @@ export class GameWorld {
       spinDegPerSec: spin,
       orientDeg: Math.abs(spin) > 0.01 ? this._rng() * 360 : 0,
     });
+    body.homePos = { dx: body.pos.dx, dy: body.pos.dy };
+    body.homeVel = { dx: body.vel.dx, dy: body.vel.dy };
+    body.idleT = 0;
+    body.idlePhase = this._rng() * PI * 2;
+    body.idlePhase2 = this._rng() * PI * 2;
+    body.idleWx = 1.15 + this._rng() * 0.85;
+    body.idleWy = 0.85 + this._rng() * 0.85;
+    return body;
   }
 
   _randomPosInQuadrant(fieldQuadrant, w, h) {
@@ -521,38 +577,62 @@ export class GameWorld {
     return lo + this._rng() * (hi - lo);
   }
 
+  _nudgeInside(e) {
+    let cen = e.center;
+    for (let iter = 0; iter < 3; iter++) {
+      e.setCenter(cen);
+      const bounds = this._cornerBounds(e);
+      const lo = this.wallInset;
+      const hiX = this.field.width - this.wallInset;
+      const hiY = this.field.height - this.wallInset;
+      let dx = 0, dy = 0;
+      if (bounds.minX < lo) dx = lo - bounds.minX;
+      else if (bounds.maxX > hiX) dx = hiX - bounds.maxX;
+      if (bounds.minY < lo) dy = lo - bounds.minY;
+      else if (bounds.maxY > hiY) dy = hiY - bounds.maxY;
+      if (dx === 0 && dy === 0) break;
+      cen = { dx: cen.dx + dx, dy: cen.dy + dy };
+    }
+    e.setCenter(cen);
+  }
+
+  _cornerBounds(e) {
+    const cs = e.corners;
+    let minX = cs[0].dx, maxX = cs[0].dx, minY = cs[0].dy, maxY = cs[0].dy;
+    for (const p of cs) {
+      if (p.dx < minX) minX = p.dx;
+      if (p.dx > maxX) maxX = p.dx;
+      if (p.dy < minY) minY = p.dy;
+      if (p.dy > maxY) maxY = p.dy;
+    }
+    return { minX, maxX, minY, maxY };
+  }
+
   _bounce(e) {
     let cen = e.center;
     let hit = false;
     for (let iter = 0; iter < 3; iter++) {
       e.setCenter(cen);
-      const cs = e.corners;
-      let minX = cs[0].dx, maxX = cs[0].dx, minY = cs[0].dy, maxY = cs[0].dy;
-      for (const p of cs) {
-        if (p.dx < minX) minX = p.dx;
-        if (p.dx > maxX) maxX = p.dx;
-        if (p.dy < minY) minY = p.dy;
-        if (p.dy > maxY) maxY = p.dy;
-      }
+      const bounds = this._cornerBounds(e);
       const lo = this.wallInset;
       const hiX = this.field.width - this.wallInset;
       const hiY = this.field.height - this.wallInset;
       let dx = 0, dy = 0;
-      if (minX < lo) {
-        dx = lo - minX;
+      if (bounds.minX < lo) {
+        dx = lo - bounds.minX;
         e.reflectVelocity({ dx: 1, dy: 0 });
         hit = true;
-      } else if (maxX > hiX) {
-        dx = hiX - maxX;
+      } else if (bounds.maxX > hiX) {
+        dx = hiX - bounds.maxX;
         e.reflectVelocity({ dx: -1, dy: 0 });
         hit = true;
       }
-      if (minY < lo) {
-        dy = lo - minY;
+      if (bounds.minY < lo) {
+        dy = lo - bounds.minY;
         e.reflectVelocity({ dx: 0, dy: 1 });
         hit = true;
-      } else if (maxY > hiY) {
-        dy = hiY - maxY;
+      } else if (bounds.maxY > hiY) {
+        dy = hiY - bounds.maxY;
         e.reflectVelocity({ dx: 0, dy: -1 });
         hit = true;
       }

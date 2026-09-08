@@ -382,6 +382,10 @@ export class SheetUI {
     const giftAmt = e.e.timedBonusTokens ?? 22;
     const progress = e.timedBonusUnlockProgress;
     const remain = e.timedBonusRemainingMs;
+    const adAmt = e.earnActions.find((a) => a.id === 'watch_ad')?.reward ?? 5;
+    const canAd = e.canClaimWatchAd;
+    const adRemain = e.watchAdCooldownRemainingMs;
+    const adProgress = e.watchAdUnlockProgress;
 
     return `
       <div class="crystals-header">
@@ -404,14 +408,17 @@ export class SheetUI {
           </div>
           ${canGift ? '' : `<span class="gift-timer">${fmtDuration(remain)}</span>`}
         </button>
-        <button type="button" class="plus-chip ${e.hasPremium ? 'active' : ''}" id="plus-chip">
-          ${e.hasPremium
-            ? `<div class="plus-check">${checkMarkHtml(16)}</div>
-               <div class="plus-title">${RU.plusTitle}</div>
-               <div class="plus-sub">${RU.plusActiveShort}</div>`
-            : `<div class="plus-title">${RU.plusTitle}</div>
-               <div class="plus-sub">${RU.plusNoAdsShort}</div>
-               <div class="plus-row">${crystalImg(11)} ${RU.plusCrystalsDoubleShort}</div>`}
+        <button type="button" class="gift-btn ad-btn ${canAd ? 'ready' : 'frozen'}" id="watch-ad-btn">
+          ${canAd ? '' : giftRingSvg(adProgress)}
+          <div class="gift-btn-inner ${canAd ? '' : 'gift-blur'}">
+            <span class="ad-mark">${shopWatchIcon(!canAd, 22)}</span>
+            <div class="gift-reward-row">
+              ${crystalImg(13, canAd)}
+              <span class="amt">+${adAmt}</span>
+            </div>
+            ${canAd ? `<span class="gift-ready-lbl">${RU.adReadyLbl}</span>` : ''}
+          </div>
+          ${canAd ? '' : `<span class="gift-timer">${fmtCooldownSec(adRemain / 1000)}</span>`}
         </button>
       </div>`;
   }
@@ -504,6 +511,25 @@ export class SheetUI {
       }
     }
 
+    const adBtn = this.body.querySelector('#watch-ad-btn');
+    if (adBtn) {
+      const canAd = e.canClaimWatchAd;
+      const wasReady = adBtn.classList.contains('ready');
+      if (canAd !== wasReady) {
+        this._refreshCrystalsHeader();
+        return;
+      }
+      if (!canAd) {
+        const timer = adBtn.querySelector('.gift-timer');
+        if (timer) timer.textContent = fmtCooldownSec(e.watchAdCooldownRemainingMs / 1000);
+        const ring = adBtn.querySelector('.gift-ring');
+        if (ring) {
+          const svg = giftRingSvg(e.watchAdUnlockProgress);
+          ring.outerHTML = svg;
+        }
+      }
+    }
+
     if (this._tab === 0) {
       if (this._dailyClaimedState != null && this._dailyClaimedState !== e.canClaimDaily) {
         this._dailyClaimedState = e.canClaimDaily;
@@ -514,19 +540,6 @@ export class SheetUI {
       this.body.querySelectorAll('[data-daily-timer]').forEach((el) => {
         el.textContent = timerText;
       });
-    } else if (this._tab === 1) {
-      const row = this.body.querySelector('#watch-ad-row');
-      if (row) {
-        const frozen = !e.canClaimWatchAd;
-        row.classList.toggle('disabled', frozen);
-        const chip = row.querySelector('.shop-free-chip');
-        if (chip) {
-          chip.className = `shop-free-chip ${frozen ? 'cd' : 'free'}`;
-          chip.textContent = frozen ? fmtCooldownSec(e.watchAdCooldownRemainingMs / 1000) : RU.shopFree;
-        }
-        const icon = row.querySelector('.shop-icon-box');
-        if (icon) icon.innerHTML = shopWatchIcon(frozen, 22);
-      }
     } else if (this._tab === 2) {
       this.body.querySelectorAll('[data-rent-active]').forEach((el) => {
         const kind = el.dataset.rentActive;
@@ -549,8 +562,8 @@ export class SheetUI {
         this._switchCrystalsTab(this._tab);
       }
     });
-    this.body.querySelector('#plus-chip')?.addEventListener('click', () => {
-      this._openPlusSheet();
+    this.body.querySelector('#watch-ad-btn')?.addEventListener('click', () => {
+      this._watchAdForCrystals();
     });
   }
 
@@ -630,8 +643,10 @@ export class SheetUI {
           this._toast(RU.dailyLockedHint(day), { accent: '#FFC857', flyTo: 'none' });
         });
       });
+      this.body.querySelector('#daily-plus-card')?.addEventListener('click', () => {
+        this._openPlusSheet();
+      });
     } else if (tab === 1) {
-      this.body.querySelector('#watch-ad-row')?.addEventListener('click', () => this._watchAdForCrystals());
       this.body.querySelectorAll('[data-iap]').forEach((btn) => {
         btn.addEventListener('click', () => this._buyStars(btn.dataset.iap));
       });
@@ -679,6 +694,17 @@ export class SheetUI {
     const claimedCount = claimedToday ? Math.max(1, e.dailyStreak) : Math.max(0, upcoming - 1);
     const waitingDay = claimedToday ? Math.min(claimedCount + 1, rewards.length) : -1;
     const hint = claimedToday ? RU.dailyStreakActive(e.dailyStreak) : RU.dailyStreakHint;
+    const plusActive = e.hasPremium;
+    const next = e.premiumNextChargeDate ?? new Date(Date.now() + (e.plusProduct?.days ?? 30) * 86400000);
+    const plusCard = `
+      <button type="button" class="daily-plus-card ${plusActive ? 'on' : ''}" id="daily-plus-card">
+        <span class="daily-plus-ico">${uiIconImg('premium', 22)}</span>
+        <span class="daily-plus-copy">
+          <span class="daily-plus-title">${RU.plusTitle}</span>
+          <span class="daily-plus-hint">${plusActive ? RU.plusDailyOnHint(fmtChargeDate(next)) : RU.plusDailyOffHint}</span>
+        </span>
+        <span class="daily-plus-cta">${plusActive ? RU.plusDailyCtaOn : RU.plusDailyCtaOff}</span>
+      </button>`;
 
     const rows = rewards
       .map((_, i) => {
@@ -719,7 +745,6 @@ export class SheetUI {
             <div class="daily-line ${lineBot === 'on' ? 'on' : ''}" style="${i === rewards.length - 1 ? 'visibility:hidden' : ''}"></div>
           </div>
           <div class="daily-card ${isClaimed ? 'claimed' : ''} ${isToday ? 'today' : ''} ${isWaiting ? 'waiting' : ''} ${isLocked ? 'locked' : ''}">
-            <div class="daily-day-lbl">${RU.periodDay} ${day}</div>
             <div class="daily-card-mid">${rewardBadge(amount, {
               emphasized: isToday || isWaiting || !isLocked,
               showPlusHint: true,
@@ -732,7 +757,11 @@ export class SheetUI {
       })
       .join('');
 
-    return `<div class="tab-pane tab-pane-daily"><p class="daily-hint">${hint}</p>${rows}</div>`;
+    return `<div class="tab-pane tab-pane-daily">${plusCard}<div class="daily-bonus-scroll"><p class="daily-hint">${hint}</p>
+      <div class="daily-row daily-rail-head">
+        <div class="daily-rail"><span class="daily-rail-caption">${RU.periodDay}</span></div>
+      </div>
+      ${rows}</div></div>`;
   }
 
   async _watchAdForCrystals() {
@@ -765,10 +794,6 @@ export class SheetUI {
   }
 
   _renderShopPane(e) {
-    const ad = e.earnActions.find((a) => a.id === 'watch_ad') ?? { reward: 5 };
-    const frozen = !e.canClaimWatchAd;
-    const cdLabel = frozen ? fmtCooldownSec(e.watchAdCooldownRemainingMs / 1000) : RU.shopFree;
-
     const packs = e.starPacks.map(
       (offer) => `
       <div class="game-panel accent-cyan mb-6 shop-pack" data-iap="${offer.id}">
@@ -786,15 +811,6 @@ export class SheetUI {
 
     return `
       <div class="tab-pane tab-pane-shop">
-        <div class="game-panel accent-cyan mb-10 ${frozen ? 'shop-row disabled' : 'shop-row'}" id="watch-ad-row">
-          <div class="shop-icon-box">${shopWatchIcon(frozen, 22)}</div>
-          <div class="shop-text-col">
-            <div class="t1">${RU.shopWatchAd}</div>
-            <div class="t2">${RU.shopWatchAdSub}</div>
-          </div>
-          <div class="shop-mid">${rewardBadge(ad.reward)}</div>
-          <div class="shop-free-chip ${frozen ? 'cd' : 'free'}">${cdLabel}</div>
-        </div>
         ${packs}
         <p class="shop-iap-note">${RU.shopIapHint}</p>
       </div>`;
@@ -809,10 +825,13 @@ export class SheetUI {
     }
 
     const ec = e.e;
+    const light = document.documentElement.getAttribute('data-theme') === 'light';
+    const helmetAccent = light ? '#0A4A62' : '#7EE0FF';
+    const jumpAccent = light ? '#0A8A58' : '#3DDC97';
     let html = '<div class="tab-pane tab-pane-rent">';
     if (helmetOn) {
       html += this._rentCard(e, 'helmet', {
-        accent: '#7EE0FF',
+        accent: helmetAccent,
         iconName: 'shield',
         title: RU.rentHelmetTitle,
         desc: RU.rentHelmetSub,
@@ -831,7 +850,7 @@ export class SheetUI {
     if (jumpOn && helmetOn) html += '<div style="height:10px"></div>';
     if (jumpOn) {
       html += this._rentCard(e, 'jump', {
-        accent: '#3DDC97',
+        accent: jumpAccent,
         iconName: 'jump',
         title: RU.rentJumpTitle,
         desc: RU.rentJumpSub,
@@ -1121,10 +1140,6 @@ export class SheetUI {
         <div class="plus-subtitle mint">${RU.plusTitle}</div>
         <p class="plus-desc">${active ? RU.plusManageSubtitle : RU.plusOfferSubtitle(plus.days)}</p>
         <div class="game-panel accent-mint mb-10 plus-benefits">
-          <div class="plus-benefit">
-            <span class="plus-benefit-ico">${uiIconImg('no-ads', 18)}</span>
-            <span>${RU.plusManageBenefitAds}</span>
-          </div>
           <div class="plus-benefit">
             <span class="plus-benefit-ico">${uiIconImg('sparkle', 18)}</span>
             <span>${RU.plusManageBenefitDaily}</span>
@@ -1726,6 +1741,14 @@ export class SheetUI {
               </span>
               <span class="profile-toggle-label">${RU.profileHaptic}</span>
             </label>
+            <label class="profile-switch" for="profile-theme-cb">
+              <span class="profile-switch-copy">
+                <span class="profile-switch-label">${RU.profileLightTheme}</span>
+                <span class="profile-switch-hint">Светлый интерфейс и поле</span>
+              </span>
+              <input type="checkbox" id="profile-theme-cb" role="switch" ${e.lightTheme ? 'checked' : ''}>
+              <span class="profile-switch-track" aria-hidden="true"></span>
+            </label>
           </div>
 
           <!-- Личные рекорды (информативно) -->
@@ -1835,6 +1858,7 @@ export class SheetUI {
 
     const musicCb = this.body.querySelector('#profile-music-cb');
     const hapticCb = this.body.querySelector('#profile-haptic-cb');
+    const themeCb = this.body.querySelector('#profile-theme-cb');
     musicCb?.addEventListener('change', () => {
       const on = Boolean(musicCb.checked);
       e.updateDevicePrefs({ musicEnabled: on });
@@ -1846,6 +1870,12 @@ export class SheetUI {
       e.updateDevicePrefs({ hapticEnabled: on });
       telegram.hapticEnabled = on;
       if (on) telegram.haptic('impact', 'light');
+    });
+    themeCb?.addEventListener('change', () => {
+      const on = Boolean(themeCb.checked);
+      e.updateDevicePrefs({ lightTheme: on });
+      telegram.applyUiTheme(on);
+      telegram.haptic('impact', 'light');
     });
 
     nickInput?.addEventListener('input', () => {

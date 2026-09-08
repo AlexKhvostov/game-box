@@ -1,0 +1,1031 @@
+/* Светлая тема Untouch — отдельный визуальный стиль, не инверсия тёмной. */
+
+html[data-theme="light"] {
+  --bg: #D7E2EA;
+  --surface: #FFFFFF;
+  --primary: #0A8A58;
+  --danger: #C62828;
+  --text: #102028;
+  --muted: #3D5160;
+  --cyan: #0A3D4F;
+  --card: #FFFFFF;
+  --line: rgba(16, 32, 40, 0.12);
+  --ink-soft: #3D5160;
+}
+
+html[data-theme="light"] .boot-spin {
+  border-color: #c5d3dc;
+  border-top-color: var(--primary);
+}
+
+/* HUD */
+html[data-theme="light"] .hud-chip {
+  background: #ffffff;
+  border-color: rgba(10, 106, 136, 0.28);
+  color: #102028;
+  box-shadow: 0 2px 8px rgba(16, 32, 40, 0.1);
+}
+
+html[data-theme="light"] .hud-profile-btn {
+  background: #ffffff;
+  border-color: rgba(10, 106, 136, 0.4);
+  box-shadow: 0 2px 8px rgba(16, 32, 40, 0.06);
+}
+
+html[data-theme="light"] .rent-chip {
+  background: #ffffff;
+  border-color: rgba(16, 32, 40, 0.12);
+}
+
+html[data-theme="light"] .rent-chip.active {
+  border-color: rgba(10, 106, 136, 0.45);
+}
+
+html[data-theme="light"] .rent-chip.jump.active {
+  border-color: rgba(10, 138, 88, 0.5);
+}
+
+html[data-theme="light"] .rent-label {
+  color: #3D5160;
+}
+
+html[data-theme="light"] .rent-chip.jump .rent-value { color: #0A8A58; }
+html[data-theme="light"] .rent-chip.helmet .rent-value { color: #0A3D4F; }
+
+html[data-theme="light"] .score-strip-pill {
+  background: rgba(255, 255, 255, 0.96);
+  border-color: rgba(184, 134, 11, 0.45);
+  box-shadow: 0 4px 12px rgba(16, 32, 40, 0.06);
+}
+
+html[data-theme="light"] .score-strip-label {
+  color: #9A6B00;
+}
+
+html[data-theme="light"] .score-strip-value {
+  color: #102028;
+}
+
+html[data-theme="light"] .info-bar {
+  background: #ffffff;
+  border-color: rgba(10, 138, 88, 0.28);
+  box-shadow: 0 4px 14px rgba(16, 32, 40, 0.08);
+}
+
+html[data-theme="light"] .info-label {
+  color: #3D5160;
+}
+
+html[data-theme="light"] .speed-track {
+  background: rgba(16, 32, 40, 0.12);
+}
+
+html[data-theme="light"] #game-canvas {
+  box-shadow:
+    0 6px 16px rgba(16, 32, 40, 0.06),
+    0 0 0 1px rgba(16, 32, 40, 0.05);
+}
+
+/* Старт / результат */
+html[data-theme="light"] .start-card,
+html[data-theme="light"] .start-banner.out-of-lives .start-card,
+html[data-theme="light"] .result-card,
+html[data-theme="light"] .ad-fail-card {
+  background: linear-gradient(180deg, #ffffff 0%, #eef4f7 100%);
+  border-color: rgba(10, 138, 88, 0.32);
+  box-shadow: 0 10px 24px rgba(16, 32, 40, 0.07);
+}
+
+html[data-theme="light"] .brand-pill,
+html[data-theme="light"] .result-brand-pill {
+  background: #ffffff;
+  border-color: rgba(10, 106, 136, 0.28);
+}
+
+html[data-theme="light"] .brand-name,
+html[data-theme="light"] .result-brand-name {
+  color: #0A3D4F;
+}
+
+html[data-theme="light"] .result-kicker,
+html[data-theme="light"] .result-time-unit,
+html[data-theme="light"] .result-stat-label,
+html[data-theme="light"] .result-stat-rate {
+  color: #3D5160;
+}
+
+html[data-theme="light"] .result-rank {
+  color: #102028;
+}
+
+html[data-theme="light"] .result-score-number {
+  color: #102028;
+  text-shadow: none;
+}
+
+html[data-theme="light"] .result-score-tag {
+  color: #9A6B00;
+}
+
+html[data-theme="light"] .result-score-banner {
+  background: rgba(184, 134, 11, 0.1);
+  border-color: rgba(184, 134, 11, 0.35);
+  box-shadow: none;
+}
+
+html[data-theme="light"] .result-stat {
+  background: #ffffff;
+  border-color: rgba(16, 32, 40, 0.12);
+}
+
+html[data-theme="light"] .result-stat.run .result-stat-value,
+html[data-theme="light"] .result-stat-earn {
+  color: #0A3D4F;
+}
+
+html[data-theme="light"] .result-bg {
+  background: linear-gradient(
+    180deg,
+    rgba(215, 226, 234, 0.72) 0%,
+    rgba(215, 226, 234, 0.92) 100%
+  );
+}
+
+html[data-theme="light"] .ad-fail-title,
+html[data-theme="light"] .ad-fail-body {
+  color: #102028;
+}
+
+html[data-theme="light"] .ad-fail-backdrop {
+  background: rgba(16, 32, 40, 0.32);
+}
+
+html[data-theme="light"] .result-btn.outline {
+  color: #102028;
+  border-color: rgba(16, 32, 40, 0.2);
+  background: #ffffff;
+}
+
+html[data-theme="light"] .result-btn.primary {
+  color: #ffffff;
+  background: #0A8A58;
+  box-shadow: 0 4px 12px rgba(10, 138, 88, 0.16);
+}
+
+html[data-theme="light"] .fly-toast-card,
+html[data-theme="light"] .sys-toast {
+  background: #ffffff;
+  border-color: rgba(10, 106, 136, 0.28);
+  box-shadow: 0 8px 20px rgba(16, 32, 40, 0.08);
+}
+
+html[data-theme="light"] .fly-toast-msg,
+html[data-theme="light"] .sys-toast-msg {
+  color: #102028;
+}
+
+html[data-theme="light"] .sheet-backdrop {
+  background: rgba(16, 32, 40, 0.28);
+}
+
+html[data-theme="light"] .sheet-handle {
+  background: rgba(16, 32, 40, 0.22);
+}
+
+/* Шторки */
+html[data-theme="light"] .sheet-panel,
+html[data-theme="light"] .sheet-panel.sheet-lives,
+html[data-theme="light"] .sheet-panel.sheet-profile {
+  background: linear-gradient(180deg, #f4f8fb 0%, #e7eef3 100%);
+  border-top-color: rgba(10, 106, 136, 0.28);
+  box-shadow: 0 -8px 20px rgba(16, 32, 40, 0.07);
+  color: #102028;
+}
+
+html[data-theme="light"] .sheet-title-block h2,
+html[data-theme="light"] .profile-header h2,
+html[data-theme="light"] .profile-fullname,
+html[data-theme="light"] .profile-field-title,
+html[data-theme="light"] .profile-stats-title,
+html[data-theme="light"] .profile-toggle-label,
+html[data-theme="light"] .profile-switch-label,
+html[data-theme="light"] .profile-stat-val,
+html[data-theme="light"] .shop-text-col .t1,
+html[data-theme="light"] .earn-row .earn-text .t1,
+html[data-theme="light"] .plus-benefit,
+html[data-theme="light"] .plus-price-line {
+  color: #102028;
+}
+
+html[data-theme="light"] .sheet-title-block p,
+html[data-theme="light"] .profile-hint,
+html[data-theme="light"] .profile-switch-hint,
+html[data-theme="light"] .profile-stat-lbl,
+html[data-theme="light"] .shop-text-col .t2,
+html[data-theme="light"] .earn-row .earn-text .t2,
+html[data-theme="light"] .profile-no-tg,
+html[data-theme="light"] .daily-hint,
+html[data-theme="light"] .earn-hint,
+html[data-theme="light"] .shop-iap-note,
+html[data-theme="light"] .plus-next-charge {
+  color: #3D5160;
+}
+
+html[data-theme="light"] .game-panel,
+html[data-theme="light"] .profile-card,
+html[data-theme="light"] .crystals-content-area,
+html[data-theme="light"] .crystals-tab-panel,
+html[data-theme="light"] .profile-stat-box,
+html[data-theme="light"] .daily-card,
+html[data-theme="light"] .lb-content-panel {
+  background: #ffffff;
+  border-color: rgba(16, 32, 40, 0.12);
+  box-shadow: 0 2px 10px rgba(16, 32, 40, 0.06);
+}
+
+html[data-theme="light"] .daily-card.claimed {
+  background: #f3f7f4;
+  border-color: rgba(10, 138, 88, 0.28);
+}
+
+html[data-theme="light"] .daily-card.today {
+  background: linear-gradient(135deg, rgba(10, 138, 88, 0.12) 0%, #ffffff 70%);
+  border-color: #0A8A58;
+  box-shadow: 0 0 0 1px rgba(10, 138, 88, 0.12);
+}
+
+html[data-theme="light"] .daily-day-lbl,
+html[data-theme="light"] .daily-card.locked .daily-day-lbl,
+html[data-theme="light"] .daily-rail-caption {
+  color: #3D5160;
+}
+
+html[data-theme="light"] .daily-node {
+  background: #ffffff;
+  color: #0A8A58;
+}
+
+html[data-theme="light"] .daily-node.locked {
+  border-color: rgba(16, 32, 40, 0.2);
+  color: #7A8B97;
+}
+
+html[data-theme="light"] .crystals-tabs {
+  background: #ffffff;
+  border-color: rgba(10, 106, 136, 0.28);
+}
+
+html[data-theme="light"] .crystals-tab,
+html[data-theme="light"] .crystals-tab .tab-txt {
+  color: #3D5160;
+}
+
+html[data-theme="light"] .crystals-tab.active {
+  background: linear-gradient(180deg, #e7f6ff 0%, #d5eef8 100%);
+  border-color: rgba(10, 106, 136, 0.45);
+  color: #0A3D4F;
+  box-shadow: 0 2px 6px rgba(10, 106, 136, 0.08);
+}
+
+html[data-theme="light"] .crystals-tab.active .tab-txt {
+  color: #0A3D4F;
+}
+
+html[data-theme="light"] .profile-privacy-toggle,
+html[data-theme="light"] .profile-switch {
+  background: rgba(16, 32, 40, 0.04);
+  border-color: rgba(16, 32, 40, 0.1);
+}
+
+html[data-theme="light"] .profile-toggle-box {
+  background: #ffffff;
+  border-color: rgba(10, 106, 136, 0.4);
+}
+
+html[data-theme="light"] .profile-nick-input {
+  background: #ffffff;
+  color: #102028;
+  border-color: rgba(16, 32, 40, 0.16);
+}
+
+html[data-theme="light"] .profile-avatar-wrap {
+  background: #e8eef3;
+  border-color: rgba(10, 106, 136, 0.4);
+}
+
+html[data-theme="light"] .profile-tg-username {
+  color: #0A3D4F;
+}
+
+html[data-theme="light"] .profile-header {
+  border-bottom-color: rgba(10, 106, 136, 0.16);
+}
+
+html[data-theme="light"] .profile-close-btn {
+  background: #ffffff;
+  border-color: rgba(16, 32, 40, 0.16);
+  color: #102028;
+}
+
+html[data-theme="light"] .profile-action-btn.is-done {
+  background: #ffffff;
+  border-color: rgba(16, 32, 40, 0.16);
+  color: #102028;
+}
+
+html[data-theme="light"] .profile-switch-track {
+  background: #c5d3dc;
+  border-color: rgba(16, 32, 40, 0.16);
+  box-shadow: inset 0 1px 3px rgba(16, 32, 40, 0.12);
+}
+
+html[data-theme="light"] .profile-switch-track::after {
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(16, 32, 40, 0.12);
+}
+
+html[data-theme="light"] .profile-switch input:checked + .profile-switch-track {
+  background: #0A8A58;
+  border-color: #087A4E;
+}
+
+html[data-theme="light"] .profile-switch input:checked + .profile-switch-track::after {
+  background: #ffffff;
+}
+
+html[data-theme="light"] .shop-free-chip.free {
+  background: rgba(10, 138, 88, 0.12);
+  border-color: rgba(10, 138, 88, 0.4);
+  color: #0A8A58;
+}
+
+html[data-theme="light"] .shop-free-chip.cd {
+  background: rgba(16, 32, 40, 0.06);
+  border-color: rgba(16, 32, 40, 0.16);
+  color: #3D5160;
+}
+
+html[data-theme="light"] .shop-text-col .badge {
+  color: #0A8A58;
+}
+
+html[data-theme="light"] .plus-benefit-trail {
+  color: #0A3D4F;
+}
+
+html[data-theme="light"] .plus-btn.cancel {
+  border-color: rgba(16, 32, 40, 0.2);
+  color: #3D5160;
+}
+
+html[data-theme="light"] .lb-title-wrap h2,
+html[data-theme="light"] .lb-card-username {
+  color: #102028;
+}
+
+html[data-theme="light"] .lb-card-time {
+  color: #0A8A58;
+}
+
+html[data-theme="light"] .lb-card-rank,
+html[data-theme="light"] .lb-table-header {
+  color: #3D5160;
+}
+
+html[data-theme="light"] .lb-card {
+  background: #f4f8fb;
+  border-color: rgba(16, 32, 40, 0.1);
+}
+
+html[data-theme="light"] .lb-user-chip {
+  background: rgba(16, 32, 40, 0.05);
+  border-color: rgba(16, 32, 40, 0.12);
+  color: #102028;
+}
+
+html[data-theme="light"] .lb-menu-group .lb-tab-btn {
+  color: #3D5160;
+}
+
+html[data-theme="light"] .lb-tab-btn.active {
+  color: #102028;
+}
+
+html[data-theme="light"] .lb-table-header {
+  background: rgba(16, 32, 40, 0.04);
+  border-bottom-color: rgba(16, 32, 40, 0.1);
+}
+
+html[data-theme="light"] .earn-share-lbl {
+  color: #9A6B00;
+}
+
+html[data-theme="light"] .score-strip.idle .score-strip-pill {
+  border-color: rgba(16, 32, 40, 0.12);
+}
+
+html[data-theme="light"] .score-strip.idle .score-strip-label,
+html[data-theme="light"] .score-strip.idle .score-strip-value {
+  color: #7A8B97;
+}
+
+html[data-theme="light"] .score-strip-value {
+  text-shadow: none;
+}
+
+html[data-theme="light"] .result-btn.outline.auto-saved {
+  color: #0A8A58;
+  background: rgba(10, 138, 88, 0.08);
+  border-color: rgba(10, 138, 88, 0.35);
+}
+
+html[data-theme="light"] .lives-status-title {
+  color: #102028;
+}
+
+html[data-theme="light"] .lives-status-sub,
+html[data-theme="light"] .lives-stat-label,
+html[data-theme="light"] .lives-frame-sub,
+html[data-theme="light"] .share-card-hint {
+  color: #3D5160;
+}
+
+html[data-theme="light"] .lives-stat,
+html[data-theme="light"] .lives-shop-frame {
+  background: #ffffff;
+  border-color: rgba(16, 32, 40, 0.12);
+  box-shadow: 0 2px 10px rgba(16, 32, 40, 0.06);
+}
+
+html[data-theme="light"] .lives-stat-value,
+html[data-theme="light"] .lives-frame-title {
+  color: #102028;
+}
+
+html[data-theme="light"] .lives-stat-crystals {
+  background: rgba(10, 106, 136, 0.08);
+  border-color: rgba(10, 106, 136, 0.35);
+}
+
+html[data-theme="light"] .crystal-reward-badge {
+  background: linear-gradient(135deg, rgba(10, 106, 136, 0.1), rgba(10, 138, 88, 0.1));
+  border-color: rgba(10, 106, 136, 0.3);
+  box-shadow: none;
+}
+
+html[data-theme="light"] .crystal-reward-badge .crystal-reward-amt {
+  color: #0A3D4F;
+}
+
+html[data-theme="light"] .crystal-reward-badge.soft .crystal-reward-amt {
+  color: #3D5160;
+}
+
+html[data-theme="light"] .gift-btn.frozen .gift-reward-row .amt,
+html[data-theme="light"] .gift-timer {
+  color: #0A3D4F;
+}
+
+html[data-theme="light"] .gift-btn.ready .gift-reward-row .amt {
+  color: #9A6B00;
+}
+
+html[data-theme="light"] .share-btn-secondary,
+html[data-theme="light"] .share-btn-cancel {
+  background: #ffffff;
+  border-color: rgba(16, 32, 40, 0.16);
+  color: #102028;
+}
+
+html[data-theme="light"] .shop-price {
+  color: #102028;
+}
+
+html[data-theme="light"] .gift-btn.frozen .gift-btn-inner {
+  background: linear-gradient(135deg, #e7eef3 0%, #d5e0e8 100%);
+}
+
+html[data-theme="light"] .result-tip-pop-card {
+  background: #ffffff;
+  color: #102028;
+  border-color: rgba(16, 32, 40, 0.12);
+  box-shadow: 0 8px 16px rgba(16, 32, 40, 0.08);
+}
+
+html[data-theme="light"] .result-tip-pop-card::after {
+  background: #ffffff;
+}
+
+html[data-theme="light"] .result-tip-pop-body {
+  color: #3D5160;
+}
+
+html[data-theme="light"] .result-tip-pop-foot {
+  color: #3D5160;
+}
+
+/* Меню рейтинга — тёмный трек в светлой теме */
+html[data-theme="light"] .lb-menu-container {
+  background: #ffffff;
+  border-color: rgba(10, 106, 136, 0.28);
+  box-shadow: 0 2px 10px rgba(16, 32, 40, 0.08);
+}
+
+html[data-theme="light"] .lb-menu-sep {
+  background: rgba(16, 32, 40, 0.16);
+}
+
+html[data-theme="light"] .lb-menu-group .lb-tab-btn {
+  color: #3D5160;
+}
+
+html[data-theme="light"] .lb-tab-btn:hover {
+  color: #102028;
+  background: rgba(10, 106, 136, 0.08);
+}
+
+html[data-theme="light"] .lb-tab-btn.active {
+  background: linear-gradient(135deg, #d8f3ea 0%, #d4eef8 100%);
+  border-color: #0A8A58;
+  color: #0A8A58;
+  box-shadow: 0 1px 4px rgba(10, 138, 88, 0.16);
+}
+
+html[data-theme="light"] .lb-tab-btn.lb-tab-mine {
+  color: #9A6B00;
+  background: rgba(184, 134, 11, 0.1);
+  border-color: rgba(184, 134, 11, 0.4);
+}
+
+html[data-theme="light"] .lb-tab-btn.lb-tab-mine:hover {
+  background: rgba(184, 134, 11, 0.18);
+  color: #7A5200;
+}
+
+html[data-theme="light"] .lb-tab-btn.lb-tab-mine.active {
+  background: #fff3c4;
+  border-color: #c9a227;
+  color: #7A5200;
+  box-shadow: 0 1px 4px rgba(184, 134, 11, 0.2);
+}
+
+html[data-theme="light"] .lb-empty {
+  color: #3D5160;
+  background: #f4f8fb;
+  border-color: rgba(16, 32, 40, 0.16);
+}
+
+html[data-theme="light"] .lb-card:active {
+  background: #e8eef3;
+}
+
+html[data-theme="light"] .lb-card.is-me {
+  background: linear-gradient(90deg, rgba(184, 134, 11, 0.16) 0%, #ffffff 100%) !important;
+  border-color: #c9a227 !important;
+  box-shadow: 0 0 0 1px rgba(184, 134, 11, 0.12) !important;
+}
+
+html[data-theme="light"] .lb-card-username.is-me {
+  color: #9A6B00;
+}
+
+html[data-theme="light"] .lb-card-tg-pill {
+  color: #0A3D4F;
+  background: rgba(10, 106, 136, 0.1);
+  border-color: rgba(10, 106, 136, 0.28);
+}
+
+html[data-theme="light"] .lb-card-run-meta {
+  color: #3D5160;
+}
+
+html[data-theme="light"] .lb-boost.boost-off {
+  color: #9AADB8;
+}
+
+html[data-theme="light"] .lb-scroll-top-btn {
+  background: #ffffff;
+  border-color: rgba(184, 134, 11, 0.55);
+  color: #9A6B00;
+  box-shadow: 0 4px 12px rgba(16, 32, 40, 0.07);
+}
+
+html[data-theme="light"] .lb-scroll-top-btn:active {
+  background: #fff3c4;
+}
+
+/* Карточка игрока из рейтинга */
+html[data-theme="light"] .player-modal-backdrop {
+  background: rgba(16, 32, 40, 0.38);
+}
+
+html[data-theme="light"] .player-modal-card {
+  background: linear-gradient(180deg, #ffffff 0%, #eef4f7 100%);
+  border-color: rgba(10, 106, 136, 0.32);
+  box-shadow: 0 10px 24px rgba(16, 32, 40, 0.08);
+}
+
+html[data-theme="light"] .player-modal-close {
+  background: #ffffff;
+  border-color: rgba(16, 32, 40, 0.16);
+  color: #102028;
+}
+
+html[data-theme="light"] .player-modal-close:hover {
+  background: #e8eef3;
+  color: #102028;
+}
+
+html[data-theme="light"] .player-modal-name {
+  color: #102028;
+}
+
+html[data-theme="light"] .player-modal-username {
+  color: #0A3D4F;
+}
+
+html[data-theme="light"] .player-modal-score-box {
+  background: rgba(10, 106, 136, 0.08);
+  border-color: rgba(10, 106, 136, 0.28);
+}
+
+html[data-theme="light"] .player-modal-score-label {
+  color: #3D5160;
+}
+
+html[data-theme="light"] .player-modal-time {
+  color: #0A8A58;
+  text-shadow: none;
+}
+
+html[data-theme="light"] .player-modal-rank-badge {
+  color: #9A6B00;
+}
+
+html[data-theme="light"] .player-modal-points-badge {
+  background: rgba(184, 134, 11, 0.1);
+  border-color: rgba(184, 134, 11, 0.35);
+  box-shadow: none;
+}
+
+html[data-theme="light"] .modal-pts-label {
+  color: #3D5160;
+}
+
+html[data-theme="light"] .modal-pts-val {
+  color: #9A6B00;
+  text-shadow: none;
+}
+
+html[data-theme="light"] .modal-pts-mult {
+  color: #0A8A58;
+  background: rgba(10, 138, 88, 0.12);
+}
+
+html[data-theme="light"] .player-modal-stat-item {
+  background: #ffffff;
+  border-color: rgba(16, 32, 40, 0.1);
+}
+
+html[data-theme="light"] .stat-value {
+  color: #102028;
+}
+
+html[data-theme="light"] .stat-value.boost-active {
+  color: #0A8A58;
+}
+
+html[data-theme="light"] .stat-label {
+  color: #3D5160;
+}
+
+html[data-theme="light"] .player-modal-date-line {
+  color: #3D5160;
+}
+
+html[data-theme="light"] .player-modal-dismiss-btn {
+  background: #ffffff;
+  border-color: rgba(16, 32, 40, 0.16);
+  color: #102028;
+}
+
+html[data-theme="light"] .player-modal-dismiss-btn:active {
+  background: #e8eef3;
+}
+
+html[data-theme="light"] .player-modal-self-pill {
+  color: #9A6B00;
+  background: rgba(184, 134, 11, 0.1);
+  border-color: rgba(184, 134, 11, 0.35);
+}
+
+/* Вкладки магазина кристаллов */
+html[data-theme="light"] .crystals-menu-dock {
+  background: linear-gradient(180deg, #ffffff 0%, #eef4f7 100%);
+  border-color: rgba(10, 106, 136, 0.28);
+  box-shadow: 0 2px 10px rgba(16, 32, 40, 0.06);
+}
+
+html[data-theme="light"] .crystals-menu-label {
+  color: #0A3D4F;
+}
+
+html[data-theme="light"] .plus-chip {
+  background: linear-gradient(135deg, rgba(10, 138, 88, 0.12), #ffffff);
+  border-color: rgba(10, 138, 88, 0.45);
+}
+
+html[data-theme="light"] .plus-chip .plus-title {
+  color: #0A8A58;
+}
+
+html[data-theme="light"] .plus-chip .plus-sub {
+  color: #3D5160;
+}
+
+html[data-theme="light"] .plus-chip .plus-row {
+  color: #0A3D4F;
+}
+
+html[data-theme="light"] .plus-chip.active {
+  background: rgba(10, 138, 88, 0.12);
+}
+
+html[data-theme="light"] .ad-btn.ready .gift-btn-inner {
+  background: linear-gradient(135deg, #4EC8E0 0%, #2BB3D4 55%, #1A9CBC 100%);
+  border-color: #1788A3;
+}
+
+html[data-theme="light"] .ad-btn.ready .gift-reward-row .amt,
+html[data-theme="light"] .ad-btn.ready .gift-ready-lbl {
+  color: #f4fcff;
+  text-shadow: none;
+}
+
+html[data-theme="light"] .daily-plus-card {
+  background: #ffffff;
+  border-color: rgba(10, 138, 88, 0.4);
+}
+
+html[data-theme="light"] .daily-plus-card.on {
+  background: linear-gradient(135deg, rgba(10, 138, 88, 0.12), #ffffff);
+  border-color: #0A8A58;
+}
+
+html[data-theme="light"] .daily-plus-title {
+  color: #0A8A58;
+}
+
+html[data-theme="light"] .daily-plus-hint {
+  color: #3D5160;
+}
+
+html[data-theme="light"] .daily-plus-cta {
+  background: #0A8A58;
+  color: #ffffff;
+}
+
+html[data-theme="light"] .daily-plus-card.on .daily-plus-cta {
+  background: #ffffff;
+  border-color: rgba(10, 138, 88, 0.4);
+  color: #0A8A58;
+}
+
+html[data-theme="light"] .plus-back {
+  color: #3D5160;
+}
+
+html[data-theme="light"] .plus-head-title,
+html[data-theme="light"] .plus-desc {
+  color: #102028;
+}
+
+html[data-theme="light"] .plus-desc {
+  color: #3D5160;
+}
+
+html[data-theme="light"] .plus-subtitle.mint {
+  color: #0A8A58;
+}
+
+html[data-theme="light"] .plus-btn.subscribe {
+  background: #0A8A58;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(10, 138, 88, 0.16);
+}
+
+html[data-theme="light"] .crystal-reward-badge.emph.has-double {
+  background: linear-gradient(135deg, rgba(10, 138, 88, 0.14), #ffffff);
+}
+
+html[data-theme="light"] .crystal-reward-badge.emph.has-double .crystal-plus-hint {
+  color: #0A3D4F;
+}
+
+/* Жизни: пакеты и акценты */
+html[data-theme="light"] .lives-stat-crystals .lives-stat-value,
+html[data-theme="light"] .lives-stat-action {
+  color: #0A3D4F;
+}
+
+html[data-theme="light"] .lives-stat-action {
+  background: rgba(10, 106, 136, 0.1);
+}
+
+html[data-theme="light"] .lives-frame-title {
+  color: #0A3D4F;
+}
+
+html[data-theme="light"] .life-buy-card {
+  background: linear-gradient(180deg, #ffffff 0%, #eef4f7 100%);
+  border-color: rgba(16, 32, 40, 0.12);
+  box-shadow: 0 2px 10px rgba(16, 32, 40, 0.08);
+  color: #102028;
+}
+
+html[data-theme="light"] .life-buy-card.best-deal {
+  background: linear-gradient(180deg, #e8f7ef 0%, #ffffff 100%);
+  border-color: rgba(10, 138, 88, 0.5);
+  box-shadow: 0 2px 8px rgba(10, 138, 88, 0.08);
+}
+
+html[data-theme="light"] .gain-number {
+  color: #102028;
+}
+
+html[data-theme="light"] .gain-label {
+  color: #3D5160;
+}
+
+html[data-theme="light"] .card-price-pill.price-active {
+  background: linear-gradient(135deg, rgba(10, 106, 136, 0.12) 0%, rgba(10, 138, 88, 0.12) 100%);
+  border-color: rgba(10, 106, 136, 0.4);
+  color: #0A3D4F;
+}
+
+html[data-theme="light"] .life-buy-card:hover .card-price-pill.price-active,
+html[data-theme="light"] .life-buy-card:active .card-price-pill.price-active {
+  background: linear-gradient(135deg, #0A6A88 0%, #0A8A58 100%);
+  color: #ffffff;
+}
+
+html[data-theme="light"] .daily-card.waiting {
+  background: linear-gradient(135deg, rgba(10, 106, 136, 0.12) 0%, #ffffff 70%);
+  border-color: rgba(10, 106, 136, 0.4);
+  box-shadow: none;
+}
+
+html[data-theme="light"] .day-action-btn.wait {
+  background: linear-gradient(135deg, rgba(10, 106, 136, 0.12) 0%, #ffffff 100%);
+  border-color: rgba(10, 106, 136, 0.4);
+  color: #0A3D4F;
+  box-shadow: none;
+}
+
+html[data-theme="light"] .day-action-btn.wait:active {
+  background: rgba(10, 106, 136, 0.18);
+}
+
+html[data-theme="light"] .day-action-pill.locked {
+  color: #7A8B97;
+}
+
+html[data-theme="light"] .daily-node {
+  background: #ffffff;
+}
+
+html[data-theme="light"] .rent-card-h .rent-title,
+html[data-theme="light"] .rent-dur-btn .rd-mins,
+html[data-theme="light"] .rent-dur-btn .rd-cost,
+html[data-theme="light"] .rent-dur-btn .rd-action {
+  color: #102028 !important;
+}
+
+html[data-theme="light"] .rent-card-h .rent-desc,
+html[data-theme="light"] .rent-dur-btn .rd-strike {
+  color: #3D5160 !important;
+}
+
+html[data-theme="light"] .rent-dur-btn .rd-disc {
+  color: #0A4A62 !important;
+}
+
+html[data-theme="light"] .rent-dur-btn {
+  background: #ffffff !important;
+  border-color: rgba(16, 32, 40, 0.16) !important;
+  color: #102028;
+}
+
+html[data-theme="light"] .profile-bottom-actions {
+  background: #eef4f7;
+  border-top-color: rgba(16, 32, 40, 0.1);
+}
+
+html[data-theme="light"] .profile-stat-val {
+  color: #9A6B00;
+}
+
+html[data-theme="light"] .brand-name,
+html[data-theme="light"] .result-brand-name {
+  color: #0A3D4F;
+}
+
+html[data-theme="light"] .start-text {
+  color: #102028;
+}
+
+html[data-theme="light"] .gift-timer {
+  color: #0A3D4F;
+  text-shadow: none;
+}
+
+html[data-theme="light"] .shop-price {
+  color: #102028;
+}
+
+html[data-theme="light"] .plus-benefit {
+  color: #102028;
+}
+
+html[data-theme="light"] .earn-invite-list {
+  background: #f4f8fb;
+  border: 1px solid rgba(16, 32, 40, 0.08);
+}
+
+html[data-theme="light"] .earn-invite-list-title,
+html[data-theme="light"] .earn-invite-empty,
+html[data-theme="light"] .earn-invite-nick {
+  color: #3D5160;
+}
+
+html[data-theme="light"] .earn-invite-person {
+  border-top-color: rgba(16, 32, 40, 0.1);
+}
+
+html[data-theme="light"] .earn-invite-name {
+  color: #102028;
+}
+
+html[data-theme="light"] .earn-invite-plus {
+  color: #0A3D4F;
+}
+
+html[data-theme="light"] .earn-invite-status {
+  background: #0A8A58;
+  color: #ffffff;
+}
+
+html[data-theme="light"] .daily-node.waiting {
+  color: #0A3D4F;
+  box-shadow: none;
+}
+
+html[data-theme="light"] .info-chip .info-value {
+  color: #102028;
+}
+
+html[data-theme="light"] .info-value.risk,
+html[data-theme="light"] .result-stat.risk .result-stat-value {
+  color: #9A6B00;
+}
+
+html[data-theme="light"] .crystals-balance-panel .cb-label {
+  color: #3D5160;
+}
+
+html[data-theme="light"] .crystals-balance-panel .cb-value {
+  color: #0A3D4F;
+  text-shadow: none;
+}
+
+html[data-theme="light"] .day-action-pill.claimed {
+  color: #0A8A58;
+}
+
+html[data-theme="light"] .crystal-plus-hint,
+html[data-theme="light"] .crystal-reward-badge.emph.has-double .crystal-plus-hint {
+  color: #0A8A58;
+}
+
+html[data-theme="light"] .lb-boost.helmet-on {
+  color: #0A3D4F;
+}
+
+html[data-theme="light"] .lb-boost.jump-on {
+  color: #0A8A58;
+}
+
+html[data-theme="light"] .gift-btn.frozen .gift-mark .bow {
+  color: #0A3D4F;
+}
+
+html[data-theme="light"] .result-tip-pop-foot {
+  color: #0A3D4F;
+}
+
+html[data-theme="light"] .profile-tg-username {
+  color: #0A3D4F;
+}
+
+
+

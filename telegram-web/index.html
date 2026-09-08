@@ -10,11 +10,18 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Untouch</title>
+  <script>
+    try {
+      var _e = JSON.parse(localStorage.getItem('untouch_tg_economy') || '{}');
+      if (_e.lightTheme) document.documentElement.setAttribute('data-theme', 'light');
+    } catch (e) {}
+  </script>
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="css/app.css">
   <link rel="stylesheet" href="css/sheets.css">
+  <link rel="stylesheet" href="css/theme-light.css">
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
 </head>

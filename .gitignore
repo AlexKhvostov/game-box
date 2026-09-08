@@ -60,4 +60,5 @@ telegram-web/api/rc_economy_cache.json
 telegram-web/api/scores_steps_v1.flag
 telegram-web/api/webhook_last.json
 telegram-web/api/admin_guard.json
+telegram-web/api/invite_photo_file_id.json
 

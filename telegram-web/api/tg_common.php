@@ -236,7 +236,7 @@ function tg_products_fallback() {
             'stars' => 199,
             'days' => 30,
             'title' => 'Plus',
-            'description' => 'Plus на 30 дней: ×2 daily, без баннера',
+            'description' => 'Plus на 30 дней: ежедневный бонус ×2',
             'subscription_period' => 2592000,
         ],
     ];
@@ -279,7 +279,7 @@ function tg_products_from_economy($economy) {
             'stars' => $plusStars,
             'days' => $plusDays,
             'title' => $plusTitle,
-            'description' => 'Plus на ' . $plusDays . ' дней: ×2 daily, без баннера',
+            'description' => 'Plus на ' . $plusDays . ' дней: ежедневный бонус ×2',
             'subscription_period' => $plusDays * 86400,
         ];
     }
@@ -608,6 +608,48 @@ function tg_api($method, $payload) {
     return $data['result'];
 }
 
+function tg_api_upload($method, $fields, $timeoutSec = 20) {
+    $token = tg_bot_token();
+    if ($token === '') {
+        throw new Exception('Bot token missing');
+    }
+    if (!function_exists('curl_init')) {
+        throw new Exception('curl required for file upload');
+    }
+    $url = tg_api_base() . '/bot' . $token . '/' . $method;
+    $proxy = tg_api_proxy();
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, $timeoutSec);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 8);
+    if (defined('CURL_IPRESOLVE_V4')) {
+        curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+    }
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+    if ($proxy !== '') {
+        curl_setopt($ch, CURLOPT_PROXY, $proxy);
+        if (stripos($proxy, 'socks5') === 0 && defined('CURLPROXY_SOCKS5_HOSTNAME')) {
+            curl_setopt($ch, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5_HOSTNAME);
+        }
+    }
+    $raw = curl_exec($ch);
+    $err = curl_error($ch);
+    $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    if ($raw === false) {
+        throw new Exception('Telegram upload curl: ' . $err);
+    }
+    $data = json_decode($raw, true);
+    if (!is_array($data) || empty($data['ok'])) {
+        $desc = is_array($data) ? ($data['description'] ?? $raw) : $raw;
+        throw new Exception('Telegram API ' . $code . ': ' . $desc);
+    }
+    return $data['result'];
+}
+
 function tg_webhook_mark($payload) {
     $payload['at'] = date('c');
     @file_put_contents(
@@ -648,6 +690,89 @@ function tg_invite_link_label() {
     return 'Перейти в бот с игрой';
 }
 
+function tg_invite_photo_url() {
+    return rtrim(tg_webapp_url(), '/') . '/assets/branding/botfather_webapp_640x360.jpg';
+}
+
+function tg_invite_photo_path() {
+    return dirname(__DIR__) . '/assets/branding/botfather_webapp_640x360.jpg';
+}
+
+function tg_invite_photo_cache_file() {
+    return __DIR__ . '/invite_photo_file_id.json';
+}
+
+function tg_photo_file_id_from_message($sent) {
+    $photos = isset($sent['photo']) && is_array($sent['photo']) ? $sent['photo'] : [];
+    if (!$photos) return '';
+    $best = $photos[0];
+    foreach ($photos as $p) {
+        if ((int)($p['file_size'] ?? 0) >= (int)($best['file_size'] ?? 0)) {
+            $best = $p;
+        }
+    }
+    return (string)($best['file_id'] ?? '');
+}
+
+function tg_read_invite_photo_file_id() {
+    $path = tg_invite_photo_path();
+    $mtime = is_file($path) ? (int)filemtime($path) : 0;
+    $cacheFile = tg_invite_photo_cache_file();
+    if (!is_file($cacheFile)) return '';
+    $data = json_decode((string)@file_get_contents($cacheFile), true);
+    if (!is_array($data) || empty($data['file_id'])) return '';
+    if ($mtime > 0 && (int)($data['mtime'] ?? 0) !== $mtime) return '';
+    return (string)$data['file_id'];
+}
+
+function tg_write_invite_photo_file_id($fileId) {
+    $path = tg_invite_photo_path();
+    @file_put_contents(tg_invite_photo_cache_file(), json_encode([
+        'file_id' => (string)$fileId,
+        'mtime' => is_file($path) ? (int)filemtime($path) : 0,
+    ], JSON_UNESCAPED_UNICODE));
+}
+
+function tg_upload_invite_photo($chatId) {
+    $path = tg_invite_photo_path();
+    if (is_file($path) && class_exists('CURLFile')) {
+        $sent = tg_api_upload('sendPhoto', [
+            'chat_id' => (string)$chatId,
+            'disable_notification' => 'true',
+            'photo' => new CURLFile($path, 'image/jpeg', 'untouch.jpg'),
+        ]);
+    } else {
+        $sent = tg_api('sendPhoto', [
+            'chat_id' => $chatId,
+            'photo' => tg_invite_photo_url(),
+            'disable_notification' => true,
+        ]);
+    }
+    $fileId = tg_photo_file_id_from_message($sent);
+    if ($fileId === '') {
+        throw new Exception('Invite photo file_id missing');
+    }
+    $mid = isset($sent['message_id']) ? (int)$sent['message_id'] : 0;
+    if ($mid > 0) {
+        try {
+            tg_api('deleteMessage', [
+                'chat_id' => $chatId,
+                'message_id' => $mid,
+            ]);
+        } catch (Exception $e) {
+            error_log('[tg] delete invite photo: ' . $e->getMessage());
+        }
+    }
+    tg_write_invite_photo_file_id($fileId);
+    return $fileId;
+}
+
+function tg_ensure_invite_photo_file_id($userId) {
+    $cached = tg_read_invite_photo_file_id();
+    if ($cached !== '') return $cached;
+    return tg_upload_invite_photo($userId);
+}
+
 function tg_invite_message_html($userId, $timeLabel, $bonus) {
     $url = htmlspecialchars(tg_invite_start_url($userId), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     $label = htmlspecialchars(tg_invite_link_label(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
@@ -679,37 +804,77 @@ function tg_invite_reply_markup($userId) {
 
 function tg_prepare_invite_share($userId, $timeLabel, $bonus) {
     $html = tg_invite_message_html($userId, $timeLabel, $bonus);
-    return tg_api('savePreparedInlineMessage', [
-        'user_id' => (int)$userId,
-        'allow_user_chats' => true,
-        'allow_bot_chats' => false,
-        'allow_group_chats' => true,
-        'allow_channel_chats' => false,
-        'result' => [
-            'type' => 'article',
-            'id' => 'inv' . preg_replace('/\D+/', '', (string)$userId) . substr((string)time(), -5),
-            'title' => 'Untouch',
-            'description' => tg_invite_link_label(),
-            'thumbnail_url' => 'https://untouch.ballaball.xyz/assets/branding/bot_avatar_640.jpg',
-            'input_message_content' => [
-                'message_text' => $html,
+    $markup = tg_invite_reply_markup($userId);
+    $id = 'inv' . preg_replace('/\D+/', '', (string)$userId) . substr((string)time(), -5);
+    try {
+        $fileId = tg_ensure_invite_photo_file_id($userId);
+        return tg_api('savePreparedInlineMessage', [
+            'user_id' => (int)$userId,
+            'allow_user_chats' => true,
+            'allow_bot_chats' => false,
+            'allow_group_chats' => true,
+            'allow_channel_chats' => false,
+            'result' => [
+                'type' => 'photo',
+                'id' => $id,
+                'photo_file_id' => $fileId,
+                'title' => 'Untouch',
+                'description' => tg_invite_link_label(),
+                'caption' => $html,
                 'parse_mode' => 'HTML',
-                'link_preview_options' => ['is_disabled' => true],
+                'reply_markup' => $markup,
             ],
-            'reply_markup' => tg_invite_reply_markup($userId),
-        ],
-    ]);
+        ]);
+    } catch (Exception $e) {
+        error_log('[tg] prepare photo invite: ' . $e->getMessage());
+        return tg_api('savePreparedInlineMessage', [
+            'user_id' => (int)$userId,
+            'allow_user_chats' => true,
+            'allow_bot_chats' => false,
+            'allow_group_chats' => true,
+            'allow_channel_chats' => false,
+            'result' => [
+                'type' => 'article',
+                'id' => $id . 'a',
+                'title' => 'Untouch',
+                'description' => tg_invite_link_label(),
+                'input_message_content' => [
+                    'message_text' => $html,
+                    'parse_mode' => 'HTML',
+                    'link_preview_options' => ['is_disabled' => true],
+                ],
+                'reply_markup' => $markup,
+            ],
+        ]);
+    }
 }
 
 function tg_send_invite_to_self($userId, $timeLabel, $bonus) {
-    return tg_api('sendMessage', [
-        'chat_id' => $userId,
-        'text' => tg_invite_message_html($userId, $timeLabel, $bonus),
-        'parse_mode' => 'HTML',
-        'link_preview_options' => ['is_disabled' => true],
-        'disable_web_page_preview' => true,
-        'reply_markup' => tg_invite_reply_markup($userId),
-    ]);
+    $html = tg_invite_message_html($userId, $timeLabel, $bonus);
+    $markup = tg_invite_reply_markup($userId);
+    try {
+        $photo = tg_read_invite_photo_file_id();
+        if ($photo === '') {
+            $photo = tg_ensure_invite_photo_file_id($userId);
+        }
+        return tg_api('sendPhoto', [
+            'chat_id' => $userId,
+            'photo' => $photo,
+            'caption' => $html,
+            'parse_mode' => 'HTML',
+            'reply_markup' => $markup,
+        ]);
+    } catch (Exception $e) {
+        error_log('[tg] sendPhoto invite: ' . $e->getMessage());
+        return tg_api('sendMessage', [
+            'chat_id' => $userId,
+            'text' => $html,
+            'parse_mode' => 'HTML',
+            'link_preview_options' => ['is_disabled' => true],
+            'disable_web_page_preview' => true,
+            'reply_markup' => $markup,
+        ]);
+    }
 }
 
 function tg_mini_app_link($startParam = '') {

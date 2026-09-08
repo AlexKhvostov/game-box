@@ -1,5 +1,14 @@
 /** Telegram Mini App bridge (port of lib/telegram/telegram_bridge_web.dart). */
 
+function readStoredLightTheme() {
+  try {
+    const d = JSON.parse(localStorage.getItem('untouch_tg_economy') || '{}');
+    return d.lightTheme === true;
+  } catch (_) {
+    return false;
+  }
+}
+
 export class TelegramBridge {
   constructor() {
     this.viewPadding = { top: 44, right: 0, bottom: 0, left: 0 };
@@ -22,8 +31,7 @@ export class TelegramBridge {
         if (typeof tg.disableVerticalSwipes === 'function') tg.disableVerticalSwipes();
         if (typeof tg.requestFullscreen === 'function') tg.requestFullscreen();
         if (typeof tg.lockOrientation === 'function') tg.lockOrientation();
-        if (typeof tg.setHeaderColor === 'function') tg.setHeaderColor('#0E1419');
-        if (typeof tg.setBackgroundColor === 'function') tg.setBackgroundColor('#0E1419');
+        this.applyUiTheme(readStoredLightTheme());
         if (typeof tg.requestSafeArea === 'function') tg.requestSafeArea();
         if (typeof tg.requestContentSafeArea === 'function') tg.requestContentSafeArea();
       } catch (e) {
@@ -49,7 +57,19 @@ export class TelegramBridge {
     } else {
       this._syncInsets();
     }
+    this.applyUiTheme(readStoredLightTheme());
     this.rememberStartParam();
+  }
+
+  applyUiTheme(light) {
+    const on = Boolean(light);
+    document.documentElement.setAttribute('data-theme', on ? 'light' : 'dark');
+    const chrome = on ? '#D7E2EA' : '#0E1419';
+    const tg = this._tg;
+    try {
+      if (typeof tg?.setHeaderColor === 'function') tg.setHeaderColor(chrome);
+      if (typeof tg?.setBackgroundColor === 'function') tg.setBackgroundColor(chrome);
+    } catch (_) {}
   }
 
   _syncInsets() {

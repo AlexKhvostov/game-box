@@ -93,6 +93,7 @@
 {
   "startHintEnabled": true,
   "idleSpeedMultiplier": 0.5,
+  "idleEnemiesMove": true,
   "speedRampSeconds": 0.5,
   "jumpEnabled": true,
   "jumpDurationSec": 0.38,
@@ -106,13 +107,14 @@
 }
 ```
 
-- `idleSpeedMultiplier` — скорость врагов до касания (доля от стартовой)
+- `idleSpeedMultiplier` — скорость врагов до касания (доля от стартовой), если `idleEnemiesMove` включён
+- `idleEnemiesMove` — `true`: враги ходят по полю до старта. `false`: стоят на спавне и слегка шатаются (дремота); с касанием возвращаются на свои позиции и разгоняются в заданных направлениях
 - `speedRampSeconds` — разгон до полной скорости после старта
 - `jumpEnabled` — `false` убирает прыжок из HUD, Shop и игры (доступ при `true` — через аренду)
 - `jumpDurationSec` / `jumpScale` — длительность и визуальный масштаб прыжка
 - `helmetEnabled` — `false` убирает шлем из HUD, Shop и игры
 - `helmetInvulnSec` — секунды неуязвимости (мигание) после разрушения шлема
-- `startInvulnSec` — секунды неуязвимости в начале раунда (мигание). `0` — сразу можно погибнуть. Сейчас `1`
+- `startInvulnSec` — секунды неуязвимости в начале раунда (мигание). `0` — сразу можно погибнуть
 - `timerHaptic` — вибро на 1.00, 2.00, 3.00… `false` выключает
 - `timerHapticStyle` — сила обычных секунд: `success` тише, `warning` обычно, `error` как проигрыш
 - `timerHapticStyle5` / `timerHapticStyle10` — сила на 5 и 10 сек (те же значения). Потом можно сделать тише без новой заливки

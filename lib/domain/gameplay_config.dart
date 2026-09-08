@@ -32,6 +32,7 @@ class GameplayConfig {
   bool get enemiesCollide => enemies.collideWithEachOther;
   double get enemySpinDegPerSec => enemies.spinDegPerSec;
   double get idleSpeedMultiplier => game.idleSpeedMultiplier;
+  bool get idleEnemiesMove => game.idleEnemiesMove;
   double get speedRampSeconds => game.speedRampSeconds;
   bool get jumpEnabled => game.jumpEnabled;
   double get jumpDurationSec => game.jumpDurationSec;
@@ -244,6 +245,7 @@ class GameConfig {
   const GameConfig({
     this.startHintEnabled = true,
     this.idleSpeedMultiplier = 0.5,
+    this.idleEnemiesMove = true,
     this.speedRampSeconds = 0.5,
     this.jumpEnabled = true,
     this.jumpDurationSec = 0.38,
@@ -265,6 +267,9 @@ class GameConfig {
 
   /// Скорость врагов до первого касания (доля от стартовой).
   final double idleSpeedMultiplier;
+
+  /// `true` — враги ходят по полю до старта. `false` — дремота на спавне.
+  final bool idleEnemiesMove;
 
   /// За сколько секунд скорость вырастает до нормальной после касания.
   final double speedRampSeconds;
@@ -307,6 +312,7 @@ class GameConfig {
   Map<String, dynamic> toJson() => {
         'startHintEnabled': startHintEnabled,
         'idleSpeedMultiplier': idleSpeedMultiplier,
+        'idleEnemiesMove': idleEnemiesMove,
         'speedRampSeconds': speedRampSeconds,
         'jumpEnabled': jumpEnabled,
         'jumpDurationSec': jumpDurationSec,
@@ -328,6 +334,7 @@ class GameConfig {
       startHintEnabled: json['startHintEnabled'] as bool? ?? true,
       idleSpeedMultiplier:
           (json['idleSpeedMultiplier'] as num?)?.toDouble() ?? 0.5,
+      idleEnemiesMove: json['idleEnemiesMove'] as bool? ?? true,
       speedRampSeconds: (json['speedRampSeconds'] as num?)?.toDouble() ?? 0.5,
       jumpEnabled: json['jumpEnabled'] as bool? ??
           json['jumpsEnabled'] as bool? ??

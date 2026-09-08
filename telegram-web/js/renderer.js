@@ -22,6 +22,7 @@ export class FieldRenderer {
       invulnerable = false,
       invulnerableFactor = null,
       shadowBrightness = 1,
+      lightField = false,
       drawBorder = true,
       showFace = false,
       showEnemyFaces = false,
@@ -41,7 +42,7 @@ export class FieldRenderer {
     roundRectPath(ctx, 0, 0, size.width, size.height, r);
     ctx.fill();
 
-    ctx.strokeStyle = 'rgba(0,0,0,0.12)';
+    ctx.strokeStyle = lightField ? 'rgba(16,32,40,0.04)' : 'rgba(0,0,0,0.12)';
     ctx.lineWidth = Math.min(size.width * 0.08, 24);
     roundRectPath(ctx, 0, 0, size.width, size.height, r);
     ctx.stroke();
@@ -61,7 +62,7 @@ export class FieldRenderer {
       this._paintPlayerShadow(ctx, world, base, 0, playerPreview, shadowBrightness);
     }
 
-    const playerLook = this._nearestEnemyDelta(world);
+    const playerLook = showFace ? this._nearestEnemyDelta(world) : null;
 
     for (const e of world.enemies) {
       this._paintEnemy(ctx, e, hexAlpha(danger, 0.18), null, 1);

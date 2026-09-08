@@ -31,8 +31,8 @@
   align-items: center;
   justify-content: center;
   gap: 16px;
-  background: #0e1419;
-  color: #8b9aab;
+  background: var(--bg);
+  color: var(--muted);
   font-size: 15px;
   transition: opacity 0.22s ease;
 }
@@ -341,6 +341,9 @@ html, body {
   width: var(--field-side);
   height: var(--field-side);
   border-radius: 18px;
+  touch-action: none;
+  contain: layout paint;
+  transform: translateZ(0);
 }
 
 /* Info bar — flex как в Flutter (15 : 15 : 40 : 15 : 15) */
@@ -1143,3 +1146,4 @@ html, body {
   font-weight: 800;
   cursor: pointer;
 }
+

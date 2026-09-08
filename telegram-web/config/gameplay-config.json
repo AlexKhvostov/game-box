@@ -35,6 +35,7 @@
   "game": {
     "startHintEnabled": true,
     "idleSpeedMultiplier": 0.5,
+    "idleEnemiesMove": true,
     "speedRampSeconds": 0.5,
     "jumpEnabled": true,
     "jumpDurationSec": 0.38,
