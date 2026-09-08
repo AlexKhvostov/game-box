@@ -119,7 +119,7 @@
 - `timerHapticStyle` — сила обычных секунд: `success` тише, `warning` обычно, `error` как проигрыш
 - `timerHapticStyle5` / `timerHapticStyle10` — сила на 5 и 10 сек (те же значения). Потом можно сделать тише без новой заливки
 - `hudSpeedScaleMax` — верх шкалы скорости (полоска под полем); при 400 полоска заполняется быстрее, чем при 500
-- `wallsKillPlayer` — `true`: касание границы/стены убивает героя; `false`: только блокирует проход, без смерти
+- `wallsKillPlayer` — `true`: касание границы/стены убивает героя, рамка поля того же цвета, что и враги; `false`: только блокирует проход, без смерти, рамка обычная. Работает в аркаде (Telegram Mini App и Android) и в Этажах.
 
 Для теста аренды: `"jumpEnabled": true` / `"helmetEnabled": true` + купить в магазине.
 
@@ -189,7 +189,9 @@
   "timedBonusTokens": 22,
   "timedBonusHours": 1,
   "watchAdCooldownSec": 60,
-  "adsgramBlockId": "46656",
+  "adsgramBlockId": "46825",
+  "avatarCheatEnabled": false,
+  "avatarCheatTokens": 10,
   "premiumDailyMultiplier": 2,
   "jumpRentalCost": 20,
   "jumpRentalMinutes": 10,
@@ -255,7 +257,9 @@
 - `timedBonusTokens` — подарок (таймер `timedBonusHours`), **не** Daily  
 - `timedBonusHours` — интервал подарка; при смене RC таймер пересчитывается от времени последнего забора (остаток не длиннее нового интервала)  
 - `watchAdCooldownSec` — фриз кнопки «смотреть рекламу» после забора (секунды; `60` = 1 мин; `0` = без фриза)  
-- `adsgramBlockId` — ID блока **Reward** из [partner.adsgram.ai](https://partner.adsgram.ai). Сейчас `46656`. Пусто = кнопка в магазине не выдаёт кристаллы (ролик не открывается). Plus **не** прячет эту кнопку. Правка — **внутри** JSON `economy`, затем Publish.  
+- `adsgramBlockId` — ID блока **Reward** из [partner.adsgram.ai](https://partner.adsgram.ai). Сейчас `46825`. Пусто = кнопка в магазине не выдаёт кристаллы (ролик не открывается). Plus **не** прячет эту кнопку. Правка — **внутри** JSON `economy`, затем Publish.
+- `avatarCheatEnabled` — чит для беты: 5 тапов по аватарке в профиле дают кристаллы. По умолчанию выкл. Работает **только** если в RC явно `"avatarCheatEnabled": true`.
+- `avatarCheatTokens` — сколько кристаллов за 5 тапов (по умолч. `10`). Правка — внутри JSON `economy`, затем Publish.  
 - `earnActions` — заработок кристалов; `install_bonus` — приз за установку; `survive_10s` / `record_20s` / `risks_5` — one-shot за геймплей (сначала открываются в игре, потом забор во вкладке Earn).  
   `invite_friend` — личная ссылка `startapp=r<id>`. За **каждого** друга, который открыл игру, `reward` кристаллов (сейчас 20). Кнопка «Поделиться» не закрывается. Ниже — список пришедших.  
   `enable_notifications` — награда после согласия боту писать (`requestWriteAccess`).  

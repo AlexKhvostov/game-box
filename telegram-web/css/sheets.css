@@ -2846,6 +2846,13 @@
   justify-content: center;
   background: #141f27;
   flex-shrink: 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.profile-avatar-wrap.is-cheat {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .profile-avatar-img {

@@ -48,7 +48,8 @@
     "timerHapticStyle": "warning",
     "timerHapticStyle5": "warning",
     "timerHapticStyle10": "warning",
-    "hudSpeedScaleMax": 400
+    "hudSpeedScaleMax": 400,
+    "wallsKillPlayer": true
   },
   "audio": {
     "music": true,
@@ -103,7 +104,9 @@
     "timedBonusTokens": 22,
     "timedBonusHours": 1,
     "watchAdCooldownSec": 300,
-    "adsgramBlockId": "46656",
+    "adsgramBlockId": "46825",
+    "avatarCheatEnabled": false,
+    "avatarCheatTokens": 10,
     "premiumDailyMultiplier": 2,
     "earnSurviveSeconds": 10,
     "earnRecordSeconds": 20,

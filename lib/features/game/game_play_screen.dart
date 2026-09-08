@@ -81,7 +81,15 @@ class _GamePlayScreenState extends State<GamePlayScreen>
     _aliveMs += dtMs;
     _world!.tickPlay(dt, _aliveMs / 1000.0);
 
-    if (_world!.playerHitsBorder() || _world!.playerHitsEnemy()) {
+    if (_world!.playerHitsBorder()) {
+      if (!_world!.wallsKillPlayer) {
+        _world!.clampPlayerToField();
+      } else {
+        _endGame();
+        return;
+      }
+    }
+    if (_world!.playerHitsEnemy()) {
       _endGame();
       return;
     }
@@ -107,7 +115,15 @@ class _GamePlayScreenState extends State<GamePlayScreen>
     if (!_running) return;
 
     _world!.movePlayerBy(details.delta);
-    if (_world!.playerHitsBorder() || _world!.playerHitsEnemy()) {
+    if (_world!.playerHitsBorder()) {
+      if (!_world!.wallsKillPlayer) {
+        _world!.clampPlayerToField();
+      } else {
+        _endGame();
+        return;
+      }
+    }
+    if (_world!.playerHitsEnemy()) {
       _endGame();
       return;
     }
@@ -212,7 +228,9 @@ class _GamePlayScreenState extends State<GamePlayScreen>
                               fieldColor: config.field.resolveSurfaceColor(
                                 theme.colorScheme.surface,
                               ),
-                              borderColor: theme.colorScheme.primary,
+                              borderColor: config.wallsKillPlayer
+                                  ? theme.colorScheme.error
+                                  : theme.colorScheme.primary,
                               borderWidth: config.borderWidth,
                               shadowBrightness: config.field.shadowBrightness,
                               showFace: config.player.showFace,

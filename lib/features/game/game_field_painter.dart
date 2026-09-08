@@ -468,6 +468,7 @@ class GameFieldPainter extends CustomPainter {
         oldDelegate.drawBorder != drawBorder ||
         oldDelegate.shadowBrightness != shadowBrightness ||
         oldDelegate.fieldColor != fieldColor ||
+        oldDelegate.borderColor != borderColor ||
         oldDelegate.eyeLook != eyeLook ||
         oldDelegate.showFace != showFace;
   }

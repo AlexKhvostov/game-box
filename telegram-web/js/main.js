@@ -297,9 +297,16 @@ class UntouchApp {
       this.world.movePlayerBy({ dx, dy });
       moved = true;
     }
-    if (!moved || this._isInvulnerable()) return;
-    if (this.world.playerHitsBorder()) this._triggerImpact(true);
-    else if (this.world.playerHitsEnemy()) this._triggerImpact(false);
+    if (!moved) return;
+    if (this.world.playerHitsBorder()) {
+      if (!this.world.wallsKillPlayer()) this.world.clampPlayerToField();
+      else if (!this._isInvulnerable()) {
+        this._triggerImpact(true);
+        return;
+      }
+    }
+    if (this._isInvulnerable()) return;
+    if (this.world.playerHitsEnemy()) this._triggerImpact(false);
   }
 
   _onPointerUp(e) {
@@ -677,15 +684,16 @@ class UntouchApp {
       if (this.helmetInvulnLeft > 0) {
         this.helmetInvulnLeft = Math.max(0, this.helmetInvulnLeft - dt);
       }
-      if (!this._isInvulnerable()) {
-        if (this.world.playerHitsBorder()) {
+      if (this.world.playerHitsBorder()) {
+        if (!this.world.wallsKillPlayer()) this.world.clampPlayerToField();
+        else if (!this._isInvulnerable()) {
           this._triggerImpact(true);
           return;
         }
-        if (this.world.playerHitsEnemy()) {
-          this._triggerImpact(false);
-          return;
-        }
+      }
+      if (!this._isInvulnerable() && this.world.playerHitsEnemy()) {
+        this._triggerImpact(false);
+        return;
       }
       this._tickPlayHaptics();
 
@@ -736,12 +744,15 @@ class UntouchApp {
     const fieldColor = light
       ? '#F7FBFD'
       : resolveSurfaceColor(theme.surface, this.config.field);
+    const wallsKill = this.world
+      ? this.world.wallsKillPlayer()
+      : this.config?.game?.wallsKillPlayer !== false;
     this.renderer.paint(this.ctx, this.world, {
       fieldSize: { width: this.fieldSide, height: this.fieldSide },
       fieldColor,
       accent: theme.primary,
       danger: theme.danger,
-      borderColor: theme.primary,
+      borderColor: wallsKill ? theme.danger : theme.primary,
       borderWidth: this.config.field.borderWidth,
       cornerRadius: this.config.field.cornerRadius,
       frame: this.frame,

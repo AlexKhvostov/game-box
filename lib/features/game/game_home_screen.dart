@@ -236,15 +236,18 @@ class _GameHomeScreenState extends State<GameHomeScreen>
 
         if (_helmetInvulnLeft > 0) {
           _helmetInvulnLeft = max(0.0, _helmetInvulnLeft - dt);
-        } else {
-          if (world.playerHitsBorder()) {
+        }
+        if (world.playerHitsBorder()) {
+          if (!world.wallsKillPlayer) {
+            world.clampPlayerToField();
+          } else if (_helmetInvulnLeft <= 0) {
             _triggerImpact(againstWall: true);
             return;
           }
-          if (world.playerHitsEnemy()) {
-            _triggerImpact(againstWall: false);
-            return;
-          }
+        }
+        if (_helmetInvulnLeft <= 0 && world.playerHitsEnemy()) {
+          _triggerImpact(againstWall: false);
+          return;
         }
         if (_impacts.isNotEmpty) {
           _impacts.removeWhere((b) => !b.update(dt));
@@ -466,12 +469,16 @@ class _GameHomeScreenState extends State<GameHomeScreen>
     if (delta == Offset.zero) return;
 
     _world!.movePlayerBy(delta);
-    // Рисует тикер (~60fps). Не дёргаем _frame здесь —
-    // иначе при свайпе двойная перерисовка + GC.
-    if (_helmetInvulnLeft > 0) return;
     if (_world!.playerHitsBorder()) {
-      _triggerImpact(againstWall: true);
-    } else if (_world!.playerHitsEnemy()) {
+      if (!_world!.wallsKillPlayer) {
+        _world!.clampPlayerToField();
+      } else if (_helmetInvulnLeft <= 0) {
+        _triggerImpact(againstWall: true);
+        return;
+      }
+    }
+    if (_helmetInvulnLeft > 0) return;
+    if (_world!.playerHitsEnemy()) {
       _triggerImpact(againstWall: false);
     }
   }
@@ -611,8 +618,9 @@ class _GameHomeScreenState extends State<GameHomeScreen>
                                           ? null
                                           : [
                                               BoxShadow(
-                                                color: theme
-                                                    .colorScheme.primary
+                                                color: (config.wallsKillPlayer
+                                                        ? theme.colorScheme.error
+                                                        : theme.colorScheme.primary)
                                                     .withValues(alpha: 0.16),
                                                 blurRadius: 12,
                                                 offset: const Offset(0, 4),
@@ -637,8 +645,9 @@ class _GameHomeScreenState extends State<GameHomeScreen>
                                                     .resolveSurfaceColor(
                                                   theme.colorScheme.surface,
                                                 ),
-                                                borderColor: theme
-                                                    .colorScheme.primary,
+                                                borderColor: config.wallsKillPlayer
+                                                    ? theme.colorScheme.error
+                                                    : theme.colorScheme.primary,
                                                 borderWidth:
                                                     config.borderWidth,
                                                 cornerRadius: 18,

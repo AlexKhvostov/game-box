@@ -1690,7 +1690,7 @@ export class SheetUI {
           <!-- Блок аккаунта Telegram -->
           <div class="profile-card profile-account-card">
             <div class="profile-avatar-row">
-              <div class="profile-avatar-wrap">
+              <div class="profile-avatar-wrap" id="profile-avatar-wrap">
                 ${userPhoto ? `<img src="${userPhoto}" class="profile-avatar-img" alt="">` : restingCubeImg(44, 'profile-avatar-cube')}
               </div>
               <div class="profile-info-col">
@@ -1790,6 +1790,27 @@ export class SheetUI {
       telegram.haptic('impact', 'light');
       this.close();
     });
+
+    const avatarWrap = this.body.querySelector('#profile-avatar-wrap');
+    if (avatarWrap && e.avatarCheatEnabled) {
+      avatarWrap.classList.add('is-cheat');
+      let taps = 0;
+      let lastTap = 0;
+      avatarWrap.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        const now = Date.now();
+        if (now - lastTap > 2500) taps = 0;
+        lastTap = now;
+        taps += 1;
+        if (taps < 5) return;
+        taps = 0;
+        const got = this._economy().grantAvatarCheat();
+        if (got == null) return;
+        this.app._updateHud();
+        this._toast(RU.crystalsPlus(got), { accent: '#7EE0FF', flyTo: 'crystals' });
+      });
+    }
 
     // Защита от вылетания Telegram WebApp при клике в текстовое поле:
     nickInput?.addEventListener('touchstart', (ev) => {

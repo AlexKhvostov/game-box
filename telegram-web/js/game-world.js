@@ -365,6 +365,22 @@ export class GameWorld {
     return sum / this.enemies.length;
   }
 
+  wallsKillPlayer() {
+    const v = this.config?.game?.wallsKillPlayer;
+    return v !== false && v !== 0 && v !== 'false' && v !== '0';
+  }
+
+  clampPlayerToField() {
+    const ps = this.playerSize;
+    const lo = this.wallInset;
+    const hiX = Math.max(lo, this.field.width - lo - ps);
+    const hiY = Math.max(lo, this.field.height - lo - ps);
+    this.player = {
+      dx: clamp(this.player.dx, lo, hiX),
+      dy: clamp(this.player.dy, lo, hiY),
+    };
+  }
+
   movePlayerBy(delta) {
     if (delta.dx === 0 && delta.dy === 0) return;
     this.player = vecAdd(this.player, delta);

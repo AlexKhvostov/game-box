@@ -791,6 +791,25 @@ export class EconomyStore {
     return reward;
   }
 
+  get avatarCheatEnabled() {
+    const v = this.e.avatarCheatEnabled;
+    return v === true || v === 1 || v === 'true';
+  }
+
+  get avatarCheatTokens() {
+    const n = Number(this.e.avatarCheatTokens);
+    if (!Number.isFinite(n) || n <= 0) return 10;
+    return Math.min(9999, Math.floor(n));
+  }
+
+  grantAvatarCheat() {
+    if (!this.avatarCheatEnabled) return null;
+    const amount = this.avatarCheatTokens;
+    this.tokens += amount;
+    this._save();
+    return amount;
+  }
+
   isEarnClaimed(id) {
     return this.claimedEarnIds.has(id);
   }

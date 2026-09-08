@@ -463,11 +463,21 @@ class GameWorld {
     return max(dx, dy);
   }
 
+  bool get wallsKillPlayer => config.wallsKillPlayer;
+
+  void clampPlayerToField() {
+    final s = playerSize;
+    final lo = wallInset;
+    final hiX = max(lo, field.width - wallInset - s);
+    final hiY = max(lo, field.height - wallInset - s);
+    player = Offset(player.dx.clamp(lo, hiX), player.dy.clamp(lo, hiY));
+  }
+
   bool playerHitsBorder() {
-    return player.dx <= 0 ||
-        player.dy <= 0 ||
-        player.dx + playerSize >= field.width ||
-        player.dy + playerSize >= field.height;
+    return player.dx <= wallInset ||
+        player.dy <= wallInset ||
+        player.dx + playerSize >= field.width - wallInset ||
+        player.dy + playerSize >= field.height - wallInset;
   }
 
   bool playerHitsEnemy() {
