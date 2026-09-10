@@ -183,6 +183,31 @@
     </div>
   </div>
 
+  <div id="ad-watch-hint" class="ad-fail-overlay" hidden>
+    <button type="button" class="ad-fail-backdrop" id="ad-watch-hint-backdrop" aria-label="Отмена"></button>
+    <div class="ad-fail-card ad-hint-card" role="dialog" aria-modal="true" aria-labelledby="ad-watch-hint-title">
+      <img class="ad-fail-art ad-hint-art" src="assets/branding/ad_tv_watch.png" width="280" height="280" alt="">
+      <h3 class="ad-fail-title" id="ad-watch-hint-title">Минутка у телевизора</h3>
+      <p class="ad-fail-body ad-hint-lead">Ролик около минуты. Его нельзя свернуть. Кристаллы — только если досмотреть до конца.</p>
+      <div class="ad-hint-facts" aria-hidden="true">
+        <span class="ad-hint-fact">~1 мин</span>
+        <span class="ad-hint-fact">Не сворачивается</span>
+        <span class="ad-hint-fact ad-hint-fact-pay"><img src="icons/crystal.svg" width="11" height="11" alt="">+<span id="ad-watch-hint-reward">5</span></span>
+      </div>
+      <label class="ad-hint-skip">
+        <input type="checkbox" id="ad-watch-hint-skip">
+        <span class="ad-hint-skip-box" aria-hidden="true">
+          <svg width="12" height="12" viewBox="0 0 24 24"><path fill="currentColor" d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+        </span>
+        <span id="ad-watch-hint-skip-text">Больше не показывать</span>
+      </label>
+      <div class="ad-hint-actions">
+        <button type="button" class="ad-hint-cancel" id="ad-watch-hint-cancel">Отмена</button>
+        <button type="button" class="ad-fail-ok" id="ad-watch-hint-ok">Смотреть</button>
+      </div>
+    </div>
+  </div>
+
   <script type="module" src="js/main.js"></script>
   <noscript><div><img src="https://mc.yandex.ru/watch/112365078" style="position:absolute;left:-9999px" alt=""></div></noscript>
 </body>

@@ -171,74 +171,78 @@
 
 ```json
 {
-  "initialLives": 10,
-  "initialTokens": 40,
+  "initialLives": 8,
+  "initialTokens": 15,
   "installBonusAutoClaim": true,
   "earnSurviveSeconds": 10,
   "earnRecordSeconds": 20,
   "earnRisksInRun": 5,
-  "lifePackSize": 5,
-  "lifePackCostTokens": 5,
   "lifePacks": [
-    {"lives": 5, "costTokens": 5},
-    {"lives": 15, "costTokens": 12},
-    {"lives": 50, "costTokens": 30},
-    {"lives": 250, "costTokens": 99}
+    {"lives": 8, "costTokens": 10},
+    {"lives": 25, "costTokens": 28},
+    {"lives": 80, "costTokens": 80},
+    {"lives": 250, "costTokens": 220}
   ],
-  "dailyRewardTokens": [2, 4, 9, 16, 32, 64, 81],
-  "timedBonusTokens": 22,
-  "timedBonusHours": 1,
-  "watchAdCooldownSec": 60,
+  "dailyRewardTokens": [3, 4, 5, 6, 8, 10, 12],
+  "timedBonusTokens": 6,
+  "timedBonusHours": 6,
+  "watchAdCooldownSec": 180,
   "adsgramBlockId": "46825",
+  "adsgramInterstitialBlockId": "int-46979",
+  "interstitialGraceSec": 210,
+  "interstitialCooldownSec": 180,
+  "interstitialMinLives": 3,
   "avatarCheatEnabled": false,
   "avatarCheatTokens": 10,
   "premiumDailyMultiplier": 2,
-  "jumpRentalCost": 20,
+  "jumpRentalCost": 12,
   "jumpRentalMinutes": 10,
-  "jumpRentalHourCost": 60,
+  "jumpRentalHourCost": 36,
   "jumpRentalHourMinutes": 60,
-  "helmetRentalCost": 40,
+  "helmetRentalCost": 20,
   "helmetRentalMinutes": 10,
-  "helmetRentalHourCost": 120,
+  "helmetRentalHourCost": 60,
   "helmetRentalHourMinutes": 60,
-  "riskRewardEvery": 5,
+  "riskRewardEvery": 8,
   "riskRewardTokens": 1,
-  "runRewardEvery": 1000,
+  "runRewardEvery": 400,
   "runRewardTokens": 1,
   "starsShop": {
     "packs": [
-      {"id": "pack_s", "title": "Горсть", "crystals": 40, "stars": 49},
-      {"id": "pack_m", "title": "Стопка", "crystals": 120, "stars": 149, "badge": "deal"},
-      {"id": "pack_l", "title": "Сундук", "crystals": 350, "stars": 349, "badge": "best"},
-      {"id": "pack_xl", "title": "Сейф", "crystals": 900, "stars": 749, "badge": "max"}
+      {"id": "pack_s", "title": "Горсть", "crystals": 30, "stars": 39},
+      {"id": "pack_m", "title": "Стопка", "crystals": 80, "stars": 89, "badge": "deal"},
+      {"id": "pack_l", "title": "Сундук", "crystals": 200, "stars": 199, "badge": "best"},
+      {"id": "pack_xl", "title": "Сейф", "crystals": 500, "stars": 449, "badge": "max"}
     ],
-    "plus": {"id": "plus_monthly", "title": "Plus", "stars": 199, "days": 30}
+    "plus": {"id": "plus_weekly", "title": "Plus", "stars": 49, "days": 7}
   },
   "earnActions": [
-    {"id": "install_bonus", "title": "Бонус за установку", "subtitle": "Приз за скачивание игры", "reward": 40},
-    {"id": "survive_10s", "title": "Продержаться 10 секунд", "subtitle": "10 секунд в одной партии", "reward": 5},
-    {"id": "record_20s", "title": "Рекорд 20 секунд", "subtitle": "Личный рекорд от 20 секунд", "reward": 10},
-    {"id": "risks_5", "title": "5 рисков за партию", "subtitle": "Набрать 5 рисков в одной игре", "reward": 5},
-    {"id": "watch_ad", "title": "Смотреть рекламу", "subtitle": "Короткий ролик", "reward": 5},
-    {"id": "enable_notifications", "title": "Уведомления", "subtitle": "Разрешить боту писать", "reward": 5},
-    {"id": "invite_friend", "title": "Пригласить друга", "subtitle": "20 кристаллов за каждого друга", "reward": 20}
+    {"id": "install_bonus", "reward": 15},
+    {"id": "survive_10s", "reward": 4},
+    {"id": "record_20s", "reward": 8},
+    {"id": "risks_5", "reward": 4},
+    {"id": "watch_ad", "reward": 3},
+    {"id": "enable_notifications", "reward": 5},
+    {"id": "invite_friend", "reward": 15}
   ]
 }
 ```
 
 - `lifePacks` — варианты обмена кристалов на жизни (окно по тапу на сердечко). Если массив задан и не пустой — клиент показывает **только его** (дефолты из APK не дописываются). Можно удалённо менять состав и цены без нового билда.  
-- `starsShop` — пакеты кристаллов за Telegram Stars и подписка Plus (Mini App). Android этот блок игнорирует.  
+- `starsShop` — пакеты кристаллов за Telegram Stars и Plus (Mini App). Android этот блок игнорирует.  
+  Plus сейчас **недельный**: `plus_weekly`, 49 ⭐ / 7 дней. Telegram умеет автопродление Stars **только 30 дней**, поэтому неделя — разовая покупка, продлевается ещё одним платежом.  
+  Калькулятор и предложенный баланс: вкладка **Монетизация** в админке и [MONETIZATION.md](MONETIZATION.md).  
   Править **внутри существующего** JSON `economy`, не публиковать `starsShop` отдельным параметром.  
   После Publish PHP (счёт Stars) и витрина Mini App берут те же числа; кэш PHP до 3 минут.
 ```json
 "starsShop": {
   "packs": [
-    { "id": "pack_s", "title": "Горсть", "crystals": 40, "stars": 49 },
-    { "id": "pack_m", "title": "Стопка", "crystals": 120, "stars": 149, "badge": "deal" },
-    { "id": "pack_l", "title": "Сундук", "crystals": 350, "stars": 349, "badge": "best" },
-    { "id": "pack_xl", "title": "Сейф", "crystals": 900, "stars": 749, "badge": "max" }
+    { "id": "pack_s", "title": "Горсть", "crystals": 30, "stars": 39 },
+    { "id": "pack_m", "title": "Стопка", "crystals": 80, "stars": 89, "badge": "deal" },
+    { "id": "pack_l", "title": "Сундук", "crystals": 200, "stars": 199, "badge": "best" },
+    { "id": "pack_xl", "title": "Сейф", "crystals": 500, "stars": 449, "badge": "max" }
   ],
-  "plus": { "id": "plus_monthly", "title": "Plus", "stars": 199, "days": 30 }
+  "plus": { "id": "plus_weekly", "title": "Plus", "stars": 49, "days": 7 }
 }
 ```
   `badge`: `deal` (Выгодно), `best` (Лучшая цена), `max` (Максимум), или пусто.  
@@ -258,10 +262,14 @@
 - `timedBonusHours` — интервал подарка; при смене RC таймер пересчитывается от времени последнего забора (остаток не длиннее нового интервала)  
 - `watchAdCooldownSec` — фриз кнопки «смотреть рекламу» после забора (секунды; `60` = 1 мин; `0` = без фриза)  
 - `adsgramBlockId` — ID блока **Reward** из [partner.adsgram.ai](https://partner.adsgram.ai). Сейчас `46825`. Пусто = кнопка в магазине не выдаёт кристаллы (ролик не открывается). Plus **не** прячет эту кнопку. Правка — **внутри** JSON `economy`, затем Publish.
+- `adsgramInterstitialBlockId` — ID блока **Interstitial** из AdsGram. Нужен вид `int-46979` (префикс `int-`). Если в RC случайно только цифры `46979`, клиент сам допишет `int-`. Пусто = на результате реклама не показывается. Не подставлять Reward `46825`. Plus **выключает** interstitial.
+- `interstitialGraceSec` — невидимый фриз после **первого в жизни** забора дневной награды (секунды). Дефолт `210` (~3,5 мин). `0` = можно сразу после первого Daily.
+- `interstitialCooldownSec` — пауза между interstitial на результате (секунды). Дефолт `180` (3 мин). Реклама только при входе на результат, не чаще этого интервала. `0` = можно каждую попытку после фриза.
+- `interstitialMinLives` — не показывать interstitial, если на экране результата жизней **меньше** этого числа (жизнь за попытку уже списана). Дефолт `3`. `0` = порог выкл.
 - `avatarCheatEnabled` — чит для беты: 5 тапов по аватарке в профиле дают кристаллы. По умолчанию выкл. Работает **только** если в RC явно `"avatarCheatEnabled": true`.
 - `avatarCheatTokens` — сколько кристаллов за 5 тапов (по умолч. `10`). Правка — внутри JSON `economy`, затем Publish.  
 - `earnActions` — заработок кристалов; `install_bonus` — приз за установку; `survive_10s` / `record_20s` / `risks_5` — one-shot за геймплей (сначала открываются в игре, потом забор во вкладке Earn).  
-  `invite_friend` — личная ссылка `startapp=r<id>`. За **каждого** друга, который открыл игру, `reward` кристаллов (сейчас 20). Кнопка «Поделиться» не закрывается. Ниже — список пришедших.  
+  `invite_friend` — личная ссылка `startapp=r<id>`. За **каждого** друга, который открыл игру, `reward` кристаллов (сейчас 15). Кнопка «Поделиться» не закрывается. Ниже — список пришедших.  
   `enable_notifications` — награда после согласия боту писать (`requestWriteAccess`).  
   `rate_app` в Mini App не показываем (в Telegram нечего оценивать в магазине).  
   Клиент **подмешивает** недостающие дефолтные id, даже если в RC старый список; совпадающие id берут `reward` из RC.  

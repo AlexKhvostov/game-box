@@ -23,8 +23,8 @@
     <header class="top">
       <div>
         <p class="brand">UNTOUCH</p>
-        <h1>Кто пишет боту</h1>
-        <p class="sub">Дни по Москве (UTC+3)</p>
+        <h1 id="page-title">Кто пишет боту</h1>
+        <p id="page-sub" class="sub">Дни по Москве (UTC+3)</p>
       </div>
       <div class="top-actions">
         <button type="button" id="reload" class="ghost">Обновить</button>
@@ -32,6 +32,13 @@
       </div>
     </header>
 
+    <nav class="tabs" id="tabs">
+      <button type="button" data-view="people" class="on">Люди</button>
+      <button type="button" data-view="ads">Реклама</button>
+      <button type="button" data-view="monetize">Монетизация</button>
+    </nav>
+
+    <div id="view-people">
     <section id="cards" class="cards"></section>
     <section class="panel">
       <h2>14 дней</h2>
@@ -65,8 +72,112 @@
       </div>
       <div id="pager" class="pager"></div>
     </section>
+    </div>
+
+    <div id="view-ads" class="notes hidden">
+      <section class="panel">
+        <h2>Смысл</h2>
+        <p>Untouch — короткая аркада внутри Telegram. Случайный пост в чужом чате часто удаляют. Лучше: люди, которые уже в мессенджере, каталоги, рефералка и точечная платная закупка.</p>
+        <p>Прямая ссылка во все посты: <code>https://t.me/UntouchGameBot/untouch</code></p>
+        <p class="lead">Не начинать с «писать во все группы». Сначала витрина бота, каталоги, 20–30 знакомых по рефералке, потом платный тест AdsGram.</p>
+      </section>
+
+      <section class="panel">
+        <h2>Бесплатно</h2>
+        <h3>Внутри Telegram</h3>
+        <ul>
+          <li><strong>App Center</strong> — заявка через <code>@app_moderation_bot</code> (часто нужна аналитика TON: <code>@DataChief_bot</code>). Витрина внутри клиента.</li>
+          <li><strong>TON App Center</strong> — <code>@tapps_bot</code>. Не криптоигра, но каталог живой.</li>
+          <li><strong>Поиск Telegram и кнопка Play</strong> — имя, описание, скрины в BotFather. Main Mini App в профиле бота.</li>
+          <li><strong>Свой канал</strong> рядом с ботом: клип 7–15 сек, рекорд, «продержись 10 секунд».</li>
+          <li><strong>Рефералка в игре</strong> (кристаллы за друга) — главный бесплатный двигатель после первых 50–100 человек.</li>
+        </ul>
+        <h3>Каталоги</h3>
+        <ul>
+          <li>Сторонние подборки Mini App / ботов (FindMini и аналоги): форма «добавить бота» + скрины.</li>
+          <li>itch.io, Product Hunt — не ядро аудитории, но англоязычный след.</li>
+        </ul>
+        <h3>Где можно пост</h3>
+        <p>Один раз, как автор игры: скрин / гифка, 3 предложения «в чём прикол», прямая ссылка. Не ежедневный флуд.</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Куда</th><th>Зачем</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Пикабу («Игры», «Своё»)</td><td>RU, любят короткие штуки с гифкой</td></tr>
+              <tr><td>VK: инди / мобильные игры / «игры в Telegram»</td><td>Тот же язык, что у приложения</td></tr>
+              <tr><td>Reddit: r/playmygame, r/WebGames, r/casualgames</td><td>Только по правилам треда</td></tr>
+              <tr><td>Discord / чаты инди-разрабов (RU)</td><td>Мало игроков, бывают кросс-промо</td></tr>
+              <tr><td>Комментарии у обзоров Mini App</td><td>Только если там реально обсуждают игры</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Не писать в оффтоп «работа / крипта / реклама бесплатно».</p>
+        <h3>Почти бесплатно руками</h3>
+        <ul>
+          <li>Короткое видео кубика в TikTok / Reels / Shorts, ссылка в профиле.</li>
+          <li>Бартер с 2–3 похожими Mini App.</li>
+        </ul>
+      </section>
+
+      <section class="panel">
+        <h2>Платно</h2>
+        <h3>Сначала (малый бюджет)</h3>
+        <ol>
+          <li><strong>AdsGram → Telegram Network → Task</strong> — «открой Mini App, получи награду» в чужих играх. Тест <strong>100–250 USDT</strong>. Качество среднее: много «открыл и вышел».</li>
+          <li><strong>AdsGram Fullscreen</strong> — ролик/картинка в других Mini App.</li>
+        </ol>
+        <p>Кабинет рекламодателя: <a href="https://partner.adsgram.ai" target="_blank" rel="noreferrer">partner.adsgram.ai</a>, <strong>тот же логин</strong>, что у издателя — тогда свою рекламу не покажут внутри Untouch.</p>
+        <h3>Потом</h3>
+        <ol start="3">
+          <li><strong>Официальная Telegram Ads</strong> через AdsGram (USDT, не TON). На новый регион часто резерв ~500 USDT. Когда креатив уже проверен на Task.</li>
+          <li><strong>Посты в каналах</strong> — Telega.io / telega.in. Микроканалы 5–50 тыс. с живыми реакциями, не накрученные 200k.</li>
+          <li><strong>Telegram Stars Promotions</strong> — буст в App Center. Только когда люди уже заходят и возвращаются.</li>
+          <li><strong>Игровые блогеры Telegram</strong> (не крипто-KOL): один пост + видео.</li>
+          <li>VK Реклама / myTarget — RU вне Telegram, в Mini App обычно конверсия хуже.</li>
+        </ol>
+        <p>Сети Monetag / RichAds / OnClicka — дешёвый объём и много мусора. Для беты не начинать отсюда.</p>
+        <p><strong>Не брать:</strong> массовые рассылки в личку. Это против правил Telegram, бота легко убить.</p>
+      </section>
+
+      <section class="panel">
+        <h2>Порядок работ</h2>
+        <ol>
+          <li>Каталоги + описание бота + короткий ролик.</li>
+          <li>Посеять 20–30 знакомых через рефералку.</li>
+          <li>2–3 аккуратных поста (Пикабу / VK / один игровой чат).</li>
+          <li>Платный тест AdsGram Task 100–250 USDT. Смотреть не клики, а сколько дошли до <strong>первой игры и дневной награды</strong>.</li>
+          <li>Если цена нормальная — чуть увеличить бюджет и точечно купить 1–2 поста в живых каналах.</li>
+        </ol>
+      </section>
+
+      <section class="panel">
+        <h2>Реклама внутри игры</h2>
+        <p>Это монетизация уже пришедших игроков. Ключи в Firebase Remote Config, JSON <code>economy</code>.</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Ключ</th><th>Смысл</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>adsgramBlockId</code></td><td>Reward, ролик за кристаллы. Сейчас <code>46825</code></td></tr>
+              <tr><td><code>adsgramInterstitialBlockId</code></td><td>Interstitial на результате. Нужен вид <code>int-46979</code></td></tr>
+              <tr><td><code>interstitialGraceSec</code></td><td>Тишина после первого Daily, сек. Дефолт <code>210</code></td></tr>
+              <tr><td><code>interstitialCooldownSec</code></td><td>Пауза между показами на результате, сек. Дефолт <code>180</code></td></tr>
+              <tr><td><code>interstitialMinLives</code></td><td>Не показывать interstitial, если жизней меньше этого числа. Дефолт <code>3</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Plus убирает interstitial на результате. Ролик за кристаллы по кнопке остаётся.</p>
+        <p>Interstitial не показывается: до первого Daily; во время фриза; чаще кулдауна; при Plus; если жизней меньше порога (жизнь за попытку уже списана — смотрим запас на экране результата).</p>
+      </section>
+    </div>
+
+    <div id="view-monetize" class="notes hidden"></div>
   </div>
 
+  <script src="monetize.js"></script>
   <script src="admin.js"></script>
 </body>
 </html>

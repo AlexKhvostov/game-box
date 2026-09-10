@@ -21,7 +21,7 @@
 
 Адрес: [https://untouch.ballaball.xyz/admin/](https://untouch.ballaball.xyz/admin/)
 
-Это отдельная web-страница, не внутри игры. Там видно, кто писал боту, и срезы: сегодня / неделя / 30 дней, новые, активные, /start, кто уже играл.
+Это отдельная web-страница, не внутри игры. Три вкладки: **Люди**, **Реклама**, **Монетизация** (калькулятор экономики и JSON для RC). Полный текст рекламы: [ADS_GROWTH.md](ADS_GROWTH.md). Баланс кассы: [MONETIZATION.md](MONETIZATION.md).
 
 1. В `api/bot_config.php` на HostLand добавьте строку `'admin_key' => 'длинный-секрет',` — не токен бота. Если `admin_key` пустой, подойдёт уже существующий `diag_key`.
 2. Залейте свежие `api/admin.php`, `api/tg_common.php`, `api/telegram_webhook.php` и папку `admin/`.

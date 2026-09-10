@@ -122,6 +122,138 @@ button.ghost {
   gap: 8px;
 }
 
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 20px;
+}
+
+.tabs button {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--line);
+}
+
+.tabs button.on {
+  background: var(--primary);
+  color: #082016;
+  border-color: var(--primary);
+}
+
+.notes h3 {
+  margin: 18px 0 8px;
+  font-size: 15px;
+}
+
+.notes p,
+.notes li {
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.notes ul,
+.notes ol {
+  margin: 0 0 12px;
+  padding-left: 20px;
+}
+
+.notes a {
+  color: var(--cyan);
+}
+
+.notes .panel h2:first-child {
+  margin-top: 0;
+}
+
+.m-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.m-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px 12px;
+}
+
+.m-grid-4 { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+.m-grid-7 { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); }
+
+.m-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.m-field input {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: #10171d;
+  color: var(--text);
+  font-size: 14px;
+}
+
+.m-packs {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.m-pack {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.m-verdict {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+.m-verdict.ok { background: rgba(61, 220, 151, 0.14); color: var(--primary); }
+.m-verdict.warn { background: rgba(255, 200, 87, 0.14); color: var(--warn); }
+.m-verdict.bad { background: rgba(255, 90, 95, 0.14); color: var(--danger); }
+
+.m-kpis .value { font-size: 20px; }
+
+.m-notes {
+  margin: 12px 0 0;
+  padding-left: 18px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.m-rc {
+  width: 100%;
+  min-height: 520px;
+  margin-top: 8px;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: #10171d;
+  color: var(--cyan);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.4;
+  resize: vertical;
+}
+
+.m-rc-sm { min-height: 160px; }
+
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));

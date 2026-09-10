@@ -200,34 +200,43 @@ function tg_products_fallback() {
         'pack_s' => [
             'id' => 'pack_s',
             'kind' => 'crystals',
-            'crystals' => 40,
-            'stars' => 49,
+            'crystals' => 30,
+            'stars' => 39,
             'title' => 'Горсть',
-            'description' => '40 кристаллов Untouch',
+            'description' => '30 кристаллов Untouch',
         ],
         'pack_m' => [
             'id' => 'pack_m',
             'kind' => 'crystals',
-            'crystals' => 120,
-            'stars' => 149,
+            'crystals' => 80,
+            'stars' => 89,
             'title' => 'Стопка',
-            'description' => '120 кристаллов Untouch',
+            'description' => '80 кристаллов Untouch',
         ],
         'pack_l' => [
             'id' => 'pack_l',
             'kind' => 'crystals',
-            'crystals' => 350,
-            'stars' => 349,
+            'crystals' => 200,
+            'stars' => 199,
             'title' => 'Сундук',
-            'description' => '350 кристаллов Untouch',
+            'description' => '200 кристаллов Untouch',
         ],
         'pack_xl' => [
             'id' => 'pack_xl',
             'kind' => 'crystals',
-            'crystals' => 900,
-            'stars' => 749,
+            'crystals' => 500,
+            'stars' => 449,
             'title' => 'Сейф',
-            'description' => '900 кристаллов Untouch',
+            'description' => '500 кристаллов Untouch',
+        ],
+        'plus_weekly' => [
+            'id' => 'plus_weekly',
+            'kind' => 'plus',
+            'crystals' => 0,
+            'stars' => 49,
+            'days' => 7,
+            'title' => 'Plus',
+            'description' => 'Plus на 7 дней: ежедневный бонус ×2 и без рекламы на результате',
         ],
         'plus_monthly' => [
             'id' => 'plus_monthly',
@@ -264,24 +273,28 @@ function tg_products_from_economy($economy) {
         ];
     }
     $plus = isset($shop['plus']) && is_array($shop['plus']) ? $shop['plus'] : [];
-    $plusId = trim((string)($plus['id'] ?? 'plus_monthly'));
-    if ($plusId === '') $plusId = 'plus_monthly';
+    $plusId = trim((string)($plus['id'] ?? 'plus_weekly'));
+    if ($plusId === '') $plusId = 'plus_weekly';
     $plusStars = (int)($plus['stars'] ?? 0);
-    $plusDays = (int)($plus['days'] ?? 30);
-    if ($plusDays < 1) $plusDays = 30;
+    $plusDays = (int)($plus['days'] ?? 7);
+    if ($plusDays < 1) $plusDays = 7;
     if ($plusStars > 0) {
         $plusTitle = trim((string)($plus['title'] ?? 'Plus'));
         if ($plusTitle === '') $plusTitle = 'Plus';
-        $out[$plusId] = [
+        $row = [
             'id' => $plusId,
             'kind' => 'plus',
             'crystals' => 0,
             'stars' => $plusStars,
             'days' => $plusDays,
             'title' => $plusTitle,
-            'description' => 'Plus на ' . $plusDays . ' дней: ежедневный бонус ×2',
-            'subscription_period' => $plusDays * 86400,
+            'description' => 'Plus на ' . $plusDays . ' дней: ежедневный бонус ×2 и без рекламы на результате',
         ];
+        // Telegram Stars принимает автопродление только на 30 дней.
+        if ($plusDays === 30) {
+            $row['subscription_period'] = 2592000;
+        }
+        $out[$plusId] = $row;
     }
     return $out;
 }

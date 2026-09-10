@@ -160,6 +160,27 @@ html[data-theme="light"] .ad-fail-backdrop {
   background: rgba(16, 32, 40, 0.32);
 }
 
+html[data-theme="light"] .ad-hint-fact {
+  background: rgba(10, 106, 136, 0.08);
+  border-color: rgba(10, 106, 136, 0.22);
+  color: #0A3D4F;
+}
+
+html[data-theme="light"] .ad-hint-skip {
+  color: #3D5160;
+}
+
+html[data-theme="light"] .ad-hint-skip-box {
+  background: #ffffff;
+  border-color: rgba(10, 106, 136, 0.35);
+}
+
+html[data-theme="light"] .ad-hint-cancel {
+  background: #ffffff;
+  border-color: rgba(16, 32, 40, 0.14);
+  color: #102028;
+}
+
 html[data-theme="light"] .result-btn.outline {
   color: #102028;
   border-color: rgba(16, 32, 40, 0.2);

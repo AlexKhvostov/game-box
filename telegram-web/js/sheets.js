@@ -13,7 +13,7 @@ import {
   restingCubeImg,
 } from './game-icons.js';
 import { telegram } from './telegram.js';
-import { adsgramBlockId, showRewardedAd, showAdLoadStub } from './adsgram.js';
+import { adsgramBlockId, showRewardedAd, showAdLoadStub, showWatchAdHint } from './adsgram.js';
 import { calcScore, fmtScore } from './util.js';
 import { bindGameTips, hideGameTip, unbindGameTips } from './tip-pop.js';
 import { metrikaGoal } from './metrika.js';
@@ -695,7 +695,7 @@ export class SheetUI {
     const waitingDay = claimedToday ? Math.min(claimedCount + 1, rewards.length) : -1;
     const hint = claimedToday ? RU.dailyStreakActive(e.dailyStreak) : RU.dailyStreakHint;
     const plusActive = e.hasPremium;
-    const next = e.premiumNextChargeDate ?? new Date(Date.now() + (e.plusProduct?.days ?? 30) * 86400000);
+    const next = e.premiumNextChargeDate ?? new Date(Date.now() + (e.plusProduct?.days ?? 7) * 86400000);
     const plusCard = `
       <button type="button" class="daily-plus-card ${plusActive ? 'on' : ''}" id="daily-plus-card">
         <span class="daily-plus-ico">${uiIconImg('premium', 22)}</span>
@@ -774,11 +774,17 @@ export class SheetUI {
       return;
     }
     this._watchingAd = true;
-    this._toast(RU.shopAdWait, { accent: '#7EE0FF', flyTo: 'none' });
+    const ad = e.earnActions.find((a) => a.id === 'watch_ad');
+    const reward = ad?.reward ?? 5;
     try {
+      if (!e.skipWatchAdHint) {
+        const hint = await showWatchAdHint({ reward });
+        if (!hint.ok) return;
+        if (hint.skipNext) e.rememberSkipWatchAdHint();
+      }
+      this._toast(RU.shopAdWait, { accent: '#7EE0FF', flyTo: 'none' });
       await showRewardedAd(blockId);
-      const ad = e.earnActions.find((a) => a.id === 'watch_ad');
-      const got = e.claimWatchAd(ad?.reward ?? 5);
+      const got = e.claimWatchAd(reward);
       if (got != null) {
         this._toast(RU.crystalsPlus(got), { accent: '#7EE0FF', flyTo: 'crystals' });
         this.app._updateHud();
@@ -1144,6 +1150,10 @@ export class SheetUI {
             <span class="plus-benefit-ico">${uiIconImg('sparkle', 18)}</span>
             <span>${RU.plusManageBenefitDaily}</span>
             <span class="plus-benefit-trail">${crystalImg(14)} ×2</span>
+          </div>
+          <div class="plus-benefit">
+            <span class="plus-benefit-ico">${uiIconImg('no-ads', 18)}</span>
+            <span>${RU.plusManageBenefitAds}</span>
           </div>
         </div>
         <div class="game-panel mb-10 plus-price-panel">

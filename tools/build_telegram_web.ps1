@@ -47,6 +47,15 @@ if (Test-Path $indexPath) {
   [System.IO.File]::WriteAllText($indexPath, $html, [System.Text.Encoding]::UTF8)
 }
 
+$adminIndexPath = Join-Path $out 'admin\index.html'
+if (Test-Path $adminIndexPath) {
+  $adminHtml = [System.IO.File]::ReadAllText($adminIndexPath, [System.Text.Encoding]::UTF8)
+  $adminHtml = $adminHtml -replace 'admin\.css(\?v=[^"''\s>]+)?', "admin.css?v=$version"
+  $adminHtml = $adminHtml -replace 'admin\.js(\?v=[^"''\s>]+)?', "admin.js?v=$version"
+  $adminHtml = $adminHtml -replace 'monetize\.js(\?v=[^"''\s>]+)?', "monetize.js?v=$version"
+  [System.IO.File]::WriteAllText($adminIndexPath, $adminHtml, [System.Text.Encoding]::UTF8)
+}
+
 # Add version to ES module imports in build/web/js
 Get-ChildItem -Path (Join-Path $out 'js\*.js') | ForEach-Object {
   $js = [System.IO.File]::ReadAllText($_.FullName, [System.Text.Encoding]::UTF8)

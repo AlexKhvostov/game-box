@@ -13,6 +13,7 @@ import { RU } from './strings-ru.js';
 import { remoteConfig } from './remote-config.js';
 import { bindGameTips, hideGameTip } from './tip-pop.js';
 import { initMetrika, metrikaGoal } from './metrika.js';
+import { adsgramInterstitialBlockId, showInterstitialAd } from './adsgram.js';
 
 const Phase = { idle: 'idle', playing: 'playing', impact: 'impact', result: 'result' };
 
@@ -49,6 +50,10 @@ class UntouchApp {
     this.hintPulse = 0;
     this.sheets = null;
     this.lastRunTokens = 0;
+    this._crystalFlyTimer = 0;
+    this._interstitialTimer = 0;
+    this._interstitialGen = 0;
+    this._interstitialBusy = false;
 
     this.canvas = document.getElementById('game-canvas');
     this.ctx = this.canvas.getContext('2d', { alpha: false, desynchronized: true })
@@ -476,6 +481,8 @@ class UntouchApp {
 
   _resetToIdle() {
     clearTimeout(this._crystalFlyTimer);
+    clearTimeout(this._interstitialTimer);
+    this._interstitialGen += 1;
     this.phase = Phase.idle;
     this.impacts = [];
     this.aliveMs = 0;
@@ -569,7 +576,35 @@ class UntouchApp {
     });
 
     this._scheduleResultCrystalFlights(this.lastRunTokens);
+    this._scheduleResultInterstitial();
     this._updateOverlay();
+  }
+
+  _scheduleResultInterstitial() {
+    clearTimeout(this._interstitialTimer);
+    const gen = ++this._interstitialGen;
+    if (!this.economy.canShowResultInterstitial()) return;
+    this._interstitialTimer = setTimeout(() => {
+      if (gen !== this._interstitialGen) return;
+      this._maybeShowResultInterstitial();
+    }, 900);
+  }
+
+  async _maybeShowResultInterstitial() {
+    if (this._interstitialBusy) return;
+    if (this.phase !== Phase.result) return;
+    if (!this.economy.canShowResultInterstitial()) return;
+    const blockId = adsgramInterstitialBlockId(this.config);
+    if (!blockId) return;
+    this._interstitialBusy = true;
+    try {
+      await showInterstitialAd(blockId);
+      this.economy.markInterstitialShown();
+    } catch {
+      // нет заполнения / ошибка — результат остаётся, пробуем в следующей попытке
+    } finally {
+      this._interstitialBusy = false;
+    }
   }
 
   _bindResultStatTips({ riskEvery, riskReward, runEvery, runReward }) {

@@ -16,6 +16,7 @@ const state = {
   filter: 'all',
   q: '',
   page: 1,
+  view: 'people',
 };
 
 const $ = (id) => document.getElementById(id);
@@ -100,6 +101,36 @@ function showLogin(errorText = '') {
 function showApp() {
   $('login').classList.add('hidden');
   $('app').classList.remove('hidden');
+}
+
+function setView(view) {
+  state.view = ['ads', 'monetize'].includes(view) ? view : 'people';
+  const people = $('view-people');
+  const ads = $('view-ads');
+  const monetize = $('view-monetize');
+  people?.classList.toggle('hidden', state.view !== 'people');
+  ads?.classList.toggle('hidden', state.view !== 'ads');
+  monetize?.classList.toggle('hidden', state.view !== 'monetize');
+  $('tabs')?.querySelectorAll('[data-view]').forEach((btn) => {
+    btn.classList.toggle('on', btn.getAttribute('data-view') === state.view);
+  });
+  const title = $('page-title');
+  const sub = $('page-sub');
+  const reload = $('reload');
+  if (state.view === 'ads') {
+    if (title) title.textContent = 'Как рекламировать';
+    if (sub) sub.textContent = 'Бесплатные площадки, платная закупка и реклама внутри игры';
+    if (reload) reload.hidden = true;
+  } else if (state.view === 'monetize') {
+    if (title) title.textContent = 'Монетизация';
+    if (sub) sub.textContent = 'Баланс экономики, расчёт кассы и JSON для Remote Config';
+    if (reload) reload.hidden = true;
+    window.UntouchMonetize?.mount(monetize);
+  } else {
+    if (title) title.textContent = 'Кто пишет боту';
+    if (sub) sub.textContent = 'Дни по Москве (UTC+3)';
+    if (reload) reload.hidden = false;
+  }
 }
 
 function renderCards(stats) {
@@ -208,6 +239,7 @@ async function loadAll() {
 
 async function boot() {
   renderFilters();
+  setView('people');
   try {
     const status = await api('status');
     if (!status.configured) {
@@ -249,6 +281,12 @@ $('reload').addEventListener('click', () => {
   loadAll().catch((err) => {
     if (err.status === 401) showLogin('Сессия истекла');
   });
+});
+
+$('tabs')?.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-view]');
+  if (!btn) return;
+  setView(btn.getAttribute('data-view'));
 });
 
 $('filters').addEventListener('click', (e) => {

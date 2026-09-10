@@ -1,6 +1,7 @@
 import { calcScore } from './util.js';
 import { telegram } from './telegram.js';
 import { starsShopFromEconomy } from './shop-catalog.js';
+import { normalizeInterstitialBlockId } from './adsgram.js';
 
 /** Local economy — mirrors lib/data/economy_store.dart (offline Telegram). */
 
@@ -62,6 +63,9 @@ export class EconomyStore {
     this.lastDailyClaimMs = 0;
     this.lastTimedBonusClaimMs = 0;
     this.lastWatchAdClaimMs = 0;
+    this.skipWatchAdHint = false;
+    this.interstitialArmedAtMs = 0;
+    this.lastInterstitialMs = 0;
     this.claimedEarnIds = new Set();
     this.unlockedEarnIds = new Set();
     this.hasPremium = false;
@@ -285,6 +289,9 @@ export class EconomyStore {
       if (typeof d.lastDailyClaimMs === 'number') this.lastDailyClaimMs = d.lastDailyClaimMs;
       if (typeof d.lastTimedBonusClaimMs === 'number') this.lastTimedBonusClaimMs = d.lastTimedBonusClaimMs;
       if (typeof d.lastWatchAdClaimMs === 'number') this.lastWatchAdClaimMs = d.lastWatchAdClaimMs;
+      if (d.skipWatchAdHint === true) this.skipWatchAdHint = true;
+      if (typeof d.interstitialArmedAtMs === 'number') this.interstitialArmedAtMs = d.interstitialArmedAtMs;
+      if (typeof d.lastInterstitialMs === 'number') this.lastInterstitialMs = d.lastInterstitialMs;
       if (Array.isArray(d.claimedEarnIds)) this.claimedEarnIds = new Set(d.claimedEarnIds);
       if (Array.isArray(d.unlockedEarnIds)) this.unlockedEarnIds = new Set(d.unlockedEarnIds);
       if (typeof d.appliedStarsTokens === 'number') this.appliedStarsTokens = d.appliedStarsTokens;
@@ -295,6 +302,9 @@ export class EconomyStore {
       if (typeof d.hapticEnabled === 'boolean') this.hapticEnabled = d.hapticEnabled;
       if (typeof d.lightTheme === 'boolean') this.lightTheme = d.lightTheme;
       this._refreshPremiumFromUntil();
+      if (!this.interstitialArmedAtMs && this.lastDailyClaimMs) {
+        this.interstitialArmedAtMs = this.lastDailyClaimMs;
+      }
     } catch (err) {
       console.warn('economy load', err);
     }
@@ -314,6 +324,9 @@ export class EconomyStore {
           lastDailyClaimMs: this.lastDailyClaimMs,
           lastTimedBonusClaimMs: this.lastTimedBonusClaimMs,
           lastWatchAdClaimMs: this.lastWatchAdClaimMs,
+          skipWatchAdHint: this.skipWatchAdHint,
+          interstitialArmedAtMs: this.interstitialArmedAtMs,
+          lastInterstitialMs: this.lastInterstitialMs,
           claimedEarnIds: [...this.claimedEarnIds],
           unlockedEarnIds: [...this.unlockedEarnIds],
           hasPremium: this.hasPremium,
@@ -713,8 +726,47 @@ export class EconomyStore {
     const amount = this.dailyTokensForStreak(this.dailyStreak - 1, this.hasPremium);
     this.tokens += amount;
     this.lastDailyClaimMs = now.getTime();
+    if (!this.interstitialArmedAtMs) this.interstitialArmedAtMs = this.lastDailyClaimMs;
     this._save();
     return amount;
+  }
+
+  rememberSkipWatchAdHint() {
+    if (this.skipWatchAdHint) return;
+    this.skipWatchAdHint = true;
+    this._save();
+  }
+
+  _clampAdSec(value, fallback) {
+    const n = Number(value);
+    const raw = Number.isFinite(n) ? n : fallback;
+    return Math.max(0, Math.min(24 * 3600, raw));
+  }
+
+  get interstitialGraceMs() {
+    return this._clampAdSec(this.e.interstitialGraceSec, 210) * 1000;
+  }
+
+  get interstitialCooldownMs() {
+    return this._clampAdSec(this.e.interstitialCooldownSec, 180) * 1000;
+  }
+
+  canShowResultInterstitial() {
+    if (this.hasPremium) return false;
+    const blockId = normalizeInterstitialBlockId(this.e.adsgramInterstitialBlockId);
+    if (!blockId) return false;
+    if (!this.interstitialArmedAtMs) return false;
+    const now = Date.now();
+    if (now < this.interstitialArmedAtMs + this.interstitialGraceMs) return false;
+    if (this.lastInterstitialMs && now < this.lastInterstitialMs + this.interstitialCooldownMs) return false;
+    const minLives = Math.max(0, Math.min(99, Number(this.e.interstitialMinLives ?? 3) || 0));
+    if (minLives > 0 && this.lives < minLives) return false;
+    return true;
+  }
+
+  markInterstitialShown() {
+    this.lastInterstitialMs = Date.now();
+    this._save();
   }
 
   get _timedBonusIntervalMs() {

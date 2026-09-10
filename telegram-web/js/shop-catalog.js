@@ -8,16 +8,16 @@ export const PACK_BADGES = {
 
 export const DEFAULT_STARS_SHOP = {
   packs: [
-    { id: 'pack_s', title: 'Горсть', crystals: 40, stars: 49 },
-    { id: 'pack_m', title: 'Стопка', crystals: 120, stars: 149, badge: 'deal' },
-    { id: 'pack_l', title: 'Сундук', crystals: 350, stars: 349, badge: 'best' },
-    { id: 'pack_xl', title: 'Сейф', crystals: 900, stars: 749, badge: 'max' },
+    { id: 'pack_s', title: 'Горсть', crystals: 30, stars: 39 },
+    { id: 'pack_m', title: 'Стопка', crystals: 80, stars: 89, badge: 'deal' },
+    { id: 'pack_l', title: 'Сундук', crystals: 200, stars: 199, badge: 'best' },
+    { id: 'pack_xl', title: 'Сейф', crystals: 500, stars: 449, badge: 'max' },
   ],
   plus: {
-    id: 'plus_monthly',
+    id: 'plus_weekly',
     title: 'Plus',
-    stars: 199,
-    days: 30,
+    stars: 49,
+    days: 7,
   },
 };
 
@@ -65,6 +65,6 @@ export function starsShopFromEconomy(economy) {
 
 export function subscribePriceLabel(plus) {
   const p = plus || DEFAULT_STARS_SHOP.plus;
-  const days = Math.max(1, asInt(p.days, 30));
+  const days = Math.max(1, asInt(p.days, 7));
   return `${starsLabel(p.stars)} / ${days} дн.`;
 }

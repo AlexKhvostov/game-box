@@ -1147,3 +1147,128 @@ html, body {
   cursor: pointer;
 }
 
+.ad-hint-card {
+  padding: 12px 14px 12px;
+}
+
+.ad-hint-art {
+  width: min(188px, 52vw);
+  margin-bottom: 8px;
+}
+
+.ad-hint-lead {
+  margin-bottom: 10px;
+}
+
+.ad-hint-facts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin: 0 0 12px;
+}
+
+.ad-hint-fact {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: rgba(126, 224, 255, 0.1);
+  border: 1px solid rgba(126, 224, 255, 0.22);
+  color: #d5e6f2;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+.ad-hint-fact-pay img {
+  display: block;
+}
+
+.ad-hint-skip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 0 0 12px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  color: #8b9aab;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.ad-hint-skip input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.ad-hint-skip-box {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  border: 1.5px solid rgba(126, 224, 255, 0.45);
+  background: rgba(9, 14, 18, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #0e161e;
+}
+
+.ad-hint-skip-box svg {
+  display: none;
+}
+
+.ad-hint-skip input:checked + .ad-hint-skip-box {
+  background: #7ee0ff;
+  border-color: #7ee0ff;
+}
+
+.ad-hint-skip input:checked + .ad-hint-skip-box svg {
+  display: block;
+}
+
+.ad-hint-actions {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: 8px;
+}
+
+.ad-hint-cancel {
+  min-height: 44px;
+  border-radius: 14px;
+  border: 1.5px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.04);
+  color: #e8eef4;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+@media (max-height: 740px) {
+  .ad-hint-art {
+    width: min(148px, 40vw);
+    margin-bottom: 6px;
+  }
+
+  .ad-hint-card {
+    padding: 10px 12px 10px;
+  }
+
+  .ad-hint-lead {
+    margin-bottom: 8px;
+  }
+
+  .ad-hint-facts,
+  .ad-hint-skip {
+    margin-bottom: 8px;
+  }
+}
+
