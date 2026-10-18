@@ -115,7 +115,13 @@ Future<http.Response> respond(http.Request request) async {
         row['timeMs'] = body['timeMs'];
         row['runDistance'] = body['runDistance'];
         row['riskCount'] = body['riskCount'];
+        row['reward'] =
+            (body['runDistance'] as int) ~/ economy.config.runRewardEvery +
+            (body['riskCount'] as int) ~/ economy.config.riskRewardEvery;
+        wallet['energy'] = (wallet['energy'] as int) + (row['reward'] as int);
+        wallet['bestTimeMs'] = body['timeMs'];
       }
+      data['energyReward'] = row['reward'];
     case 'scores':
       final rows = <Map<String, dynamic>>[
         for (final entry in rounds.entries)
@@ -279,6 +285,42 @@ Future<void> main() async {
   final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 8898);
   await for (final request in server) {
     try {
+      if (request.uri.path == '/result-fixture') {
+        offline = true;
+        failure = null;
+        final key = scores.beginInstantRound(
+          helmet: false,
+          jump: false,
+          cost: 1,
+        );
+        if (key == null) throw StateError('Fixture start blocked');
+        await scores.recordAttempt(1000, runDistance: 1000, riskCount: 10);
+        BuildContext? screen;
+        void find(Element e) {
+          if (e.widget is Scaffold) screen ??= e;
+          e.visitChildElements(find);
+        }
+
+        find(rootKey.currentContext! as Element);
+        final context = screen!;
+        if (context.mounted) {
+          unawaited(
+            showDialog<void>(
+              context: context,
+              barrierDismissible: false,
+              builder: (c) => ResultOverlay(
+                timeMs: 1000,
+                runDistance: 1000,
+                riskCount: 10,
+                rewardClaimed: false,
+                onOk: () => Navigator.of(c).pop(),
+                onShare: () {},
+              ),
+            ),
+          );
+        }
+        await Future<void>.delayed(const Duration(milliseconds: 150));
+      }
       if (request.uri.path == '/fixture-run') {
         if (state()['phase'] == 'playing') {
           throw StateError('Finish the physical run first');

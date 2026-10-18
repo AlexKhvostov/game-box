@@ -198,7 +198,11 @@ Future<Widget> _createGame(AudiencePolicy audience) async {
                 !economy.energyRewardClaimed('age')) {
               await economy.completeEnergyAge();
             }
-            if (PlayBillingService.enabled) await account.syncPlay();
+            // Purchase recovery has its own durable worker. A slow Google
+            // verification must not hold the ranking refresh behind it.
+            if (PlayBillingService.enabled) {
+              unawaited(billing.reconnect().catchError((Object _) {}));
+            }
             await scores.load();
             if (!scores.online) {
               throw const MobileApiError('ranking_unavailable');

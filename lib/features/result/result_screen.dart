@@ -185,7 +185,9 @@ class _ResultOverlayState extends State<ResultOverlay>
         timeMs: widget.timeMs,
         riskCount: widget.riskCount,
         runSteps: widget.runDistance.round(),
-        betterPercent: rank.totalCount == 0 ? null : rank.percentile,
+        betterPercent: rank.totalCount == 0 || !rank.percentileKnown
+            ? null
+            : rank.percentile,
       );
     } finally {
       if (mounted) setState(() => _sharing = false);
@@ -346,6 +348,9 @@ class _ResultOverlayState extends State<ResultOverlay>
     final earned = _crystalsFromRisk(economy) + _crystalsFromRun(economy);
     final attempt = scores.latestAttempt;
     final matchingAttempt = attempt != null && attempt.timeMs == widget.timeMs;
+    final credited = economy.energyEnabled
+        ? matchingAttempt && attempt.shared
+        : _rewardClaimed;
     final pending = matchingAttempt && scores.isAttemptPending(attempt.id);
     final practice = matchingAttempt && !attempt.shared && !pending;
     final saveStatus = matchingAttempt
@@ -396,10 +401,11 @@ class _ResultOverlayState extends State<ResultOverlay>
                     steps: widget.runDistance.round(),
                     riskBonus: _crystalsFromRisk(economy),
                     runBonus: _crystalsFromRun(economy),
-                    credited: _rewardClaimed,
+                    credited: credited,
                     onRisk: () => _showTip('risk', economy),
                     onRun: () => _showTip('run', economy),
-                    claim: !_rewardClaimed && earned > 0
+                    claim:
+                        !economy.energyEnabled && !_rewardClaimed && earned > 0
                         ? TextButton.icon(
                             key: const ValueKey('result-claim-reward'),
                             onPressed: _claiming || widget.onClaimReward == null

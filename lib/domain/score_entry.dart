@@ -181,11 +181,14 @@ class RankInfo {
     required this.place,
     required this.percentile,
     required this.totalCount,
+    this.percentileKnown = true,
+    this.placeKnown = true,
   });
 
   final int place;
   final int percentile;
   final int totalCount;
+  final bool percentileKnown, placeKnown;
 }
 
 /// Места одного результата по временным срезам.

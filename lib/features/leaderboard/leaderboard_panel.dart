@@ -781,7 +781,12 @@ class _RankingStatus extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (!mine && store.loading) ...[
+            if (mine && !store.localHistoryReadable) ...[
+              Text(
+                RoundDelivery.message('round_storage_failed', ru: ru),
+                textAlign: TextAlign.center,
+              ),
+            ] else if (!mine && store.loading) ...[
               SizedBox(
                 width: 24,
                 height: 24,

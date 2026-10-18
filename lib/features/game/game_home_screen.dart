@@ -779,6 +779,20 @@ class _GameHomeScreenState extends State<GameHomeScreen>
     }
     final scores = context.read<ScoresStore>();
     final gameplay = context.read<GameplayConfig>();
+    if (!scores.localHistoryReadable) {
+      _clearPointers();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            RoundDelivery.message(
+              'round_storage_failed',
+              ru: Localizations.localeOf(context).languageCode == 'ru',
+            ),
+          ),
+        ),
+      );
+      return;
+    }
     if (scores.rulesUpdateRequired) {
       _clearPointers();
       ScaffoldMessenger.of(context).showSnackBar(

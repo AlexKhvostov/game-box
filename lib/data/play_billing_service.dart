@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:in_app_purchase_android/in_app_purchase_android.dart';
@@ -10,12 +11,16 @@ import 'mobile_account.dart';
 import '../domain/android_energy.dart';
 import '../domain/energy_test_catalog.dart';
 
-class PlayBillingService extends ChangeNotifier {
-  PlayBillingService(this.account, {bool? testServicePreview})
-    : _testServicePreview = testServicePreview ?? TestServicePreview.enabled {
+class PlayBillingService extends ChangeNotifier with WidgetsBindingObserver {
+  PlayBillingService(
+    this.account, {
+    bool? testServicePreview,
+    this.pendingRetryDelay = const Duration(seconds: 2),
+  }) : _testServicePreview = testServicePreview ?? TestServicePreview.enabled {
     account.addListener(_accountUpdated);
   }
   final MobileAccount account;
+  final Duration pendingRetryDelay;
   final bool _testServicePreview;
   bool get testServicePreview =>
       TestServicePreview.enabled || _testServicePreview;
@@ -48,6 +53,10 @@ class PlayBillingService extends ChangeNotifier {
   StreamSubscription<List<PurchaseDetails>>? _subscription;
   Future<void> _work = Future.value();
   Future<void>? _retrying;
+  Future<void>? _journalLoading;
+  Timer? _pendingRetry;
+  int _retryMultiplier = 1;
+  bool _foreground = true, _observing = false;
   bool available = false;
   bool busy = false;
   String? error;
@@ -69,6 +78,13 @@ class PlayBillingService extends ChangeNotifier {
   );
   void _accountUpdated() {
     if (testServicePreview) return;
+    if (!_disposed &&
+        _foreground &&
+        !account.busy &&
+        _pending.isNotEmpty &&
+        _pendingRetry == null) {
+      unawaited(retryPending().catchError((Object _) {}));
+    }
     if (!available || !energyEnabled || _disposed) return;
     final identity =
         '${account.id}:${jsonEncode(account.wallet?['energyConfig'])}';
@@ -211,35 +227,27 @@ class PlayBillingService extends ChangeNotifier {
     if (!enabled || kIsWeb || defaultTargetPlatform != TargetPlatform.android) {
       return;
     }
+    if (!_observing) {
+      _observing = true;
+      WidgetsBinding.instance.addObserver(this);
+      final state = WidgetsBinding.instance.lifecycleState;
+      _foreground = state == null || state == AppLifecycleState.resumed;
+    }
     try {
-      final launchRaw = await _storage.read(key: _launchKey);
-      if (launchRaw != null) {
-        final map = jsonDecode(launchRaw) as Map;
-        for (final entry in map.entries) {
-          _launches['${entry.key}'] = Map<String, dynamic>.from(
-            entry.value as Map,
-          );
-        }
-      }
-      final saved = await _storage.read(key: _pendingKey);
-      if (saved != null) {
-        _pending.addAll(
-          (jsonDecode(saved) as List).map(
-            (e) => Map<String, String>.from(e as Map),
-          ),
-        );
-      }
-      _subscription = InAppPurchase.instance.purchaseStream.listen(
+      await loadPendingJournal();
+      _subscription ??= InAppPurchase.instance.purchaseStream.listen(
         (purchases) {
           _work = _work.then((_) => _handle(purchases)).catchError((Object _) {
             error = 'verification_pending';
-            notifyListeners();
+            busy = false;
+            _armPendingRetry();
+            if (!_disposed) notifyListeners();
           });
         },
         onError: (Object _) {
           busy = false;
           error = 'store_unavailable';
-          notifyListeners();
+          if (!_disposed) notifyListeners();
         },
       );
       available = await InAppPurchase.instance.isAvailable();
@@ -261,8 +269,75 @@ class PlayBillingService extends ChangeNotifier {
     } catch (_) {
       error = 'store_unavailable';
     } finally {
-      notifyListeners();
+      _armPendingRetry();
+      if (!_disposed) notifyListeners();
     }
+  }
+
+  /// Restore the durable purchase journal independently of showing the store.
+  /// It can be verified while Billing UI is unavailable; tokens never leave
+  /// secure storage except for the authenticated verification request.
+  Future<void> loadPendingJournal() =>
+      _journalLoading ??= _readPendingJournal().catchError((Object error) {
+        _journalLoading = null;
+        throw error;
+      });
+  Future<void> _readPendingJournal() async {
+    final launchRaw = await _storage.read(key: _launchKey);
+    if (launchRaw != null) {
+      final map = jsonDecode(launchRaw) as Map;
+      for (final entry in map.entries) {
+        _launches['${entry.key}'] = Map<String, dynamic>.from(
+          entry.value as Map,
+        );
+      }
+    }
+    final saved = await _storage.read(key: _pendingKey);
+    if (saved != null) {
+      _pending.addAll(
+        (jsonDecode(saved) as List).map(
+          (e) =>
+              Map<String, String>.from(e as Map)
+                ..putIfAbsent('owner', () => ''),
+        ),
+      );
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    _foreground = state == AppLifecycleState.resumed;
+    if (!_foreground) {
+      _pendingRetry?.cancel();
+      _pendingRetry = null;
+    } else {
+      unawaited(reconnect().catchError((Object _) {}));
+    }
+  }
+
+  Future<void> reconnect() async {
+    if (_disposed || testServicePreview) return;
+    await loadPendingJournal();
+    await retryPending();
+    if (available) await account.syncPlay();
+  }
+
+  void _armPendingRetry() {
+    if (_disposed ||
+        !_foreground ||
+        _pendingRetry != null ||
+        _pending.isEmpty ||
+        testServicePreview) {
+      return;
+    }
+    if (!_pending.any((e) => e['owner'] == '' || e['owner'] == account.id)) {
+      return;
+    }
+    _pendingRetry = Timer(pendingRetryDelay * _retryMultiplier, () {
+      _pendingRetry = null;
+      _retryMultiplier = (_retryMultiplier * 2).clamp(1, 30);
+      unawaited(retryPending().catchError((Object _) {}));
+    });
   }
 
   Future<void> _clearLaunch(String? id) async {
@@ -462,11 +537,24 @@ class PlayBillingService extends ChangeNotifier {
   Future<void> retryPending() {
     // Startup, restored stream and the Restore button may overlap. Serialize
     // the secure journal updates so a completed purchase cannot reappear.
-    return _retrying ??= _retryPending().whenComplete(() => _retrying = null);
+    if (_disposed || testServicePreview) return Future.value();
+    if (_retrying != null) return _retrying!;
+    _pendingRetry?.cancel();
+    _pendingRetry = null;
+    return _retrying ??= _retryPending().whenComplete(() {
+      _retrying = null;
+      if (_pending.isEmpty) _retryMultiplier = 1;
+      _armPendingRetry();
+      if (!_disposed) notifyListeners();
+    });
   }
 
   Future<void> _retryPending() async {
+    if (_pending.isNotEmpty) {
+      await _storage.write(key: _pendingKey, value: jsonEncode(_pending));
+    }
     for (final entry in [..._pending]) {
+      if (_disposed || !_foreground) return;
       if (!account.ready) await account.load();
       if (entry['owner']!.isNotEmpty && entry['owner'] != account.id) {
         error = 'purchase_owner_invalid';
@@ -474,8 +562,11 @@ class PlayBillingService extends ChangeNotifier {
       }
       try {
         await account.verifyPlay(entry['productId']!, entry['token']!);
+        final remaining = _pending
+            .where((e) => e['token'] != entry['token'])
+            .toList();
+        await _storage.write(key: _pendingKey, value: jsonEncode(remaining));
         _pending.remove(entry);
-        await _storage.write(key: _pendingKey, value: jsonEncode(_pending));
         error = null;
       } catch (_) {
         error = 'verification_pending';
@@ -500,6 +591,8 @@ class PlayBillingService extends ChangeNotifier {
   @override
   void dispose() {
     _disposed = true;
+    _pendingRetry?.cancel();
+    if (_observing) WidgetsBinding.instance.removeObserver(this);
     account.removeListener(_accountUpdated);
     _subscription?.cancel();
     super.dispose();

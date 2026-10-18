@@ -6,6 +6,11 @@ abstract final class RoundDelivery {
     'update_required',
   }.contains(code);
   static String message(String code, {required bool ru}) {
+    if (code == 'round_storage_failed') {
+      return ru
+          ? 'Не удалось прочитать историю на телефоне. Данные сохранены; новые попытки приостановлены.'
+          : 'The local history could not be read. Your data is preserved; new runs are paused.';
+    }
     if (rulesError(code)) {
       return ru
           ? 'Правила обновились. Перезапустите игру.'

@@ -53,6 +53,11 @@ def main():
         s=cold();req('fixture-run?failure=result_time_invalid');time.sleep(.15)
         req('retry');s=wait(lambda s:s['attempts']and s['attempts'][0]['shared'],seconds=10)
         save('07-finish-recovered',s)
+        s=cold();req('result-fixture');s=wait(lambda s:s['phase']=='result'and s['attempts']and s['attempts'][0]['pending'])
+        assert not any('получено'in text for text in s['texts']),s
+        save('08-reward-awaiting-ack',s)
+        req('retry');s=wait(lambda s:s['attempts'][0]['shared']and any('получено'in text for text in s['texts']),seconds=10)
+        save('09-reward-confirmed',s)
         (args.out/'verification.json').write_text(json.dumps({'scenarios':records,'allPassed':True,'cloudCalls':0,'package':package},ensure_ascii=False,indent=2),encoding='utf-8')
         print(json.dumps({'passed':len(records),'cloudCalls':0,'errors':[]},ensure_ascii=False))
     finally:

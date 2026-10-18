@@ -17,6 +17,7 @@ class InstantRoundJournal {
     required this.recoverResult,
     required this.changed,
     this.rejected,
+    this.mayDeliver,
     int Function()? elapsedMilliseconds,
   }) : _elapsed = elapsedMilliseconds {
     account.addListener(_accountChanged);
@@ -29,6 +30,7 @@ class InstantRoundJournal {
   final void Function() changed;
   final Future<void> Function(String owner, String attemptId, String code)?
   rejected;
+  final bool Function()? mayDeliver;
   final int Function()? _elapsed;
   final Stopwatch _clock = Stopwatch()..start();
   int get _now => _elapsed?.call() ?? _clock.elapsedMilliseconds;
@@ -299,6 +301,7 @@ class InstantRoundJournal {
   }
 
   Future<void> _work() async {
+    if (mayDeliver?.call() == false) return;
     _running = true;
     final owner = _owner!;
     try {

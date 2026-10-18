@@ -33,6 +33,7 @@ class ScoresStore extends ChangeNotifier {
         account: account!,
         economy: instantEconomy,
         changed: _changed,
+        mayDeliver: () => _historyWritable,
         recoverResult: (id) {
           final a = _attempts.where((a) => a.id == id).firstOrNull;
           return a == null ? null : _attemptResult(a);
@@ -56,6 +57,7 @@ class ScoresStore extends ChangeNotifier {
             );
             await _persistAttempts();
             _lastRemoteOkAt = null;
+            _schedulePublishedRefresh();
           }
           _changed();
         },
@@ -79,7 +81,12 @@ class ScoresStore extends ChangeNotifier {
     _periodScores.clear();
     _scores.clear();
     averageRanking = null;
-    _loadAverageCache();
+    try {
+      _loadAverageCache();
+    } catch (_) {
+      averageRanking = null;
+      _periodScores.clear();
+    }
     _attempts.clear();
     _outbox.clear();
     if (_prefs != null) {
@@ -134,13 +141,16 @@ class ScoresStore extends ChangeNotifier {
   final http.Client _client;
   InstantRoundJournal? _instant;
   bool get instantRoundsEnabled => _instant != null;
+  bool get localHistoryReadable => _historyWritable;
   bool get rulesUpdateRequired => _instant?.rulesUpdateRequired ?? false;
   String? get roundDeliveryError => _instant?.lastError;
   String? beginInstantRound({
     required bool helmet,
     required bool jump,
     required int cost,
-  }) => _instant?.begin(helmet: helmet, jump: jump, cost: cost);
+  }) => _historyWritable
+      ? _instant?.begin(helmet: helmet, jump: jump, cost: cost)
+      : null;
   Map<String, dynamic> _attemptResult(LocalAttempt a) => {
     'timeMs': a.timeMs,
     'runDistance': a.runDistance,
@@ -157,6 +167,7 @@ class ScoresStore extends ChangeNotifier {
   }) async {
     await _recording;
     await _ensureLocalReady();
+    if (!_historyWritable) throw const MobileApiError('round_storage_failed');
     _roundPending = account?.startRound(
       helmet: helmet,
       jump: jump,
@@ -182,6 +193,18 @@ class ScoresStore extends ChangeNotifier {
   Timer? _retryTimer;
   int _retrySeconds = 1;
   bool _disposed = false;
+  bool _historyWritable = true;
+  Timer? _publishedRefresh;
+  void _schedulePublishedRefresh() {
+    if (_disposed) return;
+    _publishedRefresh?.cancel();
+    final owner = _attemptOwner;
+    _publishedRefresh = Timer(const Duration(milliseconds: 350), () {
+      _publishedRefresh = null;
+      if (!_disposed && owner == _attemptOwner) unawaited(load());
+    });
+  }
+
   String get _stateKey =>
       '${storagePrefix}mobile_score_state_v2_${_attemptOwner ?? 'pending'}';
   bool isAttemptPending(String id) =>
@@ -208,6 +231,7 @@ class ScoresStore extends ChangeNotifier {
   void dispose() {
     _disposed = true;
     _retryTimer?.cancel();
+    _publishedRefresh?.cancel();
     _instant?.dispose();
     account?.removeListener(_accountUpdated);
     super.dispose();
@@ -228,7 +252,7 @@ class ScoresStore extends ChangeNotifier {
 
   Future<void> loadLocal() async {
     await _ensureLocalReady();
-    await _instant?.bindOwner();
+    if (_historyWritable) await _instant?.bindOwner();
   }
 
   String get _kScores => supportsAverage
@@ -317,8 +341,10 @@ class ScoresStore extends ChangeNotifier {
     _changed();
 
     await _ensureLocalReady();
-    await _instant?.bindOwner();
-    _instant?.retry();
+    if (_historyWritable) {
+      await _instant?.bindOwner();
+      _instant?.retry();
+    }
     _changed();
 
     if (account != null) {
@@ -516,14 +542,28 @@ class ScoresStore extends ChangeNotifier {
 
   Future<void> _loadLocal() async {
     final prefs = _prefs!;
-    final raw = prefs.getString(_kScores);
     _scores.clear();
-    _loadAverageCache();
-    if (raw != null && raw.isNotEmpty) {
-      final list = jsonDecode(raw) as List<dynamic>;
-      for (final item in list) {
-        _scores.add(ScoreEntry.fromJson(item as Map<String, dynamic>));
+    try {
+      _loadAverageCache();
+    } catch (_) {
+      averageRanking = null;
+      _periodScores.clear();
+    }
+    try {
+      final raw = prefs.getString(_kScores);
+      if (raw != null && raw.isNotEmpty) {
+        final list = jsonDecode(raw) as List<dynamic>;
+        final parsed = list
+            .map((item) => ScoreEntry.fromJson(item as Map<String, dynamic>))
+            .toList();
+        _scores
+          ..clear()
+          ..addAll(parsed);
       }
+    } catch (_) {
+      // Disposable ranking data must never prevent startup. Preserve its raw
+      // value until a successful server fetch replaces this cache.
+      debugPrint('Ignoring unreadable ranking cache');
     }
   }
 
@@ -544,6 +584,20 @@ class ScoresStore extends ChangeNotifier {
   }
 
   Future<void> _loadAttempts() async {
+    _historyWritable = true;
+    try {
+      await _loadAttemptsBody();
+    } catch (_) {
+      // This value also contains unsent results. Do not overwrite, delete or
+      // silently replace it; allow the app to open with an explicit storage error.
+      _historyWritable = false;
+      _attempts.clear();
+      _outbox.clear();
+      debugPrint('Local result journal needs recovery');
+    }
+  }
+
+  Future<void> _loadAttemptsBody() async {
     _attempts.clear();
     _outbox.clear();
     final state = account == null ? null : _prefs!.getString(_stateKey);
@@ -587,6 +641,7 @@ class ScoresStore extends ChangeNotifier {
       }
     } catch (e, st) {
       debugPrint('Local attempts load failed: $e\n$st');
+      rethrow;
     }
     await _adoptLocalPractice();
   }
@@ -623,6 +678,7 @@ class ScoresStore extends ChangeNotifier {
   }
 
   Future<void> _persistAttempts() async {
+    if (!_historyWritable) throw const MobileApiError('round_storage_failed');
     final key = account == null ? _kAttempts : _stateKey;
     final attempts = _attempts.map((e) => e.toJson()).toList();
     final encoded = jsonEncode(
@@ -639,6 +695,7 @@ class ScoresStore extends ChangeNotifier {
 
   /// Сброс локальных очков и попыток (тех. сброс «как после установки»).
   Future<void> clearLocalData() async {
+    if (!_historyWritable) throw const MobileApiError('round_storage_failed');
     _prefs ??= await SharedPreferences.getInstance();
     _scores.clear();
     // Do not discard confirmed rounds awaiting acknowledgement during a reset.
@@ -850,6 +907,19 @@ class ScoresStore extends ChangeNotifier {
   RankInfo rankFor(int timeMs, {String period = 'all'}) {
     final list = scoresForNamedPeriod(period);
     final total = list.length;
+    if (supportsAverage) {
+      final mine = list
+          .where((s) => s.uid == account!.id && s.timeMs == timeMs)
+          .firstOrNull;
+      final better = list.where((s) => s.timeMs > timeMs).length;
+      return RankInfo(
+        place: mine?.place ?? better + 1,
+        percentile: 0,
+        totalCount: total,
+        placeKnown: mine?.place != null || better < 200,
+        percentileKnown: false,
+      );
+    }
     if (total == 0) {
       return const RankInfo(place: 1, percentile: 100, totalCount: 0);
     }

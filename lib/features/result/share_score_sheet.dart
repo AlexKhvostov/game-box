@@ -116,7 +116,9 @@ class _ShareScoreBodyState extends State<_ShareScoreBody> {
       if (!mounted) return;
       showGameToast(
         context,
-        message: l10n.savedPlace(rank.place),
+        message: rank.placeKnown
+            ? l10n.savedPlace(rank.place)
+            : l10n.scoreAutoSaved,
         accent: const Color(0xFF3DDC97),
       );
       Navigator.pop(context);
