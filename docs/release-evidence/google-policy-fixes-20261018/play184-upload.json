@@ -1,5 +1,5 @@
 {
-  "updatedLocal": "2026-10-18 21:59 Europe/Minsk",
+  "updatedLocal": "2026-10-18 22:14 Europe/Minsk",
   "package": "com.best4u.untouch",
   "versionCode": 184,
   "versionName": "1.0.183",
@@ -19,9 +19,9 @@
     "en-US",
     "ru-RU"
   ],
-  "submissionRegistered": false,
+  "submissionRegistered": true,
   "published": false,
-  "pendingChangeCount": 6,
+  "pendingChangeCount": 0,
   "latestKnownSubmission": 10,
   "latestKnownSubmissionPublished": "2026-10-18 19:42",
   "supportMessageSent": false,
@@ -35,5 +35,17 @@
     "direct184AttemptBlockedByGoogleSourceProtection": true,
     "protectionDisabled": false
   },
-  "nextStep": "Manual final-send check requested; verify submission history before claiming submitted."
+  "nextStep": "Wait for Google review outcome. Do not resubmit. After publication, verify 184 delivered through Google Play.",
+  "submissionEvidence": "user-provided Console screenshots",
+  "submissionHistoryVerified": false,
+  "submissionHistoryId": null,
+  "sendAcceptedByConsole": true,
+  "reviewStatus": "in_review",
+  "changesInReview": 6,
+  "availableToTestersVersionCode": 179,
+  "latestKnownSubmissionScope": "Previously verified submission history entry; not the new 184 submission ID.",
+  "evidence": [
+    "play184-send-accepted-user.png",
+    "play184-alpha-in-review-user.png"
+  ]
 }

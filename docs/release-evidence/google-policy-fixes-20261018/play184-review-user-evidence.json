@@ -1,0 +1,25 @@
+{
+  "recordedLocal": "2026-10-18 22:14 Europe/Minsk",
+  "source": "Two screenshots attached by Alexey in the current conversation",
+  "versionCode": 184,
+  "versionName": "1.0.183",
+  "track": "Alpha",
+  "publishingOverview": {
+    "section": "Изменения на проверке",
+    "automaticChecksShown": true,
+    "changes": 6,
+    "automaticForwardToReviewIfNoProblems": true
+  },
+  "alphaPage": {
+    "releaseStatus": "На рассмотрении",
+    "summary": "Выпуск 184 - 1.0.183 - 18.10.2026 проходит проверку",
+    "availableToSelectedTestersVersion": 179
+  },
+  "submissionAccepted": true,
+  "published184": false,
+  "submissionHistoryId": null,
+  "screenshots": [
+    "play184-send-accepted-user.png",
+    "play184-alpha-in-review-user.png"
+  ]
+}
