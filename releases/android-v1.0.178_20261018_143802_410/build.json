@@ -42,5 +42,6 @@
     "dailyLimit": 20,
     "timezone": "UTC+3"
   },
-  "evidence": "docs/release-evidence/phone-copies-build-label-20261018/README.md"
+  "evidence": "docs/release-evidence/phone-copies-build-label-20261018/README.md",
+  "sourceCommit": "ed9e2ff5e04bd5c6e13047f474d6391dffae9704"
 }
