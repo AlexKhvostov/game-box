@@ -43,10 +43,13 @@ android {
                 else -> "com.best4u.untouch.uiprobe"
             }
         } else "com.best4u.untouch"
-        // Keep every phone installation identifiable without opening settings.
+        // Play storefront builds have the stable product name; USB builds keep
+        // their number so physical test installations remain identifiable.
+        val playBuild = System.getenv("UNTOUCH_PLAY_BUILD") == "true" ||
+            gradle.startParameter.taskNames.any { it.substringAfterLast(':').equals("bundleRelease", ignoreCase = true) }
         val phoneLabel = if (System.getenv("UNTOUCH_UI_PROBE") == "true") {
             "QA${flutter.versionCode} Untouch"
-        } else "Untouch ${flutter.versionCode}"
+        } else if (playBuild) "untouch" else "Untouch ${flutter.versionCode}"
         resValue("string", "app_name", phoneLabel)
         // Optional local UI probe: isolated storage and no production API calls.
         // You can update the following values to match your application needs.

@@ -1,6 +1,7 @@
 param(
   [switch]$NoBump,
   [switch]$AppBundle,
+  [switch]$PlayStore,
   [switch]$GooglePlayBilling,
   [switch]$DemoAds,
   [switch]$LiveAds,
@@ -74,7 +75,9 @@ $buildArgs += "--dart-define=YANDEX_DEMO_ADS=$($DemoAds.IsPresent.ToString().ToL
 $buildArgs += "--dart-define=YANDEX_LIVE_ADS=$($LiveAds.IsPresent.ToString().ToLowerInvariant())"
 if ($GoogleWebClientId) { $buildArgs += "--dart-define=GOOGLE_WEB_CLIENT_ID=$GoogleWebClientId" }
 if ($GooglePlayBilling) { $buildArgs += '--dart-define=GOOGLE_PLAY_BILLING=true' }
+$priorPlayBuild = $env:UNTOUCH_PLAY_BUILD
 try {
+  $env:UNTOUCH_PLAY_BUILD = $(if ($AppBundle -or $PlayStore) { 'true' } else { 'false' })
   if ($SigningDirectory) {
     $protected = Get-Content -Raw -LiteralPath (Join-Path $SigningDirectory 'password.dpapi')
     $secure = ConvertTo-SecureString $protected.Trim()
@@ -83,6 +86,7 @@ try {
   & $dart @buildArgs
   if ($LASTEXITCODE -ne 0) { throw "Android $kind build failed: $LASTEXITCODE" }
 } finally {
+  $env:UNTOUCH_PLAY_BUILD = $priorPlayBuild
   if ($SigningDirectory) { $env:UNTOUCH_SIGNING_PASSWORD = $null }
 }
 $extension = if ($AppBundle) { 'aab' } else { 'apk' }
@@ -99,7 +103,8 @@ $config = Get-Content -Raw -LiteralPath (Join-Path $root $configPath) | ConvertF
 $manifest = [ordered]@{
   buildId=$buildId; versionName=$version; versionCode=$code
   package='com.best4u.untouch'; target='mobile-arcade'
-  applicationLabel="Untouch $code"
+  applicationLabel=$(if ($AppBundle -or $PlayStore) { 'untouch' } else { "Untouch $code" })
+  playStoreBuild=[bool]($AppBundle -or $PlayStore)
   sha256=(Get-FileHash -LiteralPath $dest -Algorithm SHA256).Hash.ToLowerInvariant()
   configRevision=$config.revision; adMode=$(if ($LiveAds) {'yandex-publisher-units-adult-session-opt-in'} elseif ($DemoAds) {'yandex-demo-adult-session-opt-in-internal-only'} else {'off'}); signing=$(if ($env:UNTOUCH_SIGNING_PROPERTIES) {'private-release-key'} else {'development-debug-key'})
   yandexLiveAds=$LiveAds.IsPresent

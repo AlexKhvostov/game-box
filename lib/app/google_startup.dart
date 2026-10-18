@@ -7,6 +7,8 @@ import '../data/google_identity.dart';
 import '../data/mobile_account.dart';
 import '../data/mobile_invites.dart';
 import '../data/player_preferences.dart';
+import '../data/audience_policy.dart';
+import '../ui/audience_gate.dart';
 import 'app_target.dart';
 import 'test_tools.dart';
 
@@ -33,6 +35,7 @@ class _GoogleStartupGateState extends State<GoogleStartupGate> {
   bool _finished = false;
   bool _scheduled = false;
   bool _connecting = false;
+  bool _agePromptOpen = false;
   late final GoogleIdentity _identity =
       widget.identity ?? NativeGoogleIdentity();
 
@@ -53,9 +56,37 @@ class _GoogleStartupGateState extends State<GoogleStartupGate> {
     _scheduled = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scheduled = false;
-      if (mounted) _openChooser();
+      if (mounted) unawaited(_start());
     });
     WidgetsBinding.instance.ensureVisualUpdate();
+  }
+
+  Future<void> _start() async {
+    if (_agePromptOpen) return;
+    final preferences = context.read<PlayerPreferences?>();
+    final audience = context.read<AudiencePolicy?>();
+    // This device-only question also works before a server profile is ready.
+    // It does not grant advertising permission or require Google sign-in.
+    if (widget.enabled &&
+        AppTargetConfig.isMobile &&
+        !TestTools.enabled &&
+        preferences != null &&
+        audience != null &&
+        !preferences.ageStartupSeen &&
+        ModalRoute.of(context)?.isCurrent == true &&
+        !_interacted) {
+      _agePromptOpen = true;
+      try {
+        if (audience.needsSelection) await showAudienceSelection(context);
+        await preferences.markAgeStartupSeen();
+      } catch (_) {
+        debugPrint('Startup: could not persist age prompt state');
+      } finally {
+        _agePromptOpen = false;
+      }
+      if (!mounted) return;
+    }
+    _openChooser();
   }
 
   void _openChooser() {

@@ -117,9 +117,16 @@ void main() {
         );
         await t.tap(find.text('open'));
         await t.pumpAndSettle();
+        await t.ensureVisible(
+          find.byKey(const ValueKey('simple-energy-video')),
+        );
         await t.tap(find.byKey(const ValueKey('simple-energy-video')));
+        await t.pumpAndSettle();
+        expect(driver.loads, 0, reason: 'The overview only opens instructions');
+        await t.ensureVisible(find.byKey(const ValueKey('simple-watch-video')));
+        await t.tap(find.byKey(const ValueKey('simple-watch-video')));
         await t.pump();
-        await t.tap(find.byKey(const ValueKey('simple-energy-video')));
+        await t.tap(find.byKey(const ValueKey('simple-watch-video')));
         await t.pump();
         expect(driver.loads, 1);
         expect(e.energy, 50);
@@ -156,7 +163,7 @@ void main() {
           expect(e.energy, 50);
           expect(find.byKey(effect), findsNothing);
           expect(
-            find.byKey(const ValueKey('simple-energy-video')),
+            find.byKey(const ValueKey('simple-watch-video')),
             findsOneWidget,
           );
         }
@@ -189,6 +196,7 @@ void main() {
     );
     await t.tap(find.text('open'));
     await t.pumpAndSettle();
+    await t.ensureVisible(find.byKey(const ValueKey('simple-watch-video')));
     await t.tap(find.byKey(const ValueKey('simple-watch-video')));
     await t.pump();
     d.result.complete(AdOutcome.rewarded);
@@ -264,8 +272,10 @@ void main() {
     );
     await t.tap(find.text('open'));
     await t.pumpAndSettle();
+    await t.ensureVisible(find.byKey(const ValueKey('simple-watch-video')));
     await t.tap(find.byKey(const ValueKey('simple-watch-video')));
     await t.pump();
+    await t.ensureVisible(find.byKey(const ValueKey('simple-energy-close')));
     await t.tap(find.byKey(const ValueKey('simple-energy-close')));
     await t.pumpAndSettle();
     d.result.complete(AdOutcome.rewarded);

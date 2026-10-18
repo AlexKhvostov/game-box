@@ -18,6 +18,7 @@ import '../../ui/game_ui.dart';
 import '../../ui/neon_chrome.dart';
 export '../../ui/neon_chrome.dart' show NeonGlass;
 import '../../ui/watch_rewarded_ad.dart';
+import '../../ui/rewarded_ad_disclosure.dart';
 import 'energy_services.dart'
     show EnergyBillingStatus, buySimpleEnergy, EnergyFeedbackForm;
 
@@ -172,7 +173,11 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
     () => watchRewardedAd(
       context,
       // The shared confirmed-wallet observer presents the reward exactly once.
-      onReward: (_) async {},
+      onReward: (_) async {
+        if (mounted && _page == EnergyPage.video) {
+          setState(() => _page = EnergyPage.energy);
+        }
+      },
     ),
   );
 
@@ -479,7 +484,7 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
               ? _tr(context, 'Смотреть', 'Watch')
               : bonusTime(e.watchAdCooldownRemaining!),
           e.canClaimWatchAd && !_busy && !e.energyBusy
-              ? () => _watchVideo(e)
+              ? () => _open(EnergyPage.video)
               : null,
           'video',
         ),
@@ -806,7 +811,9 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
         size: 15,
         align: TextAlign.center,
       ),
-      const SizedBox(height: 18),
+      const SizedBox(height: 12),
+      const RewardedAdDisclosure(),
+      const SizedBox(height: 12),
       NeonAction(
         key: const ValueKey('simple-watch-video'),
         height: 52,

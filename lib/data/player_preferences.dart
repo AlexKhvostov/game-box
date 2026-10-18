@@ -9,6 +9,7 @@ class PlayerPreferences extends ChangeNotifier {
   bool music = true;
   bool lightTheme = false;
   bool googleStartupSeen = false;
+  bool ageStartupSeen = false;
   late SharedPreferences _prefs;
 
   Future<void> load() async {
@@ -17,6 +18,7 @@ class PlayerPreferences extends ChangeNotifier {
     music = _prefs.getBool('device_music') ?? true;
     lightTheme = _prefs.getBool('device_light_theme') ?? false;
     googleStartupSeen = _prefs.getBool('google_startup_seen_v1') ?? false;
+    ageStartupSeen = _prefs.getBool('age_startup_seen_v1') ?? false;
     notifyListeners();
   }
 
@@ -41,6 +43,13 @@ class PlayerPreferences extends ChangeNotifier {
   Future<void> markGoogleStartupSeen() async {
     googleStartupSeen = true;
     await _prefs.setBool('google_startup_seen_v1', true);
+  }
+
+  Future<void> markAgeStartupSeen() async {
+    if (!await _prefs.setBool('age_startup_seen_v1', true)) {
+      throw StateError('Could not persist age startup state');
+    }
+    ageStartupSeen = true;
   }
 
   void applyAudio(AudioConfig base) {

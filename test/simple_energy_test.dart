@@ -206,6 +206,7 @@ void main() {
     await t.pumpWidget(app(e));
     await t.tap(find.text('open'));
     await t.pumpAndSettle();
+    await t.ensureVisible(find.byKey(const ValueKey('simple-energy-friends')));
     await t.tap(find.byKey(const ValueKey('simple-energy-friends')));
     await t.pumpAndSettle();
     expect(find.text('Пригласить друга'), findsWidgets);

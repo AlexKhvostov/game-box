@@ -6,6 +6,50 @@ import 'package:game_box/data/ads_service.dart';
 
 void main() {
   testWidgets(
+    'native ad kept open beyond deadline still returns its SDK reward once',
+    (tester) async {
+      final lease = AdPresentationLease<AdOutcome>(
+        fallback: AdOutcome.unavailable,
+      );
+      AdOutcome? result;
+      lease.result.then((v) => result = v);
+      lease.didChangeAppLifecycleState(AppLifecycleState.paused);
+      lease.didChangeViewFocus(
+        const ViewFocusEvent(
+          viewId: 0,
+          state: ViewFocusState.unfocused,
+          direction: ViewFocusDirection.undefined,
+        ),
+      );
+      await tester.pump(const Duration(minutes: 4));
+      expect(result, isNull);
+      expect(lease.safeToDispose, false);
+      lease.finish(AdOutcome.rewarded);
+      lease.finish(AdOutcome.dismissed);
+      await tester.pump();
+      expect(result, AdOutcome.rewarded);
+      expect(lease.safeToDispose, true);
+    },
+  );
+
+  testWidgets(
+    'native return without callback recovers even after a long end card',
+    (tester) async {
+      final lease = AdPresentationLease<AdOutcome>(
+        fallback: AdOutcome.unavailable,
+      );
+      lease.didChangeAppLifecycleState(AppLifecycleState.paused);
+      await tester.pump(const Duration(minutes: 4));
+      expect(lease.safeToDispose, false);
+      lease.didChangeAppLifecycleState(AppLifecycleState.resumed);
+      await tester.pump(const Duration(seconds: 2));
+      expect(await lease.result, AdOutcome.unavailable);
+      await tester.tapAt(const Offset(1, 1));
+      await tester.pump();
+      expect(lease.safeToDispose, true);
+    },
+  );
+  testWidgets(
     'lost callback returns unavailable at deadline, retains native window and never rewards',
     (tester) async {
       final lease = AdPresentationLease<AdOutcome>(

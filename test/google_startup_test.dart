@@ -17,6 +17,7 @@ import 'package:game_box/app/theme.dart';
 import 'package:game_box/data/google_identity.dart';
 import 'package:game_box/data/mobile_account.dart';
 import 'package:game_box/data/player_preferences.dart';
+import 'package:game_box/data/audience_policy.dart';
 import 'package:game_box/l10n/app_localizations.dart';
 import 'package:game_box/ui/game_viewport.dart';
 
@@ -84,11 +85,14 @@ Future<PlayerPreferences> mount(
   double textScale = 1,
   bool enabled = true,
   Map<String, Object> initial = const {},
+  bool withAudience = false,
 }) async {
   await tester.pumpWidget(const SizedBox());
   SharedPreferences.setMockInitialValues(initial);
   final preferences = PlayerPreferences();
   await preferences.load();
+  final audience = AudiencePolicy();
+  if (withAudience) await audience.load();
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
   await tester.pumpWidget(
@@ -96,6 +100,7 @@ Future<PlayerPreferences> mount(
       providers: [
         ChangeNotifierProvider<MobileAccount>.value(value: account),
         ChangeNotifierProvider.value(value: preferences),
+        if (withAudience) ChangeNotifierProvider.value(value: audience),
       ],
       child: RepaintBoundary(
         key: boundary,
@@ -174,6 +179,87 @@ void main() {
     view.resetPhysicalSize();
     view.resetDevicePixelRatio();
   });
+
+  testWidgets(
+    'first entry asks age before Google; cancellation keeps guest and does not enable ads',
+    (tester) async {
+      final account = FixtureAccount();
+      final identity = FixtureIdentity()
+        ..failure = GoogleSignInException(
+          code: GoogleSignInExceptionCode.canceled,
+        );
+      final prefs = await mount(
+        tester,
+        account: account,
+        identity: identity,
+        withAudience: true,
+      );
+      expect(find.byKey(const ValueKey('age-adult18plus')), findsOneWidget);
+      expect(identity.calls, 0);
+      await tester.tap(find.byKey(const ValueKey('age-adult18plus')));
+      await tester.pump();
+      await tester.tap(find.byKey(const ValueKey('age-continue')));
+      await tester.pumpAndSettle();
+      expect(identity.calls, 1);
+      expect(prefs.ageStartupSeen, true);
+      final disk = await SharedPreferences.getInstance();
+      expect(
+        disk.getString(AudiencePolicy.storageKey),
+        AgeBand.adult18plus.name,
+      );
+      expect(account.googleLinked, false);
+      expect(account.wallet!['tokens'], 23);
+      await mount(
+        tester,
+        account: account,
+        identity: identity,
+        withAudience: true,
+        initial: {
+          'google_startup_seen_v1': true,
+          'age_startup_seen_v1': true,
+          AudiencePolicy.storageKey: AgeBand.adult18plus.name,
+        },
+      );
+      expect(find.byKey(const ValueKey('age-continue')), findsNothing);
+      expect(identity.calls, 1);
+    },
+  );
+
+  testWidgets(
+    'offline first entry still asks age; under18 and skip do not block gameplay',
+    (tester) async {
+      final account = FixtureAccount(online: false)..id = null;
+      final identity = FixtureIdentity();
+      await mount(
+        tester,
+        account: account,
+        identity: identity,
+        withAudience: true,
+      );
+      await tester.tap(find.byKey(const ValueKey('age-under18')));
+      await tester.pump();
+      await tester.tap(find.byKey(const ValueKey('age-continue')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('fixture-play')), findsOneWidget);
+      expect(identity.calls, 0);
+      final policy = AudiencePolicy();
+      await policy.load();
+      expect(policy.band, AgeBand.under18);
+      expect(policy.rewardedAdsEnabled, false);
+      expect(policy.adsEnabled, false);
+      await mount(
+        tester,
+        account: account,
+        identity: identity,
+        withAudience: true,
+      );
+      await tester.tap(find.byKey(const ValueKey('age-cancel')));
+      await tester.pumpAndSettle();
+      final disk = await SharedPreferences.getInstance();
+      expect(disk.getBool('age_startup_seen_v1'), true);
+      expect(disk.get(AudiencePolicy.storageKey), isNull);
+    },
+  );
 
   testWidgets('direct chooser persists once; cancellation preserves guest', (
     tester,

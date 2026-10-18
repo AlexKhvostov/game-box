@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/gestures.dart';
 
-/// A lost native callback must neither lock the caller forever nor authorize a
-/// reward/closing somebody else's window. After the deadline release the caller,
-/// but retain the native lease until dismissal or a confirmed return to Flutter.
+/// Keep awaiting a visible native ad, including its end card. The watchdog can
+/// recover a lost callback once Flutter returns, but must not discard a valid
+/// reward just because a player spent longer finding the SDK close control.
 class AdPresentationLease<T> with WidgetsBindingObserver {
   AdPresentationLease({
     required this.fallback,
@@ -16,7 +16,11 @@ class AdPresentationLease<T> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     GestureBinding.instance.pointerRouter.addGlobalRoute(_flutterPointer);
     _deadline = Timer(deadline, () {
-      _fallback();
+      _recoveryArmed = true;
+      if ((!_left && !_lostFocus) ||
+          (_focused && _lifecycle == AppLifecycleState.resumed)) {
+        _fallback();
+      }
     });
   }
   final T fallback;

@@ -1,0 +1,11 @@
+{
+  "lib/data/ad_presentation_lease.dart": "67e6150f957e6781c231ced528a2ac296dd1b4b93c8d4b0e1848e88e6508d30e",
+  "lib/app/google_startup.dart": "d63bb3c778087069c2215b9080a98a0c91063136d929ce1d49e21890e9ddeea0",
+  "lib/data/player_preferences.dart": "c992ed6e91b080261bfd93e8fa2100a276b4d3719264dc9a99f4271323774014",
+  "lib/ui/rewarded_ad_disclosure.dart": "7261a95f1abb96a263b8e5848c2fd8a5d685b0dceaebe1ea38e436ce919acccb",
+  "lib/features/balance/simple_energy_sheet.dart": "ea36d776b72336e43465bbccda17b693769a78b6c7c35ddd86db54fea4f40c33",
+  "lib/features/balance/crystals_sheet.dart": "3adbf678073689180a2e0bb0b4eba9b61b49fd17446df8b2052ce266321fa753",
+  "android/app/build.gradle.kts": "e4e3dbce38be9f877f6108359470e8abaf1c1e86806a941d4d44d390f5b5f9b4",
+  "tools/build_phone_apk.ps1": "778576ae74b7eae0c4cb12bffdfe625de1cceba17ebccd106af242f345caac91",
+  "pubspec.yaml": "bcd97d2a19fc92367c273f41bd9d41a825c3fb11307418188b737e92a900f48f"
+}

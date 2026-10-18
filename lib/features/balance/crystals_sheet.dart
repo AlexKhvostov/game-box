@@ -18,6 +18,7 @@ import '../../ui/crystal_cube_icon.dart';
 import '../../ui/game_sheet.dart';
 import '../../ui/game_toast.dart';
 import '../../ui/watch_rewarded_ad.dart';
+import '../../ui/rewarded_ad_disclosure.dart';
 import '../../ui/billing_unavailable.dart';
 import '../../ui/audience_gate.dart';
 import '../../data/ads_service.dart';
@@ -211,8 +212,13 @@ class _CrystalsSheetState extends State<_CrystalsSheet>
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(8, 6, 8, 0),
+            if (context.watch<AdsService?>()?.available == true)
+              const Padding(
+                padding: EdgeInsets.fromLTRB(12, 4, 12, 4),
+                child: RewardedAdDisclosure(),
+              ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 6, 8, 0),
             child: DecoratedBox(
               key: const ValueKey('shop-tab-menu'),
               decoration: BoxDecoration(

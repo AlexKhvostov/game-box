@@ -1,0 +1,15 @@
+{
+  "versionCode": 183,
+  "overviewHasNoInstructions": true,
+  "firstTapOpensInstructionsOnly": true,
+  "sdkNotStartedByFirstTap": true,
+  "instructionsVisibleBeforeLaunch": true,
+  "beforeEnergy": 120,
+  "startedAt": 1792344245.578758,
+  "nativeAdShownAfterLaunch": true,
+  "nativeCloseXVisible": true,
+  "returnedToEnergyOverview": true,
+  "afterEnergy": 160,
+  "rewardDelta": 40,
+  "instructionAbsentAfterReturn": true
+}
