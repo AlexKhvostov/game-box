@@ -8,21 +8,28 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../data/app_analytics.dart';
 import '../../l10n/app_localizations.dart';
-import '../../ui/resting_cube_icon.dart';
+import '../../ui/game_sheet.dart';
+import '../../ui/game_ui.dart';
+import '../../ui/game_run_scene.dart';
 
 /// Превью карточки для соцсетей + отправка (не скрин игрового UI).
 Future<void> showShareSocialSheet(
   BuildContext context, {
   required int timeMs,
   int? betterPercent,
+  int? riskCount,
+  int? runSteps,
 }) {
   return showModalBottomSheet<void>(
+    sheetAnimationStyle: GameUi.windowAnimationStyle,
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
     builder: (_) => _ShareSocialSheet(
       timeMs: timeMs,
       betterPercent: betterPercent,
+      riskCount: riskCount,
+      runSteps: runSteps,
     ),
   );
 }
@@ -31,10 +38,13 @@ class _ShareSocialSheet extends StatefulWidget {
   const _ShareSocialSheet({
     required this.timeMs,
     this.betterPercent,
+    this.riskCount,
+    this.runSteps,
   });
 
   final int timeMs;
   final int? betterPercent;
+  final int? riskCount, runSteps;
 
   @override
   State<_ShareSocialSheet> createState() => _ShareSocialSheetState();
@@ -43,24 +53,40 @@ class _ShareSocialSheet extends StatefulWidget {
 class _ShareSocialSheetState extends State<_ShareSocialSheet> {
   final GlobalKey _cardKey = GlobalKey();
   bool _sending = false;
+  String? _feedback;
 
-  String _timeLabel() {
-    final s = widget.timeMs / 1000.0;
-    if (s >= 10) return s.toStringAsFixed(1);
-    return s.toStringAsFixed(2);
-  }
+  String _timeLabel() => (widget.timeMs / 1000).toStringAsFixed(3);
+
+  String _tr(String ru, String en) =>
+      Localizations.localeOf(context).languageCode == 'ru' ? ru : en;
 
   Future<void> _send() async {
     if (_sending) return;
-    setState(() => _sending = true);
+    setState(() {
+      _sending = true;
+      _feedback = null;
+    });
     try {
       final boundary =
           _cardKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
-      if (boundary == null) return;
-
+      if (boundary == null) throw StateError('share_card_unavailable');
+      // Export the compact card only after its horizontal scene has
+      // decoded and the frame has painted; a fast tap must not share a blank.
+      await precacheImage(
+        GameRunScene.provider(
+          boundary.size.width - 3,
+          MediaQuery.devicePixelRatioOf(context) > 3
+              ? MediaQuery.devicePixelRatioOf(context)
+              : 3,
+        ),
+        context,
+      );
+      await WidgetsBinding.instance.endOfFrame;
+      if (!mounted) return;
       final image = await boundary.toImage(pixelRatio: 3);
       final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-      if (byteData == null) return;
+      image.dispose();
+      if (byteData == null) throw StateError('share_image_unavailable');
 
       final dir = await getTemporaryDirectory();
       final file = File('${dir.path}/untouch_share.png');
@@ -71,16 +97,36 @@ class _ShareSocialSheetState extends State<_ShareSocialSheet> {
       final time = _timeLabel();
       final caption = l10n.shareScoreCaption(l10n.appTitle, time);
       AppAnalytics.shareSocial();
-      await SharePlus.instance.share(
+      final result = await SharePlus.instance.share(
         ShareParams(
           files: [XFile(file.path, mimeType: 'image/png')],
           text: caption,
           subject: l10n.appTitle,
         ),
       );
-      if (mounted) Navigator.pop(context);
+      if (!mounted) return;
+      if (result.status == ShareResultStatus.success) {
+        Navigator.pop(context);
+      } else {
+        setState(
+          () => _feedback = result.status == ShareResultStatus.dismissed
+              ? _tr('Отправка отменена', 'Sharing canceled')
+              : _tr(
+                  'Отправка недоступна на этом устройстве.',
+                  'Sharing is unavailable on this device.',
+                ),
+        );
+      }
     } catch (e) {
       debugPrint('ShareSocialSheet: $e');
+      if (mounted) {
+        setState(
+          () => _feedback = _tr(
+            'Не удалось подготовить карточку. Попробуйте ещё раз.',
+            'Could not prepare the card. Try again.',
+          ),
+        );
+      }
     } finally {
       if (mounted) setState(() => _sending = false);
     }
@@ -90,233 +136,201 @@ class _ShareSocialSheetState extends State<_ShareSocialSheet> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final time = _timeLabel();
-    final bottom = MediaQuery.paddingOf(context).bottom;
 
-    return Padding(
-      padding: EdgeInsets.fromLTRB(16, 0, 16, 12 + bottom),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 40,
-            height: 4,
-            margin: const EdgeInsets.only(bottom: 14),
-            decoration: BoxDecoration(
-              color: Colors.white24,
-              borderRadius: BorderRadius.circular(99),
-            ),
-          ),
-          RepaintBoundary(
-            key: _cardKey,
-            child: _SocialShareCard(
-              appTitle: l10n.appTitle,
-              timeLabel: time,
-              boast: l10n.shareBoast(time, l10n.appTitle),
-              percentileText: widget.betterPercent == null
-                  ? null
-                  : l10n.rankToday(widget.betterPercent!),
-            ),
-          ),
-          const SizedBox(height: 16),
-          FilledButton.icon(
-            onPressed: _sending ? null : _send,
-            icon: _sending
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Icon(Icons.ios_share_rounded, size: 20),
-            label: Text(l10n.shareSend),
-            style: FilledButton.styleFrom(
-              minimumSize: const Size.fromHeight(52),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
+    return GameSheetChrome(
+      heightFactor: .92,
+      fitContent: true,
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              GameSheetHeader(title: l10n.shareSocial),
+              Flexible(
+                fit: FlexFit.loose,
+                child: SingleChildScrollView(
+                  child: RepaintBoundary(
+                    key: _cardKey,
+                    child: _SocialShareCard(
+                      appTitle: l10n.appTitle,
+                      timeLabel: time,
+                      riskCount: widget.riskCount,
+                      runSteps: widget.runSteps,
+                      boast: _tr(
+                        'Сколько продержитесь вы?',
+                        'How long can you survive?',
+                      ),
+                    ),
+                  ),
+                ),
               ),
-            ),
+              if (_feedback != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Semantics(
+                    liveRegion: true,
+                    child: Container(
+                      key: const ValueKey('share-feedback'),
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFE5E8),
+                        borderRadius: BorderRadius.circular(9),
+                      ),
+                      child: Text(
+                        _feedback!,
+                        style: const TextStyle(
+                          color: Color(0xFF6E1935),
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              const SizedBox(height: 8),
+              FilledButton.icon(
+                onPressed: _sending ? null : _send,
+                icon: _sending
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.ios_share_rounded, size: 20),
+                label: Text(l10n.shareSend),
+                key: const ValueKey('share-send'),
+                style: FilledButton.styleFrom(
+                  minimumSize: Size.fromHeight(GameUi.touchTarget(context)),
+                ),
+              ),
+              const SizedBox(height: 4),
+              OutlinedButton(
+                onPressed: _sending ? null : () => Navigator.pop(context),
+                style: OutlinedButton.styleFrom(
+                  minimumSize: Size.fromHeight(GameUi.touchTarget(context)),
+                ),
+                child: Text(l10n.cancel),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(l10n.cancel),
-          ),
-        ],
+        ),
       ),
     );
   }
 }
 
-/// Карточка 1:1 под сторис / ленту — фон в духе иконки Untouch.
+/// The shared PNG contains the complete game scene and readable real values.
 class _SocialShareCard extends StatelessWidget {
   const _SocialShareCard({
     required this.appTitle,
     required this.timeLabel,
     required this.boast,
-    this.percentileText,
+    this.riskCount,
+    this.runSteps,
   });
-
-  final String appTitle;
-  final String timeLabel;
-  final String boast;
-  final String? percentileText;
+  final String appTitle, timeLabel, boast;
+  final int? riskCount, runSteps;
 
   @override
   Widget build(BuildContext context) {
-    const accent = Color(0xFF3DDC97);
-    const cyan = Color(0xFF7EE0FF);
-
-    return AspectRatio(
-      aspectRatio: 1,
+    final ru = Localizations.localeOf(context).languageCode == 'ru';
+    final time = '$timeLabel ${ru ? 'с' : 's'}';
+    return Semantics(
+      label: '$appTitle $timeLabel ${AppLocalizations.of(context).seconds}',
       child: Container(
+        key: const ValueKey('share-preview'),
         width: double.infinity,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(28),
-          border: Border.all(color: cyan.withValues(alpha: 0.85), width: 3),
-          boxShadow: [
-            BoxShadow(
-              color: cyan.withValues(alpha: 0.22),
-              blurRadius: 24,
-              offset: const Offset(0, 10),
-            ),
-          ],
+          color: const Color(0xFF061B2B),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: const Color(0xFF68D6E9), width: 1.5),
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(25),
-          child: Stack(
-            fit: StackFit.expand,
+          borderRadius: BorderRadius.circular(12.5),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Фон — иконка игры (голубой куб убегает от красного).
-              Image.asset(
-                'assets/branding/app_icon.png',
-                fit: BoxFit.cover,
-                alignment: const Alignment(0, -0.15),
-              ),
-              // Затемнение: сверху легче (персонажи), снизу темнее (текст).
-              const DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    stops: [0.0, 0.35, 0.62, 1.0],
-                    colors: [
-                      Color(0x660A1014),
-                      Color(0x4D0A1014),
-                      Color(0xCC070B0E),
-                      Color(0xF2070B0E),
-                    ],
-                  ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 10, 12, 6),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      appTitle.toLowerCase(),
+                      style: const TextStyle(
+                        color: GameUi.mint,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        time,
+                        style: const TextStyle(
+                          color: GameUi.text,
+                          fontSize: 40,
+                          height: 1.1,
+                          fontWeight: FontWeight.w900,
+                          fontFeatures: [FontFeature.tabularFigures()],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              // Мягкое свечение по краям в духе рамки иконки.
-              DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: RadialGradient(
-                    center: const Alignment(0, -0.35),
-                    radius: 1.15,
-                    colors: [
-                      cyan.withValues(alpha: 0.12),
-                      Colors.transparent,
-                    ],
+              LayoutBuilder(
+                builder: (context, constraints) => AspectRatio(
+                  aspectRatio: GameRunScene.aspectRatio,
+                  child: Image(
+                    key: const ValueKey('share-scene'),
+                    image: GameRunScene.provider(constraints.maxWidth, 3),
+                    fit: BoxFit.cover,
+                    excludeFromSemantics: true,
                   ),
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(24, 22, 24, 24),
+                padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    DecoratedBox(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(999),
-                        color: const Color(0xFF0C1218).withValues(alpha: 0.72),
-                        border: Border.all(
-                          color: cyan.withValues(alpha: 0.4),
-                        ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(12, 7, 16, 7),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const RestingCubeIcon(size: 20),
-                            const SizedBox(width: 8),
-                            Text(
-                              appTitle,
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 0.6,
-                                color: cyan.withValues(alpha: 0.95),
-                              ),
+                    if (riskCount != null && runSteps != null) ...[
+                      Wrap(
+                        spacing: 16,
+                        runSpacing: 3,
+                        children: [
+                          Text(
+                            '${ru ? 'Риск' : 'Risk'} $riskCount',
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: GameUi.muted,
                             ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const Spacer(flex: 3),
-                    Text(
-                      timeLabel,
-                      style: TextStyle(
-                        fontSize: 72,
-                        fontWeight: FontWeight.w900,
-                        height: 1,
-                        letterSpacing: -1.5,
-                        color: accent,
-                        fontFeatures: const [FontFeature.tabularFigures()],
-                        shadows: [
-                          Shadow(
-                            color: Colors.black.withValues(alpha: 0.55),
-                            blurRadius: 12,
-                            offset: const Offset(0, 4),
+                          ),
+                          Text(
+                            '${ru ? 'Шаги' : 'Steps'} $runSteps',
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: GameUi.muted,
+                            ),
                           ),
                         ],
                       ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      AppLocalizations.of(context).seconds,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 2,
-                        color: Colors.white.withValues(alpha: 0.7),
-                      ),
-                    ),
-                    const Spacer(flex: 2),
+                      const SizedBox(height: 6),
+                    ],
                     Text(
                       boast,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w800,
-                        height: 1.25,
-                        color: const Color(0xFFF2F7FA),
-                        shadows: [
-                          Shadow(
-                            color: Colors.black.withValues(alpha: 0.65),
-                            blurRadius: 10,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
+                      style: const TextStyle(
+                        color: GameUi.text,
+                        fontSize: 14,
+                        height: 1.3,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
-                    if (percentileText != null) ...[
-                      const SizedBox(height: 10),
-                      Text(
-                        percentileText!,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                          color: accent,
-                          shadows: [
-                            Shadow(
-                              color: Colors.black.withValues(alpha: 0.55),
-                              blurRadius: 8,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
                   ],
                 ),
               ),

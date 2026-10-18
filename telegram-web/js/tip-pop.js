@@ -1,4 +1,4 @@
-/** Compact anchored tooltip next to a control — not a blocking modal. */
+﻿/** Compact anchored tooltip next to a control — not a blocking modal. */
 
 let pop = null;
 let card = null;

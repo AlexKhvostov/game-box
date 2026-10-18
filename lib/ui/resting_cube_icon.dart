@@ -1,24 +1,28 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'hero_face.dart';
 
 /// Отдыхающий кубик-игрок: устал и дремлет (плашка «нет жизней»).
 class RestingCubeIcon extends StatelessWidget {
-  const RestingCubeIcon({super.key, this.size = 48});
+  const RestingCubeIcon({super.key, this.size = 48, this.resting = true});
 
   final double size;
+  final bool resting;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: size,
       height: size,
-      child: CustomPaint(painter: _RestingCubePainter()),
+      child: CustomPaint(painter: _RestingCubePainter(resting)),
     );
   }
 }
 
 class _RestingCubePainter extends CustomPainter {
+  const _RestingCubePainter(this.resting);
+  final bool resting;
   @override
   void paint(Canvas canvas, Size size) {
     final s = size.shortestSide;
@@ -68,7 +72,7 @@ class _RestingCubePainter extends CustomPainter {
     canvas.translate(cx - s * 0.02, cy - s * 0.02);
     canvas.rotate(-0.22);
 
-    final half = s * 0.26;
+    final half = s * (resting ? 0.26 : 0.34);
     final rect = RRect.fromRectAndRadius(
       Rect.fromCenter(center: Offset.zero, width: half * 2, height: half * 2),
       Radius.circular(half * 0.22),
@@ -81,7 +85,7 @@ class _RestingCubePainter extends CustomPainter {
         ..shader = const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF5CE1A8), Color(0xFF2FB87A)],
+          colors: [Color(0xFF86FFD3), Color(0xFF20D79A)],
         ).createShader(rect.outerRect),
     );
     canvas.drawRRect(
@@ -97,6 +101,12 @@ class _RestingCubePainter extends CustomPainter {
       half * 0.18,
       Paint()..color = Colors.white.withValues(alpha: 0.28),
     );
+
+    if (!resting) {
+      paintHeroFace(canvas, rect.outerRect);
+      canvas.restore();
+      return;
+    }
 
     // Закрытые глаза (усталость)
     final eyePaint = Paint()
@@ -150,15 +160,24 @@ class _RestingCubePainter extends CustomPainter {
       height: 1,
     );
     final tp1 = TextPainter(
-      text: TextSpan(text: 'z', style: zStyle.copyWith(fontSize: s * 0.13)),
+      text: TextSpan(
+        text: 'z',
+        style: zStyle.copyWith(fontSize: s * 0.13),
+      ),
       textDirection: TextDirection.ltr,
     )..layout();
     final tp2 = TextPainter(
-      text: TextSpan(text: 'z', style: zStyle.copyWith(fontSize: s * 0.17)),
+      text: TextSpan(
+        text: 'z',
+        style: zStyle.copyWith(fontSize: s * 0.17),
+      ),
       textDirection: TextDirection.ltr,
     )..layout();
     final tp3 = TextPainter(
-      text: TextSpan(text: 'Z', style: zStyle.copyWith(fontSize: s * 0.21)),
+      text: TextSpan(
+        text: 'Z',
+        style: zStyle.copyWith(fontSize: s * 0.21),
+      ),
       textDirection: TextDirection.ltr,
     )..layout();
     tp1.paint(canvas, Offset(cx + s * 0.16, cy - s * 0.42));
@@ -167,5 +186,6 @@ class _RestingCubePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(_RestingCubePainter oldDelegate) =>
+      resting != oldDelegate.resting;
 }

@@ -1,0 +1,49 @@
+/* Android113 rent materials; runtime prices, durations and feedback are unchanged. */
+#sheet-panel.sheet-crystals .neon-rent-pane { padding: 6px 12px 8px; overflow-x: hidden; overflow-y: auto; }
+.neon-rent-pane .neon-rent-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; align-items: start; }
+.neon-rent-pane.two-columns .neon-rent-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.neon-rent-pane .neon-rent-card { min-width: 0; padding: 10px; border: 1.5px solid var(--rent-accent); border-radius: 10px; background: linear-gradient(135deg, #9dd9ef, #79bedb 35%, #6cb5d6); box-shadow: 0 3px 0 #23649788; color: #082e4c; }
+.neon-rent-pane .rent-card-h { display: flex; align-items: center; gap: 6px; }
+.neon-rent-pane .rent-icon-box { display: block; width: 28px; height: 28px; flex: 0 0 28px; padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; }
+.neon-rent-pane .rent-icon-box .ui-art { width: 28px; height: 28px; }
+.neon-rent-pane .rent-title { min-width: 0; color: var(--rent-accent); font-size: 13px; line-height: 1.2; font-weight: 900; overflow-wrap: anywhere; }
+.neon-rent-pane .rent-desc { margin-top: 6px; color: #082e4c; font-size: 11px; line-height: 1.25; font-weight: 600; overflow-wrap: anywhere; }
+.neon-rent-pane .rent-active-lbl { margin-top: 6px; font-size: 11px; line-height: 1.2; font-weight: 800; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.neon-rent-pane .rent-btns { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+.neon-rent-pane .rent-dur-btn { display: block; width: 100%; min-width: 0; min-height: 56px; padding: 8px; margin: 0; border: 1.5px solid #79f1f5; border-radius: 10px; background: linear-gradient(135deg, #153f58, #0d2a40); color: #f0fbff; font-family: inherit; text-align: left; cursor: pointer; opacity: 1; }
+.neon-rent-pane .rent-dur-btn.disabled { border-width: 1px; border-color: #677887; background: linear-gradient(90deg, #3b4b5a, #293947); color: #a4b2be; opacity: 1; }
+.neon-rent-pane .neon-rent-offer-top { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 4px; }
+.neon-rent-pane .rd-mins { min-width: 0; flex: 1 1 40px; color: inherit; font-size: 13px; line-height: 1.2; font-weight: 900; overflow-wrap: anywhere; }
+.neon-rent-pane .neon-rent-cost { display: inline-flex; align-items: center; gap: 3px; max-width: 100%; padding: 4px 6px; margin-left: auto; border: 1px solid #79f1f5; border-radius: 7px; background: #052d47; color: #f0fbff; }
+.neon-rent-pane .rd-cost { width: calc(var(--cost-digits) * .75em); max-width: 6em; min-width: 0; height: 16px; color: inherit; font-size: 13px; line-height: 1.1; font-weight: 900; }
+.neon-rent-pane .neon-rent-cost.unavailable { background: #263847; border-color: #687987; color: #bac7d0; }
+.neon-rent-pane .neon-rent-cost.unavailable .crystal-img { opacity: .5; }
+.neon-rent-pane .rd-cost-row { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin-top: 5px; }
+.neon-rent-pane .rd-strike { color: inherit; font-size: 10px; line-height: 1.2; text-decoration: line-through; }
+.neon-rent-pane .rd-disc { margin-left: 0; padding: 0; border: 0; border-radius: 0; background: none; color: #ffd54a; font-size: 10px; line-height: 1.2; font-weight: 800; }
+.neon-rent-pane .rent-dur-btn.disabled .rd-disc { color: #a4b2be; }
+.neon-rent-pane .rd-action { display: flex; align-items: flex-start; gap: 4px; margin-top: 8px; color: #43ecc0; font-size: 11px; line-height: 1.2; font-weight: 800; }
+.neon-rent-pane .rd-action > span { min-width: 0; overflow-wrap: anywhere; }
+.neon-rent-pane .rd-action svg { display: block; width: 14px; height: 14px; flex: 0 0 14px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.neon-rent-pane .rent-dur-btn.disabled .rd-action { color: #a4b2be; }
+.neon-rent-pane .rent-dur-btn:focus-visible { outline: 2px solid #fff; outline-offset: -4px; }
+#sheet-panel.sheet-crystals .neon-rent-pane > .daily-hint { color: #a9cbe4; }
+/* Legacy light rules use !important; keep the native nested navy offers readable. */
+html[data-theme="light"] #sheet-panel .neon-rent-pane .rent-dur-btn { background: linear-gradient(135deg, #153f58, #0d2a40) !important; border-color: #79f1f5 !important; color: #f0fbff; }
+html[data-theme="light"] #sheet-panel .neon-rent-pane .rent-dur-btn.disabled { background: linear-gradient(90deg, #3b4b5a, #293947) !important; border-color: #677887 !important; color: #a4b2be; }
+html[data-theme="light"] #sheet-panel .neon-rent-pane .rent-title { color: var(--rent-accent) !important; }
+html[data-theme="light"] #sheet-panel .neon-rent-pane .rd-mins, html[data-theme="light"] #sheet-panel .neon-rent-pane .rd-strike { color: inherit !important; }
+html[data-theme="light"] #sheet-panel .neon-rent-pane .rd-cost { color: #f0fbff !important; }
+html[data-theme="light"] #sheet-panel .neon-rent-pane .neon-rent-cost.unavailable .rd-cost { color: #bac7d0 !important; }
+html[data-theme="light"] #sheet-panel .neon-rent-pane .rd-disc { color: #ffd54a !important; }
+html[data-theme="light"] #sheet-panel .neon-rent-pane .rd-action { color: #43ecc0 !important; }
+html[data-theme="light"] #sheet-panel .neon-rent-pane .rent-dur-btn.disabled .rd-disc, html[data-theme="light"] #sheet-panel .neon-rent-pane .rent-dur-btn.disabled .rd-action { color: #a4b2be !important; }
+/* A short landscape viewport has room for two offer rows, not three. */
+@media (max-height: 430px) and (min-width: 700px) {
+  #sheet-panel.sheet-crystals:has(.neon-rent-pane) { --shop-header-h: 62px !important; }
+  .neon-rent-pane .rent-dur-btn { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 5px; padding: 5px 8px; }
+  .neon-rent-pane .neon-rent-offer-top { grid-column: 1 / -1; }
+  .neon-rent-pane .rd-cost-row { grid-row: 2; grid-column: 1; margin-top: 0; }
+  .neon-rent-pane .rd-action { grid-row: 2; grid-column: 2; margin-top: 0; align-items: center; }
+  .neon-rent-pane .rd-action:first-child { grid-column: 1 / -1; }
+}

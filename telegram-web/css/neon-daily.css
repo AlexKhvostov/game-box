@@ -1,0 +1,138 @@
+/* Android113 daily timeline. Only the existing daily shop pane is styled. */
+#sheet-panel.sheet-crystals .neon-daily-pane {
+  padding: 8px 12px 0; gap: 8px; min-width: 0;
+}
+#sheet-panel.sheet-crystals .neon-daily-pane .daily-plus-card {
+  flex: 0 0 auto; min-width: 0; padding: 8px 10px; gap: 7px;
+  border: 1px solid #724A07; border-radius: 12px;
+  background: var(--window-glass), linear-gradient(#9DD9EF, #79BEDB 35%, #6CB5D6);
+  box-shadow: none; color: #082E4C; text-align: left;
+}
+#sheet-panel.sheet-crystals .neon-daily-pane .daily-plus-ico {
+  width: 24px; height: 24px; flex: 0 0 24px; align-self: flex-start;
+}
+#sheet-panel.sheet-crystals .neon-daily-pane .daily-plus-ico .ui-art { width: 24px; height: 24px; }
+#sheet-panel.sheet-crystals .neon-daily-pane .daily-plus-copy { min-width: 0; flex: 1; gap: 4px; }
+#sheet-panel.sheet-crystals .neon-daily-pane .daily-plus-title {
+  display: flex; align-items: center; gap: 5px; flex-wrap: wrap;
+  font-size: 13px; font-weight: 800; line-height: 1.2; color: #724A07;
+}
+#sheet-panel.sheet-crystals .neon-daily-pane .daily-plus-check { display: inline-flex; color: #00644C; }
+#sheet-panel.sheet-crystals .neon-daily-pane .daily-plus-hint {
+  font-size: 11px; line-height: 1.2; font-weight: 600; color: #21485E;
+  white-space: normal; overflow: visible; text-overflow: clip;
+}
+#sheet-panel.sheet-crystals .neon-daily-pane .daily-plus-cta {
+  flex: 0 0 auto; padding: 0; min-width: 14px; font-size: 30px; line-height: 1;
+  color: #724A07; background: none; border: 0; border-radius: 0;
+}
+#sheet-panel.sheet-crystals .neon-daily-pane .daily-bonus-scroll {
+  padding: 0 8px 8px; min-width: 0; overscroll-behavior: contain;
+}
+#sheet-panel.sheet-crystals .neon-daily-pane .daily-hint {
+  margin: 0 0 6px; font-size: 12.5px; line-height: 1.2; font-weight: 600;
+  color: #A9CBE4; text-align: left;
+}
+#sheet-panel.sheet-crystals .neon-daily-pane .daily-days {
+  display: grid; grid-auto-rows: 1fr; gap: 4px; min-width: 0;
+}
+#sheet-panel.sheet-crystals .neon-daily-pane .daily-row {
+  display: flex; margin: 0; min-width: 0; gap: 0;
+}
+#sheet-panel.sheet-crystals .neon-daily-pane .daily-card {
+  display: grid; grid-template-columns: 76px minmax(0, 1fr) 96px; align-items: center;
+  width: 100%; min-width: 0; min-height: 54px; margin: 0; padding: 3px 8px;
+  gap: 2px; border: 1px solid #8EAABD; border-radius: 12px;
+  background: linear-gradient(#88B7CE, #7DACCA); color: #173C54; opacity: 1;
+  box-shadow: none; cursor: default;
+}
+#sheet-panel.sheet-crystals .neon-daily-pane .daily-card.claimed {
+  background: linear-gradient(#92C9BC, #7FBCAE); color: #174C3D; border-color: #7BAF99;
+}
+#sheet-panel.sheet-crystals .neon-daily-pane .daily-card.today {
+  background: var(--window-glass), linear-gradient(#9BDEC9, #85CEB7); color: #00644C; border-color: #168566; cursor: pointer;
+}
+#sheet-panel.sheet-crystals .neon-daily-pane .daily-card.waiting {
+  background: var(--window-glass), linear-gradient(#98D3EB, #75B8D7); color: #103E5C; border-color: #77A6BF;
+}
+#sheet-panel.sheet-crystals .neon-daily-pane .daily-final-day:not(.claimed) { border-color: #DDB868; }
+#sheet-panel.sheet-crystals .neon-daily-pane .daily-day-label {
+  display: flex; gap: 5px; align-items: center; min-width: 0;
+}
+#sheet-panel.sheet-crystals .neon-daily-pane .daily-day-name {
+  font-size: 12px; line-height: 1.2; font-weight: 800; min-width: 0;
+}
+#sheet-panel.sheet-crystals .neon-daily-pane .daily-node {
+  display: inline-flex; flex: 0 0 20px; width: 20px; height: 20px;
+  align-items: center; justify-content: center; margin: 0;
+  background: #A6C2D3; border: 1px solid #819EB3; color: #173C54;
+  box-shadow: none; font-size: 11px; line-height: 1;
+}
+#sheet-panel.sheet-crystals .neon-daily-pane .daily-node.claimed { background: #00644C; border-color: #00644C; color: white; }
+#sheet-panel.sheet-crystals .neon-daily-pane .daily-node.claimed path { fill: white; }
+#sheet-panel.sheet-crystals .neon-daily-pane .daily-node.today { background: #B0EAD1; border-color: #168566; color: #00644C; }
+#sheet-panel.sheet-crystals .neon-daily-pane .daily-node.waiting { background: #B4D3E4; border-color: #77A6BF; color: #103E5C; }
+#sheet-panel.sheet-crystals .neon-daily-pane .daily-card-mid {
+  display: flex; align-items: center; justify-content: center; min-width: 0; overflow: visible;
+}
+#sheet-panel.sheet-crystals .neon-daily-pane .daily-card-mid[data-shop-fit] { height: 42px; }
+#sheet-panel.sheet-crystals .neon-daily-pane .daily-reward-fit { color: inherit; }
+#sheet-panel.sheet-crystals .neon-daily-pane .crystal-reward-badge {
+  display: grid; grid-template-columns: 18px auto; justify-content: center; align-items: center;
+  column-gap: 4px; row-gap: 2px; padding: 0; background: none; border: 0;
+  border-radius: 0; box-shadow: none; opacity: 1; transform: none; max-width: none;
+}
+#sheet-panel.sheet-crystals .neon-daily-pane .crystal-reward-badge .crystal-img { width: 18px; height: 18px; filter: none; }
+#sheet-panel.sheet-crystals .neon-daily-pane .crystal-reward-amt {
+  font-size: 16px; line-height: 1.1; font-weight: 800; color: inherit; letter-spacing: 0;
+}
+#sheet-panel.sheet-crystals .neon-daily-pane .crystal-plus-hint {
+  grid-column: 1 / -1; font-size: 10px; line-height: 1.2; font-weight: 700;
+  color: #173C54; margin: 0; white-space: normal; text-align: center;
+}
+#sheet-panel.sheet-crystals .neon-daily-pane .daily-card.today .crystal-plus-hint,
+#sheet-panel.sheet-crystals .neon-daily-pane .daily-card.claimed .crystal-plus-hint { color: #77500A; }
+#sheet-panel.sheet-crystals .neon-daily-pane :is(.day-action-btn, .day-action-pill) {
+  display: flex; align-items: center; justify-content: center; gap: 4px;
+  width: 100%; min-width: 0; min-height: 34px; height: auto; padding: 5px 6px;
+  border: 1px solid #8EAABD; border-radius: 8px; background: #B4CBD9;
+  box-shadow: none; opacity: 1; color: #173C54; font-size: 10.5px;
+  line-height: 1.2; font-weight: 800; white-space: normal;
+}
+#sheet-panel.sheet-crystals .neon-daily-pane .day-action-txt { min-width: 0; overflow-wrap: anywhere; }
+#sheet-panel.sheet-crystals .neon-daily-pane .day-action-pill.claimed { background: #B4DECD; border-color: #6AAB91; color: #174C3D; }
+#sheet-panel.sheet-crystals .neon-daily-pane .day-action-pill.claimed .day-action-txt { white-space: nowrap; overflow-wrap: normal; }
+#sheet-panel.sheet-crystals .neon-daily-pane .day-action-btn.wait { background: #BAD7E7; border-color: #77A6BF; color: #103E5C; }
+#sheet-panel.sheet-crystals .neon-daily-pane .day-action-btn.claim {
+  background: linear-gradient(#BEFCE5, #86EDC3 46%, #3DAE80); border-color: #168566;
+  color: #00644C; font-size: 12px;
+}
+#sheet-panel.sheet-crystals .neon-daily-pane .wait-timer { font-size: 12px; line-height: 1.2; color: #103E5C; }
+#sheet-panel.sheet-crystals .neon-daily-pane .wait-ico { flex: 0 0 13px; display: inline-flex; }
+#sheet-panel.sheet-crystals .neon-daily-pane :is(.daily-node.locked, .day-action-pill.locked) .ui-icon { filter: brightness(0) saturate(100%) opacity(.85); }
+#sheet-panel.sheet-crystals .neon-daily-pane.daily-large-text .daily-card {
+  grid-template-columns: minmax(0, 1fr); gap: 5px; padding: 7px 8px;
+}
+#sheet-panel.sheet-crystals .neon-daily-pane.daily-large-text .daily-card-mid { justify-content: flex-start; }
+#sheet-panel.sheet-crystals .neon-daily-pane.daily-large-text .daily-card-mid[data-shop-fit] { height: 72px; }
+#sheet-panel.sheet-crystals .neon-daily-pane.daily-large-text .crystal-reward-badge { justify-content: start; }
+#sheet-panel.sheet-crystals .neon-daily-pane.daily-large-text :is(.day-action-btn, .day-action-pill) { justify-self: end; width: auto; max-width: 100%; min-width: 86px; }
+/* Short + large text: retain access to days when the pinned promo consumes the viewport. */
+@media (max-height: 560px) {
+  #sheet-panel.sheet-crystals .neon-daily-pane.daily-large-text {
+    display: block; overflow-y: auto; overscroll-behavior: contain; padding-bottom: 8px;
+  }
+  #sheet-panel.sheet-crystals .neon-daily-pane.daily-large-text .daily-plus-card { width: 100%; margin-bottom: 8px; }
+  #sheet-panel.sheet-crystals .neon-daily-pane.daily-large-text .daily-bonus-scroll { overflow: visible; padding-bottom: 8px; }
+}
+/* A very short viewport needs the same single scroll owner at normal text size. */
+@media (max-height: 430px) {
+  #sheet-panel.sheet-crystals .neon-daily-pane {
+    display: block; overflow-y: auto; overscroll-behavior: contain; padding-bottom: 8px;
+  }
+  #sheet-panel.sheet-crystals .neon-daily-pane .daily-plus-card { width: 100%; margin-bottom: 8px; }
+  #sheet-panel.sheet-crystals .neon-daily-pane .daily-bonus-scroll { overflow: visible; padding-bottom: 8px; }
+  #sheet-panel.sheet-crystals .neon-daily-pane.daily-large-text :is(.day-action-btn, .day-action-pill) {
+    min-height: 30px; padding-top: 0; padding-bottom: 0;
+  }
+}

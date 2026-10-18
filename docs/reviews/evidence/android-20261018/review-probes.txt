@@ -1,0 +1,11 @@
+00:00 +0: loading D:/_P_R_O_J_E_C_T/game/square/Untouch/docs/reviews/evidence/android-20261018/review_probes_test.dart
+00:00 +0: R01 rankFor ignores true place 520 and counts only downloaded rows
+00:00 +1: R02 rules_changed silently rejects the whole new run and remains pending
+00:00 +2: R03 permanent result_time_invalid prevents a later valid row from progressing
+00:00 +3: R04 an individual pointer move crosses a whole enemy without collision
+00:00 +4: R05 completed old-owner pending results do not block switching owner
+00:00 +5: R08 accepted Remote Config value player.size=4 makes the field unplayable
+00:00 +6: R09 corrupt disposable score cache makes awaited startup load fail
+00:00 +7: R10 publication marks history shared but leaves an open ranking unchanged
+00:00 +8: All tests passed!
+EXIT_CODE=0

@@ -1,4 +1,4 @@
-/** Каталог магазина Telegram Stars. Числа — из economy.starsShop (RC). */
+﻿/** Каталог магазина Telegram Stars. Числа — из economy.starsShop (RC). */
 
 export const PACK_BADGES = {
   deal: 'Выгодно',

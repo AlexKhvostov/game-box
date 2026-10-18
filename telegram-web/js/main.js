@@ -1,19 +1,18 @@
-import { calcScore, clamp, easeOut, fmtScore, fmtTimeMs, fmtTimerChip, lerpColor, resolveSurfaceColor, runStepsFromPx, visualWallInset } from './util.js';
-import { GameWorld } from './game-world.js';
-import { FieldRenderer } from './renderer.js';
-import { ImpactBurst } from './impact-burst.js';
-import { GameAudio } from './audio.js';
-import { EconomyStore } from './economy.js';
-import { telegram } from './telegram.js';
-import { SheetUI } from './sheets.js';
-import { showGameToast } from './game-toast.js';
-import { showSystemNotice } from './sys-toast.js';
-import { restingCubeImg } from './game-icons.js';
-import { RU } from './strings-ru.js';
-import { remoteConfig } from './remote-config.js';
-import { bindGameTips, hideGameTip } from './tip-pop.js';
-import { initMetrika, metrikaGoal } from './metrika.js';
-import { adsgramInterstitialBlockId, showInterstitialAd } from './adsgram.js';
+import { calcScore, clamp, easeOut, fmtScore, fmtTimerChip, lerpColor, runStepsFromPx, visualWallInset } from './util.js?v=v1.0.22_20261003_233329_134';
+import { GameWorld } from './game-world.js?v=v1.0.22_20261003_233329_134';
+import { FieldRenderer } from './renderer.js?v=v1.0.22_20261003_233329_134';
+import { ImpactBurst } from './impact-burst.js?v=v1.0.22_20261003_233329_134';
+import { GameAudio } from './audio.js?v=v1.0.22_20261003_233329_134';
+import { EconomyStore } from './economy.js?v=v1.0.22_20261003_233329_134';
+import { telegram } from './telegram.js?v=v1.0.22_20261003_233329_134';
+import { SheetUI } from './sheets.js?v=v1.0.22_20261003_233329_134';
+import { showGameToast } from './game-toast.js?v=v1.0.22_20261003_233329_134';
+import { showSystemNotice } from './sys-toast.js?v=v1.0.22_20261003_233329_134';
+import { RU } from './strings-ru.js?v=v1.0.22_20261003_233329_134';
+import { remoteConfig } from './remote-config.js?v=v1.0.22_20261003_233329_134';
+import { bindGameTips, hideGameTip } from './tip-pop.js?v=v1.0.22_20261003_233329_134';
+import { initMetrika, metrikaGoal } from './metrika.js?v=v1.0.22_20261003_233329_134';
+import { adsgramInterstitialBlockId, showInterstitialAd } from './adsgram.js?v=v1.0.22_20261003_233329_134';
 
 const Phase = { idle: 'idle', playing: 'playing', impact: 'impact', result: 'result' };
 
@@ -60,7 +59,15 @@ class UntouchApp {
       || this.canvas.getContext('2d', { alpha: false });
     if (this.ctx) this.ctx.imageSmoothingEnabled = false;
     this._hudAcc = 0;
-    this.$ = (id) => document.getElementById(id);
+    const elements = new Map();
+    this.$ = (id) => {
+      const cached = elements.get(id);
+      if (cached?.isConnected) return cached;
+      const element = document.getElementById(id);
+      if (element) elements.set(id, element);
+      else elements.delete(id);
+      return element;
+    };
   }
 
   async init() {
@@ -115,6 +122,7 @@ class UntouchApp {
     window.addEventListener('resize', () => this._resize());
     window.addEventListener('orientationchange', () => setTimeout(() => this._resize(), 100));
     this._resetWorld();
+    this._updateOverlay();
     this._updateHud();
     this._hideBootLoader();
     requestAnimationFrame((ts) => this._loop(ts));
@@ -139,9 +147,10 @@ class UntouchApp {
     const w = window.innerWidth;
     const h = window.innerHeight;
 
-    const hudH = 48;
-    const infoBarH = 46;
-    const touchMin = 48;
+    const hudH = document.querySelector('.hud')?.getBoundingClientRect().height || 84;
+    const infoBarH = document.querySelector('.info-bar')?.getBoundingClientRect().height || 0;
+    // Reserve enough room for the Android brand and complete start instruction.
+    const touchMin = 96;
     const gaps = 16;
 
     const availW = w - pad.left - pad.right - 32;
@@ -149,8 +158,12 @@ class UntouchApp {
 
     const maxSide = this.config?.field?.maxSide || 380;
     const newSide = Math.max(200, Math.floor(Math.min(availW, availH, maxSide)));
-    const sizeChanged = newSide !== this.fieldSide;
     this.fieldSide = newSide;
+    const paintedRadius = clamp(Math.min(this.config?.field?.cornerRadius ?? 18, GameWorld.referenceFieldSide / 2), 0, 64);
+    const displayRadius = `${paintedRadius * this.fieldSide / GameWorld.referenceFieldSide}px`;
+    this.canvas.style.borderRadius = displayRadius;
+    const frame = this.canvas.parentElement;
+    if (frame?.classList.contains('field-frame')) frame.style.borderRadius = displayRadius;
 
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const targetPx = Math.round(this.fieldSide * dpr);
@@ -163,21 +176,70 @@ class UntouchApp {
 
     const inset = visualWallInset(this.config?.field?.borderWidth ?? 3);
     if (this.world) {
-      this.world.field = { width: this.fieldSide, height: this.fieldSide };
       this.world.wallInset = inset;
-      if (sizeChanged && this.phase !== Phase.playing) {
-        this.world.resetLayout();
-      }
     }
     document.documentElement.style.setProperty('--field-side', `${this.fieldSide}px`);
+    this._fitHudNumbers();
+    this._drawTouchpad();
+  }
+
+  _drawTouchpad() {
+    const canvas = this.$('touchpad-surface');
+    if (!canvas) return;
+    const { width, height } = canvas.getBoundingClientRect();
+    if (width < 1 || height < 10) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.round(width * dpr);
+    canvas.height = Math.round(height * dpr);
+    const ctx = canvas.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const top = height * .04, bottom = height - 9;
+    const backLeft = width * .39, backRight = width * .61;
+    const frontLeft = 3, frontRight = width - 3;
+    const surface = (offset = 0) => {
+      const path = new Path2D();
+      path.moveTo(backLeft, top + offset);
+      path.lineTo(backRight, top + offset);
+      path.lineTo(frontRight, bottom + offset);
+      path.quadraticCurveTo(width / 2, bottom + 8 + offset, frontLeft, bottom + offset);
+      path.closePath();
+      return path;
+    };
+    ctx.fillStyle = '#071827';
+    ctx.fill(surface(5));
+    const face = surface();
+    const gradient = ctx.createLinearGradient(0, 0, 0, height);
+    gradient.addColorStop(0, '#0D2C43');
+    gradient.addColorStop(1, '#16415B');
+    ctx.fillStyle = gradient; ctx.fill(face);
+    ctx.save(); ctx.clip(face);
+    ctx.strokeStyle = '#78BBD723'; ctx.lineWidth = 1;
+    const columns = clamp(Math.round((width - 6) / 56), 6, 16);
+    const cell = (width - 6) / columns;
+    const perspective = cell * .78 / (bottom - top);
+    const depth = (1 / .22 - 1) / perspective;
+    ctx.beginPath();
+    for (let i = 1; i < columns; i++) {
+      const f = i / columns;
+      ctx.moveTo(backLeft + (backRight - backLeft) * f, top);
+      ctx.lineTo(frontLeft + (frontRight - frontLeft) * f, bottom);
+    }
+    for (let row = 1; row < depth; row++) {
+      const y = bottom - cell * row / (1 + perspective * row);
+      ctx.moveTo(0, y); ctx.lineTo(width, y);
+    }
+    ctx.stroke(); ctx.restore();
+    ctx.strokeStyle = '#78BBD766'; ctx.lineWidth = 1.2; ctx.stroke(face);
+    ctx.strokeStyle = '#78BBD788'; ctx.lineWidth = 2; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(width * .24, bottom + 2); ctx.lineTo(width * .76, bottom + 2); ctx.stroke();
   }
 
   _resetWorld() {
     const inset = visualWallInset(this.config.field.borderWidth);
     this.world = new GameWorld({
       config: this.config,
-      fieldW: this.fieldSide,
-      fieldH: this.fieldSide,
+      fieldW: GameWorld.referenceFieldSide,
+      fieldH: GameWorld.referenceFieldSide,
       wallInset: inset,
     });
     this.world.resetLayout();
@@ -219,6 +281,18 @@ class UntouchApp {
       ev.stopPropagation();
       this.sheets.open('crystals', { tab: 2 });
     });
+    this.$('get-lives-btn')?.addEventListener('pointerdown', (ev) => ev.stopPropagation());
+    this.$('get-lives-btn')?.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      this.audio.resume();
+      telegram.haptic('impact', 'light');
+      this._openLivesExchange();
+    });
+  }
+
+  _openLivesExchange() {
+    if (this.sheets?.isOpen) return;
+    this.sheets.open('lives');
   }
 
   showToast(message, opts = {}) {
@@ -260,7 +334,7 @@ class UntouchApp {
         this.pointers.clear();
         this.primaryPointer = null;
         telegram.haptic('impact', 'light');
-        this.sheets.open('lives');
+        this._openLivesExchange();
         return;
       }
       this._startGame();
@@ -299,7 +373,8 @@ class UntouchApp {
       const dx = x - last.x;
       const dy = y - last.y;
       if (dx === 0 && dy === 0) continue;
-      this.world.movePlayerBy({ dx, dy });
+      const toWorld = GameWorld.referenceFieldSide / this.fieldSide;
+      this.world.movePlayerBy({ dx: dx * toWorld, dy: dy * toWorld });
       moved = true;
     }
     if (!moved) return;
@@ -400,6 +475,7 @@ class UntouchApp {
   _triggerImpact(againstWall) {
     if (this._isInvulnerable()) return;
     if (this.runHelmetActive) {
+      if (!againstWall) this.world.repelEnemiesFromPlayer();
       this.runHelmetActive = false;
       this.helmetInvulnLeft = this.config.game.helmetInvulnSec;
       this.audio.helmetBreak();
@@ -489,7 +565,7 @@ class UntouchApp {
     this.rampT = 0;
     this.resultScore = 0;
     const topScore = this.$('top-score');
-    if (topScore) topScore.textContent = '0';
+    if (topScore) topScore.textContent = fmtTimerChip(0);
     this._resetWorld();
     this._updateOverlay();
     this._updateHud();
@@ -517,6 +593,14 @@ class UntouchApp {
     if (scoreTag) scoreTag.textContent = RU.resultScoreTag;
 
     const rr = this.lastRunResult;
+    // NEON_RESULT_BEST_UI_START
+    const resultBest = this.$('result-best');
+    if (resultBest) {
+      const previousBest = rr?.isAllTimeBest && (rr?.oldBestTimeMs ?? 0) > 0;
+      const bestMs = previousBest ? rr.oldBestTimeMs : Math.max(this.resultMs, this.economy.bestTimeMs);
+      resultBest.textContent = `${previousBest ? 'Предыдущий рекорд' : 'Ваш рекорд'}: ${(bestMs / 1000).toFixed(3)} с`;
+    }
+    // NEON_RESULT_BEST_UI_END
     if (rr?.isAllTimeBest && (rr?.oldBestTimeMs ?? 0) > 0) {
       this.$('result-rank').textContent = '🎉 НОВЫЙ РЕКОРД!';
       this.showToast(RU.recordBeatToast(timeSecShort), {
@@ -698,13 +782,13 @@ class UntouchApp {
     }
 
     if (this.phase === Phase.playing) {
-      const rampSec = Math.max(0.05, this.config.game.speedRampSeconds);
+      const rampSec = Math.max(0, this.config.game.speedRampSeconds);
       const idleMult = this.world.idleEnemiesMove()
         ? this.config.game.idleSpeedMultiplier
         : 0;
       this.rampT = Math.min(rampSec, this.rampT + dt);
-      const t = clamp(this.rampT / rampSec, 0, 1);
-      const speedMult = idleMult + (1 - idleMult) * easeOut(t);
+      const t = rampSec > 0 ? clamp(this.rampT / rampSec, 0, 1) : 1;
+      const speedMult = rampSec > 0 ? idleMult + (1 - idleMult) * easeOut(t) : 1;
 
       this.aliveMs += dt * 1000;
       this.world.tickJump(dt);
@@ -774,20 +858,17 @@ class UntouchApp {
 
   _draw() {
     if (!this.world) return;
-    const theme = this._activeTheme();
     const light = this.economy?.lightTheme === true;
-    const fieldColor = light
-      ? '#F7FBFD'
-      : resolveSurfaceColor(theme.surface, this.config.field);
-    const wallsKill = this.world
-      ? this.world.wallsKillPlayer()
-      : this.config?.game?.wallsKillPlayer !== false;
+    const fieldColor = light ? '#F7FBFD' : '#08253B';
+    this.ctx.save();
+    this.ctx.scale(this.fieldSide / this.world.field.width, this.fieldSide / this.world.field.height);
+    try {
     this.renderer.paint(this.ctx, this.world, {
-      fieldSize: { width: this.fieldSide, height: this.fieldSide },
+      fieldSize: this.world.field,
       fieldColor,
-      accent: theme.primary,
-      danger: theme.danger,
-      borderColor: wallsKill ? theme.danger : theme.primary,
+      accent: '#35F5C6',
+      danger: '#F0363E',
+      borderColor: '#58E2EC',
       borderWidth: this.config.field.borderWidth,
       cornerRadius: this.config.field.cornerRadius,
       frame: this.frame,
@@ -799,6 +880,9 @@ class UntouchApp {
       lightField: light,
       showFace: this.config.player.showFace,
     });
+    } finally {
+      this.ctx.restore();
+    }
   }
 
   _speedMult() {
@@ -806,7 +890,8 @@ class UntouchApp {
       if (this.world && !this.world.idleEnemiesMove()) return 0;
       return this.config.game.idleSpeedMultiplier;
     }
-    const rampSec = Math.max(0.05, this.config.game.speedRampSeconds);
+    const rampSec = Math.max(0, this.config.game.speedRampSeconds);
+    if (rampSec === 0) return 1;
     const idleMult = this.world && !this.world.idleEnemiesMove()
       ? 0
       : this.config.game.idleSpeedMultiplier;
@@ -828,6 +913,15 @@ class UntouchApp {
 
   _updateInfoBar() {
     if (!this.world) return;
+    const jumpChip = this.$('jump-chip');
+    const remaining = this.phase === Phase.playing ? this.world.jumpCooldownRemaining() : 0;
+    const progress = Math.round((1 - remaining / this.world.jumpCooldownMs) * 100);
+    if (jumpChip && jumpChip.dataset.recharge !== String(progress)) {
+      jumpChip.dataset.recharge = String(progress);
+      jumpChip.classList.toggle('recharging', remaining > 0);
+      jumpChip.style.setProperty('--recharge-offset', String(100 - progress));
+    }
+    this._updateAbilityHud(remaining);
     const speed = this._averageSpeed();
     const scaleMax = this.config.game.hudSpeedScaleMax;
     const bar = clamp(speed / scaleMax, 0, 1);
@@ -852,13 +946,9 @@ class UntouchApp {
     if (infoTimer && infoTimer.textContent !== timerText) infoTimer.textContent = timerText;
 
     const runSteps = runStepsFromPx(this.world.playerDistance, this.world.playerSize);
-    const currentScore = isPlaying
-      ? calcScore(this.aliveMs, runSteps, this.world.nearMissCount)
-      : (this.resultScore || 0);
-
     const topScore = this.$('top-score');
-    const scoreText = fmtScore(currentScore);
-    if (topScore && topScore.textContent !== scoreText) topScore.textContent = scoreText;
+    const topTime = fmtTimerChip(isPlaying ? this.aliveMs : this.phase === Phase.result ? this.resultMs : 0);
+    if (topScore && topScore.textContent !== topTime) topScore.textContent = topTime;
 
     const topTimer = this.$('top-timer');
     if (topTimer && topTimer.textContent !== timerText) topTimer.textContent = timerText;
@@ -868,7 +958,9 @@ class UntouchApp {
       scoreStrip.classList.toggle('idle', this.phase !== Phase.playing);
     }
 
-    this.$('info-enemies').textContent = String(this.world.enemies.length);
+    const enemies = this.$('info-enemies');
+    const enemiesText = String(this.world.enemies.length);
+    if (enemies && enemies.textContent !== enemiesText) enemies.textContent = enemiesText;
     const runText = String(Math.round(runSteps));
     const riskText = String(this.world.nearMissCount);
     const runEl = this.$('info-run');
@@ -881,7 +973,11 @@ class UntouchApp {
     this.$('hud-lives').textContent = String(this.economy.lives);
     this.$('hud-crystals').textContent = String(this.economy.tokens);
     const best = this.economy.bestTimeMs;
-    this.$('hud-record').textContent = best > 0 ? fmtTimeMs(best) : '0';
+    this.$('hud-record').textContent = (best / 1000).toFixed(3);
+    const dayScores = this.economy.getAttemptsForPeriod('day');
+    const topDay = dayScores.reduce((best, score) => Math.max(best, Number(score.timeMs) || 0), 0);
+    this.$('hud-day-best').textContent = topDay > 0 ? (topDay / 1000).toFixed(3) : '—';
+    this._fitHudNumbers();
     const jumpEl = this.$('jump-rent');
     const helmetEl = this.$('helmet-rent');
     if (jumpEl) {
@@ -895,21 +991,49 @@ class UntouchApp {
       helmetEl.parentElement.classList.toggle('active', h != null);
     }
 
-    const photoUrl = telegram.userPhotoUrl;
-    const avatarImg = this.$('hud-profile-avatar');
-    const cubeSpan = this.$('hud-profile-cube');
-    if (avatarImg && cubeSpan) {
-      if (photoUrl) {
-        if (avatarImg.src !== photoUrl) avatarImg.src = photoUrl;
-        avatarImg.style.display = 'block';
-        cubeSpan.style.display = 'none';
-      } else {
-        avatarImg.style.display = 'none';
-        cubeSpan.style.display = 'flex';
-        if (!cubeSpan.innerHTML) {
-          cubeSpan.innerHTML = restingCubeImg(18, 'hud-profile-cube-svg');
-        }
-      }
+    this._updateAbilityHud();
+    this._updateOverlay();
+  }
+
+  _updateAbilityHud(remaining = this.phase === Phase.playing ? this.world?.jumpCooldownRemaining() || 0 : 0) {
+    const playing = this.phase !== Phase.idle;
+    const helmetActive = playing ? this.runHadHelmet : this.economy.hasHelmetRental();
+    const broken = Boolean(helmetActive && playing && !this.runHelmetActive);
+    const helmet = this.$('helmet-chip');
+    helmet?.classList.toggle('active', Boolean(helmetActive));
+    helmet?.classList.toggle('broken', broken);
+    const helmetStatus = broken ? 'Разбит' : helmetActive ? 'Активен' : 'Выкл.';
+    if (this.$('helmet-status').textContent !== helmetStatus) this.$('helmet-status').textContent = helmetStatus;
+    const helmetLabel = `Шлем · ${helmetStatus} · аренда ${this.$('helmet-rent').textContent}`;
+    if (helmet?.getAttribute('aria-label') !== helmetLabel) helmet?.setAttribute('aria-label', helmetLabel);
+    const jumpActive = this.economy.hasJumpRental();
+    const jump = this.$('jump-chip');
+    jump?.classList.toggle('active', Boolean(jumpActive));
+    jump?.classList.toggle('recharging', Boolean(jumpActive && remaining > 0));
+    const offset = jumpActive && remaining > 0 ? Math.round(clamp(remaining / this.world.jumpCooldownMs, 0, 1) * 100) : 0;
+    if (jump?.style.getPropertyValue('--recharge-offset') !== String(offset)) jump?.style.setProperty('--recharge-offset', String(offset));
+    const jumpStatus = !jumpActive ? 'Выкл.' : remaining > 0 ? `${(remaining / 1000).toFixed(1).replace('.', ',')} с` : 'Готов';
+    if (this.$('jump-status').textContent !== jumpStatus) this.$('jump-status').textContent = jumpStatus;
+    const jumpLabel = `Прыжок · ${jumpStatus} · аренда ${this.$('jump-rent').textContent}`;
+    if (jump?.getAttribute('aria-label') !== jumpLabel) jump?.setAttribute('aria-label', jumpLabel);
+  }
+
+  _fitHudNumbers() {
+    // Only measure when text or available width changes, outside the frame loop.
+    const measure = this._hudMeasure ??= document.createElement('canvas').getContext('2d');
+    for (const id of ['hud-lives', 'hud-crystals', 'hud-day-best', 'hud-record']) {
+      const value = this.$(id);
+      if (!value) continue;
+      const card = value.closest('.hud-chip, .hud-profile-btn');
+      const icon = value.parentElement.querySelector('img, svg');
+      const width = card.clientWidth - 8 - (icon ? icon.getBoundingClientRect().width + 4 : 0);
+      const key = `${width}:${value.textContent}`;
+      if (value.dataset.fit === key || width <= 0) continue;
+      value.dataset.fit = key;
+      const baseSize = id === 'hud-record' ? 12 : 18;
+      measure.font = `700 ${baseSize}px ${getComputedStyle(value).fontFamily}`;
+      const natural = measure.measureText(value.textContent).width;
+      value.style.fontSize = `${Math.min(baseSize, baseSize * (width - 2) / Math.max(1, natural))}px`;
     }
   }
 
@@ -923,14 +1047,16 @@ class UntouchApp {
   _updateOverlay() {
     const banner = this.$('start-banner');
     if (!banner) return;
-    banner.hidden = this.phase !== Phase.idle || !this.config.game.startHintEnabled;
     const outOfLives = !this.economy.canPlay;
+    banner.hidden = this.phase !== Phase.idle || (!outOfLives && !this.config.game.startHintEnabled);
+    this.$('finger-hint').toggleAttribute('hidden', banner.hidden || outOfLives);
     banner.classList.toggle('out-of-lives', outOfLives);
     const hero = this.$('start-hero-cube');
     if (hero) hero.hidden = !outOfLives;
+    this.$('get-lives-btn').hidden = !outOfLives;
     this.$('start-text').textContent = this.economy.canPlay
-      ? 'Коснитесь экрана и уводите куб'
-      : 'Нет жизней — коснитесь, чтобы пополнить';
+      ? 'Коснись и уворачивайся'
+      : 'Обменяйте кристаллы на жизни и возвращайтесь в игру.';
   }
 }
 

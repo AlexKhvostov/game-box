@@ -1,22 +1,22 @@
-/** Bottom sheets — порт lives_sheet.dart + crystals_sheet.dart */
+﻿/** Bottom sheets — порт lives_sheet.dart + crystals_sheet.dart */
 
-import { RU, earnTitle, earnSubtitle } from './strings-ru.js';
-import { crystalImg, crystalRewardBadge } from './crystal-icon.js';
-import { PACK_BADGES, starsLabel, subscribePriceLabel } from './shop-catalog.js';
+import { RU, earnTitle, earnSubtitle } from './strings-ru.js?v=v1.0.22_20261003_233329_134';
+import { crystalImg, crystalRewardBadge } from './crystal-icon.js?v=v1.0.22_20261003_233329_134';
+import { PACK_BADGES, starsLabel, subscribePriceLabel } from './shop-catalog.js?v=v1.0.22_20261003_233329_134';
 import {
+  uiArtwork,
   heartIcon,
   uiIconImg,
   shopWatchIcon,
-  rentKindIcon,
   checkMarkHtml,
   TAB_ICON_SVG,
   restingCubeImg,
-} from './game-icons.js';
-import { telegram } from './telegram.js';
-import { adsgramBlockId, showRewardedAd, showAdLoadStub, showWatchAdHint } from './adsgram.js';
-import { calcScore, fmtScore } from './util.js';
-import { bindGameTips, hideGameTip, unbindGameTips } from './tip-pop.js';
-import { metrikaGoal } from './metrika.js';
+} from './game-icons.js?v=v1.0.22_20261003_233329_134';
+import { telegram } from './telegram.js?v=v1.0.22_20261003_233329_134';
+import { adsgramBlockId, showRewardedAd, showAdLoadStub, showWatchAdHint } from './adsgram.js?v=v1.0.22_20261003_233329_134';
+import { calcScore, fmtScore } from './util.js?v=v1.0.22_20261003_233329_134';
+import { bindGameTips, hideGameTip, unbindGameTips } from './tip-pop.js?v=v1.0.22_20261003_233329_134';
+import { metrikaGoal } from './metrika.js?v=v1.0.22_20261003_233329_134';
 
 function fmtDuration(ms) {
   const total = Math.max(0, Math.floor(ms / 1000));
@@ -169,6 +169,74 @@ export class SheetUI {
     this._lbLoading = false;
 
     this.backdrop?.addEventListener('click', () => this.close());
+    this._bindDismissGesture();
+  }
+
+  _bindDismissGesture() {
+    const start = (x, y, target) => {
+      if (!this.isOpen || target.closest('button,a,input,textarea,select,label')) return;
+      // A scrolled list owns its gesture. At its top, downward drag dismisses.
+      for (let el = target; el && el !== this.panel; el = el.parentElement) {
+        if (el.scrollHeight > el.clientHeight + 1 && el.scrollTop > 0) return;
+      }
+      this._dismissDrag = { x, y, distance: 0, started: performance.now(), active: false };
+    };
+    const move = (x, y, event) => {
+      const drag = this._dismissDrag;
+      if (!drag) return;
+      const dx = x - drag.x, dy = y - drag.y;
+      if (!drag.active) {
+        if (Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy) || dy < -8) {
+          this._dismissDrag = null;
+          return;
+        }
+        if (dy < 8) return;
+        drag.active = true;
+      }
+      event.preventDefault();
+      drag.distance = Math.max(0, dy);
+      this.panel.style.transition = 'none';
+      this.panel.style.transform = `translateY(${drag.distance}px)`;
+    };
+    const finish = (cancelled = false) => {
+      const drag = this._dismissDrag;
+      this._resetDismissGesture();
+      if (!drag || cancelled || !drag.active) return;
+      const velocity = drag.distance / Math.max(1, performance.now() - drag.started);
+      if (drag.distance >= 80 || drag.distance >= 32 && velocity > .6) this.close();
+    };
+    this.panel?.addEventListener('touchstart', event => {
+      if (event.touches.length !== 1) { finish(true); return; }
+      const touch = event.touches[0];
+      start(touch.clientX, touch.clientY, event.target);
+    }, { passive: true });
+    this.panel?.addEventListener('touchmove', event => {
+      if (event.touches.length !== 1) { finish(true); return; }
+      const touch = event.touches[0];
+      move(touch.clientX, touch.clientY, event);
+    }, { passive: false });
+    this.panel?.addEventListener('touchend', () => finish());
+    this.panel?.addEventListener('touchcancel', () => finish(true));
+    this.panel?.addEventListener('pointerdown', event => {
+      if (event.pointerType !== 'mouse' || event.button !== 0) return;
+      start(event.clientX, event.clientY, event.target);
+      if (this._dismissDrag) this.panel.setPointerCapture(event.pointerId);
+    });
+    this.panel?.addEventListener('pointermove', event => {
+      if (event.pointerType === 'mouse') move(event.clientX, event.clientY, event);
+    });
+    this.panel?.addEventListener('pointerup', event => {
+      if (event.pointerType === 'mouse') finish();
+    });
+    this.panel?.addEventListener('pointercancel', event => {
+      if (event.pointerType === 'mouse') finish(true);
+    });
+  }
+
+  _resetDismissGesture() {
+    this._dismissDrag = null;
+    this.panel?.style.removeProperty('transition');
+    this.panel?.style.removeProperty('transform');
   }
 
   get isOpen() {
@@ -177,6 +245,7 @@ export class SheetUI {
 
   open(type, opts = {}) {
     if (!this.root) return;
+    this._resetDismissGesture();
     this._fromPlus = false;
     this._type = type;
     this._tab = opts.tab ?? 0;
@@ -197,10 +266,12 @@ export class SheetUI {
 
   close() {
     if (!this.root) return;
+    this._resetDismissGesture();
     if (this._type === 'plus') {
       this._returnFromPlus();
       return;
     }
+    if (this._type === 'lives') this._livesFitObserver?.disconnect();
     this.root.classList.remove('open');
     this._stopTick();
     hideGameTip();
@@ -218,6 +289,8 @@ export class SheetUI {
   }
 
   _setPanelMode(type) {
+    this.root?.classList.toggle('sheet-lives-dialog', type === 'lives');
+    if (type !== 'lives') this._livesFitObserver?.disconnect();
     this.panel?.classList.remove('sheet-lives', 'sheet-crystals', 'sheet-leaderboard', 'sheet-plus', 'sheet-share', 'sheet-profile');
     if (type === 'lives') this.panel?.classList.add('sheet-lives');
     else if (type === 'crystals') this.panel?.classList.add('sheet-crystals');
@@ -280,91 +353,63 @@ export class SheetUI {
   _openCrystalsShop() {
     this._type = 'crystals';
     this._tab = 1;
-    this.panel?.classList.remove('sheet-lives', 'sheet-leaderboard');
-    this.panel?.classList.add('sheet-crystals');
+    this._setPanelMode('crystals');
     this._renderCrystals(1);
   }
 
   _renderLives() {
     const e = this._economy();
     const packs = e.lifePacks;
-    const exhausted = !e.canPlay;
-    const bestIdx = bestLifePackIndex(packs);
+    const bestIdx = packs.length ? bestLifePackIndex(packs) : -1;
 
     const packHtml = packs
       .map((pack, i) => {
         const best = i === bestIdx;
         const can = e.canBuyLifePack(pack);
         return `
-        <button type="button" class="life-buy-card ${best ? 'best-deal' : ''} ${can ? 'can-afford' : 'need-more'}" data-pack="${i}">
-          ${best ? `<div class="deal-ribbon">${RU.badgeBest}</div>` : ''}
-          <div class="card-gain-row">
-            <div class="card-heart-circle">${heartIcon(18)}</div>
-            <div class="card-gain-text">
-              <span class="gain-number">+${pack.lives}</span>
-              <span class="gain-label">жизней</span>
-            </div>
+        <div class="neon-life-pack ${best ? 'best-deal' : ''} ${can ? 'can-afford' : 'need-more'}">
+          <div class="neon-life-pack-top">
+            <div class="neon-life-gain">${heartIcon(17)}<span>+${pack.lives}</span></div>
+            <span class="neon-life-cost ${can ? 'available' : 'unavailable'}" aria-label="Стоимость: ${pack.costTokens} кристаллов">
+              <span>${pack.costTokens}</span>${crystalImg(16)}
+            </span>
           </div>
-          <div class="card-price-pill ${can ? 'price-active' : 'price-disabled'}">
-            <span class="price-action">${can ? RU.buyAction : RU.needMoreAction}</span>
-            <div class="price-tag">
-              ${crystalImg(13, can)}
-              <span class="price-amount">${pack.costTokens}</span>
-            </div>
-          </div>
-        </button>`;
+          <div class="neon-life-pack-status">${!can ? 'Не хватает' : best ? RU.badgeBest : '&nbsp;'}</div>
+          <button type="button" class="neon-life-exchange" data-pack="${i}" aria-label="${can ? 'Обменять' : 'В магазин'}: ${pack.costTokens} кристаллов за ${pack.lives} жизней">${can ? 'Обменять' : 'В магазин'}</button>
+        </div>`;
       })
       .join('');
 
-    const statusHtml = exhausted
-      ? `
-        <div class="lives-status exhausted">
-          ${restingCubeImg(44, 'lives-status-cube')}
-          <div class="lives-status-text">
-            <div class="lives-status-title">${RU.noLivesTitle}</div>
-            <div class="lives-status-sub">${RU.noLivesHeroSubtitle}</div>
-          </div>
-        </div>`
-      : `
-        <div class="lives-status normal">
-          <div class="lives-status-title solo">${RU.livesConvertTitle}</div>
-          <div class="lives-status-sub solo">${RU.livesConvertSubtitle}</div>
-        </div>`;
-
     this.body.innerHTML = `
-      <div class="lives-sheet">
-        <div class="lives-header-bar">
-          ${statusHtml}
-          <div class="lives-balance-strip">
-            <div class="lives-stat lives-stat-hearts">
-              <span class="stat-ico-halo">${heartIcon(18)}</span>
-              <div class="lives-stat-body">
-                <span class="lives-stat-value">${e.lives}</span>
-                <span class="lives-stat-label">${RU.statLives}</span>
-              </div>
-            </div>
-            <button type="button" class="lives-stat lives-stat-crystals" id="lives-to-shop">
-              <span class="stat-ico-halo">${crystalImg(18, true)}</span>
-              <div class="lives-stat-body">
-                <span class="lives-stat-value">${e.tokens}</span>
-                <span class="lives-stat-label">${RU.crystals}</span>
-              </div>
-              <span class="lives-stat-action">В магазин ›</span>
-            </button>
+      <div class="lives-sheet neon-lives-sheet">
+        <div class="neon-lives-hero">
+          <div class="neon-lives-heading">
+            <h2 id="lives-exchange-title">${RU.livesConvertTitle}</h2>
+            <button type="button" class="lives-close-btn" id="lives-close" aria-label="Закрыть"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+          </div>
+          <div class="neon-lives-inventory" aria-label="Ваши жизни: ${e.lives}">
+            ${heartIcon(34, 'neon-lives-heart')}
+            <span class="neon-lives-amount" id="lives-balance-amount" data-life-fit><span>${e.lives}</span></span>
+            <span class="neon-lives-label" data-life-fit><span>Ваши жизни</span></span>
           </div>
         </div>
-        <div class="lives-shop-frame">
-          <div class="lives-frame-header">
-            <span class="lives-frame-title">${RU.livesBuyFrameTitle.toUpperCase()}</span>
-            <span class="lives-frame-sub">${RU.livesBuyFrameSub}</span>
-          </div>
-          <div class="lives-shop-grid">${packHtml}</div>
+        <div class="neon-lives-currency">
+          ${crystalImg(34, true)}
+          <div class="neon-lives-currency-copy"><strong>Баланс кристаллов</strong><span>Для обмена на жизни</span></div>
+          <span class="neon-lives-crystals-amount" id="lives-crystal-balance-amount" data-life-fit><span>${e.tokens}</span></span>
+          <button type="button" id="lives-to-shop" class="neon-lives-shop" aria-label="В магазин кристаллов">${TAB_ICON_SVG.shop}</button>
         </div>
+        <div class="neon-lives-packs">${packHtml}</div>
       </div>`;
 
+    this.body.querySelector('#lives-close')?.addEventListener('click', () => this.close());
     this.body.querySelector('#lives-to-shop')?.addEventListener('click', () => this._openCrystalsShop());
+    // Match Android's UI latch: a second click during closing cannot exchange twice.
+    let exchanging = false;
     this.body.querySelectorAll('[data-pack]').forEach((btn) => {
       btn.addEventListener('click', () => {
+        if (exchanging) return;
+        exchanging = true;
         const pack = packs[Number(btn.dataset.pack)];
         if (e.buyLifePack(pack)) {
           this._toast(RU.livesGained(pack.lives), { accent: '#5EE6B0', flyTo: 'lives', icon: 'heart' });
@@ -375,6 +420,35 @@ export class SheetUI {
         }
       });
     });
+    // A single visibility listener for the SheetUI lifetime; no pulse timers.
+    this.root?.classList.toggle('lives-background', document.hidden);
+    if (!this._livesVisibilityBound) {
+      this._livesVisibilityBound = true;
+      document.addEventListener('visibilitychange', () => {
+        this.root?.classList.toggle('lives-background', document.hidden);
+      });
+    }
+    // Android uses FittedBox for balances. Scale only their text; preserve the value.
+    this._livesFitObserver?.disconnect();
+    const fitItems = [...this.body.querySelectorAll('[data-life-fit]')];
+    const fitBalances = () => {
+      const title = this.body.querySelector('#lives-exchange-title');
+      this.root?.classList.toggle('lives-large-text', Boolean(title && parseFloat(getComputedStyle(title).fontSize) > 25));
+      for (const box of fitItems) {
+        const text = box.firstElementChild;
+        const scale = Math.min(1, box.clientWidth / Math.max(1, text.offsetWidth),
+          box.clientHeight / Math.max(1, text.offsetHeight));
+        text.style.transform = `translate(-50%, -50%) scale(${Math.max(0, scale)})`;
+      }
+    };
+    if (typeof ResizeObserver === 'function') {
+      this._livesFitObserver = new ResizeObserver(fitBalances);
+      for (const box of fitItems) {
+        this._livesFitObserver.observe(box);
+        this._livesFitObserver.observe(box.firstElementChild);
+      }
+    }
+    requestAnimationFrame(fitBalances);
   }
 
   _renderCrystalsHeader(e) {
@@ -388,37 +462,27 @@ export class SheetUI {
     const adProgress = e.watchAdUnlockProgress;
 
     return `
-      <div class="crystals-header">
+      <div class="crystals-header neon-shop-header">
         <div class="game-panel accent-cyan crystals-balance-panel">
-          ${crystalImg(24, true)}
-          <div>
-            <div class="cb-label">${RU.crystals}</div>
-            <div class="cb-value" id="sheet-crystal-balance">${e.tokens}</div>
+          ${crystalImg(30, true)}
+          <div class="neon-balance-copy">
+            <div class="neon-balance-label-slot" data-shop-fit="left"><span class="cb-label">${RU.crystals}</span></div>
+            <div class="neon-balance-value-slot" data-shop-fit="left"><span class="cb-value" id="sheet-crystal-balance">${e.tokens}</span></div>
           </div>
         </div>
         <button type="button" class="gift-btn ${canGift ? 'ready' : 'frozen'}" id="gift-btn">
-          ${canGift ? '' : giftRingSvg(progress)}
-          <div class="gift-btn-inner ${canGift ? '' : 'gift-blur'}">
-            ${giftMarkHtml(canGift)}
-            <div class="gift-reward-row">
-              ${crystalImg(13, canGift)}
-              <span class="amt">+${giftAmt}</span>
-            </div>
-            ${canGift ? `<span class="gift-ready-lbl">${RU.giftReady}</span>` : ''}
+          <div class="gift-btn-inner">
+            <span class="neon-gift-spark" aria-hidden="true">✦</span><span class="neon-gift-star" aria-hidden="true">★</span>
+            <div class="neon-gift-heading" data-shop-fit><span><svg class="neon-gift-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h16v12H4V9Zm8 0v12M3 5h18v4H3V5Zm9 0C5 5 5-1 9 2l3 3Zm0 0c7 0 7-6 3-3l-3 3Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="gift-ready-lbl">БОНУС</span></span></div>
+            ${canGift ? `<div class="gift-reward-row" data-shop-fit><span class="amt">+${giftAmt}</span></div>` : `<div class="neon-gift-timer-slot" data-shop-fit><span class="gift-timer">${fmtDuration(remain)}</span></div>`}
           </div>
-          ${canGift ? '' : `<span class="gift-timer">${fmtDuration(remain)}</span>`}
         </button>
         <button type="button" class="gift-btn ad-btn ${canAd ? 'ready' : 'frozen'}" id="watch-ad-btn">
           ${canAd ? '' : giftRingSvg(adProgress)}
           <div class="gift-btn-inner ${canAd ? '' : 'gift-blur'}">
             <span class="ad-mark">${shopWatchIcon(!canAd, 22)}</span>
-            <div class="gift-reward-row">
-              ${crystalImg(13, canAd)}
-              <span class="amt">+${adAmt}</span>
-            </div>
-            ${canAd ? `<span class="gift-ready-lbl">${RU.adReadyLbl}</span>` : ''}
+            ${canAd ? `<div class="gift-reward-row" data-shop-fit><span class="amt">+${adAmt}</span></div>` : `<div class="neon-ad-timer-slot" data-shop-fit><span class="gift-timer">${fmtCooldownSec(adRemain / 1000)}</span></div>`}
           </div>
-          ${canAd ? '' : `<span class="gift-timer">${fmtCooldownSec(adRemain / 1000)}</span>`}
         </button>
       </div>`;
   }
@@ -432,14 +496,13 @@ export class SheetUI {
     ];
     return `
       <div class="crystals-menu-dock">
-        <div class="crystals-menu-label">Раздел</div>
         <div class="crystals-tabs">
           ${tabs
             .map(
               (t) => `
-            <button type="button" class="crystals-tab ${tab === t.id ? 'active' : ''}" data-tab="${t.id}">
+            <button type="button" class="crystals-tab ${tab === t.id ? 'active' : ''}" data-tab="${t.id}" title="${t.label}">
               <span class="tab-ico-wrap">${t.icon}</span>
-              <span class="tab-txt">${t.label}</span>
+              <span class="neon-tab-label-slot" data-shop-fit><span class="tab-txt">${t.label}</span></span>
             </button>`,
             )
             .join('')}
@@ -698,12 +761,12 @@ export class SheetUI {
     const next = e.premiumNextChargeDate ?? new Date(Date.now() + (e.plusProduct?.days ?? 7) * 86400000);
     const plusCard = `
       <button type="button" class="daily-plus-card ${plusActive ? 'on' : ''}" id="daily-plus-card">
-        <span class="daily-plus-ico">${uiIconImg('premium', 22)}</span>
+        <span class="daily-plus-ico">${uiArtwork('plus', 24)}</span>
         <span class="daily-plus-copy">
-          <span class="daily-plus-title">${RU.plusTitle}</span>
+          <span class="daily-plus-title">${RU.plusOfferTitle}${plusActive ? `<span class="daily-plus-check">${checkMarkHtml(16)}</span>` : ''}</span>
           <span class="daily-plus-hint">${plusActive ? RU.plusDailyOnHint(fmtChargeDate(next)) : RU.plusDailyOffHint}</span>
         </span>
-        <span class="daily-plus-cta">${plusActive ? RU.plusDailyCtaOn : RU.plusDailyCtaOff}</span>
+        <span class="daily-plus-cta" aria-label="${plusActive ? RU.plusDailyCtaOn : RU.plusDailyCtaOff}">›</span>
       </button>`;
 
     const rows = rewards
@@ -720,11 +783,14 @@ export class SheetUI {
         if (isClaimed) actionStatus = 'claimed';
         else if (isToday) actionStatus = 'today';
         else if (isWaiting) actionStatus = 'waiting';
-        const action = dayActionHtml(
+        const actionMarkup = dayActionHtml(
           actionStatus,
           isWaiting ? fmtDuration(e.untilMidnight) : null,
           day,
         );
+        const action = isLocked
+          ? actionMarkup.replace('</div>', '<span class="day-action-txt">Закрыто</span></div>')
+          : actionMarkup;
 
         const nodeCls = isClaimed
           ? 'claimed'
@@ -734,34 +800,26 @@ export class SheetUI {
               ? 'waiting'
               : 'locked';
 
-        const lineTop = i === 0 ? 'transparent' : isClaimed || isToday || isWaiting ? 'on' : '';
-        const lineBot = i === rewards.length - 1 ? 'transparent' : isClaimed ? 'on' : '';
-
         return `
         <div class="daily-row">
-          <div class="daily-rail">
-            <div class="daily-line ${lineTop === 'on' ? 'on' : ''} ${isWaiting && i > 0 ? 'wait' : ''}" style="${i === 0 ? 'visibility:hidden' : ''}"></div>
-            <div class="daily-node ${nodeCls}">${isClaimed ? checkMarkHtml(11, true) : day}</div>
-            <div class="daily-line ${lineBot === 'on' ? 'on' : ''}" style="${i === rewards.length - 1 ? 'visibility:hidden' : ''}"></div>
-          </div>
-          <div class="daily-card ${isClaimed ? 'claimed' : ''} ${isToday ? 'today' : ''} ${isWaiting ? 'waiting' : ''} ${isLocked ? 'locked' : ''}">
-            <div class="daily-card-mid">${rewardBadge(amount, {
+          <div class="daily-card ${isClaimed ? 'claimed' : ''} ${isToday ? 'today' : ''} ${isWaiting ? 'waiting' : ''} ${isLocked ? 'locked' : ''} ${day === rewards.length ? 'daily-final-day' : ''}">
+            <div class="daily-day-label">
+              <span class="daily-node ${nodeCls}">${isClaimed ? checkMarkHtml(12, true) : day === rewards.length ? '<svg class="daily-final-star" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path fill="#86580C" d="m12 2 2.4 7.3H22l-6.2 4.5 2.4 7.3L12 16.6l-6.2 4.5 2.4-7.3L2 9.3h7.6Z"/></svg>' : isLocked ? uiIconImg('lock', 12) : day}</span>
+              <span class="daily-day-name">${RU.periodDay} ${day}</span>
+            </div>
+            <div class="daily-card-mid" data-shop-fit><span class="daily-reward-fit">${rewardBadge(amount, {
               emphasized: isToday || isWaiting || !isLocked,
               showPlusHint: true,
               base,
               hasPremium: e.hasPremium,
-            })}</div>
+            })}</span></div>
             ${action}
           </div>
         </div>`;
       })
       .join('');
 
-    return `<div class="tab-pane tab-pane-daily">${plusCard}<div class="daily-bonus-scroll"><p class="daily-hint">${hint}</p>
-      <div class="daily-row daily-rail-head">
-        <div class="daily-rail"><span class="daily-rail-caption">${RU.periodDay}</span></div>
-      </div>
-      ${rows}</div></div>`;
+    return `<div class="tab-pane tab-pane-daily neon-daily-pane">${plusCard}<div class="daily-bonus-scroll"><p class="daily-hint">${hint}</p><div class="daily-days">${rows}</div></div></div>`;
   }
 
   async _watchAdForCrystals() {
@@ -793,6 +851,7 @@ export class SheetUI {
     } catch (err) {
       const kind = err?.adFail || (/skip|close|cancel/i.test(String(err?.message || '')) ? 'skip' : 'load');
       if (kind === 'skip') this._toast(RU.shopAdSkipped, { accent: '#FFC857', flyTo: 'none' });
+      else if (kind === 'session') this._toast('AdsGram отклонил показ: сессия устарела. Попробуйте открыть игру заново из бота.', { accent: '#FFC857', flyTo: 'none' });
       else showAdLoadStub();
     } finally {
       this._watchingAd = false;
@@ -800,24 +859,47 @@ export class SheetUI {
   }
 
   _renderShopPane(e) {
-    const packs = e.starPacks.map(
-      (offer) => `
-      <div class="game-panel accent-cyan mb-6 shop-pack" data-iap="${offer.id}">
-        <div class="shop-row">
-          ${crystalImg(28, true)}
-          <div class="shop-text-col">
-            <div class="t1">${offer.title}</div>
-            ${offer.badgeKey ? `<div class="badge">${PACK_BADGES[offer.badgeKey] ?? ''}</div>` : ''}
-          </div>
-          <div class="shop-mid">${rewardBadge(offer.crystals)}</div>
-          <div class="shop-price">${starsLabel(offer.stars)}</div>
-        </div>
-      </div>`,
-    ).join('');
+    const escape = value => String(value).replace(/[&<>"']/g, char => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+    }[char]));
+    const pile = tier => {
+      if (tier === 0) return `<span class="neon-shop-cube-scene solo">${crystalImg(54, true)}</span>`;
+      const count = [1, 3, 6, 10][tier];
+      const size = [54, 33, 27, 23][tier];
+      let cubes = '', placed = 0;
+      for (let row = 0; placed < count; row++) {
+        for (let col = 0; col <= row && placed < count; col++, placed++) {
+          const left = 30 - size / 2 + (col - row / 2) * size * 0.66;
+          const top = row * size * 0.48;
+          cubes += `<span class="neon-shop-cube" style="left:${left}px;top:${top}px">${crystalImg(size)}</span>`;
+        }
+      }
+      return `<span class="neon-shop-cube-scene">${cubes}</span>`;
+    };
+    const packs = e.starPacks.map((offer, i) => {
+      const tier = Math.min(i, 3);
+      const badge = offer.badgeKey ? PACK_BADGES[offer.badgeKey] ?? '' : '';
+      return `
+      <button type="button" class="neon-shop-pack tier-${tier}" data-iap="${escape(offer.id)}" aria-label="${escape(`${offer.title}, ${offer.crystals} кристаллов, ${starsLabel(offer.stars)}, Telegram Stars`)}">
+        <span class="neon-shop-pack-heading">
+          <span class="neon-shop-pack-title" data-shop-fit="left"><span>${escape(offer.title.toUpperCase())}</span></span>
+          ${badge ? `<span class="neon-shop-pack-badge" data-shop-fit><span>${escape(badge)}</span></span>` : ''}
+        </span>
+        <span class="neon-shop-pack-main">
+          <span class="neon-shop-pack-quantity">
+            <span class="neon-shop-pack-amount" data-shop-fit="left"><span>${offer.crystals}</span></span>
+            <span class="neon-shop-pack-unit" data-shop-fit="left"><span>кристаллов</span></span>
+          </span>
+          <span class="neon-shop-pack-pile" aria-hidden="true">${pile(tier)}</span>
+        </span>
+        <span class="neon-shop-pack-price" data-shop-fit><span>${escape(starsLabel(offer.stars))}</span></span>
+        <span class="neon-shop-pack-caption" data-shop-fit><span>Telegram Stars</span></span>
+      </button>`;
+    }).join('');
 
     return `
-      <div class="tab-pane tab-pane-shop">
-        ${packs}
+      <div class="tab-pane tab-pane-shop neon-shop-packs-pane">
+        <div class="neon-shop-pack-grid">${packs}</div>
         <p class="shop-iap-note">${RU.shopIapHint}</p>
       </div>`;
   }
@@ -827,16 +909,15 @@ export class SheetUI {
     const jumpOn = g.jumpEnabled !== false;
     const helmetOn = g.helmetEnabled !== false;
     if (!jumpOn && !helmetOn) {
-      return `<div class="tab-pane tab-pane-rent"><p class="daily-hint" style="text-align:center">${RU.rentInactive}</p></div>`;
+      return `<div class="tab-pane tab-pane-rent neon-rent-pane"><p class="daily-hint" style="text-align:center">${RU.rentInactive}</p></div>`;
     }
 
     const ec = e.e;
-    const light = document.documentElement.getAttribute('data-theme') === 'light';
-    const helmetAccent = light ? '#0A4A62' : '#7EE0FF';
-    const jumpAccent = light ? '#0A8A58' : '#3DDC97';
-    let html = '<div class="tab-pane tab-pane-rent">';
+    const helmetAccent = '#065781';
+    const jumpAccent = '#00644C';
+    const cards = [];
     if (helmetOn) {
-      html += this._rentCard(e, 'helmet', {
+      cards.push(this._rentCard(e, 'helmet', {
         accent: helmetAccent,
         iconName: 'shield',
         title: RU.rentHelmetTitle,
@@ -851,11 +932,10 @@ export class SheetUI {
         longDisc: e.helmetRentalHourDiscountPercent(),
         longOk: e.canRentHelmet(true),
         prefix: 'helmet',
-      });
+      }));
     }
-    if (jumpOn && helmetOn) html += '<div style="height:10px"></div>';
     if (jumpOn) {
-      html += this._rentCard(e, 'jump', {
+      cards.push(this._rentCard(e, 'jump', {
         accent: jumpAccent,
         iconName: 'jump',
         title: RU.rentJumpTitle,
@@ -870,10 +950,9 @@ export class SheetUI {
         longDisc: e.jumpRentalHourDiscountPercent(),
         longOk: e.canRentJump(true),
         prefix: 'jump',
-      });
+      }));
     }
-    html += '</div>';
-    return html;
+    return `<div class="tab-pane tab-pane-rent neon-rent-pane"><div class="neon-rent-grid">${cards.reverse().join('')}</div></div>`;
   }
 
   _rentCard(e, _kind, o) {
@@ -884,14 +963,12 @@ export class SheetUI {
         : '';
 
     return `
-      <div class="game-panel mb-6" style="border-color:${o.accent}73">
+      <div class="neon-rent-card ${_kind}" style="--rent-accent:${o.accent}">
         <div class="rent-card-h">
-          <div class="rent-icon-box" style="background:${o.accent}29">${rentKindIcon(o.iconName, 22)}</div>
-          <div>
-            <div class="rent-title">${o.title}</div>
-            <div class="rent-desc">${o.desc}</div>
-          </div>
+          <div class="rent-icon-box">${uiArtwork(_kind === 'helmet' ? 'helmet' : 'jump', 28)}</div>
+          <div class="rent-title">${o.title}</div>
         </div>
+        <div class="rent-desc">${o.desc}</div>
         ${activeLbl}
         <div class="rent-btns">
           ${this._rentDurBtn(o.prefix, 's', o.shortM, o.shortCost, null, null, o.shortOk, action, o.accent)}
@@ -903,7 +980,7 @@ export class SheetUI {
   _rentDurBtn(prefix, suffix, mins, cost, listPrice, discPct, enabled, action, accent) {
     const disc =
       discPct > 0 && listPrice
-        ? `<span class="rd-disc" style="background:${accent}38;color:${accent}">${RU.rentDiscountBadge(discPct)}</span>`
+        ? `<span class="rd-disc">${RU.rentDiscountBadge(discPct)}</span>`
         : '';
     const strike =
       discPct > 0 && listPrice
@@ -911,15 +988,18 @@ export class SheetUI {
         : '';
     return `
       <button type="button" class="rent-dur-btn ${enabled ? '' : 'disabled'}"
-        data-rent-${prefix}-${suffix} style="border-color:${accent}59;background:${accent}1a">
-        <div class="rd-mins" style="color:${accent}">${RU.rentMinsLabel(mins)}</div>
-        <div class="rd-cost-row">
-          ${strike}
-          <span class="rd-cost">${cost}</span>
-          ${crystalImg(14)}
-          ${disc}
+        data-rent-${prefix}-${suffix} aria-label="${RU.rentMinsLabel(mins)}, ${cost} кристаллов, ${enabled ? action : RU.rentNotEnough}">
+        <div class="neon-rent-offer-top">
+          <div class="rd-mins">${RU.rentMinsLabel(mins)}</div>
+          <span class="neon-rent-cost ${enabled ? 'available' : 'unavailable'}" aria-label="Стоимость: ${cost} кристаллов">
+            <span class="rd-cost" data-shop-fit style="--cost-digits:${String(cost).length}"><span>${cost}</span></span>${crystalImg(16)}
+          </span>
         </div>
-        <div class="rd-action" style="color:${accent}">${action}</div>
+        ${strike || disc ? `<div class="rd-cost-row">${strike}${disc}</div>` : ''}
+        <div class="rd-action">
+          <svg viewBox="0 0 24 24" aria-hidden="true">${enabled ? '<circle cx="12" cy="12" r="9"/><path d="m7 12 3 3 7-7"/>' : '<rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V6a4 4 0 0 1 8 0v4"/>'}</svg>
+          <span>${enabled ? action : 'Не хватает'}</span>
+        </div>
       </button>`;
   }
 
@@ -1089,7 +1169,7 @@ export class SheetUI {
         const alwaysOpen = isInvite || a.id === 'enable_notifications';
         let trailing = rewardBadge(a.reward);
         if (done) {
-          trailing = `<span class="earn-done">${checkMarkHtml(18)}${rewardBadge(a.reward)}</span>`;
+          trailing = `<span class="earn-done" aria-label="Выполнено">${checkMarkHtml(20, true)}</span>`;
         } else if (locked) {
           trailing = `<span class="earn-lock">${uiIconImg('lock', 18)}</span>`;
         }
@@ -1101,8 +1181,9 @@ export class SheetUI {
         const accent = isInvite ? 'accent-warn' : done ? 'accent-mint' : unlocked && !done ? 'accent-warn' : '';
         const card = isInvite
           ? `
-        <div class="game-panel mb-6 ${accent} earn-panel earn-invite-card">
+        <div class="game-panel mb-6 ${accent} earn-panel earn-invite-card neon-earn-card">
           <div class="earn-row">
+            <svg class="neon-invite-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm0 2c-4 0-7 2-7 4v3h14v-3c0-2-3-4-7-4zm9-2V8h2v3h3v2h-3v3h-2v-3h-3v-2z"/></svg>
             <div class="earn-text">
               <div class="t1">${earnTitle(a.id)}</div>
               <div class="t2">${sub}</div>
@@ -1112,7 +1193,7 @@ export class SheetUI {
           <button type="button" class="earn-share-btn" data-earn="invite_friend">${RU.shareSocial}</button>
         </div>`
           : `
-        <div class="game-panel mb-6 ${accent} earn-panel ${locked ? 'locked' : ''}" data-earn="${a.id}" style="cursor:${clickable ? 'pointer' : 'default'}">
+        <div class="game-panel mb-6 ${accent} earn-panel neon-earn-card ${done ? 'done' : ''} ${locked ? 'locked' : ''}" data-earn="${a.id}" style="cursor:${clickable ? 'pointer' : 'default'}">
           <div class="earn-row ${locked ? 'locked' : ''}">
             <div class="earn-text">
               <div class="t1">${earnTitle(a.id)}</div>
@@ -1125,7 +1206,7 @@ export class SheetUI {
       })
       .join('');
 
-    return `<div class="tab-pane tab-pane-earn"><p class="earn-hint">${RU.earnPreviewHint}</p>${rows}</div>`;
+    return `<div class="tab-pane tab-pane-earn neon-earn-pane"><p class="earn-hint">${RU.earnPreviewHint}</p>${rows}</div>`;
   }
 
   _renderPlus() {
@@ -1136,33 +1217,33 @@ export class SheetUI {
     const next = e.premiumNextChargeDate ?? new Date(Date.now() + plus.days * 86400000);
 
     this.body.innerHTML = `
-      <div class="plus-sheet">
-        <button type="button" class="plus-back" id="plus-back">← ${RU.plusBack}</button>
+      <div class="plus-sheet neon-plus-sheet">
         <div class="plus-head">
-          <span class="plus-premium-ico">${uiIconImg('premium', 22)}</span>
+          <span class="plus-premium-ico">${uiArtwork('plus', 24)}</span>
           <h2 class="plus-head-title">${active ? RU.plusManageTitle : RU.plusOfferTitle}</h2>
           ${active ? `<span class="plus-head-check">${checkMarkHtml(20)}</span>` : ''}
         </div>
         <div class="plus-subtitle mint">${RU.plusTitle}</div>
-        <p class="plus-desc">${active ? RU.plusManageSubtitle : RU.plusOfferSubtitle(plus.days)}</p>
         <div class="game-panel accent-mint mb-10 plus-benefits">
+          <div class="plus-benefit">
+            <span class="plus-benefit-ico">${uiIconImg('no-ads', 18)}</span>
+            <span>${RU.plusManageBenefitAds}</span>
+          </div>
           <div class="plus-benefit">
             <span class="plus-benefit-ico">${uiIconImg('sparkle', 18)}</span>
             <span>${RU.plusManageBenefitDaily}</span>
             <span class="plus-benefit-trail">${crystalImg(14)} ×2</span>
-          </div>
-          <div class="plus-benefit">
-            <span class="plus-benefit-ico">${uiIconImg('no-ads', 18)}</span>
-            <span>${RU.plusManageBenefitAds}</span>
           </div>
         </div>
         <div class="game-panel mb-10 plus-price-panel">
           <div class="plus-price-line">${RU.plusManagePrice(price)}</div>
           ${active ? `<div class="plus-next-charge">${RU.plusManageNextCharge(fmtChargeDate(next))}</div>` : ''}
         </div>
+        <p class="plus-desc">${active ? RU.plusManageSubtitle : RU.plusOfferSubtitle(plus.days)}</p>
         ${active
           ? `<button type="button" class="plus-btn cancel" id="plus-cancel">${RU.plusCancel}</button>`
           : `<button type="button" class="plus-btn subscribe" id="plus-subscribe">${RU.plusSubscribe(price)}</button>`}
+        <button type="button" class="plus-back" id="plus-back">← ${RU.plusBack}</button>
       </div>`;
 
     this.body.querySelector('#plus-back')?.addEventListener('click', () => this._returnFromPlus());
@@ -1238,17 +1319,23 @@ export class SheetUI {
 
     const menuHtml = `
       <div class="lb-menu-container">
-        <div class="lb-menu-group">
-          <button type="button" class="lb-tab-btn ${filter === 'all' ? 'active' : ''}" data-lb-filter="all">Всё время</button>
-          <button type="button" class="lb-tab-btn ${filter === 'month' ? 'active' : ''}" data-lb-filter="month">Месяц</button>
-          <button type="button" class="lb-tab-btn ${filter === 'week' ? 'active' : ''}" data-lb-filter="week">Неделя</button>
-          <button type="button" class="lb-tab-btn ${filter === 'day' ? 'active' : ''}" data-lb-filter="day">День</button>
+        <div class="lb-legend-and-mine">
+          <div class="lb-legend">
+            <div class="lb-legend-line"><img src="assets/branding/ui/ability-jump.png" width="16" height="16" alt=""><span class="lb-legend-text">Прыжок ·</span><img src="assets/branding/ui/ability-helmet.png" width="16" height="16" alt=""><span>Шлем</span></div>
+            <div class="lb-legend-line lb-legend-note">Яркие — были включены</div>
+            <div class="lb-legend-line"><img src="assets/branding/ui/ability-risk.png" width="12" height="12" alt=""><span>Риск ·</span><img src="assets/branding/ui/ability-distance.png" width="12" height="12" alt=""><span>Пробег</span></div>
+          </div>
+          <button type="button" class="lb-tab-btn lb-tab-mine ${filter === 'mine' ? 'active' : ''}" data-lb-filter="mine" title="Мои попытки" aria-label="Мои попытки">
+            <span class="lb-mine-short">Мои</span>
+            <span class="lb-mine-full">Мои попытки</span>
+          </button>
         </div>
-        <div class="lb-menu-sep" aria-hidden="true"></div>
-        <button type="button" class="lb-tab-btn lb-tab-mine ${filter === 'mine' ? 'active' : ''}" data-lb-filter="mine" title="Мои попытки">
-          <span class="lb-mine-short">Мои</span>
-          <span class="lb-mine-full">Мои попытки</span>
-        </button>
+        <div class="lb-menu-group">
+          <button type="button" class="lb-tab-btn ${filter === 'all' ? 'active' : ''}" data-lb-filter="all" title="Всё время" aria-label="Всё время">Всё</button>
+          <button type="button" class="lb-tab-btn ${filter === 'month' ? 'active' : ''}" data-lb-filter="month" title="Месяц" aria-label="Месяц">Мес.</button>
+          <button type="button" class="lb-tab-btn ${filter === 'week' ? 'active' : ''}" data-lb-filter="week" title="Неделя" aria-label="Неделя">Нед.</button>
+          <button type="button" class="lb-tab-btn ${filter === 'day' ? 'active' : ''}" data-lb-filter="day" title="День" aria-label="День">День</button>
+        </div>
       </div>`;
 
     const tableHeaderHtml = `
@@ -1305,21 +1392,25 @@ export class SheetUI {
                   <div class="lb-card-rank ${rankClass}">${rankLabel}</div>
                   <div class="lb-card-player-col">
                     <div class="lb-card-user-line">
-                      <span class="lb-card-username ${isMe && !isMineView ? 'is-me' : ''}">${nameToDisplay}</span>
+                      <span class="lb-card-username ${isMe && !isMineView ? 'is-me' : ''}" title="${String(nameToDisplay).replaceAll('&', '&amp;').replaceAll('"', '&quot;')}">${nameToDisplay}</span>
                       ${showTg ? `<span class="lb-card-tg-pill">${showTg}</span>` : ''}
                     </div>
-                    <div class="lb-card-run-meta">${dateShort} · 🏃 ${att.runDistance || 0} · ⚡ ${att.riskCount || 0}</div>
+                    <div class="lb-card-run-meta">${dateShort}</div>
                   </div>
                   <div class="lb-card-boosts" title="Бусты">
                     <span class="lb-boost ${hadJump ? 'jump-on' : 'boost-off'}" title="${hadJump ? 'Прыжок' : 'Без прыжка'}">
-                      ${JUMP_BOOST_SVG}
+                      <img src="assets/branding/ui/ability-jump.png" width="18" height="18" alt=""><span class="lb-boost-state" aria-hidden="true">${hadJump ? '✓' : '–'}</span>
                     </span>
                     <span class="lb-boost ${hadHelmet ? 'helmet-on' : 'boost-off'}" title="${hadHelmet ? 'Шлем' : 'Без шлема'}">
-                      ${HELMET_BOOST_SVG}
+                      <img src="assets/branding/ui/ability-helmet.png" width="18" height="18" alt=""><span class="lb-boost-state" aria-hidden="true">${hadHelmet ? '✓' : '–'}</span>
                     </span>
                   </div>
                   <div class="lb-card-result-col">
                     <div class="lb-card-time">${timeStr}</div>
+                    <div class="lb-card-metrics">
+                      <span class="lb-inline-metric"><img src="assets/branding/ui/ability-risk.png" width="11" height="11" alt=""><span>${att.riskCount || 0}</span></span>
+                      <span class="lb-inline-metric"><img src="assets/branding/ui/ability-distance.png" width="11" height="11" alt=""><span>${att.runDistance || 0}</span></span>
+                    </div>
                     <div class="lb-card-score-badge">🎯 ${fmtScore(score)}</div>
                   </div>
                 </div>`;
@@ -1331,21 +1422,19 @@ export class SheetUI {
     const headerHtml = `
       <div class="lb-header">
         <div class="lb-title-wrap">
-          <span class="lb-title-icon">🏆</span>
+          <img class="lb-title-icon" src="icons/ui-trophy.svg" width="24" height="24" alt="">
           <h2>${RU.leaderboardTitle}</h2>
         </div>
         <div class="lb-user-chip">
           ${userPhoto ? `<img src="${userPhoto}" class="lb-user-avatar" alt="">` : restingCubeImg(15, 'lb-user-cube')}
-          <span class="lb-user-name">${playerName}</span>
+          <span class="lb-user-name" title="${String(playerName).replaceAll('&', '&amp;').replaceAll('"', '&quot;')}">${playerName}</span>
         </div>
       </div>`;
 
     this.body.innerHTML = `
-      <div class="leaderboard-sheet">
-        ${headerHtml}
-        ${menuHtml}
+      <div class="leaderboard-sheet neon-ranking">
+        <div class="lb-chrome">${headerHtml}${menuHtml}${tableHeaderHtml}</div>
         <div class="lb-content-panel">
-          ${tableHeaderHtml}
           <div class="leaderboard-sheet-scroll">
             ${contentHtml}
           </div>
@@ -1447,13 +1536,16 @@ export class SheetUI {
     const filterName = filter === 'day' ? 'за сегодня' : filter === 'week' ? 'за неделю' : filter === 'month' ? 'за месяц' : filter === 'all' ? 'за всё время' : 'в истории';
 
     const modalHtml = `
-      <div class="player-modal-backdrop">
+      <div class="player-modal-backdrop neon-player">
         <div class="player-modal-card">
-          <button type="button" class="player-modal-close" aria-label="Закрыть">✕</button>
-
+          <div class="player-modal-title-row">
+            <h2 class="player-modal-title">Результат игрока</h2>
+            <button type="button" class="player-modal-close" aria-label="Закрыть"><span aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24"><path fill="currentColor" d="m6.4 5 5.6 5.6L17.6 5 19 6.4 13.4 12l5.6 5.6-1.4 1.4-5.6-5.6L6.4 19 5 17.6l5.6-5.6L5 6.4z"/></svg></span></button>
+          </div>
+          <div class="player-modal-scroll">
           <div class="player-modal-header">
             <div class="player-modal-avatar-wrap">
-              ${photoUrl ? `<img src="${photoUrl}" class="player-modal-avatar" alt="">` : restingCubeImg(40, 'player-modal-cube')}
+              ${photoUrl ? `<img src="${photoUrl}" class="player-modal-avatar" alt="">` : uiArtwork('player-avatar', 44, 'player-modal-cube')}
             </div>
             <div class="player-modal-identity">
               <h3 class="player-modal-name">${gameNick}</h3>
@@ -1462,46 +1554,45 @@ export class SheetUI {
           </div>
 
           <div class="player-modal-score-box">
+            <div class="player-modal-period-line">
+              <span class="player-modal-score-label">Рекорд ${filterName}</span>
+              <span class="player-modal-rank-badge">${rankLabel}</span>
+            </div>
             <div class="player-modal-time-wrap">
-              <span class="player-modal-score-label">Рекорд ${filterName}:</span>
               <span class="player-modal-time">${timeStr}</span>
             </div>
-            <div class="player-modal-rank-badge">${rankLabel}</div>
-          </div>
-
-          <div class="player-modal-points-badge">
-            <span class="modal-pts-label">🎯 ОЧКИ ПОПЫТКИ:</span>
+            <div class="player-modal-points-badge">
+            <span class="modal-pts-label">Очки попытки:</span>
             <span class="modal-pts-val">${fmtScore(score)}</span>
             ${(att.riskCount || 0) > 0 ? `<span class="modal-pts-mult">×${1 + (att.riskCount || 0)} за риски</span>` : ''}
+            </div>
           </div>
 
           <div class="player-modal-stats-grid">
             <button type="button" class="player-modal-stat-item" data-tip="run" aria-label="Шаги — подробнее">
-              <span class="stat-icon">🏃</span>
               <div class="stat-text">
-                <span class="stat-value">${att.runDistance || 0}</span>
                 <span class="stat-label">Шаги</span>
+                <span class="stat-value">${att.runDistance || 0}</span>
               </div>
             </button>
             <button type="button" class="player-modal-stat-item" data-tip="risk" aria-label="Риск — подробнее">
-              <span class="stat-icon">⚡</span>
               <div class="stat-text">
-                <span class="stat-value">${att.riskCount || 0}</span>
                 <span class="stat-label">Риски</span>
+                <span class="stat-value">${att.riskCount || 0}</span>
               </div>
             </button>
             <button type="button" class="player-modal-stat-item" data-tip="jump" aria-label="Прыжок — подробнее">
-              <span class="stat-icon">🦘</span>
+              <img class="stat-icon" src="assets/branding/ui/ability-jump.png" width="18" height="18" alt="">
               <div class="stat-text">
-                <span class="stat-value ${att.hadJump ? 'boost-active' : ''}">${att.hadJump ? 'Включен ✓' : 'Нет'}</span>
                 <span class="stat-label">Прыжок</span>
+                <span class="stat-value ${att.hadJump ? 'boost-active' : ''}">${att.hadJump ? 'Включен ✓' : 'Нет'}</span>
               </div>
             </button>
             <button type="button" class="player-modal-stat-item" data-tip="helmet" aria-label="Шлем — подробнее">
-              <span class="stat-icon">🛡️</span>
+              <img class="stat-icon" src="assets/branding/ui/ability-helmet.png" width="18" height="18" alt="">
               <div class="stat-text">
-                <span class="stat-value ${att.hadHelmet ? 'boost-active' : ''}">${att.hadHelmet ? 'Включен ✓' : 'Нет'}</span>
                 <span class="stat-label">Шлем</span>
+                <span class="stat-value ${att.hadHelmet ? 'boost-active' : ''}">${att.hadHelmet ? 'Включен ✓' : 'Нет'}</span>
               </div>
             </button>
           </div>
@@ -1513,6 +1604,7 @@ export class SheetUI {
               <div class="player-modal-self-pill">Это ваш личный результат</div>
             ` : ''}
             <button type="button" class="player-modal-dismiss-btn" id="player-modal-dismiss">Закрыть</button>
+          </div>
           </div>
         </div>
       </div>`;
@@ -1588,24 +1680,25 @@ export class SheetUI {
     const text = `🔥 Я продержался ${timeSec} сек и набрал ${fmtScore(scoreVal)} очков в Untouch! Сможешь побить мой рекорд?`;
 
     this.body.innerHTML = `
-      <div class="share-sheet">
+      <div class="share-sheet neon-share-sheet">
         <div class="sheet-title-block">
           <h2>${RU.shareCardTitle}</h2>
         </div>
         <div class="share-sheet-scroll">
           <canvas id="share-card-canvas" class="share-card-canvas" width="800" height="800"></canvas>
-          <img id="share-card-img" class="share-card-img" alt="Untouch Result" style="display:none;" draggable="false">
+          <img id="share-card-img" class="share-card-img" alt="Untouch: ${timeSec} сек, риск ${risk}, пробег ${Math.round(run)}, ${fmtScore(scoreVal)} очков" style="display:none;" draggable="false">
+          <div class="neon-share-readiness" role="status" aria-live="polite">Готовим карточку…</div>
           <div class="share-card-hint">Удерживайте картинку, чтобы сохранить или скопировать</div>
         </div>
         <div class="share-actions">
-          <button type="button" class="share-btn-primary" id="share-btn-send">
+          <button type="button" class="share-btn-primary" id="share-btn-send" disabled aria-busy="true">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <line x1="22" y1="2" x2="11" y2="13"></line>
               <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
             </svg>
             ${RU.shareSendBtn}
           </button>
-          <button type="button" class="share-btn-secondary" id="share-btn-download">
+          <button type="button" class="share-btn-secondary" id="share-btn-download" disabled aria-busy="true">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
               <polyline points="7 10 12 15 17 10"></polyline>
@@ -1675,38 +1768,81 @@ export class SheetUI {
 
   _renderProfile() {
     const e = this._economy();
+    this.panel?.classList.remove('keyboard-open');
     const user = telegram.user;
     const userPhoto = telegram.userPhotoUrl;
     const fullName = [user?.first_name, user?.last_name].filter(Boolean).join(' ') || (user?.username ? `@${user.username}` : 'Игрок Untouch');
     const tgUsername = user?.username ? `@${user.username.replace(/^@/, '')}` : null;
     let savedHideTg = Boolean(e.hideTelegramUsername);
     let savedNick = e.customNickname || (tgUsername || user?.first_name || 'Игрок');
+    const escapeProfileHtml = (value) => String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#39;');
 
     const allTimeBest = e.bestTimeMs;
     const dayBest = e.getBestForPeriod('day');
     const totalRuns = e.recentAttempts.length;
 
     this.body.innerHTML = `
-      <div class="profile-sheet">
+      <div class="profile-sheet neon-profile">
+        <div class="profile-scroll-area">
         <div class="profile-header">
           <div class="profile-title-wrap">
-            <span class="profile-title-icon">👤</span>
-            <h2>Профиль игрока</h2>
+            <span class="profile-title-icon" aria-hidden="true">
+              <img class="profile-header-cube" src="assets/branding/ui/profile-player-cube-v1.png" width="68" height="68" alt="">
+              <svg class="profile-header-person" width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm0 2c-4.42 0-8 2.04-8 4.5V20h16v-1.5c0-2.46-3.58-4.5-8-4.5Z"/></svg>
+            </span>
+            <h2>Аккаунт</h2>
           </div>
-          <button type="button" class="profile-close-btn" id="profile-close-btn" aria-label="Закрыть">✕</button>
+          <button type="button" class="profile-close-btn" id="profile-close-btn" aria-label="Закрыть"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
         </div>
 
-        <div class="profile-scroll-area">
+          <!-- Игровой ник и личные рекорды -->
+          <div class="profile-card profile-nickname-card">
+            <div class="profile-nick-heading">
+              <label class="profile-field-title" for="profile-nick-input">Игровой ник</label>
+              <span class="profile-nick-limit" id="profile-nick-limit">5–40 символов</span>
+            </div>
+            <div class="profile-nick-row">
+              <div class="profile-input-wrap">
+                <input type="text" class="profile-nick-input" id="profile-nick-input" maxlength="80" value="${escapeProfileHtml(savedNick)}" placeholder="Ваш игровой ник" aria-describedby="profile-nick-limit profile-nick-error">
+              </div>
+              <button type="button" class="profile-nick-save-btn" id="profile-nick-save-btn" aria-label="Сохранить ник" title="Сохранить ник" disabled>
+                <span class="profile-nick-save-label">Сохранить</span>
+                <svg class="profile-nick-save-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>
+                <svg class="profile-nick-save-wait" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12M6 21h12M7 3v4l5 5-5 5v4m10-18v4l-5 5 5 5v4"/></svg>
+              </button>
+            </div>
+            <div class="profile-nick-error" id="profile-nick-error" role="alert" hidden></div>
+            <!-- Личные рекорды (информативно) -->
+            <div class="profile-stats-grid">
+              <div class="profile-stat-box">
+                <div class="profile-stat-lbl">Рекорд всё время</div>
+                <div class="profile-stat-val">${allTimeBest > 0 ? fmtMs3(allTimeBest) : '0.000'}</div>
+              </div>
+              <div class="profile-stat-box">
+                <div class="profile-stat-lbl">Лучший за сегодня</div>
+                <div class="profile-stat-val">${dayBest > 0 ? fmtMs3(dayBest) : '0.000'}</div>
+              </div>
+              <div class="profile-stat-box">
+                <div class="profile-stat-lbl">Всего попыток</div>
+                <div class="profile-stat-val">${totalRuns}</div>
+              </div>
+            </div>
+          </div>
+
           <!-- Блок аккаунта Telegram -->
           <div class="profile-card profile-account-card">
+            <div class="profile-account-status ${user?.id != null ? 'is-connected' : ''}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 3-7 18-4-7-7-4 18-7ZM21 3 10 14"/></svg>
+              <span>${user?.id != null ? 'Telegram подключён' : 'Telegram'}</span>
+            </div>
             <div class="profile-avatar-row">
               <div class="profile-avatar-wrap" id="profile-avatar-wrap">
-                ${userPhoto ? `<img src="${userPhoto}" class="profile-avatar-img" alt="">` : restingCubeImg(44, 'profile-avatar-cube')}
+                ${userPhoto ? `<img src="${escapeProfileHtml(userPhoto)}" class="profile-avatar-img" alt="">` : uiArtwork('player-avatar', 40, 'profile-avatar-cube')}
               </div>
               <div class="profile-info-col">
-                <div class="profile-fullname">${fullName}</div>
+                <div class="profile-fullname">${escapeProfileHtml(fullName)}</div>
                 <div class="profile-tg-row">
-                  ${tgUsername ? `<span class="profile-tg-username ${savedHideTg ? 'hidden-nick' : ''}" id="profile-tg-username">${tgUsername}</span>` : '<span class="profile-no-tg">Без Telegram username</span>'}
+                  ${tgUsername ? `<span class="profile-tg-username ${savedHideTg ? 'hidden-nick' : ''}" id="profile-tg-username">${escapeProfileHtml(tgUsername)}</span>` : '<span class="profile-no-tg">Без Telegram username</span>'}
                 </div>
               </div>
             </div>
@@ -1722,34 +1858,21 @@ export class SheetUI {
             <div class="profile-hint" id="profile-privacy-hint">
               ${savedHideTg ? '🔒 <span style="color:#ff8a80;font-weight:700;">Telegram-ник скрыт</span> (зачёркнут в профиле и скрыт в таблице лидеров)' : '🌐 Ваш @username отображается рядом с игровым ником'}
             </div>
+            <div class="profile-privacy-error" id="profile-privacy-error" role="alert" hidden></div>
           </div>
 
-          <!-- Блок игрового ника -->
-          <div class="profile-card profile-nickname-card">
-            <label class="profile-field-title" for="profile-nick-input">Игровой ник</label>
-            <div class="profile-input-wrap">
-              <input type="text" class="profile-nick-input" id="profile-nick-input" maxlength="24" value="${savedNick}" placeholder="Ваш игровой ник">
-            </div>
-            <div class="profile-hint">
-              Этот ник отображается в рекордах. По умолчанию совпадает с Telegram-ником, но вы можете указать свой.
-            </div>
-          </div>
-
-          <div class="profile-card profile-settings-card">
+          <!-- Настройки устройства -->
+          <div class="profile-card profile-settings-card neon-profile-settings">
             <div class="profile-stats-title">${RU.profileSettings}</div>
-            <label class="profile-privacy-toggle" for="profile-music-cb">
-              <input type="checkbox" id="profile-music-cb" ${e.musicEnabled !== false ? 'checked' : ''}>
-              <span class="profile-toggle-box">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-              </span>
-              <span class="profile-toggle-label">${RU.profileMusic}</span>
+            <label class="profile-switch" for="profile-music-cb">
+              <span class="profile-switch-copy"><span class="profile-toggle-label profile-switch-label">${RU.profileMusic}</span></span>
+              <input type="checkbox" id="profile-music-cb" role="switch" ${e.musicEnabled !== false ? 'checked' : ''}>
+              <span class="profile-switch-track" aria-hidden="true"></span>
             </label>
-            <label class="profile-privacy-toggle" for="profile-haptic-cb">
-              <input type="checkbox" id="profile-haptic-cb" ${e.hapticEnabled !== false ? 'checked' : ''}>
-              <span class="profile-toggle-box">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-              </span>
-              <span class="profile-toggle-label">${RU.profileHaptic}</span>
+            <label class="profile-switch" for="profile-haptic-cb">
+              <span class="profile-switch-copy"><span class="profile-toggle-label profile-switch-label">${RU.profileHaptic}</span></span>
+              <input type="checkbox" id="profile-haptic-cb" role="switch" ${e.hapticEnabled !== false ? 'checked' : ''}>
+              <span class="profile-switch-track" aria-hidden="true"></span>
             </label>
             <label class="profile-switch" for="profile-theme-cb">
               <span class="profile-switch-copy">
@@ -1761,42 +1884,39 @@ export class SheetUI {
             </label>
           </div>
 
-          <!-- Личные рекорды (информативно) -->
-          <div class="profile-card profile-stats-card">
-            <div class="profile-stats-title">Личные рекорды</div>
-            <div class="profile-stats-grid">
-              <div class="profile-stat-box">
-                <div class="profile-stat-icon">🏆</div>
-                <div class="profile-stat-val">${allTimeBest > 0 ? fmtMs3(allTimeBest) : '0.000'}</div>
-                <div class="profile-stat-lbl">Рекорд всё время</div>
-              </div>
-              <div class="profile-stat-box">
-                <div class="profile-stat-icon">⭐</div>
-                <div class="profile-stat-val">${dayBest > 0 ? fmtMs3(dayBest) : '0.000'}</div>
-                <div class="profile-stat-lbl">Лучший за сегодня</div>
-              </div>
-              <div class="profile-stat-box">
-                <div class="profile-stat-icon">⚡</div>
-                <div class="profile-stat-val">${totalRuns}</div>
-                <div class="profile-stat-lbl">Всего попыток</div>
-              </div>
+          <details class="profile-help">
+            <summary><span>Помощь и конфиденциальность</span><svg class="profile-help-arrow" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/></svg></summary>
+            <div class="profile-help-panel">
+              <a href="https://untouch.fun/privacy/" target="_blank" rel="noopener noreferrer"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="m12 3 8 3v6c0 4-4 7-8 9-4-2-8-5-8-9V6zM12 7v5m0 4v.1"/></svg><span>Политика конфиденциальности</span></a>
+              <a href="https://untouch.fun/delete-account/" target="_blank" rel="noopener noreferrer"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8m8-3h5"/></svg><span>Запрос удаления профиля</span></a>
+              <p class="profile-help-note">Откроется инструкция. Удаление выполняется после проверки владельца.</p>
+              <a href="https://untouch.fun/privacy/" target="_blank" rel="noopener noreferrer"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9.5 8.5a2.5 2.5 0 0 1 5 0c0 2-2.5 2-2.5 4m0 3v.1" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>Поддержка</span></a>
+              <p class="profile-help-email">support@untouch.fun</p>
             </div>
-          </div>
+          </details>
         </div>
 
-        <div class="profile-bottom-actions">
-          <button type="button" class="profile-action-btn is-done" id="profile-action-btn">Готово</button>
-        </div>
       </div>`;
 
     const closeBtn = this.body.querySelector('#profile-close-btn');
-    const actionBtn = this.body.querySelector('#profile-action-btn');
+    const profileOwner = this.body.querySelector('.neon-profile');
+    const ownsProfile = () => this.isOpen && this._type === 'profile' && profileOwner?.isConnected && this.body.contains(profileOwner);
+    const saveBtn = profileOwner.querySelector('#profile-nick-save-btn');
+    const nickError = profileOwner.querySelector('#profile-nick-error');
+    const privacyError = profileOwner.querySelector('#profile-privacy-error');
+    const saveLabel = saveBtn.querySelector('.profile-nick-save-label');
+    let savingNick = false;
+    let savingPrivacy = false;
+    let rejectedNick = false;
+    let focusScrollTimer = 0;
     const hideCb = this.body.querySelector('#profile-hide-tg-cb');
     const nickInput = this.body.querySelector('#profile-nick-input');
     const privacyHint = this.body.querySelector('#profile-privacy-hint');
     const tgSpan = this.body.querySelector('#profile-tg-username');
 
     closeBtn?.addEventListener('click', () => {
+      if (!ownsProfile()) return;
+      nickInput?.blur();
       telegram.haptic('impact', 'light');
       this.close();
     });
@@ -1807,6 +1927,7 @@ export class SheetUI {
       let taps = 0;
       let lastTap = 0;
       avatarWrap.addEventListener('click', (ev) => {
+        if (!ownsProfile()) return;
         ev.preventDefault();
         ev.stopPropagation();
         const now = Date.now();
@@ -1831,78 +1952,103 @@ export class SheetUI {
     });
 
     nickInput?.addEventListener('focus', () => {
+      if (!ownsProfile()) return;
       this.panel?.classList.add('keyboard-open');
       window.scrollTo(0, 0);
       document.body.scrollTop = 0;
-      setTimeout(() => {
-        nickInput?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      if (focusScrollTimer) clearTimeout(focusScrollTimer);
+      focusScrollTimer = setTimeout(() => {
+        focusScrollTimer = 0;
+        if (ownsProfile() && document.activeElement === nickInput) nickInput?.scrollIntoView({ block: 'center', behavior: 'smooth' });
       }, 120);
     });
 
     nickInput?.addEventListener('blur', () => {
+      if (focusScrollTimer) clearTimeout(focusScrollTimer);
+      focusScrollTimer = 0;
+      if (!profileOwner.isConnected || this._type !== 'profile' || !this.body.contains(profileOwner)) return;
       this.panel?.classList.remove('keyboard-open');
       window.scrollTo(0, 0);
       document.body.scrollTop = 0;
     });
 
     const getNickVal = () => (nickInput?.value || '').trim();
-    const getHideVal = () => Boolean(hideCb?.checked);
-
-    const hasChanges = () => {
-      const nv = getNickVal();
-      const hv = getHideVal();
-      return (nv.length > 0 && nv !== savedNick) || (hv !== savedHideTg);
+    const nicknameValidation = () => {
+      const name = getNickVal();
+      if (Array.from(name).length < 5 || Array.from(name).length > 40) return 'От 5 до 40 символов';
+      if (/[<>\x00-\x1F\x7F]/.test(name)) return 'Уберите служебные символы и < >';
+      return null;
     };
-
-    const updateActionBtnState = () => {
-      if (!actionBtn) return;
-      if (hasChanges()) {
-        actionBtn.classList.remove('is-done');
-        actionBtn.classList.add('is-save');
-        actionBtn.textContent = 'Сохранить';
-        actionBtn.disabled = false;
-      } else {
-        actionBtn.classList.remove('is-save');
-        actionBtn.classList.add('is-done');
-        actionBtn.textContent = 'Готово';
-        actionBtn.disabled = false;
-      }
+    const nicknameChanged = () => getNickVal() !== savedNick;
+    const setNickError = (message) => {
+      nickError.textContent = message || '';
+      nickError.hidden = !message;
+      nickInput.setAttribute('aria-invalid', message ? 'true' : 'false');
+      nickInput.classList.toggle('is-invalid', !!message);
     };
-
-    // При клике на чекбокс скрытия Telegram-ника ник зачеркивается СРАЗУ
-    const onTogglePrivacy = () => {
-      telegram.haptic('impact', 'light');
-      const isHidden = getHideVal();
-      if (tgSpan) {
-        tgSpan.classList.toggle('hidden-nick', isHidden);
-      }
+    const updateNickState = () => {
+      if (!ownsProfile()) return;
+      saveBtn.disabled = !nicknameChanged() || !!nicknameValidation() || rejectedNick || savingNick;
+      nickInput.disabled = savingNick;
+      saveBtn.classList.toggle('is-saving', savingNick);
+      saveBtn.setAttribute('aria-busy', String(savingNick));
+      saveLabel.textContent = savingNick ? 'Сохраняем…' : 'Сохранить';
+    };
+    const renderPrivacy = (isHidden, busy = false) => {
+      hideCb.checked = isHidden;
+      hideCb.disabled = busy;
+      hideCb.setAttribute('aria-busy', String(busy));
+      tgSpan?.classList.toggle('hidden-nick', isHidden);
       if (privacyHint) {
-        privacyHint.innerHTML = isHidden
+        privacyHint.innerHTML = busy ? 'Сохраняем…' : isHidden
           ? '🔒 <span style="color:#ff8a80;font-weight:700;">Telegram-ник скрыт</span> (зачёркнут в профиле и скрыт в таблице лидеров)'
           : '🌐 Ваш @username отображается рядом с игровым ником';
       }
-      updateActionBtnState();
     };
-
-    hideCb?.addEventListener('change', onTogglePrivacy);
-    hideCb?.addEventListener('input', onTogglePrivacy);
+    hideCb?.addEventListener('change', async () => {
+      if (!ownsProfile() || savingPrivacy) return;
+      const requestedHide = Boolean(hideCb.checked);
+      if (requestedHide === savedHideTg) return;
+      savingPrivacy = true;
+      privacyError.hidden = true;
+      privacyError.textContent = '';
+      renderPrivacy(requestedHide, true);
+      telegram.haptic('impact', 'light');
+      try {
+        const remote = await e.updateProfile({ hideTelegramUsername: requestedHide });
+        if (!ownsProfile()) return;
+        if (remote?.confirmed !== true) throw Object.assign(new Error('Unconfirmed profile response'), { code: 'invalid_response' });
+        savedHideTg = Boolean(e.hideTelegramUsername);
+      } catch (_) {
+        if (!ownsProfile()) return;
+        savedHideTg = Boolean(e.hideTelegramUsername);
+        privacyError.textContent = 'Не удалось сохранить. Проверьте сеть и повторите.';
+        privacyError.hidden = false;
+      } finally {
+        savingPrivacy = false;
+        if (ownsProfile()) renderPrivacy(savedHideTg);
+      }
+    });
 
     const musicCb = this.body.querySelector('#profile-music-cb');
     const hapticCb = this.body.querySelector('#profile-haptic-cb');
     const themeCb = this.body.querySelector('#profile-theme-cb');
     musicCb?.addEventListener('change', () => {
+      if (!ownsProfile()) return;
       const on = Boolean(musicCb.checked);
       e.updateDevicePrefs({ musicEnabled: on });
       this.app.audio?.setUserMusicEnabled(on);
       telegram.haptic('impact', 'light');
     });
     hapticCb?.addEventListener('change', () => {
+      if (!ownsProfile()) return;
       const on = Boolean(hapticCb.checked);
       e.updateDevicePrefs({ hapticEnabled: on });
       telegram.hapticEnabled = on;
       if (on) telegram.haptic('impact', 'light');
     });
     themeCb?.addEventListener('change', () => {
+      if (!ownsProfile()) return;
       const on = Boolean(themeCb.checked);
       e.updateDevicePrefs({ lightTheme: on });
       telegram.applyUiTheme(on);
@@ -1910,82 +2056,74 @@ export class SheetUI {
     });
 
     nickInput?.addEventListener('input', () => {
-      updateActionBtnState();
+      if (!ownsProfile() || savingNick) return;
+      rejectedNick = false;
+      setNickError(nicknameChanged() ? nicknameValidation() : null);
+      updateNickState();
     });
 
     const doSave = async () => {
+      if (!ownsProfile() || !nicknameChanged() || savingNick || rejectedNick) return;
+      const invalid = nicknameValidation();
+      if (invalid) { setNickError(invalid); updateNickState(); return; }
       const newNick = getNickVal();
-      if (!newNick) {
-        this._toast('Ник не может быть пустым', { accent: '#ff5a5f' });
-        nickInput?.focus();
-        return;
-      }
-      const newHide = getHideVal();
-
-      if (actionBtn) {
-        actionBtn.disabled = true;
-        actionBtn.textContent = 'Сохраняем...';
-      }
+      nickInput.blur();
+      savingNick = true;
+      setNickError(null);
+      updateNickState();
       telegram.haptic('impact', 'medium');
-      this._toast('Сохраняем профиль в базу...', { accent: '#ffd54f' });
-
       try {
-        const remote = await e.updateProfile({
-          customNickname: newNick,
-          hideTelegramUsername: newHide,
-        });
-        savedNick = newNick;
-        savedHideTg = newHide;
+        const remote = await e.updateProfile({ customNickname: newNick });
+        if (!ownsProfile()) return;
+        if (remote?.confirmed !== true) throw Object.assign(new Error('Unconfirmed nickname response'), { code: 'invalid_response' });
+        savedNick = e.customNickname || newNick;
+        nickInput.value = savedNick;
         telegram.haptic('notification', 'success');
-        if (remote?.ok && remote?.source === 'mysql') {
-          this._toast('Профиль сохранён в базу ✓', { accent: '#3DDC97' });
-        } else if (remote?.ok) {
-          this._toast('Профиль сохранён (резерв сервера) ✓', { accent: '#ffd54f' });
-        } else if (remote?.local) {
-          this._toast(
-            `Сохранено на устройстве. Сервер: ${remote.error || 'нет ответа'}`,
-            { accent: '#ffd54f' },
-          );
-        } else {
-          this._toast('Профиль сохранён ✓', { accent: '#3DDC97' });
-        }
-        if (actionBtn) {
-          actionBtn.textContent = 'Сохранено ✓';
-        }
         this.app._updateHud();
-        setTimeout(() => {
-          this.close();
-        }, 300);
       } catch (err) {
-        console.warn('save profile failed', err);
-        this._toast(
-          `Ошибка сохранения: ${err?.message || 'неизвестная ошибка'}`,
-          { accent: '#ff5a5f' },
-        );
-        updateActionBtnState();
+        if (!ownsProfile()) return;
+        const code = err?.code || '';
+        rejectedNick = code === 'nickname_taken' || code === 'nickname_invalid';
+        setNickError(code === 'nickname_taken' ? 'Этот ник занят. Выберите другой.'
+          : code === 'nickname_invalid' ? 'От 5 до 40 символов без служебных символов и < >'
+            : 'Не удалось сохранить. Попробуйте ещё раз.');
+      } finally {
+        savingNick = false;
+        if (ownsProfile()) updateNickState();
       }
     };
 
-    actionBtn?.addEventListener('click', async () => {
-      if (hasChanges()) {
-        await doSave();
-      } else {
-        telegram.haptic('impact', 'light');
-        this.close();
-      }
+    // Keyboard blur may resize the panel before a compatibility click is targeted.
+    // Hold editor focus until the real click; never run an action from pointerdown.
+    profileOwner.addEventListener('pointerdown', (event) => {
+      if (!ownsProfile() || document.activeElement !== nickInput) return;
+      const control = event.target.closest('button,label[for],summary,a');
+      if (!control || !profileOwner.contains(control) || control.matches(':disabled,label[for="profile-nick-input"]') || control.control?.disabled) return;
+      if (focusScrollTimer) clearTimeout(focusScrollTimer);
+      focusScrollTimer = 0;
+      event.preventDefault();
     });
+    saveBtn.addEventListener('click', doSave);
 
     nickInput?.addEventListener('keydown', (ev) => {
       if (ev.key === 'Enter') {
         ev.preventDefault();
-        nickInput.blur();
-        if (hasChanges()) {
-          doSave();
-        }
+        if (ownsProfile() && !saveBtn.disabled) doSave();
       }
     });
 
-    updateActionBtnState();
+    updateNickState();
+    // A newly opened view observes only the write already pending at its creation.
+    // The old view never writes into it; new drafts remain owned by this view.
+    const profileTail = e._profileWriteQueue;
+    if (profileTail) Promise.resolve(profileTail).then(() => {
+      if (!ownsProfile()) return;
+      const untouchedNick = getNickVal() === savedNick;
+      savedNick = e.customNickname || (tgUsername || user?.first_name || 'Игрок');
+      if (untouchedNick && !savingNick) { nickInput.value = savedNick; setNickError(null); }
+      if (!savingPrivacy) { savedHideTg = Boolean(e.hideTelegramUsername); renderPrivacy(savedHideTg); }
+      updateNickState();
+    });
   }
 }
 
@@ -2016,167 +2154,90 @@ function drawRoundRect(ctx, x, y, w, h, r) {
   ctx.closePath();
 }
 
+let _shareScenePromise = null;
+const _sharePaintRequests = new WeakMap();
+
+function getShareSceneImage() {
+  if (_shareScenePromise) return _shareScenePromise;
+  _shareScenePromise = new Promise(resolve => {
+    if (typeof Image === 'undefined') { resolve(null); return; }
+    const image = new Image();
+    image.decoding = 'async';
+    image.onload = () => resolve(image.naturalWidth > 0 ? image : null);
+    image.onerror = () => resolve(null);
+    image.src = 'assets/branding/ui/run-scene-v1.png';
+  });
+  return _shareScenePromise;
+}
+
 function drawShareCardCanvas(canvas, timeMs, runDist = 0, riskCount = 0, onReadyCb = null) {
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
-  const w = canvas.width;
-  const h = canvas.height;
-
-  ctx.clearRect(0, 0, w, h);
-
-  // 1. Clip outer rounded rect
-  ctx.save();
-  drawRoundRect(ctx, 0, 0, w, h, 44);
-  ctx.clip();
-
-  // 2. Background base fill
-  ctx.fillStyle = '#0a1014';
-  ctx.fillRect(0, 0, w, h);
-
-  // 3. Draw app icon if loaded
-  const iconImg = getAppIconImage(() => {
-    drawShareCardCanvas(canvas, timeMs, runDist, riskCount, onReadyCb);
-  });
-  if (iconImg && iconImg.complete && iconImg.naturalWidth > 0) {
-    ctx.drawImage(iconImg, 0, 0, w, h);
-  }
-
-  // 4. Vertical dark gradient overlay
-  const vGrad = ctx.createLinearGradient(0, 0, 0, h);
-  vGrad.addColorStop(0.0, 'rgba(10, 16, 20, 0.45)');
-  vGrad.addColorStop(0.35, 'rgba(10, 16, 20, 0.35)');
-  vGrad.addColorStop(0.62, 'rgba(7, 11, 14, 0.82)');
-  vGrad.addColorStop(1.0, 'rgba(7, 11, 14, 0.96)');
-  ctx.fillStyle = vGrad;
-  ctx.fillRect(0, 0, w, h);
-
-  // 5. Radial glow
-  const rGrad = ctx.createRadialGradient(w / 2, h * 0.35, 10, w / 2, h * 0.35, w * 0.65);
-  rGrad.addColorStop(0.0, 'rgba(126, 224, 255, 0.16)');
-  rGrad.addColorStop(1.0, 'rgba(126, 224, 255, 0.0)');
-  ctx.fillStyle = rGrad;
-  ctx.fillRect(0, 0, w, h);
-
-  // 6. Top Pill badge ("Untouch")
-  const pillW = 210;
-  const pillH = 46;
-  const pillX = (w - pillW) / 2;
-  const pillY = 46;
-  drawRoundRect(ctx, pillX, pillY, pillW, pillH, pillH / 2);
-  ctx.fillStyle = 'rgba(12, 18, 24, 0.78)';
-  ctx.fill();
-  ctx.strokeStyle = 'rgba(126, 224, 255, 0.45)';
-  ctx.lineWidth = 2;
-  ctx.stroke();
-
-  // Hero cube inside pill
-  const cubeSize = 22;
-  const cubeX = pillX + 16;
-  const cubeY = pillY + (pillH - cubeSize) / 2;
-  drawRoundRect(ctx, cubeX, cubeY, cubeSize, cubeSize, 5);
-  ctx.fillStyle = '#7EE0FF';
-  ctx.fill();
-  ctx.fillStyle = '#0E1419';
-  ctx.beginPath();
-  ctx.arc(cubeX + cubeSize * 0.35, cubeY + cubeSize * 0.42, 2, 0, Math.PI * 2);
-  ctx.arc(cubeX + cubeSize * 0.65, cubeY + cubeSize * 0.42, 2, 0, Math.PI * 2);
-  ctx.fill();
-
-  // "Untouch" text inside pill
-  ctx.font = '800 20px "Segoe UI", Roboto, system-ui, sans-serif';
-  ctx.fillStyle = '#7EE0FF';
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('Untouch', cubeX + cubeSize + 10, pillY + pillH / 2 + 1);
-
-  // 7. Large Time in Center
-  const timeSec = (timeMs / 1000).toFixed(2);
-  ctx.save();
-  ctx.font = '900 112px "Segoe UI", Roboto, system-ui, sans-serif';
-  ctx.fillStyle = '#3DDC97';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.shadowColor = 'rgba(0, 0, 0, 0.65)';
-  ctx.shadowBlur = 16;
-  ctx.shadowOffsetY = 6;
-  ctx.fillText(timeSec, w / 2, 330);
-  ctx.restore();
-
-  // 8. "СЕКУНД" label
-  ctx.font = '700 18px "Segoe UI", Roboto, system-ui, sans-serif';
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.72)';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('С Е К У Н Д', w / 2, 400);
-
-  // 9. Boast message
-  ctx.save();
-  ctx.font = '800 30px "Segoe UI", Roboto, system-ui, sans-serif';
-  ctx.fillStyle = '#F2F7FA';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
-  ctx.shadowBlur = 10;
-  ctx.shadowOffsetY = 3;
-  ctx.fillText(`Я продержался ${timeSec} сек в Untouch!`, w / 2, 490);
-
-  ctx.font = '700 22px "Segoe UI", Roboto, system-ui, sans-serif';
-  ctx.fillStyle = '#7EE0FF';
-  ctx.fillText('Сможешь побить мой рекорд?', w / 2, 535);
-  ctx.restore();
-
-  // 10. Run / Risk stats pill
-  const hasStats = runDist > 0 || riskCount > 0;
-  if (hasStats) {
-    const scoreVal = calcScore(timeMs, runDist, riskCount);
-    const statsW = 340;
-    const statsH = 38;
-    const statsX = (w - statsW) / 2;
-    const statsY = 590;
-    drawRoundRect(ctx, statsX, statsY, statsW, statsH, 12);
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.07)';
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
-    ctx.lineWidth = 1;
+  const owner = canvas.closest('.neon-share-sheet');
+  const request = Symbol();
+  _sharePaintRequests.set(canvas, request);
+  canvas.dataset.shareScene = 'loading';
+  // The fixed preview is navy while loading; export controls remain unavailable.
+  ctx.fillStyle = '#061B2B';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  getShareSceneImage().then(image => {
+    if (_sharePaintRequests.get(canvas) !== request) return;
+    ctx.save();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.scale(canvas.width / 800, canvas.height / 800);
+    drawRoundRect(ctx, 0, 0, 800, 800, 28);
+    ctx.clip();
+    ctx.fillStyle = '#061B2B';
+    ctx.fillRect(0, 0, 800, 800);
+    const text = (value, x, y, size, width, color, weight = 700) => {
+      ctx.font = `${weight} ${size}px Roboto, "Segoe UI", system-ui, sans-serif`;
+      const fit = Math.min(1, width / Math.max(1, ctx.measureText(value).width));
+      ctx.font = `${weight} ${size * fit}px Roboto, "Segoe UI", system-ui, sans-serif`;
+      ctx.fillStyle = color;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(value, x, y);
+    };
+    text('untouch', 32, 45, 28, 736, '#43ECC0', 800);
+    text(`${(timeMs / 1000).toFixed(2)} с`, 32, 120, 104, 736, '#F0FBFF', 900);
+    // Contain the entire canonical horizontal scene, with no source crop.
+    if (image) {
+      const scale = Math.min(792 / image.naturalWidth, 317 / image.naturalHeight);
+      const width = image.naturalWidth * scale, height = image.naturalHeight * scale;
+      ctx.drawImage(image, 4 + (792 - width) / 2, 180 + (317 - height) / 2, width, height);
+    } else {
+      ctx.fillStyle = '#082E4C';
+      ctx.fillRect(4, 180, 792, 317);
+      text('Сцена недоступна', 32, 338, 28, 736, '#A9CBE4');
+    }
+    text(`Риск ${riskCount}`, 32, 542, 24, 340, '#A9CBE4');
+    text(`Пробег ${Math.round(runDist)}`, 420, 542, 24, 348, '#A9CBE4');
+    text(`Очки ${fmtScore(calcScore(timeMs, runDist, riskCount))}`, 32, 599, 28, 736, '#A9CBE4');
+    text('Сколько продержитесь вы?', 32, 660, 32, 736, '#F0FBFF');
+    text('Играй в Telegram: @UntouchGameBot', 32, 744, 24, 736, '#79F1F5', 800);
+    ctx.restore();
+    ctx.save();
+    ctx.scale(canvas.width / 800, canvas.height / 800);
+    drawRoundRect(ctx, 2, 2, 796, 796, 26);
+    ctx.strokeStyle = '#68D6E9';
+    ctx.lineWidth = 4;
     ctx.stroke();
-
-    ctx.font = '700 15px "Segoe UI", Roboto, system-ui, sans-serif';
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(`🏃 ${Math.round(runDist)}   ⚡ ${riskCount}   🎯 ${fmtScore(scoreVal)} очков`, w / 2, statsY + statsH / 2);
-  }
-
-  // 11. Bot handle at bottom
-  const botW = 360;
-  const botH = 46;
-  const botX = (w - botW) / 2;
-  const botY = 690;
-  drawRoundRect(ctx, botX, botY, botW, botH, botH / 2);
-  ctx.fillStyle = 'rgba(126, 224, 255, 0.12)';
-  ctx.fill();
-  ctx.strokeStyle = 'rgba(126, 224, 255, 0.4)';
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
-
-  ctx.font = '800 18px "Segoe UI", Roboto, system-ui, sans-serif';
-  ctx.fillStyle = '#B8F4FF';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('🤖 Играй в Telegram: @UntouchGameBot', w / 2, botY + botH / 2);
-
-  // 12. Outer frame stroke
-  ctx.restore(); // unclip
-  ctx.save();
-  drawRoundRect(ctx, 3, 3, w - 6, h - 6, 42);
-  ctx.strokeStyle = 'rgba(126, 224, 255, 0.85)';
-  ctx.lineWidth = 6;
-  ctx.stroke();
-  ctx.restore();
-
-  if (onReadyCb) {
-    onReadyCb();
-  }
+    ctx.restore();
+    canvas.dataset.shareScene = image ? 'ready' : 'error';
+    // Captured owner only: a closed old preview cannot enable a newly opened pane.
+    if (owner?.isConnected && owner.contains(canvas)) {
+      for (const id of ['share-btn-send', 'share-btn-download']) {
+        const button = owner.querySelector(`#${id}`);
+        if (button) { button.disabled = false; button.removeAttribute('aria-busy'); }
+      }
+      const status = owner.querySelector('.neon-share-readiness');
+      if (status) {
+        status.hidden = Boolean(image);
+        if (!image) status.textContent = 'Иллюстрация не загрузилась. Карточку с результатом можно сохранить и отправить.';
+      }
+    }
+    onReadyCb?.();
+  });
 }
 
 let _inviteCoverImg = null;

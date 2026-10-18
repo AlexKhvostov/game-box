@@ -1,70 +1,54 @@
+import '../../ui/game_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-
-import '../../data/scores_store.dart';
-import '../../l10n/app_localizations.dart';
-import '../../ui/game_sheet.dart';
 import 'leaderboard_panel.dart';
+import 'ranking_frame.dart';
+import 'package:provider/provider.dart';
+import '../../data/scores_store.dart';
 
-Future<void> showLeaderboardSheet(BuildContext context) {
-  return showModalBottomSheet<void>(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: Colors.transparent,
-    builder: (_) => const _LeaderboardSheet(),
-  );
-}
+enum LeaderboardTab { record, average }
 
-class _LeaderboardSheet extends StatelessWidget {
-  const _LeaderboardSheet();
+Future<void> showLeaderboardSheet(
+  BuildContext context, {
+  LeaderboardTab initialTab = LeaderboardTab.record,
+  bool allTime = false,
+}) => showModalBottomSheet<void>(
+  sheetAnimationStyle: GameUi.windowAnimationStyle,
+  context: context,
+  isScrollControlled: true,
+  backgroundColor: Colors.transparent,
+  builder: (_) => LeaderboardSheet(initialTab: initialTab, allTime: allTime),
+);
 
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
-    final store = context.watch<ScoresStore>();
-
-    return GameSheetChrome(
-      heightFactor: 0.84,
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(18, 10, 18, 4),
-            child: Row(
-              children: [
-                Text(
-                  l10n.leaderboardTitle,
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const Spacer(),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    color: store.online
-                        ? theme.colorScheme.primary.withValues(alpha: 0.15)
-                        : Colors.white10,
-                  ),
-                  child: Text(
-                    store.online ? l10n.online : l10n.offline,
-                    style: TextStyle(
-                      color: store.online
-                          ? theme.colorScheme.primary
-                          : Colors.white54,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 11,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const Expanded(child: LeaderboardPanel()),
-        ],
+Future<void> showMyAttemptsSheet(BuildContext context) =>
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      sheetAnimationStyle: GameUi.windowAnimationStyle,
+      builder: (c) => RankingFrame(
+        title: Localizations.localeOf(c).languageCode == 'ru'
+            ? 'Мои попытки'
+            : 'My attempts',
+        child: const RankingAttemptsPanel(),
       ),
     );
-  }
+
+class LeaderboardSheet extends StatelessWidget {
+  const LeaderboardSheet({
+    super.key,
+    this.initialTab = LeaderboardTab.record,
+    this.allTime = false,
+  });
+  final LeaderboardTab initialTab;
+  final bool allTime;
+  @override
+  Widget build(BuildContext context) => RankingFrame(
+    onMyAttempts: context.watch<ScoresStore>().supportsAverage
+        ? () => showMyAttemptsSheet(context)
+        : null,
+    child: LeaderboardPanel(
+      initialAverage: initialTab == LeaderboardTab.average,
+      initialPeriod: allTime ? 0 : 4,
+    ),
+  );
 }

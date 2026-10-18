@@ -1,0 +1,54 @@
+/* Deny by default, including a failed or disabled JavaScript loader. */
+html:not([data-launch-verified="true"]) body > :not(#launch-gate):not(script):not(noscript) { display: none !important; }
+html:not([data-launch-verified="true"]) body { margin: 0; padding: 0; background: #061B2D; }
+#launch-gate, #launch-gate * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+#launch-gate[hidden] { display: none !important; }
+#launch-gate {
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  box-sizing: border-box;
+  position: fixed;
+  inset: max(var(--launch-inset-top, 0px), env(safe-area-inset-top)) max(var(--launch-inset-right, 0px), env(safe-area-inset-right)) max(var(--launch-inset-bottom, 0px), env(safe-area-inset-bottom)) max(var(--launch-inset-left, 0px), env(safe-area-inset-left));
+  z-index: 1000;
+  display: flex;
+  overflow: auto;
+  align-items: safe center;
+  justify-content: center;
+  padding: 16px;
+  color: #F0FBFF;
+  background: #061B2D;
+  touch-action: pan-y;
+}
+.launch-card {
+  box-sizing: border-box;
+  width: min(100%, 358px);
+  padding: 24px 18px;
+  border: 2px solid #BAF1FF;
+  border-radius: 18px;
+  background: linear-gradient(#123E58, #082E4C, #061B2D);
+  box-shadow: 0 8px 28px #020E1F55;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+.launch-mark { width: 56px; height: 56px; color: #79F1F5; }
+.launch-card h1 { font-size: 22px; line-height: 1.25; margin: 16px 0 12px; color: #F0FBFF; }
+#launch-status { color: #A9CBE4; font-size: 14px; line-height: 1.5; margin: 0 0 20px; }
+.launch-actions { display: flex; flex-direction: column; gap: 10px; }
+#launch-open, #launch-retry {
+  box-sizing: border-box;
+  display: block;
+  min-height: 48px;
+  padding: 12px;
+  border: 1px solid #ECFCFF;
+  border-radius: 10px;
+  font: inherit;
+  font-weight: 800;
+  color: #082E4C;
+  background: linear-gradient(#B0FDFA, #6DC9E7);
+  text-decoration: none;
+  cursor: pointer;
+}
+#launch-retry { color: #F0FBFF; background: #153F58; border-color: #376984; }
+#launch-retry:disabled { opacity: .55; cursor: wait; }
+#launch-retry[hidden] { display: none; }
+#launch-open:focus-visible, #launch-retry:focus-visible { outline: 3px solid #43ECC0; outline-offset: 3px; }
+.launch-install { color: #79F1F5; font-size: 13px; padding: 6px; line-height: 1.4; }

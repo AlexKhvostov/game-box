@@ -1,4 +1,4 @@
-/** Калькулятор монетизации Untouch для админки. Не пишет в Firebase — только считает и собирает JSON для RC. */
+﻿/** Калькулятор монетизации Untouch для админки. Не пишет в Firebase — только считает и собирает JSON для RC. */
 
 const STORE_KEY = 'untouch_admin_monetize_v1';
 
@@ -380,7 +380,7 @@ function mount(root) {
     <section class="panel">
       <h2>Зачем так</h2>
       <p>Старые числа (подарок 22 кристалла каждый час, Daily до 81) слишком сытые: F2P не доходит до кассы. Предложенный баланс: день 1 чтобы зацепиться, дальше кристаллы заканчиваются. Plus — неделя за Stars. Telegram не умеет автосписание раз в неделю, поэтому это повторная покупка на 7 дней.</p>
-      <p class="lead">Форма считает модель. В Firebase сама ничего не пишет. Скопируйте JSON в параметр <code>economy</code> и Publish.</p>
+      <p class="lead">Это калькулятор сценариев, он не сохраняет настройки игры. Для публикации откройте «Настройки игры»: там можно импортировать JSON в блок <code>economy</code>, проверить и сохранить.</p>
       <div class="m-actions">
         <button type="button" class="ghost" data-act="reset">Сбросить к предложенным</button>
         <button type="button" data-act="copy">Копировать JSON economy</button>

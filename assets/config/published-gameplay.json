@@ -1,0 +1,285 @@
+{
+    "ok": true,
+    "config": {
+        "theme": {
+            "bg": "#0E1419",
+            "surface": "#172028",
+            "primary": "#3DDC97",
+            "danger": "#ff0008",
+            "text": "#E8EEF4",
+            "muted": "#8B9AAB",
+            "cyan": "#7EE0FF"
+        },
+        "enemies": {
+            "areaMultiplier": 2,
+            "aspects": [
+                1,
+                0.25,
+                0.5,
+                3
+            ],
+            "angleMinDeg": 30,
+            "angleMaxDeg": 60,
+            "speedMin": 75,
+            "speedMax": 105,
+            "accelMin": 9,
+            "accelMax": 15,
+            "collideWithEachOther": false,
+            "spinDegPerSec": 0
+        },
+        "player": {
+            "size": 36,
+            "showFace": true
+        },
+        "field": {
+            "borderWidth": 3,
+            "brightness": 1,
+            "shadowBrightness": 1,
+            "colorHex": "#2b2b2b",
+            "cornerRadius": 18,
+            "maxSide": 380
+        },
+        "game": {
+            "startHintEnabled": true,
+            "idleSpeedMultiplier": 0.5,
+            "idleEnemiesMove": false,
+            "speedRampSeconds": 0.5,
+            "jumpEnabled": true,
+            "jumpDurationSec": 0.38,
+            "jumpScale": 1.32,
+            "helmetEnabled": true,
+            "helmetInvulnSec": 0.3,
+            "startInvulnSec": 0,
+            "heartbeatHaptic": true,
+            "timerHaptic": true,
+            "timerHapticStyle": "warning",
+            "timerHapticStyle5": "warning",
+            "timerHapticStyle10": "warning",
+            "hudSpeedScaleMax": 400,
+            "wallsKillPlayer": false
+        },
+        "audio": {
+            "music": true,
+            "musicVolume": 0.35,
+            "sfxVolume": 0.85,
+            "sfxMobWall": true,
+            "sfxMobCollide": false,
+            "sfxHeroMob": true,
+            "sfxHeroWall": true,
+            "sfxNearMiss": true,
+            "sfxHelmet": true,
+            "sfxJump": true,
+            "sfxStart": true
+        },
+        "economy": {
+            "androidEnergyV2": {
+                "enabled": false,
+                "revision": "energy-v1",
+                "initialEnergy": 20,
+                "batteryCapacity": 20,
+                "chargeHours": 12,
+                "baseAttemptCost": 1,
+                "helmetExtraCost": 1,
+                "jumpExtraCost": 1,
+                "rewards": {
+                    "achievement": 10,
+                    "ad": 20,
+                    "google": 10,
+                    "age": 10,
+                    "feedback": 20,
+                    "invite": 20
+                },
+                "packages": [
+                    {
+                        "id": "energy_100_v1",
+                        "energy": 100
+                    },
+                    {
+                        "id": "energy_250_v1",
+                        "energy": 250
+                    },
+                    {
+                        "id": "energy_500_v1",
+                        "energy": 500
+                    },
+                    {
+                        "id": "energy_1000_v1",
+                        "energy": 1000
+                    }
+                ],
+                "subscriptions": [
+                    {
+                        "id": "energy_batteries_2_v1",
+                        "batteryCount": 2,
+                        "basePlanId": "weekly"
+                    },
+                    {
+                        "id": "energy_batteries_5_v1",
+                        "batteryCount": 5,
+                        "basePlanId": "weekly"
+                    }
+                ]
+            },
+            "initialLives": 30,
+            "initialTokens": 15,
+            "installBonusAutoClaim": true,
+            "lifePacks": [
+                {
+                    "lives": 1,
+                    "costTokens": 1
+                },
+                {
+                    "lives": 15,
+                    "costTokens": 10
+                },
+                {
+                    "lives": 50,
+                    "costTokens": 25
+                },
+                {
+                    "lives": 100,
+                    "costTokens": 49
+                }
+            ],
+            "starsShop": {
+                "packs": [
+                    {
+                        "id": "pack_s",
+                        "title": "Горсть",
+                        "crystals": 20,
+                        "stars": 39
+                    },
+                    {
+                        "id": "pack_m",
+                        "title": "Стопка",
+                        "crystals": 50,
+                        "stars": 89,
+                        "badge": "deal"
+                    },
+                    {
+                        "id": "pack_l",
+                        "title": "Сундук",
+                        "crystals": 200,
+                        "stars": 199,
+                        "badge": "best"
+                    },
+                    {
+                        "id": "pack_xl",
+                        "title": "Сейф",
+                        "crystals": 1000,
+                        "stars": 449,
+                        "badge": "max"
+                    }
+                ],
+                "plus": {
+                    "id": "plus_weekly",
+                    "title": "Plus",
+                    "stars": 49,
+                    "days": 7
+                }
+            },
+            "dailyRewardTokens": [
+                2,
+                4,
+                8,
+                12,
+                18,
+                24,
+                36
+            ],
+            "jumpRentalCost": 10,
+            "jumpRentalMinutes": 10,
+            "jumpRentalHourCost": 20,
+            "jumpRentalHourMinutes": 60,
+            "helmetRentalCost": 10,
+            "helmetRentalMinutes": 10,
+            "helmetRentalHourCost": 20,
+            "helmetRentalHourMinutes": 60,
+            "riskRewardEvery": 8,
+            "riskRewardTokens": 1,
+            "runRewardEvery": 999,
+            "runRewardTokens": 1,
+            "timedBonusTokens": 4,
+            "timedBonusHours": 1,
+            "watchAdCooldownSec": 180,
+            "adsgramBlockId": "46825",
+            "adsgramInterstitialBlockId": "int-46979",
+            "interstitialGraceSec": 210,
+            "interstitialCooldownSec": 220,
+            "interstitialMinLives": 6,
+            "avatarCheatEnabled": true,
+            "avatarCheatTokens": 10,
+            "premiumDailyMultiplier": 2,
+            "earnSurviveSeconds": 10,
+            "earnRecordSeconds": 20,
+            "earnRisksInRun": 5,
+            "earnActions": [
+                {
+                    "id": "install_bonus",
+                    "reward": 10
+                },
+                {
+                    "id": "survive_10s",
+                    "reward": 10
+                },
+                {
+                    "id": "record_20s",
+                    "reward": 10
+                },
+                {
+                    "id": "risks_5",
+                    "reward": 10
+                },
+                {
+                    "id": "watch_ad",
+                    "reward": 10
+                },
+                {
+                    "id": "enable_notifications",
+                    "reward": 10
+                },
+                {
+                    "id": "invite_friend",
+                    "reward": 20
+                }
+            ],
+            "interstitialSessionGraceSec": 180,
+            "interstitialSessionFreeRounds": 10,
+            "lifePackSize": 1,
+            "lifePackCostTokens": 1,
+            "androidShop": {
+                "currency": "USD",
+                "packs": [
+                    {
+                        "id": "pack_s",
+                        "crystals": 20,
+                        "usdCents": 99
+                    },
+                    {
+                        "id": "pack_m",
+                        "crystals": 50,
+                        "usdCents": 199
+                    },
+                    {
+                        "id": "pack_l",
+                        "crystals": 200,
+                        "usdCents": 399
+                    },
+                    {
+                        "id": "pack_xl",
+                        "crystals": 1000,
+                        "usdCents": 999
+                    }
+                ]
+            }
+        },
+        "yandexMetrikaId": "112365078",
+        "mobileEnemies": {
+            "startSpeedSteps": 34.72,
+            "accelerationSteps": 4.63
+        }
+    },
+    "revision": "6d426e457cdfb033fd95849328c28c16ad2ef37c6713691333a98901b7ce7684",
+    "updatedAt": "2026-10-13T13:09:50+00:00",
+    "source": "admin"
+}

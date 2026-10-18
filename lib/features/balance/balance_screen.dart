@@ -1,3 +1,4 @@
+import 'energy_sheet.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -48,6 +49,11 @@ class _BalanceScreenState extends State<BalanceScreen>
   @override
   Widget build(BuildContext context) {
     final economy = context.watch<EconomyStore>();
+    if (economy.energyEnabled) {
+      return const SafeArea(
+        child: Padding(padding: EdgeInsets.all(12), child: EnergySheet()),
+      );
+    }
     final theme = Theme.of(context);
     final timedLeft = economy.timedBonusRemaining;
 
@@ -63,9 +69,7 @@ class _BalanceScreenState extends State<BalanceScreen>
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Row(
               children: [
-                Expanded(
-                  child: _BalanceCard(balance: economy.tokens),
-                ),
+                Expanded(child: _BalanceCard(balance: economy.tokens)),
                 const SizedBox(width: 12),
                 _BoostButton(
                   canClaim: economy.canClaimTimedBonus,
@@ -135,10 +139,7 @@ class _BalanceCard extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            const Color(0xFF1A3340),
-            theme.colorScheme.surface,
-          ],
+          colors: [const Color(0xFF1A3340), theme.colorScheme.surface],
         ),
         border: Border.all(
           color: const Color(0xFF7EE0FF).withValues(alpha: 0.35),
@@ -152,10 +153,7 @@ class _BalanceCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Crystals',
-                  style: theme.textTheme.bodyMedium,
-                ),
+                Text('Crystals', style: theme.textTheme.bodyMedium),
                 Text(
                   '$balance',
                   style: theme.textTheme.headlineMedium?.copyWith(
@@ -233,9 +231,7 @@ class _BoostButtonState extends State<_BoostButton>
       animation: _pulse,
       builder: (context, _) {
         final ice = widget.canClaim ? 0.0 : (0.35 + _pulse.value * 0.55);
-        final glow = widget.canClaim
-            ? 0.55
-            : (0.25 + _pulse.value * 0.45);
+        final glow = widget.canClaim ? 0.55 : (0.25 + _pulse.value * 0.45);
 
         return Material(
           color: Colors.transparent,
@@ -273,8 +269,7 @@ class _BoostButtonState extends State<_BoostButton>
                     const Color(0xFFFFD28A),
                     const Color(0xFFE8FBFF),
                     ice,
-                  )!
-                      .withValues(alpha: 0.55 + glow * 0.35),
+                  )!.withValues(alpha: 0.55 + glow * 0.35),
                   width: 1.5,
                 ),
                 boxShadow: [
@@ -283,8 +278,7 @@ class _BoostButtonState extends State<_BoostButton>
                       const Color(0xFFFF8A5C),
                       const Color(0xFF7EE0FF),
                       ice,
-                    )!
-                        .withValues(alpha: 0.25 + glow * 0.35),
+                    )!.withValues(alpha: 0.25 + glow * 0.35),
                     blurRadius: 14 + glow * 10,
                     offset: const Offset(0, 5),
                   ),
@@ -329,8 +323,7 @@ class _BoostButtonState extends State<_BoostButton>
                             const Color(0xFFFFF6DE),
                             const Color(0xFFD9F6FF),
                             ice,
-                          )!
-                              .withValues(alpha: 0.92),
+                          )!.withValues(alpha: 0.92),
                         ),
                       ),
                       if (!widget.canClaim) ...[
@@ -351,8 +344,9 @@ class _BoostButtonState extends State<_BoostButton>
                             ),
                             shadows: [
                               Shadow(
-                                color: const Color(0xFF7EE0FF)
-                                    .withValues(alpha: 0.7 * _pulse.value),
+                                color: const Color(
+                                  0xFF7EE0FF,
+                                ).withValues(alpha: 0.7 * _pulse.value),
                                 blurRadius: 8,
                               ),
                             ],
@@ -381,9 +375,12 @@ class _BoostButtonState extends State<_BoostButton>
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
                               colors: [
-                                Colors.white.withValues(alpha: 0.18 + ice * 0.12),
-                                const Color(0xFF7EE0FF)
-                                    .withValues(alpha: 0.08 + ice * 0.18),
+                                Colors.white.withValues(
+                                  alpha: 0.18 + ice * 0.12,
+                                ),
+                                const Color(
+                                  0xFF7EE0FF,
+                                ).withValues(alpha: 0.08 + ice * 0.18),
                                 Colors.white.withValues(alpha: 0.05),
                               ],
                             ),
@@ -455,7 +452,8 @@ class _DailyTab extends StatelessWidget {
           );
           final isClaimed = day <= claimedCount;
           final isToday = !claimedToday && day == upcomingDay;
-          final isWaiting = claimedToday &&
+          final isWaiting =
+              claimedToday &&
               day == (economy.dailyStreak + 1).clamp(1, rewards.length);
           final isLocked = !isClaimed && !isToday && !isWaiting;
 
@@ -535,8 +533,8 @@ class _DailyTimelineRow extends StatelessWidget {
                     color: isFirst
                         ? Colors.transparent
                         : (isClaimed || isToday || isWaiting
-                            ? nodeColor.withValues(alpha: 0.45)
-                            : Colors.white12),
+                              ? nodeColor.withValues(alpha: 0.45)
+                              : Colors.white12),
                   ),
                 ),
                 Container(
@@ -550,7 +548,11 @@ class _DailyTimelineRow extends StatelessWidget {
                     border: Border.all(color: nodeColor, width: 2.5),
                   ),
                   child: status == _DayStatus.claimed
-                      ? const Icon(Icons.check, size: 11, color: Color(0xFF0E1419))
+                      ? const Icon(
+                          Icons.check,
+                          size: 11,
+                          color: Color(0xFF0E1419),
+                        )
                       : null,
                 ),
                 Expanded(
@@ -559,8 +561,8 @@ class _DailyTimelineRow extends StatelessWidget {
                     color: isLast
                         ? Colors.transparent
                         : (isClaimed
-                            ? const Color(0xFF3DDC97).withValues(alpha: 0.45)
-                            : Colors.white12),
+                              ? const Color(0xFF3DDC97).withValues(alpha: 0.45)
+                              : Colors.white12),
                   ),
                 ),
               ],
@@ -589,8 +591,8 @@ class _DailyTimelineRow extends StatelessWidget {
                         color: isToday
                             ? const Color(0xFF3DDC97)
                             : isWaiting
-                                ? const Color(0xFF7EE0FF).withValues(alpha: 0.45)
-                                : Colors.white10,
+                            ? const Color(0xFF7EE0FF).withValues(alpha: 0.45)
+                            : Colors.white10,
                         width: isToday ? 1.5 : 1,
                       ),
                     ),
@@ -605,16 +607,15 @@ class _DailyTimelineRow extends StatelessWidget {
                                 style: TextStyle(
                                   fontWeight: FontWeight.w800,
                                   fontSize: 14,
-                                  color: isLocked ? Colors.white38 : Colors.white,
+                                  color: isLocked
+                                      ? Colors.white38
+                                      : Colors.white,
                                 ),
                               ),
                               const SizedBox(height: 4),
                               Row(
                                 children: [
-                                  CrystalCubeIcon(
-                                    size: 16,
-                                    glow: isToday,
-                                  ),
+                                  CrystalCubeIcon(size: 16, glow: isToday),
                                   const SizedBox(width: 6),
                                   Text(
                                     '+$amount',
@@ -624,8 +625,8 @@ class _DailyTimelineRow extends StatelessWidget {
                                       color: isToday
                                           ? const Color(0xFF3DDC97)
                                           : isClaimed
-                                              ? Colors.white70
-                                              : Colors.white54,
+                                          ? Colors.white70
+                                          : Colors.white54,
                                     ),
                                   ),
                                 ],
@@ -633,10 +634,7 @@ class _DailyTimelineRow extends StatelessWidget {
                             ],
                           ),
                         ),
-                        _DayActionChip(
-                          status: status,
-                          countdown: countdown,
-                        ),
+                        _DayActionChip(status: status, countdown: countdown),
                       ],
                     ),
                   ),
@@ -651,10 +649,7 @@ class _DailyTimelineRow extends StatelessWidget {
 }
 
 class _DayActionChip extends StatelessWidget {
-  const _DayActionChip({
-    required this.status,
-    this.countdown,
-  });
+  const _DayActionChip({required this.status, this.countdown});
 
   final _DayStatus status;
   final String? countdown;
@@ -773,10 +768,7 @@ class _ShopTab extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
       children: [
-        Text(
-          'Packs',
-          style: theme.textTheme.titleLarge,
-        ),
+        Text('Packs', style: theme.textTheme.titleLarge),
         const SizedBox(height: 4),
         Text(
           'Чем больше пакет — тем выгоднее цена за кристалл.',
@@ -851,15 +843,9 @@ class _ShopTab extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                'Boost',
-                style: theme.textTheme.titleLarge,
-              ),
+              Text('Boost', style: theme.textTheme.titleLarge),
               const SizedBox(height: 6),
-              Text(
-                'Daily ×2',
-                style: theme.textTheme.bodyMedium,
-              ),
+              Text('Daily ×2', style: theme.textTheme.bodyMedium),
               const SizedBox(height: 12),
               FilledButton(
                 onPressed: economy.hasPremium

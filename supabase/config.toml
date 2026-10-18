@@ -1,0 +1,16 @@
+project_id = "untouch-android"
+
+[functions.android-api]
+verify_jwt = false
+
+[functions.remote-config-admin]
+verify_jwt = false
+
+[functions.support-admin]
+verify_jwt = false
+
+[functions.play-reconcile]
+verify_jwt = false
+
+# Each handler validates the token against Supabase Auth or its own bounded
+# scheduler secret. Gateway legacy-JWT verification cannot validate new keys.

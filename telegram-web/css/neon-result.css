@@ -1,0 +1,102 @@
+/* Current Android RunSummary. No other overlay/window contents are styled. */
+#result-overlay {
+  padding: max(12px, calc(var(--tg-pad-top, 0px) + 12px)) max(12px, var(--tg-pad-right, 0px)) max(12px, calc(var(--tg-pad-bottom, 0px) + 12px)) max(12px, var(--tg-pad-left, 0px));
+  overflow: hidden;
+}
+#result-overlay .result-viewport {
+  width: 100%; max-width: 358px; min-width: 0; min-height: 0; position: relative;
+  max-height: calc(100dvh - max(12px, calc(var(--tg-pad-top, 0px) + 12px)) - max(12px, calc(var(--tg-pad-bottom, 0px) + 12px)));
+}
+#result-overlay .result-inner { width: 100%; min-width: 0; display: flex; max-height: inherit; }
+#result-overlay .result-card {
+  --result-text-scale: 1; position: relative; display: flex; flex-direction: column;
+  width: 100%; min-width: 0; min-height: 0; max-height: inherit; overflow: hidden;
+  padding: 0; border: 1.5px solid #C4F1FF; border-radius: 18px;
+  background: #061B2B; color: #F0FBFF; text-align: left; box-shadow: none;
+}
+#result-overlay .result-scene {
+  position: absolute; top: calc(52px * (var(--result-text-scale) - 1)); left: 0;
+  width: 100%; height: auto; max-width: none; pointer-events: none; user-select: none;
+}
+#result-overlay .result-scene-shade {
+  position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(#051A2A66 0%, #051A2A00 27%, #051A2A00 55%, #051A2ABB 74%, #051A2AEE 100%);
+}
+#result-overlay .result-kicker {
+  position: relative; flex: 0 0 auto; margin: 0; padding: 16px 14px 12px;
+  font-size: 14px; line-height: 1.2; font-weight: 800; letter-spacing: 0; color: #F0FBFF;
+}
+#result-overlay .result-scroll {
+  position: relative; flex: 0 1 auto; min-width: 0; min-height: 0;
+  overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain;
+  padding: 0 14px 8px; -webkit-overflow-scrolling: touch;
+}
+#result-overlay .result-rank {
+  margin: 0; color: #F0FBFF; font-size: 13px; font-weight: 800; line-height: 1.3;
+}
+#result-overlay .result-time-slot { height: calc(53px * var(--result-text-scale)); }
+#result-overlay .result-time-copy { color: #F0FBFF; }
+#result-overlay :is(.result-time, .result-time-unit) {
+  display: inline; margin: 0; font-size: 46px; font-weight: 900; line-height: 1.15;
+  color: #F0FBFF; letter-spacing: 0; font-variant-numeric: tabular-nums;
+}
+#result-overlay .result-best {
+  display: table; max-width: 100%; margin-top: 3px; padding: 4px 7px;
+  border: 1px solid #81DAEA55; border-radius: 7px; background: #061B2BED;
+  color: #F0FBFF; font-size: 11px; font-weight: 600; line-height: 1.3; overflow-wrap: anywhere;
+}
+#result-overlay .result-score-banner {
+  display: flex; flex-wrap: wrap; gap: 4px 7px; align-items: center; margin: 6px 0 0;
+  padding: 0; min-width: 0; border: 0; border-radius: 0; background: none; box-shadow: none;
+}
+#result-overlay .result-score-tag { font-size: 9.5px; line-height: 1.3; color: #C4DEEB; letter-spacing: 0; }
+#result-overlay .result-score-slot { flex: 1 1 60px; height: calc(22px * var(--result-text-scale)); }
+#result-overlay .result-score-number { color: #F0FBFF; font-size: 17px; font-weight: 800; line-height: 1.2; text-shadow: none; letter-spacing: 0; }
+#result-overlay .result-scene-space { width: 100%; aspect-ratio: 1 / .52; }
+#result-overlay .result-stats-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; margin: 0; }
+#result-overlay .result-stat {
+  min-width: 0; padding: 8px; border: 1px solid #81DAEA55; border-radius: 12px;
+  background: #061B2B9E; color: #F0FBFF; box-shadow: none;
+}
+#result-overlay .result-stat-head { gap: 5px; align-items: center; flex-wrap: wrap; }
+#result-overlay .result-stat-label { flex: 1; font-size: 10px; font-weight: 500; line-height: 1.2; color: #C4DEEB; letter-spacing: 0; }
+#result-overlay .result-metric-icon { width: 12px; height: 12px; object-fit: contain; flex: 0 0 12px; }
+#result-overlay .result-metric-info { color: #C4DEEB; width: 11px; height: 11px; flex: 0 0 11px; }
+#result-overlay .result-stat-rate { color: #C4DEEB; font-size: 9px; line-height: 1.2; gap: 2px; }
+#result-overlay .result-stat-body { display: block; margin-top: 2px; }
+#result-overlay .result-value-slot { height: calc(25px * var(--result-text-scale)); }
+#result-overlay .result-stat-value { color: #F0FBFF; font-size: 18px; font-weight: 900; line-height: 1.3; }
+#result-overlay .result-earn-slot { height: calc(17px * var(--result-text-scale)); }
+#result-overlay .result-stat-earn { display: inline-flex; align-items: center; gap: 4px; color: #8BFFE0; font-size: 9px; font-weight: 700; line-height: 1.2; }
+#result-overlay .result-stat-earn::after { content: 'получено'; }
+#result-overlay .result-stat-earn img { width: 12px; height: 12px; }
+#result-overlay [hidden] { display: none !important; }
+#result-overlay [data-result-fit] { position: relative; display: block; min-width: 0; overflow: hidden; }
+#result-overlay [data-result-fit] > :first-child {
+  display: block; position: absolute; left: 0; top: 50%; width: max-content;
+  max-width: none; white-space: nowrap; transform-origin: left center; transform: translateY(-50%);
+}
+#result-overlay .result-earn-slot[data-result-fit] > .result-stat-earn { display: inline-flex; }
+#result-overlay .result-actions { position: relative; flex: 0 0 auto; padding: 8px 14px 12px; }
+#result-overlay .result-actions-row { display: flex; gap: 8px; margin: 0; }
+#result-overlay .result-btn.outline {
+  flex: 1; min-width: 0; min-height: 36px; height: auto; padding: 5px 3px;
+  background: none; color: #E4F6FF; border: 0; border-radius: 9px; box-shadow: none;
+  font-size: 12px; line-height: 1.3; font-weight: 700; opacity: 1; white-space: normal; overflow-wrap: anywhere;
+}
+#result-overlay .result-btn.auto-saved { background: #10373880; color: #C4DEEB; }
+#result-overlay .result-btn.primary {
+  min-height: 48px; height: auto; margin-top: 6px; padding: 8px 12px;
+  border: 1px solid #9EF4D4; border-radius: 12px;
+  background: var(--window-gloss), linear-gradient(#BEFCE5, #86EDC3 46%, #3DAE80);
+  color: #004D39; box-shadow: 0 3px 0 #0D6A51; font-size: 14px; font-weight: 800;
+  line-height: 1.3; white-space: normal;
+}
+#result-overlay .result-btn.primary > svg { width: 24px; height: 24px; vertical-align: middle; }
+/* Keep a complete scene and reachable text/actions in a short Mini App viewport. */
+@media (max-height: 560px) {
+  #result-overlay .result-viewport { overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; }
+  #result-overlay .result-inner, #result-overlay .result-card { max-height: none; }
+  #result-overlay .result-scroll { overflow: visible; flex: 0 0 auto; }
+}
+@media (prefers-reduced-motion: reduce) { #result-overlay .result-inner { animation: none; } }

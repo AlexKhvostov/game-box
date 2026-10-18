@@ -1,0 +1,16 @@
+Analyzing 2 items...                                            
+
+warning - Unused import: 'dart:async'. Try removing the import directive - test\debug_and_closed_test_test.dart:1:8 - unused_import
+warning - Unused import: 'dart:convert'. Try removing the import directive - test\debug_and_closed_test_test.dart:2:8 - unused_import
+warning - Unused import: 'package:http/http.dart'. Try removing the import directive - test\debug_and_closed_test_test.dart:5:8 - unused_import
+warning - Unused import: 'package:http/testing.dart'. Try removing the import directive - test\debug_and_closed_test_test.dart:6:8 - unused_import
+warning - Unused import: 'package:provider/provider.dart'. Try removing the import directive - test\debug_and_closed_test_test.dart:7:8 - unused_import
+warning - Unused import: 'package:shared_preferences/shared_preferences.dart'. Try removing the import directive - test\debug_and_closed_test_test.dart:8:8 - unused_import
+warning - Unused import: 'package:game_box/data/economy_store.dart'. Try removing the import directive - test\debug_and_closed_test_test.dart:11:8 - unused_import
+warning - Unused import: 'package:game_box/data/mobile_account.dart'. Try removing the import directive - test\debug_and_closed_test_test.dart:12:8 - unused_import
+warning - Unused import: 'package:game_box/ui/billing_unavailable.dart'. Try removing the import directive - test\debug_and_closed_test_test.dart:15:8 - unused_import
+warning - Unused import: 'package:http/http.dart'. Try removing the import directive - test\hidden_energy_test.dart:6:8 - unused_import
+   info - Statements in an if should be enclosed in a block. Try wrapping the statement in a block - test\hidden_energy_test.dart:181:13 - curly_braces_in_flow_control_structures
+warning - Unused import: 'package:game_box/ui/game_sheet.dart'. Try removing the import directive - test\neon_hud_modal_test.dart:28:8 - unused_import
+
+12 issues found. (ran in 11.3s)

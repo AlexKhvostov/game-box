@@ -1,0 +1,33 @@
+/* Android cool panels, retaining Telegram's existing actions and invitation list. */
+#sheet-panel.sheet-crystals .neon-earn-pane { padding: 6px 12px 8px; overflow-x: hidden; overflow-y: auto; }
+.neon-earn-pane .earn-hint { margin: 0 0 8px; color: #a9cbe4; font-size: 11px; line-height: 1.3; }
+#sheet-panel .neon-earn-pane .neon-earn-card { min-width: 0; margin: 0 0 6px; padding: 10px 12px; border: 1px solid #59c9dc; border-radius: 14px; background: linear-gradient(135deg, #9dd9ef, #79bedb 35%, #6cb5d6); color: #082e4c; box-shadow: 0 2px 0 #23649755; }
+#sheet-panel .neon-earn-pane .neon-earn-card.accent-mint, #sheet-panel .neon-earn-pane .neon-earn-card.done { border-color: #00644c; }
+#sheet-panel .neon-earn-pane .neon-earn-card.accent-warn { border-color: #724a07; }
+#sheet-panel .neon-earn-pane .neon-earn-card.locked { border-color: #6a879a; background: linear-gradient(135deg, #aac4d1, #7fa4ba); }
+.neon-earn-pane .earn-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; min-width: 0; }
+.neon-earn-pane .earn-row.locked { opacity: 1; }
+.neon-earn-pane .earn-text { flex: 1 1 100px; min-width: 0; }
+#sheet-panel .neon-earn-pane .earn-text .t1 { color: #082e4c; font-size: 14px; line-height: 1.2; font-weight: 800; overflow-wrap: anywhere; }
+#sheet-panel .neon-earn-pane .earn-text .t2 { margin-top: 3px; color: #103e5c; font-size: 11px; line-height: 1.25; overflow-wrap: anywhere; }
+.neon-earn-pane .earn-done, .neon-earn-pane .earn-lock { flex: 0 0 auto; margin-left: auto; }
+.neon-earn-pane .earn-done .inline-check path { fill: #00644c; }
+.neon-earn-pane .earn-lock .ui-icon { filter: brightness(.35); }
+.neon-earn-pane .crystal-reward-badge { max-width: 100%; margin-left: auto; padding: 0; gap: 4px; border: 0; border-radius: 0; background: none; box-shadow: none; color: #082e4c; }
+.neon-earn-pane .crystal-reward-badge .crystal-img { width: 16px; height: 16px; filter: none; }
+.neon-earn-pane .crystal-reward-amt { min-width: 0; color: #082e4c; font-size: 13px; line-height: 1.1; font-weight: 800; overflow-wrap: anywhere; }
+.neon-earn-pane .neon-invite-icon { width: 30px; height: 30px; flex: 0 0 30px; color: #082e4c; }
+#sheet-panel .neon-earn-pane .earn-invite-card { padding: 12px; }
+.neon-earn-pane .earn-share-btn { width: 100%; min-height: 44px; height: auto; margin: 10px 0 0; padding: 9px 10px; border: 1px solid #c1f4ff; border-radius: 10px; background: linear-gradient(#f0ffff, #baf9ff 8%, #76eaff 46%, #28a9e3); color: #082e4c; font-family: inherit; font-size: 12px; line-height: 1.2; font-weight: 800; white-space: normal; overflow-wrap: anywhere; box-shadow: 0 2px 0 #075580; }
+.neon-earn-pane .earn-share-btn.busy, .neon-earn-pane .earn-share-btn:disabled { opacity: .75; color: #082e4c; }
+.neon-earn-pane .earn-invite-list { margin: 0 0 8px; padding: 10px 12px; border: 1px solid #59c9dc; border-radius: 14px; background: linear-gradient(135deg, #9dd9ef, #79bedb 35%, #6cb5d6); color: #082e4c; }
+#sheet-panel .neon-earn-pane .earn-invite-list-title { color: #082e4c; font-size: 12px; line-height: 1.25; font-weight: 800; overflow-wrap: anywhere; }
+#sheet-panel .neon-earn-pane .earn-invite-empty { color: #103e5c; font-size: 11px; line-height: 1.25; }
+.neon-earn-pane .earn-invite-person { display: flex; flex-wrap: wrap; gap: 7px; padding: 8px 0; border-top-color: #407b963d; }
+.neon-earn-pane .earn-invite-who { flex: 1 1 100px; min-width: 0; }
+#sheet-panel .neon-earn-pane .earn-invite-name { color: #082e4c; font-size: 12px; line-height: 1.2; white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; }
+#sheet-panel .neon-earn-pane .earn-invite-nick, #sheet-panel .neon-earn-pane .earn-invite-status { color: #103e5c; font-size: 10px; line-height: 1.2; overflow-wrap: anywhere; }
+#sheet-panel .neon-earn-pane .earn-invite-status { padding: 0; border: 0; border-radius: 0; background: none; }
+.neon-earn-pane .earn-invite-trail { max-width: 100%; margin-left: auto; flex-wrap: wrap; }
+.neon-earn-pane .earn-check .inline-check path { fill: #00644c; }
+.neon-earn-pane .earn-share-btn:focus-visible { outline: 2px solid #082e4c; outline-offset: 2px; }

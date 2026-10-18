@@ -197,6 +197,38 @@ if (!admin_is_authed($input)) {
     admin_json(['ok' => false, 'error' => 'Нужен вход'], 401);
 }
 
+// Configuration management intentionally does not depend on MySQL availability.
+if ($action === 'config_get' || $action === 'config_save') {
+    require_once __DIR__ . '/gameplay_config.php';
+    $csrf = hash_hmac('sha256', 'untouch-config-publish-v1', $key);
+    try {
+        if ($action === 'config_get') {
+            if ($method !== 'GET') admin_json(['ok' => false, 'error' => 'Нужен GET'], 405);
+            admin_json(['ok' => true, 'csrf' => $csrf] + gameplay_snapshot());
+        }
+        if ($method !== 'POST') admin_json(['ok' => false, 'error' => 'Нужен POST'], 405);
+        if (!is_string($input['csrf'] ?? null) || !hash_equals($csrf, $input['csrf'])) {
+            admin_json(['ok' => false, 'error' => 'Обновите редактор перед сохранением'], 403);
+        }
+        $result = gameplay_publish($input['config'] ?? null, $input['revision'] ?? null);
+        admin_json($result, $result['status'] ?? 200);
+    } catch (Throwable $e) {
+        error_log('[admin config] ' . $e->getMessage());
+        admin_json(['ok' => false, 'error' => 'Не удалось прочитать или сохранить конфигурацию. Проверьте каталог api/config-data и права записи.'], 500);
+    }
+}
+
+if($action==='mobile_pace_get'||$action==='mobile_pace_save'){
+    require_once __DIR__.'/mobile_pace.php';
+    $csrf=hash_hmac('sha256','untouch-mobile-pace-v1',$key);
+    try{
+      if($action==='mobile_pace_get'){if($method!=='GET')admin_json(['ok'=>false,'error'=>'Нужен GET'],405);admin_json(['ok'=>true,'csrf'=>$csrf]+mobile_pace_read());}
+      if($method!=='POST')admin_json(['ok'=>false,'error'=>'Нужен POST'],405);
+      if(!is_string($input['csrf']??null)||!hash_equals($csrf,$input['csrf']))admin_json(['ok'=>false,'error'=>'Обновите настройки'],403);
+      admin_json(['ok'=>true,'csrf'=>$csrf]+mobile_pace_save($input['config']??null,$input['revision']??null));
+    }catch(Throwable $e){admin_json(['ok'=>false,'error'=>$e->getMessage()],422);}
+}
+
 function admin_count(PDO $pdo, $sql, $params = []) {
     $stmt = $pdo->prepare($sql);
     $stmt->execute($params);
@@ -215,13 +247,35 @@ try {
     if (!$pdo) {
         admin_json(['ok' => false, 'error' => $dbError ?: 'База недоступна'], 503);
     }
+    if(!($action==='delete_mobile' || ($action==='users' && ($_GET['platform']??$input['platform']??'telegram')==='android'))){
     tg_ensure_bot_admin_tables($pdo);
     tg_ensure_social_tables($pdo);
     tg_ensure_commerce_tables($pdo);
     tg_backfill_bot_users($pdo);
+    }
 } catch (Exception $e) {
     error_log('[admin.php] setup: ' . $e->getMessage());
     admin_json(['ok' => false, 'error' => 'База: ' . $e->getMessage()], 500);
+}
+
+if ($action === 'delete_mobile') {
+    if($method!=='POST')admin_json(['ok'=>false,'error'=>'Нужен POST'],405);
+    $csrf=hash_hmac('sha256','untouch-mobile-delete-v1',$key);
+    if(!is_string($input['csrf']??null)||!hash_equals($csrf,$input['csrf']))admin_json(['ok'=>false,'error'=>'Обновите список пользователей'],403);
+    require_once __DIR__.'/mobile_admin.php';
+    try {admin_json(mobile_admin_delete($pdo,$input['userId']??null,$input['confirmedId']??null,$input['fingerprint']??null));}
+    catch(MobileError $e){admin_json(['ok'=>false,'error'=>$e->getMessage()],$e->status);}
+    catch(Throwable $e){error_log('admin: mobile delete failed');admin_json(['ok'=>false,'error'=>'Не удалось удалить профиль'],503);}
+}
+
+if($action==='users' && ($_GET['platform']??$input['platform']??'telegram')==='android'){
+    require_once __DIR__.'/mobile_admin.php';
+    try{
+      $q=trim((string)($input['q']??$_GET['q']??''));$filter=trim((string)($input['filter']??$_GET['filter']??'all'));
+      $page=max(1,(int)($_GET['page']??$input['page']??1));
+      $result=mobile_admin_users($pdo,$q,$filter,$page,tg_admin_day_start_ms(0),tg_admin_day_start_ms(6));
+      $result['deleteCsrf']=hash_hmac('sha256','untouch-mobile-delete-v1',$key);admin_json($result);
+    }catch(Throwable $e){error_log('admin: Android list failed');admin_json(['ok'=>false,'error'=>'Не удалось загрузить Android-пользователей'],503);}
 }
 
 if ($action === 'stats') {
@@ -236,6 +290,19 @@ if ($action === 'stats') {
     $hasRefs = admin_table_exists($pdo, 'referrals');
     $hasWallets = admin_table_exists($pdo, 'wallets');
     $hasFlags = admin_table_exists($pdo, 'user_flags');
+    $energyMetrics = [];
+    if (admin_table_exists($pdo, 'energy_rounds')) {
+      $metrics = $pdo->prepare("SELECT COUNT(*) AS rounds, COUNT(DISTINCT user_id) AS active_players,
+        COALESCE(SUM(cost),0) AS spent, COUNT(finished_at) AS finished,
+        COALESCE(SUM(JSON_EXTRACT(loadout_json,'$.shield') = true),0) AS shield,
+        COALESCE(SUM(JSON_EXTRACT(loadout_json,'$.jumps') > 0),0) AS jumps,
+        COALESCE(SUM(JSON_EXTRACT(loadout_json,'$.impulse') = true),0) AS impulse
+        FROM `energy_rounds` WHERE started_at >= :from");
+      $metrics->execute([':from'=>$weekStart]);
+      $energyMetrics = array_map('intval', $metrics->fetch());
+      $events = $pdo->prepare("SELECT kind,COUNT(*) AS events,COALESCE(SUM(delta),0) AS energy FROM `energy_events` WHERE created_at >= :from GROUP BY kind");
+      $events->execute([':from'=>$weekStart]); $energyMetrics['rewards'] = $events->fetchAll();
+    }
 
     $chart = [];
     $chartStmt = $pdo->prepare("
@@ -307,6 +374,7 @@ if ($action === 'stats') {
                 : 0,
         ],
         'chart' => $chart,
+        'energyMetrics' => $energyMetrics,
     ]);
   } catch (Exception $e) {
     error_log('[admin.php] stats: ' . $e->getMessage());
@@ -318,6 +386,13 @@ if ($action === 'users') {
   try {
     $q = trim((string)($input['q'] ?? $_GET['q'] ?? ''));
     $filter = trim((string)($input['filter'] ?? $_GET['filter'] ?? 'all'));
+    if(($_GET['platform']??$input['platform']??'telegram')==='android'){
+      require_once __DIR__.'/mobile_admin.php';
+      $page=max(1,(int)($_GET['page']??$input['page']??1));
+      $result=mobile_admin_users($pdo,$q,$filter,$page,tg_admin_day_start_ms(0),tg_admin_day_start_ms(6));
+      $result['deleteCsrf']=hash_hmac('sha256','untouch-mobile-delete-v1',$key);admin_json($result);
+    }
+
     $page = max(1, (int)($input['page'] ?? $_GET['page'] ?? 1));
     $limit = 50;
     $offset = ($page - 1) * $limit;

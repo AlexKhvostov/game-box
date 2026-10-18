@@ -166,37 +166,37 @@ class AppLocalizationsEn extends AppLocalizations {
   String get earn => 'Earn';
 
   @override
-  String get earnPreviewHint => 'Preview until ads & SDKs are connected';
+  String get earnPreviewHint => 'Complete tasks and collect available bonuses';
 
   @override
   String get shop => 'Shop';
 
   @override
-  String get plusActive => 'Boost active';
+  String get plusActive => 'Plus active';
 
   @override
   String get plusCancel => 'Cancel subscription';
 
   @override
   String plusButton(String price) {
-    return 'Boost · $price';
+    return 'Plus · $price';
   }
 
   @override
-  String get plusToast => 'Boost · Daily ×2';
+  String get plusToast => 'Plus · Daily ×2';
 
   @override
-  String get plusCancelledToast => 'Boost turned off';
+  String get plusCancelledToast => 'Plus turned off';
 
   @override
-  String get plusManageTitle => 'Manage Boost';
+  String get plusManageTitle => 'Manage Plus';
 
   @override
-  String get plusOfferTitle => 'Boost subscription';
+  String get plusOfferTitle => 'Plus subscription';
 
   @override
   String get plusOfferSubtitle =>
-      'Boost is a weekly subscription for \$1. You get no ads and ×2 crystals on the Daily bonus. Cancel anytime in this window (billing via Google Play / App Store later).';
+      'Plus is a weekly subscription: no ads and double crystals on the daily bonus. Google Play shows the price and payment terms. Manage your subscription in Google Play.';
 
   @override
   String plusSubscribe(String price) {
@@ -205,7 +205,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get plusManageSubtitle =>
-      'Boost gives perks in the game. This is a local preview — real billing will go through Google Play / App Store later.';
+      'Plus gives in-game benefits. Manage auto-renewal or cancel your subscription in Google Play.';
 
   @override
   String get plusManageBenefitAds => 'No ads';
@@ -220,7 +220,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String plusManageNextCharge(String date) {
-    return 'Next charge: $date';
+    return 'Active until: $date';
   }
 
   @override
@@ -261,7 +261,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String premiumTimesLocked(String mult) {
-    return '×$mult with Boost';
+    return '×$mult with Plus';
   }
 
   @override
@@ -427,7 +427,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tabEarn => 'Earn';
 
   @override
-  String get plusTitle => 'Boost';
+  String get plusTitle => 'Plus';
 
   @override
   String get plusBenefits => 'No ads';
@@ -575,7 +575,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get youGhost => 'You';
 
   @override
-  String get periodMine => 'My attempts';
+  String get periodMine => 'Mine';
 
   @override
   String get colAttempt => 'Attempt';
@@ -587,5 +587,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get attemptShared => 'Shared';
 
   @override
-  String get attemptLocal => 'Not shared';
+  String get attemptLocal => 'On this device';
+
+  @override
+  String get scoreAutoSaved => 'Saved to the shared ranking';
+
+  @override
+  String get scoreSyncPending =>
+      'Saved on this device · will sync automatically';
+
+  @override
+  String get scorePracticeOnly =>
+      'Saved on this device · outside shared ranking';
+
+  @override
+  String get scoreAutoSave => 'Results are saved automatically';
 }

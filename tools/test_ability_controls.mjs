@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+const source = await fs.readFile(new URL('../telegram-web/js/ability-controls.js', import.meta.url));
+const { ImpulseGesture, impulseScale } = await import('data:text/javascript;base64,' + source.toString('base64'));
+const event = (type, timeStamp, x=100, y=100, pointerId=1) => ({type,timeStamp,clientX:x,clientY:y,pointerId});
+const tap = (g,at) => {g.down(event('pointerdown',at),false);return g.up(event('pointerup',at+30),0);};
+let g = new ImpulseGesture(); assert.equal(tap(g,0),false); assert.equal(tap(g,100),true);
+g=new ImpulseGesture(); tap(g,0);g.down(event('pointerdown',100),false);g.move(event('pointermove',110,120));assert.equal(g.up(event('pointerup',130,120),0),false);assert.equal(tap(g,180),false);
+g=new ImpulseGesture();tap(g,0);g.down(event('pointerdown',100),true);assert.equal(g.up(event('pointerup',130),1),false);assert.equal(tap(g,180),false);
+g=new ImpulseGesture();tap(g,0);g.down(event('pointerdown',100),false);assert.equal(g.up(event('pointercancel',130),0),false);assert.equal(tap(g,180),false);
+g=new ImpulseGesture();tap(g,0);assert.equal(tap(g,400),false);
+g=new ImpulseGesture();g.down(event('pointerdown',0),false);assert.equal(g.up(event('pointerup',400),0),false);assert.equal(tap(g,450),false);
+g=new ImpulseGesture();tap(g,0);g.down(event('pointerdown',100,200),false);assert.equal(g.up(event('pointerup',130,200),0),false);
+assert.equal(impulseScale(2,2,.4),1);assert.equal(impulseScale(1,2,.4),.4);assert.equal(impulseScale(0,2,.4),1);
+let gameSeconds=0;for(let i=0;i<240;i++) gameSeconds+=impulseScale(2-i/120,2,.4)/120;
+assert.ok(gameSeconds>.8 && gameSeconds<1,gameSeconds);
+console.log('PASS: double tap, movement cancellation, held second finger, pointer cancel, slow/long/distant taps and smooth slowdown time integral');

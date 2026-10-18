@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 
 /// Якоря HUD для анимации «улетело в кристалы / жизни».
-enum ToastFlyTarget { none, crystals, lives }
+enum ToastFlyTarget { none, crystals, lives, energy }
 
 class HudFlyTargets {
   HudFlyTargets._();
 
+  static final GlobalKey energyKey = GlobalKey(debugLabel: 'hud_energy');
   static final GlobalKey livesKey = GlobalKey(debugLabel: 'hud_lives');
   static final GlobalKey crystalsKey = GlobalKey(debugLabel: 'hud_crystals');
 
   static Offset? centerOf(ToastFlyTarget target) {
     final key = switch (target) {
+      ToastFlyTarget.energy => energyKey,
       ToastFlyTarget.lives => livesKey,
       ToastFlyTarget.crystals => crystalsKey,
       ToastFlyTarget.none => null,
@@ -27,6 +29,7 @@ class HudFlyTargets {
   static Offset fallbackOf(ToastFlyTarget target, Size screen) {
     final top = 28.0;
     return switch (target) {
+      ToastFlyTarget.energy => Offset(screen.width / 4, top + 24),
       ToastFlyTarget.lives => Offset(36, top + 24),
       ToastFlyTarget.crystals => Offset(96, top + 24),
       ToastFlyTarget.none => Offset(screen.width / 2, screen.height * 0.22),

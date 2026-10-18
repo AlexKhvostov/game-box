@@ -1,27 +1,44 @@
+import '../balance/energy_sheet.dart';
+import '../../ui/crystal_cost_badge.dart';
+import '../../ui/game_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../data/app_analytics.dart';
 import '../../data/economy_store.dart';
-import '../../data/scores_store.dart';
 import '../../domain/economy_config.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/crystal_cube_icon.dart';
 import '../../ui/game_sheet.dart';
 import '../../ui/game_toast.dart';
+import '../../ui/life_balance_card.dart';
+import '../../ui/audience_gate.dart';
 import '../balance/crystals_sheet.dart';
 
-/// Дружелюбные акценты окна жизней. Красный — только у иконки сердца.
+/// Contrasting exchange cards share the game mascot and currency accents.
 const _heartRed = Color(0xFFFF5A5F);
 const _lifeMint = Color(0xFF5EE6B0);
-const _lifeCyan = Color(0xFF7EE0FF);
 
 Future<void> showLivesSheet(BuildContext context) {
-  return showModalBottomSheet<void>(
+  if (context.read<EconomyStore>().energyEnabled) {
+    return showEnergySheet(context);
+  }
+  return showDialog<void>(
+    animationStyle: GameUi.windowAnimationStyle,
     context: context,
-    isScrollControlled: true,
-    backgroundColor: Colors.transparent,
-    builder: (_) => const _LivesSheet(),
+    // Android starts the game inside the audience shell's Navigator. Keep
+    // this window in the game Navigator, alongside its economy providers.
+    useRootNavigator: false,
+    useSafeArea: true,
+    builder: (_) => Dialog(
+      key: const ValueKey('lives-floating-window'),
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 28),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 440),
+        child: const _LivesSheet(),
+      ),
+    ),
   );
 }
 
@@ -31,176 +48,260 @@ void _openCrystalsShop(BuildContext context) {
   showCrystalsSheet(context, initialTab: 1);
 }
 
-Future<void> _confirmResetData(BuildContext context) async {
-  final l10n = AppLocalizations.of(context);
-  final ok = await showDialog<bool>(
-    context: context,
-    builder: (ctx) => AlertDialog(
-      backgroundColor: const Color(0xFF151C22),
-      title: Text(l10n.resetDataTitle),
-      content: Text(l10n.resetDataBody),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(ctx, false),
-          child: Text(l10n.cancel),
-        ),
-        FilledButton(
-          onPressed: () => Navigator.pop(ctx, true),
-          child: Text(l10n.ok),
-        ),
-      ],
-    ),
-  );
-  if (ok != true || !context.mounted) return;
-
-  final economy = context.read<EconomyStore>();
-  final scores = context.read<ScoresStore>();
-  final messengerContext = context;
-  await economy.resetToFreshInstall();
-  await scores.clearLocalData();
-  if (!messengerContext.mounted) return;
-  Navigator.pop(messengerContext);
-  showGameToast(
-    messengerContext,
-    message: l10n.resetDataDone,
-    accent: const Color(0xFF7EE0FF),
-  );
+class _LivesSheet extends StatefulWidget {
+  const _LivesSheet();
+  @override
+  State<_LivesSheet> createState() => _LivesSheetState();
 }
 
-class _LivesSheet extends StatelessWidget {
-  const _LivesSheet();
+class _LivesSheetState extends State<_LivesSheet> {
+  bool _exchanging = false;
+  Future<void> _exchange(EconomyStore economy, LifePackOffer pack) async {
+    if (_exchanging || !mounted) return;
+    _exchanging = true;
+    if (!await ensureResourceAge(context) || !mounted) {
+      _exchanging = false;
+      return;
+    }
+    if (!economy.buyLifePackOffer(pack)) {
+      _openCrystalsShop(context);
+      return;
+    }
+    AppAnalytics.buyLifePack(lives: pack.lives, cost: pack.costTokens);
+    final message = AppLocalizations.of(context).livesGained(pack.lives);
+    showGameToast(
+      context,
+      message: message,
+      accent: _lifeMint,
+      flyTo: ToastFlyTarget.lives,
+      icon: const Icon(Icons.favorite, color: _heartRed),
+    );
+    Navigator.pop(context);
+  }
 
   @override
   Widget build(BuildContext context) {
     final economy = context.watch<EconomyStore>();
-    final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
+    final ru = Localizations.localeOf(context).languageCode == 'ru';
     final packs = economy.config.resolvedLifePacks;
-
+    final best = packs.isEmpty
+        ? -1
+        : List.generate(packs.length, (i) => i).reduce(
+            (a, b) =>
+                packs[b].lives /
+                        (packs[b].costTokens > 0 ? packs[b].costTokens : 1) >
+                    packs[a].lives /
+                        (packs[a].costTokens > 0 ? packs[a].costTokens : 1)
+                ? b
+                : a,
+          );
     return GameSheetChrome(
-      heightFactor: 0.56,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+      heightFactor: .86,
+      fitContent: true,
+      modal: true,
+      glass: GameGlass.none,
+      backgroundGradient: GameUi.navySheetGradient,
+      backgroundImage: DecorationImage(
+        image: ResizeImage.resizeIfNeeded(
+          (MediaQuery.sizeOf(context).width *
+                  MediaQuery.devicePixelRatioOf(context))
+              .ceil(),
+          null,
+          const AssetImage('assets/branding/ui/lives-room-v2.png'),
+        ),
+        fit: BoxFit.fitWidth,
+        alignment: Alignment.topRight,
+      ),
+      child: SafeArea(
+        top: false,
+        child: ListView(
+          shrinkWrap: true,
+          padding: const EdgeInsets.fromLTRB(14, 12, 14, 18),
           children: [
-            Text(
-              l10n.livesConvertTitle,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              l10n.livesConvertSubtitle,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: Colors.white60,
-              ),
-            ),
-            const SizedBox(height: 12),
-            // Баланс — статус. Кристалы тапабельны → Shop.
-            Row(
-              children: [
-                Expanded(
-                  child: GestureDetector(
-                    onLongPress: () => _confirmResetData(context),
-                    child: _BalanceStatCard(
-                      icon: const Icon(
-                        Icons.favorite_rounded,
-                        color: _heartRed,
-                        size: 22,
-                      ),
-                      value: '${economy.lives}',
-                      label: l10n.statLives,
-                      accent: _heartRed,
-                    ),
+            ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 190),
+              child: DecoratedBox(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    colors: [
+                      Color(0xE6061B2D),
+                      Color(0xB3061B2D),
+                      Color(0x00061B2D),
+                      Color(0x00061B2D),
+                    ],
+                    stops: [0, .38, .65, 1],
                   ),
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _BalanceStatCard(
-                    icon: const CrystalCubeIcon(size: 22, glow: false),
-                    value: '${economy.tokens}',
-                    label: l10n.crystals,
-                    accent: _lifeCyan,
-                    tappable: true,
-                    onTap: () => _openCrystalsShop(context),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Expanded(
-              child: ListView.separated(
-                itemCount: packs.length,
-                separatorBuilder: (_, _) => const SizedBox(height: 6),
-                itemBuilder: (context, i) {
-                  final pack = packs[i];
-                  final canBuy = economy.canBuyLifePackOffer(pack);
-                  final best = i == packs.length - 1;
-                  return _LifePackTile(
-                    pack: pack,
-                    canBuy: canBuy,
-                    bestValue: best,
-                    onBuy: () {
-                      if (!economy.buyLifePackOffer(pack)) {
-                        _openCrystalsShop(context);
-                        return;
-                      }
-                      AppAnalytics.buyLifePack(
-                        lives: pack.lives,
-                        cost: pack.costTokens,
-                      );
-                      Navigator.pop(context);
-                      showGameToast(
-                        context,
-                        message: l10n.livesGained(pack.lives),
-                        accent: _lifeMint,
-                        flyTo: ToastFlyTarget.lives,
-                        icon: const Icon(
-                          Icons.favorite_rounded,
-                          color: _heartRed,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 9),
+                            child: Text(
+                              l10n.livesConvertTitle.toUpperCase(),
+                              style: const TextStyle(
+                                fontSize: 18,
+                                height: 1.2,
+                                fontWeight: FontWeight.w900,
+                                color: GameUi.text,
+                              ),
+                            ),
+                          ),
                         ),
-                      );
-                    },
-                    onNeedCrystals: () => _openCrystalsShop(context),
-                  );
-                },
+                        IconButton(
+                          key: const ValueKey('lives-close'),
+                          tooltip: MaterialLocalizations.of(
+                            context,
+                          ).closeButtonTooltip,
+                          onPressed: () => Navigator.pop(context),
+                          icon: const Icon(
+                            Icons.close_rounded,
+                            size: 24,
+                            color: GameUi.text,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        final side = (constraints.maxWidth * .29).clamp(
+                          84.0,
+                          112.0,
+                        );
+                        return Align(
+                          alignment: Alignment.centerLeft,
+                          child: SizedBox(
+                            key: const ValueKey('lives-inventory'),
+                            width: side,
+                            height: side * 1.15,
+                            child: LifeBalanceCard(lives: economy.lives),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
-            const SizedBox(height: 10),
-            OutlinedButton(
-              onPressed: () => _openCrystalsShop(context),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.white70,
-                side: BorderSide(
-                  color: Colors.white.withValues(alpha: 0.18),
+            const SizedBox(height: 6),
+            Container(
+              key: const ValueKey('lives-exchange-currency'),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0xFF17698D),
+                    Color(0xFF0B3959),
+                    Color(0xFF082A43),
+                  ],
                 ),
-                padding: const EdgeInsets.symmetric(vertical: 11),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: GameUi.cyan, width: 1.5),
               ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Opacity(
-                    opacity: 0.75,
-                    child: const CrystalCubeIcon(size: 16, glow: false),
+                  const CrystalCubeIcon(
+                    size: 34,
+                    glow: true,
+                    onLightBackground: false,
                   ),
                   const SizedBox(width: 8),
-                  Text(
-                    l10n.toCrystals,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 14,
-                      color: Colors.white.withValues(alpha: 0.72),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          ru ? 'Баланс кристаллов' : 'Crystal balance',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            height: 1.2,
+                            fontWeight: FontWeight.w800,
+                            color: GameUi.text,
+                          ),
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          ru
+                              ? 'Для обмена на жизни'
+                              : 'For exchanging into lives',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            height: 1.2,
+                            color: Color(0xFFB6DFED),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 80),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        '${economy.tokens}',
+                        key: const ValueKey('lives-crystal-balance-amount'),
+                        style: const TextStyle(
+                          fontSize: 26,
+                          height: 1.1,
+                          fontWeight: FontWeight.w900,
+                          color: GameUi.text,
+                          fontFeatures: [FontFeature.tabularFigures()],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  IconButton(
+                    key: const ValueKey('lives-to-crystals-shop'),
+                    onPressed: () => _openCrystalsShop(context),
+                    tooltip: ru ? 'В магазин кристаллов' : 'Open crystal shop',
+                    icon: const Icon(
+                      Icons.storefront_rounded,
+                      color: GameUi.cyan,
+                      size: 23,
                     ),
                   ),
                 ],
               ),
+            ),
+            const SizedBox(height: 8),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final cardWidth = ((constraints.maxWidth - 8) / 2).clamp(
+                  0.0,
+                  176.0,
+                );
+                return Wrap(
+                  key: const ValueKey('life-packs-list'),
+                  spacing: 8,
+                  runSpacing: 8,
+                  alignment: WrapAlignment.center,
+                  children: [
+                    for (var i = 0; i < packs.length; i++)
+                      SizedBox(
+                        width: cardWidth,
+                        child: _LifePackCard(
+                          pack: packs[i],
+                          canBuy: economy.canBuyLifePackOffer(packs[i]),
+                          best: i == best,
+                          onTap: () => _exchange(economy, packs[i]),
+                        ),
+                      ),
+                  ],
+                );
+              },
             ),
           ],
         ),
@@ -209,271 +310,147 @@ class _LivesSheet extends StatelessWidget {
   }
 }
 
-class _BalanceStatCard extends StatelessWidget {
-  const _BalanceStatCard({
-    required this.icon,
-    required this.value,
-    required this.label,
-    required this.accent,
-    this.onTap,
-    this.tappable = false,
+class _LifePackCard extends StatelessWidget {
+  const _LifePackCard({
+    required this.pack,
+    required this.canBuy,
+    required this.best,
+    required this.onTap,
   });
-
-  final Widget icon;
-  final String value;
-  final String label;
-  final Color accent;
-  final VoidCallback? onTap;
-  final bool tappable;
-
+  final LifePackOffer pack;
+  final bool canBuy, best;
+  final VoidCallback onTap;
   @override
   Widget build(BuildContext context) {
-    final card = Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+    final ru = Localizations.localeOf(context).languageCode == 'ru';
+    return Container(
+      key: ValueKey('life-pack-${pack.lives}-${pack.costTokens}'),
+      padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        color: const Color(0xFF151C22),
+        gradient: const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color(0xFF174C68), Color(0xFF0A3048)],
+        ),
+        borderRadius: BorderRadius.circular(GameUi.radius),
         border: Border.all(
-          color: accent.withValues(alpha: tappable ? 0.5 : 0.35),
-          width: tappable ? 1.4 : 1,
+          color: !canBuy
+              ? const Color(0xFF677887)
+              : best
+              ? GameUi.yellow
+              : const Color(0xFF81CCE2),
+          width: best ? 1.5 : 1,
         ),
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          icon,
-          const SizedBox(height: 6),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.w900,
-              height: 1,
-              color: accent,
-              letterSpacing: -0.5,
+          if (MediaQuery.textScalerOf(context).scale(13) > 18)
+            Align(
+              alignment: Alignment.topRight,
+              child: CrystalCostBadge(
+                amount: pack.costTokens,
+                available: canBuy,
+              ),
             ),
-          ),
-          const SizedBox(height: 4),
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white.withValues(alpha: 0.55),
-                ),
-              ),
-              if (tappable) ...[
-                const SizedBox(width: 2),
-                Icon(
-                  Icons.chevron_right_rounded,
-                  size: 14,
-                  color: accent.withValues(alpha: 0.85),
-                ),
-              ],
-            ],
-          ),
-        ],
-      ),
-    );
-
-    if (onTap == null) return card;
-    return Material(
-      color: Colors.transparent,
-      borderRadius: BorderRadius.circular(16),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: card,
-      ),
-    );
-  }
-}
-
-class _LifePackTile extends StatelessWidget {
-  const _LifePackTile({
-    required this.pack,
-    required this.canBuy,
-    required this.bestValue,
-    required this.onBuy,
-    required this.onNeedCrystals,
-  });
-
-  final LifePackOffer pack;
-  final bool canBuy;
-  final bool bestValue;
-  final VoidCallback onBuy;
-  final VoidCallback onNeedCrystals;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final accent = bestValue ? _lifeMint : _lifeCyan;
-
-    return Material(
-      color: Colors.transparent,
-      elevation: 0,
-      child: InkWell(
-        onTap: canBuy ? onBuy : onNeedCrystals,
-        borderRadius: BorderRadius.circular(14),
-        child: Ink(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
-            gradient: LinearGradient(
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-              colors: bestValue
-                  ? [
-                      _lifeMint.withValues(alpha: 0.38),
-                      const Color(0xFF1A2E28),
-                      const Color(0xFF121A1E),
-                    ]
-                  : [
-                      _lifeCyan.withValues(alpha: 0.28),
-                      const Color(0xFF1A2830),
-                      const Color(0xFF12181E),
-                    ],
-            ),
-            border: Border.all(
-              color: accent.withValues(alpha: bestValue ? 0.75 : 0.55),
-              width: bestValue ? 1.6 : 1.3,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: accent.withValues(alpha: bestValue ? 0.22 : 0.14),
-                blurRadius: bestValue ? 14 : 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 36,
-                height: 36,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      _heartRed.withValues(alpha: 0.35),
-                      Colors.white.withValues(alpha: 0.06),
-                    ],
-                  ),
-                  border: Border.all(
-                    color: _heartRed.withValues(alpha: 0.45),
-                  ),
-                ),
-                child: const Icon(
-                  Icons.favorite_rounded,
-                  color: _heartRed,
-                  size: 18,
-                ),
-              ),
-              const SizedBox(width: 10),
               Expanded(
                 child: Row(
                   children: [
+                    const Icon(
+                      Icons.favorite_rounded,
+                      color: GameUi.heart,
+                      size: 17,
+                    ),
+                    const SizedBox(width: 3),
                     Flexible(
                       child: Text(
-                        l10n.livesPackLabel(pack.lives),
+                        '+${pack.lives}',
                         style: const TextStyle(
+                          fontSize: 17,
+                          height: 1.1,
                           fontWeight: FontWeight.w900,
-                          fontSize: 15,
-                          color: Color(0xFFF2F7FA),
+                          color: GameUi.text,
                         ),
-                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    if (bestValue) ...[
-                      const SizedBox(width: 6),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 7,
-                          vertical: 3,
-                        ),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(7),
-                          color: _lifeMint.withValues(alpha: 0.28),
-                          border: Border.all(
-                            color: _lifeMint.withValues(alpha: 0.55),
-                          ),
-                        ),
-                        child: Text(
-                          l10n.badgeBest,
-                          style: const TextStyle(
-                            color: _lifeMint,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 10,
-                          ),
-                        ),
-                      ),
-                    ],
                   ],
                 ),
               ),
-              const SizedBox(width: 8),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(11),
-                  gradient: canBuy
-                      ? LinearGradient(
-                          colors: bestValue
-                              ? const [_lifeMint, Color(0xFF7EE0FF)]
-                              : const [_lifeCyan, _lifeMint],
-                        )
-                      : null,
-                  color: canBuy ? null : const Color(0xFF243038),
-                  border: canBuy
-                      ? null
-                      : Border.all(
-                          color: _lifeCyan.withValues(alpha: 0.4),
-                        ),
-                  boxShadow: canBuy
-                      ? [
-                          BoxShadow(
-                            color: accent.withValues(alpha: 0.35),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ]
-                      : null,
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const CrystalCubeIcon(size: 15, glow: false),
-                    const SizedBox(width: 5),
-                    Text(
-                      '${pack.costTokens}',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 14,
-                        color: canBuy
-                            ? const Color(0xFF0E1419)
-                            : _lifeCyan.withValues(alpha: 0.95),
-                      ),
-                    ),
-                    if (!canBuy) ...[
-                      const SizedBox(width: 2),
-                      Icon(
-                        Icons.chevron_right_rounded,
-                        size: 16,
-                        color: _lifeCyan.withValues(alpha: 0.9),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
+              if (MediaQuery.textScalerOf(context).scale(13) <= 18) ...[
+                const SizedBox(width: 4),
+                CrystalCostBadge(amount: pack.costTokens, available: canBuy),
+              ],
             ],
           ),
-        ),
+          const SizedBox(height: 4),
+          Text(
+            !canBuy
+                ? (ru ? 'Не хватает' : 'Not enough')
+                : best
+                ? AppLocalizations.of(context).badgeBest
+                : ' ',
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 10,
+              height: 1.1,
+              fontWeight: FontWeight.w700,
+              color: GameUi.yellow,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Semantics(
+            label: ru
+                ? '${pack.costTokens} кристаллов за ${pack.lives} жизней'
+                : '${pack.costTokens} crystals for ${pack.lives} lives',
+            button: true,
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                key: ValueKey('life-exchange-${pack.lives}-${pack.costTokens}'),
+                borderRadius: BorderRadius.circular(8),
+                onTap: onTap,
+                child: Container(
+                  constraints: BoxConstraints(
+                    minHeight: GameUi.touchTarget(context),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 8,
+                  ),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    gradient: canBuy
+                        ? const LinearGradient(
+                            colors: [Color(0xFF84E2BD), Color(0xFF43BA98)],
+                          )
+                        : const LinearGradient(
+                            colors: [Color(0xFF43596B), Color(0xFF2D4253)],
+                          ),
+                    border: Border.all(
+                      color: canBuy ? _lifeMint : const Color(0xFF677887),
+                    ),
+                  ),
+                  child: Text(
+                    canBuy
+                        ? (ru ? 'Обменять' : 'Exchange')
+                        : (ru ? 'В магазин' : 'Shop'),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w900,
+                      color: canBuy ? GameUi.ink : const Color(0xFFBAC7D0),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -1,0 +1,67 @@
+{
+  "note": "Manually reviewed: no caller for these GameArt variants; earlier v1 images replaced by v2. Other lexical candidates include active dynamically built paths and MUST NOT be deleted from that list.",
+  "apk_sha256": "c141366d937c04383723240af31942f13d01b5a097e370807b273b5268972bba",
+  "assets": [
+    {
+      "file": "assets/branding/ui/lives-room-v1.png",
+      "bytes": 1568160,
+      "packaged": true
+    },
+    {
+      "file": "assets/branding/ui/profile-player-cube-v1.png",
+      "bytes": 1172551,
+      "packaged": true
+    },
+    {
+      "file": "assets/branding/ui/lives-resting-sofa-v1.png",
+      "bytes": 954432,
+      "packaged": true
+    },
+    {
+      "file": "assets/branding/account/fire-v1.png",
+      "bytes": 934809,
+      "packaged": true
+    },
+    {
+      "file": "assets/branding/account/trophy-v1.png",
+      "bytes": 860282,
+      "packaged": true
+    },
+    {
+      "file": "assets/branding/ui/hero-resting-v1.png",
+      "bytes": 962689,
+      "packaged": true
+    },
+    {
+      "file": "assets/branding/ui/hero-focused-v1.png",
+      "bytes": 879687,
+      "packaged": true
+    },
+    {
+      "file": "assets/branding/ui/hero-delighted-v1.png",
+      "bytes": 867190,
+      "packaged": true
+    },
+    {
+      "file": "assets/branding/ui/hero-finished-v1.png",
+      "bytes": 1051630,
+      "packaged": true
+    },
+    {
+      "file": "assets/branding/ui/reward-v1.png",
+      "bytes": 853176,
+      "packaged": true
+    },
+    {
+      "file": "assets/sfx/wall_hit.wav",
+      "bytes": 6218,
+      "packaged": true
+    },
+    {
+      "file": "assets/sfx/wall_tick.wav",
+      "bytes": 4894,
+      "packaged": true
+    }
+  ],
+  "uncompressed_bytes": 10115718
+}

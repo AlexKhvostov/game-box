@@ -1,4 +1,4 @@
-import { clamp, dist, makeRect, normalize, rectOverlaps, shuffle, vecAdd, vecDot, vecLen, vecScale, vecSub, PI } from './util.js';
+﻿import { clamp, dist, makeRect, normalize, rectOverlaps, shuffle, vecAdd, vecDot, vecLen, vecScale, vecSub, PI } from './util.js?v=v1.0.22_20261003_233329_134';
 
 export class BounceReport {
   constructor(wall = 0, enemy = 0) {
@@ -201,6 +201,7 @@ export class GameWorld {
     this.player = { dx: 0, dy: 0 };
     this.enemies = [];
     this.jumpRemaining = 0;
+    this.jumpReadyAt = 0;
     this.playerDistance = 0;
     this.nearMissCount = 0;
     this.nearMissFx = [];
@@ -210,9 +211,17 @@ export class GameWorld {
 
   static NEAR_ENTER = 14;
   static NEAR_EXIT = 22;
+  static referenceFieldSide = 380;
+  static characterSizeScale = 1.2;
+
+  get enemyAtRiskDistance() {
+    const body = makeRect(this.player.dx, this.player.dy, this.playerSize, this.playerSize);
+    return this.enemies.some(enemy => GameWorld._aabbGap(body, enemy.rect) <= GameWorld.NEAR_ENTER);
+  }
+
 
   get playerSize() {
-    return this.config.player.size;
+    return this.config.player.size * GameWorld.characterSizeScale;
   }
 
   get isJumping() {
@@ -233,6 +242,7 @@ export class GameWorld {
   }
 
   resetLayout() {
+    this.jumpReadyAt = 0;
     const ps = this.playerSize;
     this.player = {
       dx: (this.field.width - ps) / 2,
@@ -247,9 +257,19 @@ export class GameWorld {
     this.enemies = this._spawnEnemies();
   }
 
-  tryJump() {
-    if (!this.config.game.jumpEnabled || this.isJumping) return false;
+  get jumpCooldownMs() {
+    const seconds = Number(this.config.game.jumpCooldownSec ?? 2);
+    return Math.max(2, Number.isFinite(seconds) ? seconds : 2) * 1000;
+  }
+
+  jumpCooldownRemaining(now = performance.now()) {
+    return Math.max(0, this.jumpReadyAt - now);
+  }
+
+  tryJump(now = performance.now()) {
+    if (!this.config.game.jumpEnabled || this.isJumping || this.jumpCooldownRemaining(now) > 0) return false;
     this.jumpRemaining = Math.max(0.12, this.config.game.jumpDurationSec);
+    this.jumpReadyAt = now + this.jumpCooldownMs;
     this._jumpOverCounted.clear();
     this._nearArmed.clear();
     this._evaluateJumpOver();
@@ -382,9 +402,13 @@ export class GameWorld {
   }
 
   movePlayerBy(delta) {
-    if (delta.dx === 0 && delta.dy === 0) return;
+    if (!Number.isFinite(delta.dx) || !Number.isFinite(delta.dy) || (delta.dx === 0 && delta.dy === 0)) return;
+    const previous = this.player;
     this.player = vecAdd(this.player, delta);
-    this.playerDistance += dist(delta.dx, delta.dy);
+    if (!this.wallsKillPlayer()) this.clampPlayerToField();
+    const moved = dist(this.player.dx - previous.dx, this.player.dy - previous.dy);
+    if (moved === 0) return;
+    this.playerDistance += moved;
     if (this.isJumping) this._evaluateJumpOver();
     else this._evaluateNearMiss();
   }
@@ -461,6 +485,43 @@ export class GameWorld {
       if (e.overlapsAabb(pr)) return true;
     }
     return false;
+  }
+
+  /** Android helmet contact: separate every touching enemy, then reflect it. */
+  repelEnemiesFromPlayer() {
+    const playerRect = makeRect(this.player.dx, this.player.dy, this.playerSize, this.playerSize);
+    let reflected = 0;
+    for (const enemy of this.enemies) {
+      const separation = enemy.mtvOutOfAabb(playerRect);
+      if (!separation) continue;
+      enemy.pos = vecAdd(enemy.pos, separation);
+      enemy.reflectVelocity(separation);
+      // Native's first MTV can leave a fully contained/rotated body embedded.
+      // Continue separating positions only: reflecting again would undo bounce.
+      for (let pass = 0; pass < 4; pass++) {
+        const extra = enemy.mtvOutOfAabb(playerRect);
+        if (!extra) break;
+        enemy.pos = vecAdd(enemy.pos, extra);
+      }
+      if (enemy.overlapsAabb(playerRect)) {
+        // Guaranteed bounded escape for extreme aspect ratios: disjoint AABBs
+        // imply disjoint rotated bodies, without changing their velocity.
+        const body = enemy.rect;
+        const escapes = [
+          { dx: playerRect.left - body.right - 0.5, dy: 0 },
+          { dx: playerRect.right - body.left + 0.5, dy: 0 },
+          { dx: 0, dy: playerRect.top - body.bottom - 0.5 },
+          { dx: 0, dy: playerRect.bottom - body.top + 0.5 },
+        ];
+        let escape = escapes[0];
+        for (const option of escapes) {
+          if (Math.abs(option.dx) + Math.abs(option.dy) < Math.abs(escape.dx) + Math.abs(escape.dy)) escape = option;
+        }
+        enemy.pos = vecAdd(enemy.pos, escape);
+      }
+      reflected++;
+    }
+    return reflected;
   }
 
   _spawnEnemies() {

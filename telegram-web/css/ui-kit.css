@@ -1,0 +1,125 @@
+/* Approved UI-kit visual tokens, applied to existing runtime components.
+   No gallery layout, scenarios, prices, input handlers or gameplay geometry. */
+:root { --muted:#a7b8c5; --ui-line:#395259; --ui-panel:linear-gradient(145deg,#1c2b32,#151c22); --ui-shadow:inset 0 1px 0 #ffffff12,0 5px 14px #0003; }
+.ui-art { display:block; object-fit:contain; flex-shrink:0; }
+.game-panel,.profile-card,.result-card,.life-buy-card,.earn-card {
+  background:var(--ui-panel); border-radius:12px; box-shadow:var(--ui-shadow); border-color:var(--ui-line);
+}
+.game-panel,.profile-card { padding:10px; }
+.hud-chip,.hud-profile-btn,.score-strip-pill { background:linear-gradient(#26353b,#172028); box-shadow:inset 0 1px 0 #ffffff12; }
+.hud-chip { color:var(--text); border-color:#538296; }
+.score-strip-pill { border-color:#ae944a; }
+.hud-center .score-strip-value { color:#fff3c4; text-shadow:0 0 8px #ffd54a44; letter-spacing:-.7px; }
+.rent-chip { background:#172b27; border-color:#487861; }
+.rent-chip.helmet { background:#1a2934; border-color:#446d7e; }
+.rent-chip:not(.active) { background:#212a30; border-color:#52616b; }
+.rent-label { color:var(--muted); }
+/* One visual definition for every action, while retaining original state classes. */
+.btn-primary,.result-btn,.plus-btn,.share-btn-primary,.share-btn-secondary,.share-btn-cancel,.lb-play-btn,.day-action-btn,.earn-action-btn {
+  min-height:36px; padding:7px 12px; border-radius:10px; font-size:13px; line-height:20px; font-weight:750;
+}
+.btn-primary,.result-btn.primary,.plus-btn.subscribe,.share-btn-primary,.lb-play-btn,.day-action-btn.claim {
+  color:#0e241c; background:linear-gradient(#83f4c2,#3ddc97 55%,#2bb77c);
+  border-color:transparent; box-shadow:inset 0 1px 0 #d3ffe5aa,0 3px 0 #166d4e,0 6px 14px #3ddc9715;
+}
+.result-btn.outline,.plus-back,.share-btn-secondary,.share-btn-cancel {
+  background:linear-gradient(#23333c,#172028); border-color:#48626d; color:var(--text); box-shadow:var(--ui-shadow);
+}
+button:focus-visible,input:focus-visible { outline:3px solid var(--cyan); outline-offset:2px; }
+.result-btn:active,.plus-btn:active,.btn-primary:active { transform:translateY(2px); }
+/* Existing shop arrangement: header, tabs, then each live-data pane. */
+.crystals-header { gap:8px; }
+.gift-btn,.watch-ad-btn { border-radius:12px; background:linear-gradient(#253942,#192b32); }
+.crystals-tab-panel,.crystals-content-area { border-radius:0 0 12px 12px; background:#152028; box-shadow:none; }
+.daily-plus-card { border-color:#ffd54a60; background:linear-gradient(#3c3927,#292b25); border-radius:10px; padding:8px; }
+.daily-plus-title,.daily-plus-cta { color:#ffd54a; }
+.daily-plus-hint { color:var(--muted); font-size:9px; }
+.daily-plus-ico { color:#ffd54a; }
+.daily-card { min-height:42px; padding:4px 8px; border-radius:10px; background:#1b2a31; }
+.daily-card.today { background:linear-gradient(#29483d,#20362e); border-color:#3ddc9780; }
+.daily-card-mid .crystal-reward-badge { padding:4px 6px; }
+.daily-row { margin-bottom:8px; }
+.day-action-btn,.day-action-pill { font-size:10px; }
+.shop-row { gap:6px; min-height:56px; }
+.shop-icon-box { width:28px; height:28px; background:transparent; }
+.shop-text-col { width:auto; flex:1; min-width:0; }
+.shop-text-col .t1 { font-size:12px; }
+.shop-text-col .t2 { font-size:9px; }
+.rent-icon-box { width:36px; height:36px; background:transparent; }
+.rent-title { font-size:13px; }
+.rent-card-h .rent-desc { font-size:10px; color:var(--muted); }
+.rent-dur-btn { min-height:70px; padding:6px 4px; border-radius:10px; background:linear-gradient(#244638,#1d332c); }
+.rent-dur-btn .rd-mins,.rent-dur-btn .rd-cost { font-size:12px; }
+.rent-dur-btn .rd-action { font-size:10px; }
+.rent-btns { gap:8px; }
+.life-buy-card { min-height:96px; padding:8px; background:linear-gradient(#29483d,#1f342d); border-color:#3ddc9760; }
+.gain-number { font-size:18px; }
+.card-price-pill { font-size:11px; border-radius:10px; }
+.lives-shop-grid { gap:8px; }
+.lives-stat { border-radius:10px; background:#20323c; }
+.profile-avatar-wrap { width:40px; height:40px; border-radius:12px; padding:0; }
+.profile-avatar-wrap .ui-art { width:40px; height:40px; }
+.profile-stats-grid { gap:8px; }
+.profile-stat-card { border-radius:12px; padding:8px; min-height:56px; background:var(--ui-panel); }
+.profile-stat-value { font-size:18px; }
+.profile-nick-input { min-height:40px; padding:8px 10px; font-size:15px; }
+.profile-fullname { font-size:14px; }
+.profile-header h2 { font-size:18px; }
+.profile-privacy-toggle,.profile-switch { min-height:44px; }
+/* Compact existing rank component, retaining date, score, country and boosts. */
+.lb-card { min-height:32px; padding:4px 5px; margin:0; border-radius:0; border:0; border-bottom:1px solid #344852; background:transparent; box-shadow:none; gap:4px; }
+.lb-card.is-me { background:#ffd54a0e; border-color:#6b6440; }
+.lb-card-rank { font-size:10px; min-width:20px; }
+.lb-card-username { font-size:11px; }
+.lb-card-username.is-me { color:#ffe599; }
+.lb-card-run-meta,.lb-card-score-badge,.lb-card-tg-pill { font-size:8px; line-height:10px; }
+.lb-card-time { font-size:10px; }
+.lb-card-result-col { gap:0; }
+.lb-boost { width:12px; height:12px; }
+.result-card { padding:12px; }
+.result-time { font-size:30px; color:#fff3c4; }
+.result-stat { border-radius:12px; }
+/* Keep the existing light-theme preference; do not force the gallery's dark mode. */
+html[data-theme="light"] .game-panel,html[data-theme="light"] .profile-card,html[data-theme="light"] .result-card { background:linear-gradient(#f5fcff,#e8f2f6); color:#17323c; }
+@media(prefers-reduced-motion:reduce) { .ui-art { animation:none; } }
+
+.sheet-panel.sheet-crystals,.sheet-panel.sheet-leaderboard { height:var(--sheet-max-height); }
+.crystals-header { padding:8px 12px; }
+.gift-btn { width:64px; min-height:72px; }
+.gift-btn-inner { height:72px; border-radius:12px; padding:4px; }
+.gift-btn.ready .gift-btn-inner { background:linear-gradient(#253942,#192b32); border:1px solid #3ddc9780; }
+.gift-btn.ad-btn.ready .gift-btn-inner { background:linear-gradient(#253942,#192b32); }
+.gift-ready-lbl { font-size:9px; }
+.gift-reward-row .amt { font-size:12px; }
+.crystals-menu-dock { padding:6px 8px; }
+.crystals-menu-label { font-size:9px; margin-bottom:4px; }
+.crystals-tab { height:44px; padding:3px 1px; }
+.crystals-tab.active { background:linear-gradient(#34584c,#254135);border-color:#3ddc9770;box-shadow:inset 0 1px 0 #ffffff12; }
+.crystals-tab.active .tab-txt { color:#b4ffdc; text-shadow:none; }
+.daily-plus-card .daily-plus-cta { background:none;color:#ffd54a;box-shadow:none; }
+.daily-plus-ico .ui-art { width:28px;height:28px; }
+.profile-stat-box { padding:8px;min-height:56px;border-radius:12px;background:var(--ui-panel); }
+.profile-stat-val { font-size:18px; }
+html[data-theme="light"] { --ui-panel:linear-gradient(#f5fcff,#e8f2f6); --ui-line:#abc6cf; }
+html[data-theme="light"] .profile-stat-box { color:#17323c; }
+
+.result-hero-art { margin:0 auto 8px; }
+.hud-profile-cube .ui-art { width:20px;height:20px; }
+
+.plus-sheet > * { flex-shrink:0; }
+.sheet-panel.sheet-plus,.sheet-panel.sheet-plus.sheet-plus-active {height:82dvh;max-height:82dvh;}
+
+/* Keep every sheet below the Telegram controls, including short viewports. */
+.sheet-panel {
+  --sheet-max-height: min(82dvh, calc(100dvh - max(72px, calc(var(--tg-pad-top, 0px) + 16px))));
+  max-height: var(--sheet-max-height) !important;
+  min-height: 0 !important;
+}
+.sheet-handle {
+  width: 100%; height: 24px; margin: 0; background: none;
+  display: grid; place-items: center; touch-action: none;
+}
+.sheet-handle::after {
+  content: ''; width: 40px; height: 4px; border-radius: 4px;
+  background: rgba(255,255,255,.24);
+}

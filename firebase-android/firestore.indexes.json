@@ -1,0 +1,9 @@
+{
+  "indexes":[
+    {"collectionGroup":"scores","queryScope":"COLLECTION","fields":[{"fieldPath":"timeMs","order":"DESCENDING"},{"fieldPath":"createdAt","order":"DESCENDING"}]},
+    {"collectionGroup":"invitations","queryScope":"COLLECTION","fields":[{"fieldPath":"inviterUid","order":"ASCENDING"},{"fieldPath":"boundAt","order":"DESCENDING"},{"fieldPath":"__name__","order":"DESCENDING"}]},
+    {"collectionGroup":"invitations","queryScope":"COLLECTION","fields":[{"fieldPath":"inviterUid","order":"ASCENDING"},{"fieldPath":"rewardedAt","order":"ASCENDING"},{"fieldPath":"__name__","order":"ASCENDING"}]},
+    {"collectionGroup":"purchases","queryScope":"COLLECTION","fields":[{"fieldPath":"uid","order":"ASCENDING"},{"fieldPath":"kind","order":"ASCENDING"}]}
+  ],
+  "fieldOverrides":[]
+}

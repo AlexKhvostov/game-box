@@ -1,7 +1,7 @@
-import { calcScore } from './util.js';
-import { telegram } from './telegram.js';
-import { starsShopFromEconomy } from './shop-catalog.js';
-import { normalizeInterstitialBlockId } from './adsgram.js';
+﻿import { calcScore } from './util.js?v=v1.0.22_20261003_233329_134';
+import { telegram } from './telegram.js?v=v1.0.22_20261003_233329_134';
+import { starsShopFromEconomy } from './shop-catalog.js?v=v1.0.22_20261003_233329_134';
+import { normalizeInterstitialBlockId } from './adsgram.js?v=v1.0.22_20261003_233329_134';
 
 /** Local economy — mirrors lib/data/economy_store.dart (offline Telegram). */
 
@@ -66,6 +66,9 @@ export class EconomyStore {
     this.skipWatchAdHint = false;
     this.interstitialArmedAtMs = 0;
     this.lastInterstitialMs = 0;
+    // Session protection is intentionally not persisted across app launches.
+    this.sessionStartedAtMs = Date.now();
+    this.sessionCompletedRounds = 0;
     this.claimedEarnIds = new Set();
     this.unlockedEarnIds = new Set();
     this.hasPremium = false;
@@ -166,17 +169,19 @@ export class EconomyStore {
 
   async syncCommunityScores(onUpdated = null) {
     await this._uploadLocalDayBest();
+    let timeout = null;
     try {
       const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
-      const timeout = ctrl ? setTimeout(() => ctrl.abort(), 8000) : null;
+      timeout = ctrl ? setTimeout(() => ctrl.abort(), 8000) : null;
       const res = await fetch('api/scores.php', { signal: ctrl?.signal });
-      if (timeout) clearTimeout(timeout);
       const data = await res.json().catch(() => null);
       if (data && Array.isArray(data.scores)) {
         this._applyRemoteScores(data.scores);
       }
     } catch (e) {
       console.warn('syncCommunityScores', e);
+    } finally {
+      if (timeout !== null) clearTimeout(timeout);
     }
     if (typeof onUpdated === 'function') onUpdated();
   }
@@ -244,26 +249,40 @@ export class EconomyStore {
   }
 
   async _postProfileToServer(payload) {
-    const res = await fetch('api/scores.php', {
-      method: 'POST',
-      headers: this._authHeaders(),
-      body: JSON.stringify(this._authPayload({
-        action: 'update_profile',
-        ...payload,
-      })),
-    });
-    const text = await res.text();
-    let data = null;
+    const failure = (code, status = 0) => Object.assign(new Error(code), { code, status });
+    let res, text;
     try {
-      data = text ? JSON.parse(text) : null;
-    } catch (e) {
-      throw new Error(`Сервер вернул не JSON (HTTP ${res.status})`);
+      res = await fetch('api/scores.php', {
+        method: 'POST',
+        headers: this._authHeaders(),
+        body: JSON.stringify(this._authPayload({ action: 'update_profile', ...payload })),
+      });
+      text = await res.text();
+    } catch (_) {
+      throw failure('network_error');
     }
-    if (!res.ok || !data || data.ok === false) {
-      throw new Error((data && data.error) || `Ошибка сервера HTTP ${res.status}`);
+    let data;
+    try { data = text ? JSON.parse(text) : null; }
+    catch (_) { throw failure('invalid_response', res.status); }
+    const modern = payload.mode === 'rename' || payload.mode === 'privacy';
+    if (!res.ok || !data || (modern ? data.ok !== true : data.ok === false)) {
+      const rawCode = data?.code || data?.error;
+      const code = res.status === 401 ? 'unauthorized' :
+        (typeof rawCode === 'string' && /^[a-z_]+$/.test(rawCode) ? rawCode : 'profile_unavailable');
+      throw failure(code, res.status);
     }
-    if (data && Array.isArray(data.scores)) {
-      this._applyRemoteScores(data.scores);
+    if (!modern) {
+      if (Array.isArray(data.scores)) this._applyRemoteScores(data.scores);
+      return data;
+    }
+    // A legacy/file reply cannot certify a unique name or this partial update.
+    if (data.source !== 'mysql' || data.mode !== payload.mode) {
+      throw failure('invalid_response', res.status);
+    }
+    if (payload.mode === 'privacy' && (typeof data.hideTelegram !== 'boolean' || data.hideTelegram !== payload.hideTelegram)) throw failure('invalid_response', res.status);
+    if (payload.mode === 'rename' && (data.uniquenessVerified !== true ||
+        typeof data.playerName !== 'string' || data.playerName !== payload.playerName)) {
+      throw failure('invalid_response', res.status);
     }
     return data;
   }
@@ -371,49 +390,70 @@ export class EconomyStore {
     };
   }
 
-  async updateProfile({ customNickname, hideTelegramUsername }) {
-    if (customNickname !== undefined) {
-      const clean = typeof customNickname === 'string' ? customNickname.trim().slice(0, 30) : null;
-      this.customNickname = clean || null;
+  async updateProfile({ customNickname, hideTelegramUsername } = {}) {
+    const rename = customNickname !== undefined;
+    const privacy = typeof hideTelegramUsername === 'boolean';
+    if (rename && privacy) throw Object.assign(new Error('profile_invalid'), { code: 'profile_invalid', status: 400 });
+    const clean = typeof customNickname === 'string' ? customNickname.trim() : '';
+    // Same preliminary input guard as Android; mobile_name remains authoritative
+    // on the server (it can additionally reject Unicode format characters).
+    if (rename && (Array.from(clean).length < 5 || Array.from(clean).length > 40 || /[<>\x00-\x1F\x7F]/.test(clean))) {
+      throw Object.assign(new Error('nickname_invalid'), { code: 'nickname_invalid', status: 400 });
     }
-    if (typeof hideTelegramUsername === 'boolean') {
-      this.hideTelegramUsername = hideTelegramUsername;
-    }
-    this._save();
-
-    // Обновляем ник в своих локальных попытках
-    for (const att of this.recentAttempts) {
-      if (att.isMe) {
+    if (!rename && !privacy) return { ok: true, confirmed: false, unchanged: true };
+    if (typeof this._profileConfirmedHide !== 'boolean') this._profileConfirmedHide = Boolean(this.hideTelegramUsername);
+    this._profilePrivacyVersion = this._profilePrivacyVersion || 0;
+    const syncOwnAttempts = () => {
+      const myId = telegram.user?.id != null ? String(telegram.user.id) : null;
+      for (const att of [...this.recentAttempts, ...this.communityScores]) if (
+        att.userId != null && myId !== null ? String(att.userId) === myId : Boolean(att.isMe)
+      ) {
         att.playerName = this.effectivePlayerName;
         att.username = this.effectiveUsername;
         att.hideTelegram = this.hideTelegramUsername;
       }
+    };
+    const privacyVersion = privacy ? ++this._profilePrivacyVersion : null;
+    if (privacy) {
+      this.hideTelegramUsername = hideTelegramUsername;
+      syncOwnAttempts();
+      this._save();
     }
-
-    const myId = telegram?.user?.id ? String(telegram.user.id) : null;
-    const rawUsername = telegram?.user?.username ? `@${telegram.user.username.replace(/^@/, '')}` : null;
-    const myUsername = this.effectiveUsername;
-
-    // Сохраняем обновление профиля на сервере (MySQL / HostLand)
-    try {
-      return await this._postProfileToServer({
-        userId: myId,
-        username: myUsername,
-        rawUsername: rawUsername,
-        hideTelegram: this.hideTelegramUsername,
-        playerName: this.effectivePlayerName,
-        firstName: telegram?.user?.first_name || null,
-        lastName: telegram?.user?.last_name || null,
-        photoUrl: telegram?.userPhotoUrl,
-      });
-    } catch (err) {
-      console.warn('updateProfile remote failed', err);
-      return {
-        ok: false,
-        local: true,
-        error: err?.message || String(err),
-      };
-    }
+    const write = async () => {
+      const sentVersion = this._profilePrivacyVersion;
+      const sentHide = privacy ? hideTelegramUsername : Boolean(this.hideTelegramUsername);
+      const mode = rename ? 'rename' : 'privacy';
+      try {
+        const data = await this._postProfileToServer({
+          mode,
+          ...(rename ? { strictNickname: true, playerName: clean } : {}),
+          ...(privacy ? { hideTelegram: sentHide } : {}),
+          userId: telegram?.user?.id != null ? String(telegram.user.id) : null,
+        });
+        if (privacy) this._profileConfirmedHide = data.hideTelegram;
+        if (rename) this.customNickname = data.playerName;
+        // Newer optimistic privacy belongs to its own queued write, not this reply.
+        if (privacy && sentVersion === this._profilePrivacyVersion && privacyVersion === this._profilePrivacyVersion) {
+          this.hideTelegramUsername = data.hideTelegram;
+        }
+        // A partial profile ACK cannot replace a newer leaderboard snapshot.
+        // Only own identity is annotated below; times/scores/other rows stay intact.
+        syncOwnAttempts();
+        this._save();
+        return { ...data, confirmed: true };
+      } catch (error) {
+        if (privacy && privacyVersion === this._profilePrivacyVersion) {
+          this.hideTelegramUsername = this._profileConfirmedHide;
+          syncOwnAttempts();
+          this._save();
+        }
+        throw error;
+      }
+    };
+    const pending = (this._profileWriteQueue || Promise.resolve()).then(write);
+    // A refusal must not poison later privacy/name writes.
+    this._profileWriteQueue = pending.catch(() => {});
+    return pending;
   }
 
   get e() {
@@ -473,7 +513,7 @@ export class EconomyStore {
   get inviteRewardPerFriend() {
     const action = this.earnActions.find((a) => a.id === 'invite_friend');
     const n = Number(action?.reward);
-    return Number.isFinite(n) && n >= 20 ? n : 20;
+    return Number.isFinite(n) && n >= 0 ? n : 20;
   }
 
   _applyInviteRewards(newlyRewarded) {
@@ -758,6 +798,9 @@ export class EconomyStore {
     if (!this.interstitialArmedAtMs) return false;
     const now = Date.now();
     if (now < this.interstitialArmedAtMs + this.interstitialGraceMs) return false;
+    const sessionGrace = this._clampAdSec(this.e.interstitialSessionGraceSec ?? 180, 180) * 1000;
+    const freeRounds = Math.max(0, Math.min(1000, Number(this.e.interstitialSessionFreeRounds ?? 10) || 0));
+    if (now < this.sessionStartedAtMs + sessionGrace || this.sessionCompletedRounds <= freeRounds) return false;
     if (this.lastInterstitialMs && now < this.lastInterstitialMs + this.interstitialCooldownMs) return false;
     const minLives = Math.max(0, Math.min(99, Number(this.e.interstitialMinLives ?? 3) || 0));
     if (minLives > 0 && this.lives < minLives) return false;
@@ -1030,6 +1073,7 @@ export class EconomyStore {
 
   recordAttempt(timeMs, riskCount = 0, runDistance = 0, playerInfo = {}) {
     if (timeMs <= 0) return null;
+    this.sessionCompletedRounds++;
 
     const oldAllTimeBest = this.bestTimeMs;
     const oldDayBest = this.getBestForPeriod('day');

@@ -1,0 +1,8 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Android uses verified HTTPS functions. No device writes or reads balances,
+    // receipts, private identities or feedback directly, even for its own UID.
+    match /{document=**} { allow read, write: if false; }
+  }
+}

@@ -1,3 +1,5 @@
+import '../../ui/game_run_scene.dart';
+import '../../ui/energy_reward_motion.dart';
 import 'dart:async';
 import 'dart:math';
 
@@ -7,24 +9,34 @@ import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 
 import '../../app/app_target.dart';
+import '../../app/gameplay_debug.dart';
+import 'game_debug_panel.dart';
 import '../../data/app_analytics.dart';
 import '../../data/economy_store.dart';
+import '../../data/ads_service.dart';
+import '../../data/player_preferences.dart';
+import '../profile/profile_screen.dart';
+import 'arcade_hud.dart';
 import '../../data/scores_store.dart';
 import '../../domain/gameplay_config.dart';
+import '../../domain/arcade_rules.dart';
 import '../../l10n/app_localizations.dart';
 import '../../telegram/telegram_bridge.dart';
-import '../../ui/crystal_cube_icon.dart';
 import '../../ui/game_sfx.dart';
-import '../../ui/hud_fly_targets.dart';
-import '../../ui/resting_cube_icon.dart';
+import '../../ui/game_ui.dart';
+import '../../ui/game_viewport.dart';
+import '../../ui/audience_gate.dart';
+import '../../data/audience_policy.dart';
 import '../balance/crystals_sheet.dart';
 import '../leaderboard/leaderboard_sheet.dart';
 import '../result/result_screen.dart';
-import '../result/share_score_sheet.dart';
 import 'game_field_painter.dart';
 import 'game_world.dart';
+import 'game_start_guard.dart';
 import 'impact_burst.dart';
 import 'lives_sheet.dart';
+import 'lives_recovery_banner.dart';
+import 'game_touchpad.dart';
 
 enum _Phase { idle, playing, impact, result }
 
@@ -41,57 +53,84 @@ class GameHomeScreen extends StatefulWidget {
 }
 
 class _GameHomeScreenState extends State<GameHomeScreen>
-    with TickerProviderStateMixin {
-  static const _hudHeight = 56.0;
+    with TickerProviderStateMixin, WidgetsBindingObserver {
+  static const _hudHeight = 112.0;
 
   late final Ticker _ticker;
   late final AnimationController _hintPulse;
   late final ValueNotifier<int> _frame;
-  /// HUD обновляем реже поля — иначе Flutter-layout каждый кадр на web лагает.
+
+  /// Refresh HUD at Mini App's cadence, independently from field repainting.
   late final ValueNotifier<int> _hudFrame;
-  int _hudAccumMs = 0;
+  double _hudAccumMs = 0;
   GameWorld? _world;
   Size _fieldSize = Size.zero;
+  double _visualFieldSide = GameViewport.referenceFieldSide;
   GameplayConfig? _boundConfig;
   bool _ensureScheduled = false;
 
   _Phase _phase = _Phase.idle;
   Duration _lastElapsed = Duration.zero;
   int _aliveMs = 0;
+  double _elapsedPreciseMs = 0;
+  bool _backgrounded = false;
+  Timer? _interstitialTimer;
   int _resultMs = 0;
   double _resultRun = 0;
   int _resultRisk = 0;
+  bool _resultRewardClaimed = true;
+  int _previousBestTimeMs = 0;
   double _rampT = 0;
   int _session = 0;
+
   /// Активные касания на поле (мультитач: 1-й — ход, 2-й — прыжок).
   final Set<int> _pointers = {};
   int? _primaryPointer;
   Offset? _primaryLastPos;
   final List<ImpactBurst> _impacts = [];
   double _impactHoldSec = 0;
+
   /// Шлем на текущую партию (1 заряд, если аренда была активна на старте).
   bool _runHelmetActive = false;
+
   /// Аренды на старте раунда — пишутся в score.
   bool _runHadJump = false;
   bool _runHadHelmet = false;
+
   /// Неуязвимость после разрушения шлема (секунды).
   double _helmetInvulnLeft = 0;
+  double _startInvulnLeft = 0;
+  bool get _isInvulnerable => _helmetInvulnLeft > 0 || _startInvulnLeft > 0;
+
   /// Мигание карточки прыжка, если прыжок без аренды.
   Timer? _jumpWarnTimer;
   bool _jumpWarnLit = false;
   final Random _rng = Random();
+
   /// Смещение числа скорости в idle (±8), плавно едет к новой цели.
   double _idleSpeedWobble = 0;
   double _idleSpeedWobbleTarget = 0;
+
   /// Сколько risk уже озвучили в текущей партии.
   int _sfxRiskCount = 0;
+
   /// Earn-бонусы, открытые в этой партии (плашки только на результате).
   final List<String> _runEarnUnlocks = [];
   int _lastEarnCheckMs = 0;
+  final _debugFrame = ValueNotifier<int>(0);
+  bool _debugVisible = false;
+  double _debugAccumMs = 0;
+
+  void _debugTimerTap() {
+    if (!GameplayDebug.enabled) return;
+    setState(() => _debugVisible = !_debugVisible);
+    _debugFrame.value++;
+  }
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _frame = ValueNotifier<int>(0);
     _hudFrame = ValueNotifier<int>(0);
     _hintPulse = AnimationController(
@@ -107,14 +146,81 @@ class _GameHomeScreenState extends State<GameHomeScreen>
     });
   }
 
+  double? _resultArtworkDpr;
+  bool _routeCurrent = true;
+  bool _exchangeOpen = false;
+  final _modalBackdrop = SnapshotController();
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final current = ModalRoute.isCurrentOf(context) ?? true;
+    if (_routeCurrent != current) {
+      _routeCurrent = current;
+      _modalBackdrop.allowSnapshotting =
+          !current && !kIsWeb && AppTargetConfig.isMobile;
+      _lastElapsed = Duration.zero;
+      if (!current) {
+        _clearPointers();
+        _ticker.stop();
+        _hintPulse.stop();
+      } else if (_phase != _Phase.result && !_backgrounded) {
+        if (!_ticker.isActive) _ticker.start();
+        if (_phase == _Phase.idle) _hintPulse.repeat(reverse: true);
+      }
+    }
+    final dpr = MediaQuery.devicePixelRatioOf(context);
+    if (_resultArtworkDpr == dpr) return;
+    _resultArtworkDpr = dpr;
+    // Decode the full result background before the first defeat, at its
+    // displayed width and resolution. The image adds no animation work.
+    unawaited(
+      precacheImage(
+        GameRunScene.resultProvider(
+          min(358.0, MediaQuery.sizeOf(context).width - 24) - 3,
+          dpr,
+        ),
+        context,
+      ),
+    );
+    unawaited(precacheImage(GameRunScene.provider(358, dpr), context));
+  }
+
   @override
   void dispose() {
+    _debugFrame.dispose();
+    WidgetsBinding.instance.removeObserver(this);
     _jumpWarnTimer?.cancel();
     _ticker.dispose();
+    _interstitialTimer?.cancel();
     _hintPulse.dispose();
     _frame.dispose();
     _hudFrame.dispose();
+    _modalBackdrop.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeMetrics() {
+    // A resize can change the pointer transform while the finger stays down.
+    // Re-anchor the next movement without losing or restarting the round.
+    _primaryLastPos = null;
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    _backgrounded = state != AppLifecycleState.resumed;
+    _lastElapsed = Duration.zero;
+    _clearPointers();
+    if (_backgrounded) {
+      _ticker.stop();
+      _hintPulse.stop();
+    } else if (_routeCurrent && _phase != _Phase.result) {
+      if (!_ticker.isActive) _ticker.start();
+      if (_phase == _Phase.idle) _hintPulse.repeat(reverse: true);
+    }
+    // Android account/ranking reconnect is owned by MobileConnection. Keep
+    // gameplay's lifecycle independent of the native Google activity.
   }
 
   void _ensureWorld(Size field, GameplayConfig config) {
@@ -126,7 +232,11 @@ class _GameHomeScreenState extends State<GameHomeScreen>
     }
     _fieldSize = field;
     _boundConfig = config;
-    _world = GameWorld(config: config, field: field)..resetLayout();
+    _world = GameWorld(
+      config: config,
+      field: field,
+      wallInset: ArcadeRules.wallInset(config.borderWidth),
+    )..resetLayout();
   }
 
   /// Не ставим post-frame на каждый rebuild — иначе очередь растёт и эмулятор падает.
@@ -146,11 +256,14 @@ class _GameHomeScreenState extends State<GameHomeScreen>
   }
 
   void _resetToIdle() {
+    _interstitialTimer?.cancel();
+    _hintPulse.repeat(reverse: true);
     final config = _boundConfig;
     final field = _fieldSize;
     setState(() {
       _phase = _Phase.idle;
       _aliveMs = 0;
+      _elapsedPreciseMs = 0;
       _rampT = 0;
       _lastElapsed = Duration.zero;
       _session++;
@@ -161,11 +274,16 @@ class _GameHomeScreenState extends State<GameHomeScreen>
       _runHadJump = false;
       _runHadHelmet = false;
       _helmetInvulnLeft = 0;
+      _startInvulnLeft = 0;
       _idleSpeedWobble = 0;
       _idleSpeedWobbleTarget = 0;
       _runEarnUnlocks.clear();
       if (config != null && field != Size.zero) {
-        _world = GameWorld(config: config, field: field)..resetLayout();
+        _world = GameWorld(
+          config: config,
+          field: field,
+          wallInset: ArcadeRules.wallInset(config.borderWidth),
+        )..resetLayout();
       }
     });
     if (!_ticker.isActive) _ticker.start();
@@ -179,22 +297,30 @@ class _GameHomeScreenState extends State<GameHomeScreen>
 
   void _onTick(Duration elapsed) {
     final world = _world;
-    if (world == null || !mounted) return;
+    if (world == null || !mounted || _backgrounded || !_routeCurrent) return;
     if (_phase == _Phase.result) return;
 
     try {
       final rawDtMs = (_lastElapsed == Duration.zero)
-          ? 16
-          : (elapsed - _lastElapsed).inMilliseconds;
+          ? 0.0
+          : (elapsed - _lastElapsed).inMicroseconds / 1000.0;
       _lastElapsed = elapsed;
       if (rawDtMs <= 0) return;
-      final dtMs = min(50, rawDtMs);
+      final dtMs = min(50.0, rawDtMs);
       final dt = dtMs / 1000.0;
       final config = context.read<GameplayConfig>();
 
-      // HUD ~10 раз/сек, поле — каждый тик.
+      if (_debugVisible) {
+        _debugAccumMs += dtMs;
+        if (_debugAccumMs >= 200) {
+          _debugAccumMs = 0;
+          _debugFrame.value++;
+        }
+      }
+
       _hudAccumMs += dtMs;
-      if (_hudAccumMs >= 100) {
+      final hudEveryMs = _phase == _Phase.playing ? 33 : 80;
+      if (_hudAccumMs >= hudEveryMs) {
         _hudAccumMs = 0;
         _hudFrame.value++;
       }
@@ -219,33 +345,43 @@ class _GameHomeScreenState extends State<GameHomeScreen>
       }
 
       if (_phase == _Phase.playing) {
-        final rampSec = max(0.05, config.speedRampSeconds);
-        final idleMult = config.idleSpeedMultiplier;
+        final rampSec = max(0.0, config.speedRampSeconds);
+        final idleMult = config.idleEnemiesMove
+            ? config.idleSpeedMultiplier
+            : 0.0;
         _rampT = min(rampSec, _rampT + dt);
-        final t = (_rampT / rampSec).clamp(0.0, 1.0);
-        final speedMult =
-            idleMult + (1.0 - idleMult) * Curves.easeOut.transform(t);
+        final t = rampSec > 0 ? (_rampT / rampSec).clamp(0.0, 1.0) : 1.0;
+        final speedMult = rampSec > 0
+            ? idleMult + (1.0 - idleMult) * Curves.easeOut.transform(t)
+            : 1.0;
 
-        _aliveMs += dtMs;
+        _elapsedPreciseMs += dtMs;
+        _aliveMs = _elapsedPreciseMs.floor();
         world.tickJump(dt);
-        final bounces =
-            world.tickPlay(dt, _aliveMs / 1000.0, speedMult: speedMult);
+        final bounces = world.tickPlay(
+          dt,
+          _elapsedPreciseMs / 1000.0,
+          speedMult: speedMult,
+        );
         if (bounces.wall > 0) GameSfx.mobWall();
         if (bounces.enemy > 0) GameSfx.mobCollide();
         _sfxRiskIfNeeded(world);
 
+        if (_startInvulnLeft > 0) {
+          _startInvulnLeft = max(0.0, _startInvulnLeft - dt);
+        }
         if (_helmetInvulnLeft > 0) {
           _helmetInvulnLeft = max(0.0, _helmetInvulnLeft - dt);
         }
         if (world.playerHitsBorder()) {
           if (!world.wallsKillPlayer) {
             world.clampPlayerToField();
-          } else if (_helmetInvulnLeft <= 0) {
+          } else if (!_isInvulnerable) {
             _triggerImpact(againstWall: true);
             return;
           }
         }
-        if (_helmetInvulnLeft <= 0 && world.playerHitsEnemy()) {
+        if (!_isInvulnerable && world.playerHitsEnemy()) {
           _triggerImpact(againstWall: false);
           return;
         }
@@ -266,21 +402,6 @@ class _GameHomeScreenState extends State<GameHomeScreen>
     GameSfx.nearMiss();
   }
 
-  /// Текст вызова на стартовой плашке (не тост во время игры).
-  String? _startChallengeText(EconomyStore economy, AppLocalizations l10n) {
-    if (!economy.canPlay) return null;
-    final firstSec = economy.config.earnSurviveSeconds.clamp(1, 3600);
-    final nextSec = economy.config.earnRecordSeconds.clamp(1, 3600);
-    final best = economy.bestTimeMs;
-    if (best < firstSec * 1000) {
-      return l10n.tapHintChallenge(firstSec);
-    }
-    if (nextSec > firstSec && best < nextSec * 1000) {
-      return l10n.tapHintNextChallenge(nextSec);
-    }
-    return null;
-  }
-
   /// Открывает one-shot бонусы Earn (10с / рекорд 20с / 5 рисков) без тостов.
   void _maybeUnlockGameplayEarn() {
     final world = _world;
@@ -289,9 +410,9 @@ class _GameHomeScreenState extends State<GameHomeScreen>
     if (_aliveMs - _lastEarnCheckMs < 250 && _aliveMs > 0) return;
     _lastEarnCheckMs = _aliveMs;
     final newly = context.read<EconomyStore>().syncGameplayEarnUnlocks(
-          aliveMs: _aliveMs,
-          riskCount: world.nearMissCount,
-        );
+      aliveMs: _aliveMs,
+      riskCount: world.nearMissCount,
+    );
     for (final id in newly) {
       if (!_runEarnUnlocks.contains(id)) _runEarnUnlocks.add(id);
     }
@@ -335,9 +456,15 @@ class _GameHomeScreenState extends State<GameHomeScreen>
     final distT = cy;
     final distB = h - cy;
     final m = min(min(distL, distR), min(distT, distB));
-    if (m == distL) return Offset(0, cy);
-    if (m == distR) return Offset(w, cy);
-    if (m == distT) return Offset(cx, 0);
+    if (m == distL) {
+      return Offset(0, cy);
+    }
+    if (m == distR) {
+      return Offset(w, cy);
+    }
+    if (m == distT) {
+      return Offset(cx, 0);
+    }
     return Offset(cx, h);
   }
 
@@ -377,11 +504,14 @@ class _GameHomeScreenState extends State<GameHomeScreen>
   void _breakHelmet({required bool againstWall}) {
     final theme = Theme.of(context);
     final origin = _impactOrigin(againstWall: againstWall);
+    if (!againstWall) _world?.repelEnemiesFromPlayer();
     GameSfx.helmetBreak();
     setState(() {
       _runHelmetActive = false;
-      _helmetInvulnLeft =
-          context.read<GameplayConfig>().helmetInvulnSec.clamp(0.0, 5.0);
+      _helmetInvulnLeft = max(
+        0.0,
+        context.read<GameplayConfig>().helmetInvulnSec,
+      );
       _impacts.add(
         ImpactBurst.spawn(
           origin: origin,
@@ -397,35 +527,62 @@ class _GameHomeScreenState extends State<GameHomeScreen>
   void _finishAfterImpact() {
     if (_phase != _Phase.impact) return;
     _ticker.stop();
+    _hintPulse.stop();
     final world = _world;
     setState(() {
       _phase = _Phase.result;
       _resultMs = _aliveMs;
       _resultRun = () {
         final w = world;
-        if (w == null) return 0.0;
-        final step = (w.playerSize * 0.1).clamp(1e-6, 1e9);
-        return w.playerDistance / step;
+        if (w == null) {
+          return 0.0;
+        }
+        return ArcadeRules.runSteps(w.playerDistance, w.playerSize).toDouble();
       }();
       _resultRisk = world?.nearMissCount ?? 0;
       _impacts.clear();
       _clearPointers();
     });
-    context.read<EconomyStore>().recordBestTime(_aliveMs);
-    final newly = context.read<EconomyStore>().syncGameplayEarnUnlocks(
-          aliveMs: _aliveMs,
-          riskCount: _resultRisk,
-        );
+    // Award before the result animation, as in Mini App. The phase guard above
+    // makes this transition one-shot; opening/closing the overlay cannot pay again.
+    final economy = context.read<EconomyStore>();
+    _previousBestTimeMs = economy.bestTimeMs;
+    final policy = context.read<AudiencePolicy?>();
+    _resultRewardClaimed =
+        policy == null ||
+        (policy.band != null && policy.band != AgeBand.unknown);
+    final newly = economy.completeRound(
+      timeMs: _aliveMs,
+      runDistance: _resultRun.round(),
+      riskCount: _resultRisk,
+      grantReward: _resultRewardClaimed,
+    );
     for (final id in newly) {
       if (!_runEarnUnlocks.contains(id)) _runEarnUnlocks.add(id);
     }
     context.read<ScoresStore>().recordAttempt(
-          _aliveMs,
-          riskCount: _resultRisk,
-          runDistance: _resultRun.round(),
-          hadJump: _runHadJump,
-          hadHelmet: _runHadHelmet,
-        );
+      _aliveMs,
+      riskCount: _resultRisk,
+      runDistance: _resultRun.round(),
+      hadJump: _runHadJump,
+      hadHelmet: _runHadHelmet,
+    );
+    _interstitialTimer?.cancel();
+    final resultSession = _session;
+    bool canShowResultAd() =>
+        mounted &&
+        !_backgrounded &&
+        _session == resultSession &&
+        _phase == _Phase.result &&
+        ModalRoute.of(context)?.isCurrent == true &&
+        economy.canShowResultInterstitial;
+    _interstitialTimer = Timer(const Duration(milliseconds: 900), () async {
+      if (!canShowResultAd()) return;
+      final ads = context.read<AdsService?>();
+      if (ads != null && await ads.showInterstitial(canShow: canShowResultAd)) {
+        economy.markInterstitialShown();
+      }
+    });
     AppAnalytics.gameFinish(
       timeMs: _aliveMs,
       riskCount: _resultRisk,
@@ -435,6 +592,12 @@ class _GameHomeScreenState extends State<GameHomeScreen>
 
   void _onPointerDown(PointerDownEvent event) {
     if (_phase == _Phase.idle) {
+      // The HUD sits outside this listener. Every touch in the play area opens
+      // the exchange while the recovery invitation is shown.
+      if (!context.read<EconomyStore>().canPlay && !_canResumeEnergyRound) {
+        _openLivesExchange();
+        return;
+      }
       _pointers
         ..clear()
         ..add(event.pointer);
@@ -468,16 +631,20 @@ class _GameHomeScreenState extends State<GameHomeScreen>
     final delta = event.localPosition - last;
     if (delta == Offset.zero) return;
 
-    _world!.movePlayerBy(delta);
+    // Pointer coordinates are already in the viewport's logical units.
+    // Convert field display units to the fixed Telegram simulation units.
+    _world!.movePlayerBy(
+      delta * (GameViewport.referenceFieldSide / _visualFieldSide),
+    );
     if (_world!.playerHitsBorder()) {
       if (!_world!.wallsKillPlayer) {
         _world!.clampPlayerToField();
-      } else if (_helmetInvulnLeft <= 0) {
+      } else if (!_isInvulnerable) {
         _triggerImpact(againstWall: true);
         return;
       }
     }
-    if (_helmetInvulnLeft > 0) return;
+    if (_isInvulnerable) return;
     if (_world!.playerHitsEnemy()) {
       _triggerImpact(againstWall: false);
     }
@@ -504,31 +671,321 @@ class _GameHomeScreenState extends State<GameHomeScreen>
     }
   }
 
-  void _startGameFromTouch() {
+  bool _startingRound = false;
+  Map<String, dynamic>? _waitingEnergyRound;
+
+  bool get _canResumeEnergyRound {
     final economy = context.read<EconomyStore>();
-    if (!economy.canPlay) {
-      _clearPointers();
-      showLivesSheet(context);
+    if (!economy.energyEnabled) return false;
+    final account = context.read<ScoresStore>().account;
+    if (account == null) return false;
+    if (_waitingEnergyRound?['owner'] == account.id) return true;
+    final receipt = account.acceptedRoundLoadout;
+    return account.pendingRoundRequestId != null &&
+        receipt?['owner'] == account.id &&
+        receipt?['activated'] != true;
+  }
+
+  final _fieldGeometryKey = GlobalKey();
+  (GameWorld, Size)? _checkedGeometryLayout;
+
+  String? _fieldGeometryIssue() {
+    final box = _fieldGeometryKey.currentContext?.findRenderObject();
+    final world = _world;
+    if (world == null || box is! RenderBox || !box.hasSize) {
+      return 'field_not_ready';
+    }
+    GameFieldPainter? drawn;
+    void findPainter(Element element) {
+      final widget = element.widget;
+      if (widget is CustomPaint && widget.painter is GameFieldPainter) {
+        drawn = widget.painter as GameFieldPainter;
+      }
+      element.visitChildElements(findPainter);
+    }
+
+    findPainter(_fieldGeometryKey.currentContext! as Element);
+    if (drawn == null || !identical(drawn!.world, world)) {
+      return 'paint_world_mismatch';
+    }
+    final view = View.of(context);
+    final origin = box.localToGlobal(Offset.zero);
+    final end = box.localToGlobal(box.size.bottomRight(Offset.zero));
+    return GameStartGuard.check(
+      world: world,
+      paintedSize: box.size,
+      displayedField: Rect.fromPoints(origin, end),
+      visibleScreen: Offset.zero & (view.physicalSize / view.devicePixelRatio),
+      devicePixelRatio: view.devicePixelRatio,
+    );
+  }
+
+  void _showGeometryIssue(String issue) {
+    _clearPointers();
+    debugPrint('Arcade start blocked: $issue');
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.hideCurrentSnackBar();
+    messenger.showSnackBar(
+      SnackBar(
+        duration: const Duration(seconds: 8),
+        content: Text(
+          Localizations.localeOf(context).languageCode == 'ru'
+              ? 'Техническая неполадка игрового поля. Попытка не началась. Попробуйте перезапустить приложение.'
+              : 'There is a technical problem with the game field. The run has not started. Please restart the app.',
+          key: const ValueKey('game-start-technical-error'),
+        ),
+      ),
+    );
+  }
+
+  void _checkPreparedField(GameWorld world, Size size) {
+    final layout = (world, size);
+    if (_checkedGeometryLayout == layout) return;
+    _checkedGeometryLayout = layout;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !identical(world, _world) || _phase != _Phase.idle) {
+        return;
+      }
+      final issue = _fieldGeometryIssue();
+      if (issue != null) _showGeometryIssue(issue);
+    });
+  }
+
+  Future<void> _openLivesExchange() async {
+    // The same pointer also reaches the banner button: push only one route.
+    if (!mounted || _exchangeOpen) return;
+    _exchangeOpen = true;
+    _clearPointers();
+    try {
+      await showLivesSheet(context);
+    } finally {
+      _exchangeOpen = false;
+    }
+  }
+
+  void _startGameFromTouch() async {
+    if (_startingRound) return;
+    final geometryIssue = _fieldGeometryIssue();
+    if (geometryIssue != null) {
+      _showGeometryIssue(geometryIssue);
       return;
     }
-    if (!economy.tryStartGame()) {
+    final economy = context.read<EconomyStore>();
+    if (!economy.canPlay && !_canResumeEnergyRound) {
+      _clearPointers();
+      _openLivesExchange();
+      return;
+    }
+    final scores = context.read<ScoresStore>();
+    final gameplay = context.read<GameplayConfig>();
+    final energyRun = economy.energyEnabled;
+    final waitingReceipt =
+        energyRun && _waitingEnergyRound?['owner'] == scores.account?.id
+        ? _waitingEnergyRound
+        : null;
+    // Freeze selection before the first asynchronous request. A toggle or a
+    // late profile response must not change a paid attempt's equipment.
+    final selectedJump =
+        gameplay.jumpEnabled &&
+        (energyRun ? economy.jumpSelected : economy.hasJumpRental);
+    final selectedHelmet =
+        gameplay.helmetEnabled &&
+        (energyRun ? economy.helmetSelected : economy.hasHelmetRental);
+    if (energyRun && scores.instantRoundsEnabled) {
+      final cost =
+          economy.energyConfig.baseAttemptCost +
+          (selectedHelmet ? economy.energyConfig.helmetExtraCost : 0) +
+          (selectedJump ? economy.energyConfig.jumpExtraCost : 0);
+      final key = scores.beginInstantRound(
+        helmet: selectedHelmet,
+        jump: selectedJump,
+        cost: cost,
+      );
+      if (key == null) {
+        _clearPointers();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              Localizations.localeOf(context).languageCode == 'ru'
+                  ? 'Не удалось сохранить новую попытку на телефоне. Попробуйте ещё раз.'
+                  : 'Could not save a new run on this device. Please try again.',
+            ),
+          ),
+        );
+        return;
+      }
+      _launchLocalRound(jump: selectedJump, helmet: selectedHelmet);
+      return;
+    }
+    setState(() => _startingRound = true);
+    var confirmed = false;
+    try {
+      confirmed = waitingReceipt != null
+          ? true
+          : energyRun
+          ? await scores.beginRound(
+              helmet: selectedHelmet,
+              jump: selectedJump,
+              economyRevision: economy.energyConfig.revision,
+            )
+          : await scores.beginRound();
+    } catch (_) {
+      /* Show the normal retry message without locking the UI. */
+    }
+    if (!mounted) {
+      if (confirmed && energyRun && waitingReceipt == null) {
+        try {
+          await scores.cancelRound();
+        } catch (_) {}
+      }
+      return;
+    }
+    final preparedIssue = _fieldGeometryIssue();
+    if (preparedIssue != null || !_routeCurrent || _backgrounded) {
+      if (confirmed && energyRun && waitingReceipt == null) {
+        try {
+          await scores.cancelRound();
+        } catch (_) {}
+      }
+      if (!mounted) return;
+      setState(() => _startingRound = false);
+      if (preparedIssue != null) _showGeometryIssue(preparedIssue);
       _clearPointers();
       return;
     }
+    final error = scores.account?.roundError;
+    final refused = {
+      'insufficient_energy',
+      'insufficient_lives',
+      'no_lives',
+      'rules_changed',
+      'economy_update_required',
+      'update_required',
+      'revision_mismatch',
+      'energy_unavailable',
+      'round_canceled',
+    }.contains(error);
+    final localPractice =
+        !confirmed &&
+        !refused &&
+        scores.account?.pendingRoundRequestId == null &&
+        (error == 'online_disabled' ||
+            error == 'connection_failed' ||
+            (error == null && scores.account?.error == 'connection_failed'));
+    if (!confirmed && !localPractice) {
+      setState(() => _startingRound = false);
+      _clearPointers();
+      if (error == 'insufficient_energy' || error == 'insufficient_lives') {
+        _openLivesExchange();
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            Localizations.localeOf(context).languageCode == 'ru'
+                ? (error == 'rules_changed'
+                      ? 'Правила обновились. Перезапустите игру для загрузки настроек.'
+                      : 'Не удалось начать попытку. Проверьте подключение.')
+                : (error == 'rules_changed'
+                      ? 'Rules changed. Restart the game to load the settings.'
+                      : 'Could not start a run. Check your connection.'),
+          ),
+        ),
+      );
+      return;
+    }
+    if (confirmed &&
+        energyRun &&
+        scores.account != null &&
+        waitingReceipt == null) {
+      try {
+        // Once this receipt is acknowledged it cannot be refunded by closing
+        // the screen, restarting the app, or a second device racing finish.
+        await scores.activateRound();
+      } catch (_) {
+        if (!mounted) return;
+        setState(() => _startingRound = false);
+        _clearPointers();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              Localizations.localeOf(context).languageCode == 'ru'
+                  ? 'Подтверждаем попытку. Коснитесь поля ещё раз.'
+                  : 'Confirming the run. Touch the field again.',
+            ),
+          ),
+        );
+        return;
+      }
+      if (!mounted) return;
+      final issueAfterActivation = _fieldGeometryIssue();
+      if (!_routeCurrent || _backgrounded || issueAfterActivation != null) {
+        // Payment is already activated. Keep this exact receipt for the next
+        // visible field touch instead of running behind a modal or charging again.
+        _waitingEnergyRound = {
+          ...?scores.account?.acceptedRoundLoadout,
+          'owner': scores.account?.id,
+          'helmet':
+              scores.account?.acceptedRoundLoadout?['helmet'] ?? selectedHelmet,
+          'jump': scores.account?.acceptedRoundLoadout?['jump'] ?? selectedJump,
+        };
+        setState(() => _startingRound = false);
+        _clearPointers();
+        if (issueAfterActivation != null) {
+          _showGeometryIssue(issueAfterActivation);
+        }
+        return;
+      }
+    }
+    if ((scores.account == null || localPractice) &&
+        !(energyRun
+            ? economy.spendEnergyForPractice()
+            : economy.tryStartGame())) {
+      setState(() => _startingRound = false);
+      _clearPointers();
+      return;
+    }
+    if (localPractice && scores.account?.onlineAllowed != false) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            Localizations.localeOf(context).languageCode == 'ru'
+                ? 'Локальная попытка без общего рейтинга. Подключитесь к сети для сохранения.'
+                : 'Local run without shared ranking. Connect to save ranked runs.',
+          ),
+        ),
+      );
+    }
+    final accepted =
+        waitingReceipt ??
+        (confirmed && energyRun ? scores.account?.acceptedRoundLoadout : null);
+    _launchLocalRound(
+      jump: accepted?['jump'] as bool? ?? selectedJump,
+      helmet: accepted?['helmet'] as bool? ?? selectedHelmet,
+    );
+  }
+
+  void _launchLocalRound({required bool jump, required bool helmet}) {
     AppAnalytics.gameStart();
+    _hintPulse.stop();
     GameSfx.gameStart();
     final gameplay = context.read<GameplayConfig>();
     setState(() {
+      _waitingEnergyRound = null;
+      _startingRound = false;
       _phase = _Phase.playing;
       _aliveMs = 0;
+      _elapsedPreciseMs = 0;
       _rampT = 0;
       _lastElapsed = Duration.zero;
       _sfxRiskCount = 0;
       _runEarnUnlocks.clear();
-      _runHadJump = gameplay.jumpEnabled && economy.hasJumpRental;
-      _runHadHelmet = gameplay.helmetEnabled && economy.hasHelmetRental;
+      _runHadJump = jump;
+      _runHadHelmet = helmet;
       _runHelmetActive = _runHadHelmet;
       _helmetInvulnLeft = 0;
+      _startInvulnLeft = max(0.0, gameplay.startInvulnSec);
+      _world?.snapEnemiesToHome();
     });
     if (!_ticker.isActive) _ticker.start();
   }
@@ -537,20 +994,22 @@ class _GameHomeScreenState extends State<GameHomeScreen>
     final config = context.read<GameplayConfig>();
     final economy = context.read<EconomyStore>();
     if (!config.jumpEnabled || _world == null) return;
-    if (!economy.hasJumpRental) {
-      _flashJumpNotRented();
+    if (!(economy.energyEnabled ? _runHadJump : economy.hasJumpRental)) {
+      _flashJumpBlocked();
       return;
     }
     if (_world!.tryJump()) {
       GameSfx.jump();
       _frame.value++;
+    } else {
+      _flashJumpBlocked();
     }
   }
 
   /// Пара красных вспышек у чипа прыжка в HUD.
-  void _flashJumpNotRented() {
+  void _flashJumpBlocked() {
     _jumpWarnTimer?.cancel();
-    var ticksLeft = 6; // 3 цикла вкл/выкл
+    var ticksLeft = 4; // Две короткие вспышки, затем обычное состояние.
     setState(() => _jumpWarnLit = true);
     _jumpWarnTimer = Timer.periodic(const Duration(milliseconds: 110), (t) {
       if (!mounted) {
@@ -569,251 +1028,395 @@ class _GameHomeScreenState extends State<GameHomeScreen>
 
   @override
   Widget build(BuildContext context) {
+    final media = MediaQuery.of(context);
+    // Includes both rows and every inset before the field. Width scaling is
+    // shared with the field, so this proportion remains true on the device.
+    final availableHeight = media.size.height - media.padding.vertical;
+    final desiredHudHeight = _hudHeight;
+    final hudHeight = min(desiredHudHeight, availableHeight * .20);
     final economy = context.watch<EconomyStore>();
     final config = context.watch<GameplayConfig>();
-    GameSfx.applyConfig(config.audio);
+    final prefs = context.watch<PlayerPreferences?>();
+    if (prefs == null) {
+      GameSfx.applyConfig(config.audio);
+    } else {
+      prefs.applyAudio(config.audio);
+    }
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
     final world = _world;
+    final heroColor = AppTargetConfig.isMobile
+        ? GameFieldColors.hero
+        : theme.colorScheme.primary;
+    final enemyColor = AppTargetConfig.isMobile
+        ? GameFieldColors.enemy
+        : theme.colorScheme.error;
+    final wallColor = config.wallsKillPlayer
+        ? enemyColor
+        : (AppTargetConfig.isMobile
+              ? GameFieldColors.wall
+              : theme.colorScheme.primary);
 
-    return Scaffold(
-      backgroundColor: const Color(0xFF0E1419),
-      body: ValueListenableBuilder<EdgeInsets>(
-        valueListenable: TelegramBridge.viewPadding,
-        builder: (context, tgPad, _) {
-          // Telegram fullscreen: MediaQuery/SafeArea часто 0 —
-          // отступы из safeAreaInset + contentSafeAreaInset.
-          final body = Stack(
-            children: [
-              // Визуальный layout: весь экран под HUD — управление героем.
-              // Верхний HUD поверх Stack перехватывает клики (жизни/кристаллы/…).
-              // Место под будущий баннер внизу можно вынести из зоны касаний.
-              Column(
-                children: [
-                  const SizedBox(height: _hudHeight),
-                  Expanded(
-                    child: Listener(
-                      behavior: HitTestBehavior.opaque,
-                      onPointerDown: _onPointerDown,
-                      onPointerMove: _onPointerMove,
-                      onPointerUp: _onPointerUp,
-                      onPointerCancel: _onPointerCancel,
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: LayoutBuilder(
-                              builder: (context, constraints) {
-                                final side = min(constraints.maxWidth, 380.0);
-                                final size = Size(side, side);
-                                _scheduleEnsureWorld(size, config);
-                                if (world == null) {
-                                  return SizedBox(width: side, height: side);
-                                }
-                                return Center(
-                                  child: DecoratedBox(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(18),
-                                      boxShadow: kIsWeb
-                                          ? null
-                                          : [
-                                              BoxShadow(
-                                                color: (config.wallsKillPlayer
-                                                        ? theme.colorScheme.error
-                                                        : theme.colorScheme.primary)
-                                                    .withValues(alpha: 0.16),
-                                                blurRadius: 12,
-                                                offset: const Offset(0, 4),
-                                              ),
-                                            ],
+    return EnergyRewardMotion(
+      economy: AppTargetConfig.isMobile ? economy : null,
+      owner: economy.energyOwner,
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        backgroundColor: GameUi.background,
+        body: ValueListenableBuilder<EdgeInsets>(
+          valueListenable: TelegramBridge.viewPadding,
+          builder: (context, tgPad, _) {
+            // Telegram fullscreen: MediaQuery/SafeArea часто 0 —
+            // отступы из safeAreaInset + contentSafeAreaInset.
+            final field = Stack(
+              key: const ValueKey('arcade-field-scene'),
+              children: [
+                // The perspective plane starts behind the field and extends
+                // beyond its width. It remains when the start caption disappears.
+                Positioned(
+                  top:
+                      hudHeight +
+                      min(
+                            media.size.width - 32,
+                            GameViewport.referenceFieldSide,
+                          ) *
+                          .35,
+                  left: -64,
+                  right: -64,
+                  bottom: 16,
+                  child: const IgnorePointer(child: GameTouchpad()),
+                ),
+                // Визуальный layout: весь экран под HUD — управление героем.
+                // Верхний HUD поверх Stack перехватывает клики (жизни/кристаллы/…).
+                // Место под будущий баннер внизу можно вынести из зоны касаний.
+                Column(
+                  children: [
+                    SizedBox(height: hudHeight),
+                    Expanded(
+                      child: Listener(
+                        behavior: HitTestBehavior.opaque,
+                        onPointerDown: _onPointerDown,
+                        onPointerMove: _onPointerMove,
+                        onPointerUp: _onPointerUp,
+                        onPointerCancel: _onPointerCancel,
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                              child: LayoutBuilder(
+                                builder: (context, constraints) {
+                                  final side = min(
+                                    constraints.maxWidth,
+                                    GameViewport.referenceFieldSide,
+                                  );
+                                  final size = Size(side, side);
+                                  _visualFieldSide = side;
+                                  _scheduleEnsureWorld(
+                                    const Size.square(
+                                      GameViewport.referenceFieldSide,
                                     ),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(18),
-                                      child: RepaintBoundary(
-                                        child: ListenableBuilder(
-                                          listenable: _frame,
-                                          builder: (context, _) {
-                                            return CustomPaint(
-                                              size: size,
-                                              painter: GameFieldPainter(
-                                                world: world,
-                                                accent:
-                                                    theme.colorScheme.primary,
-                                                danger:
-                                                    theme.colorScheme.error,
-                                                fieldColor: config.field
-                                                    .resolveSurfaceColor(
-                                                  theme.colorScheme.surface,
+                                    config,
+                                  );
+                                  if (world == null) {
+                                    return SizedBox(width: side, height: side);
+                                  }
+                                  _checkPreparedField(world, size);
+                                  return Center(
+                                    child: DecoratedBox(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(18),
+                                        boxShadow: kIsWeb
+                                            ? null
+                                            : [
+                                                BoxShadow(
+                                                  color: wallColor.withValues(
+                                                    alpha: 0.16,
+                                                  ),
+                                                  blurRadius: 12,
+                                                  offset: const Offset(0, 4),
                                                 ),
-                                                borderColor: config.wallsKillPlayer
-                                                    ? theme.colorScheme.error
-                                                    : theme.colorScheme.primary,
-                                                borderWidth:
-                                                    config.borderWidth,
-                                                cornerRadius: 18,
-                                                frame: _frame.value,
-                                                playerPreview:
-                                                    _phase == _Phase.idle,
-                                                impacts: _impacts,
-                                                hasHelmet: _runHelmetActive,
-                                                invulnerable:
-                                                    _helmetInvulnLeft > 0,
-                                                shadowBrightness: config
-                                                    .field.shadowBrightness,
-                                                showFace:
-                                                    config.player.showFace,
-                                              ),
-                                            );
-                                          },
+                                              ],
+                                      ),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(18),
+                                        child: RepaintBoundary(
+                                          key: _fieldGeometryKey,
+                                          child: CustomPaint(
+                                            key: const ValueKey(
+                                              'arcade-game-field',
+                                            ),
+                                            size: size,
+                                            painter: GameFieldPainter(
+                                              drawGrid:
+                                                  AppTargetConfig.isMobile,
+                                              world: world,
+                                              accent: heroColor,
+                                              danger: enemyColor,
+                                              fieldColor: config.field
+                                                  .resolveSurfaceColor(
+                                                    AppTargetConfig.isMobile
+                                                        ? GameFieldColors.floor
+                                                        : theme
+                                                              .colorScheme
+                                                              .surface,
+                                                  ),
+                                              borderColor: wallColor,
+                                              borderWidth: config.borderWidth,
+                                              cornerRadius: 18,
+                                              repaint: _frame,
+                                              frameValue: () => _frame.value,
+                                              invulnerableNow: () =>
+                                                  _isInvulnerable,
+                                              playerPreview:
+                                                  _phase == _Phase.idle,
+                                              impacts: _impacts,
+                                              hasHelmet: _runHelmetActive,
+                                              invulnerable: _isInvulnerable,
+                                              shadowBrightness:
+                                                  config.field.shadowBrightness,
+                                              showFace: config.player.showFace,
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                          IgnorePointer(
-                            child: _PlayInfoBar(
-                              frame: _hudFrame,
-                              timeMs: () => _aliveMs,
-                              enemyCount: () =>
-                                  _world?.enemies.length ?? 0,
-                              averageSpeed: () {
-                                final world = _world;
-                                if (world == null || world.enemies.isEmpty) {
-                                  return 0.0;
-                                }
-                                if (_phase == _Phase.result) return 0.0;
-                                final cfg = context.read<GameplayConfig>();
-                                if (_phase == _Phase.idle) {
-                                  final base = world.averageSpeed(
-                                    0,
-                                    speedMult: cfg.idleSpeedMultiplier,
                                   );
-                                  return (base + _idleSpeedWobble)
-                                      .clamp(0.0, cfg.hudSpeedScaleMax);
-                                }
-                                final rampSec =
-                                    max(0.05, cfg.speedRampSeconds);
-                                final idleMult = cfg.idleSpeedMultiplier;
-                                final t =
-                                    (_rampT / rampSec).clamp(0.0, 1.0);
-                                final speedMult = idleMult +
-                                    (1.0 - idleMult) *
-                                        Curves.easeOut.transform(t);
-                                return world.averageSpeed(
-                                  _aliveMs / 1000.0,
-                                  speedMult: speedMult,
-                                );
-                              },
-                              playerRun: () {
-                                final world = _world;
-                                if (world == null) return 0.0;
-                                final step =
-                                    (world.playerSize * 0.1).clamp(1e-6, 1e9);
-                                return world.playerDistance / step;
-                              },
-                              nearMiss: () =>
-                                  _world?.nearMissCount ?? 0,
-                            ),
-                          ),
-                          Expanded(
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.fromLTRB(20, 12, 20, 16),
-                              child: Stack(
-                                fit: StackFit.expand,
-                                children: [
-                                  const _LaptopTouchpad(),
-                                  if (_phase == _Phase.idle &&
-                                      config.game.startHintEnabled)
-                                    _TapToStartBanner(
-                                      pulse: _hintPulse,
-                                      brand: l10n.appTitle,
-                                      challenge: _startChallengeText(
-                                        economy,
-                                        l10n,
-                                      ),
-                                      text: economy.canPlay
-                                          ? l10n.tapHintPlayful
-                                          : l10n.noLivesOpenCrystals,
-                                      outOfLives: !economy.canPlay,
-                                    ),
-                                ],
+                                },
                               ),
                             ),
-                          ),
-                        ],
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                  20,
+                                  12,
+                                  20,
+                                  16,
+                                ),
+                                child: Stack(
+                                  fit: StackFit.expand,
+                                  children: [
+                                    if (_phase == _Phase.idle &&
+                                        (!(economy.canPlay ||
+                                                _canResumeEnergyRound) ||
+                                            config.game.startHintEnabled))
+                                      SingleChildScrollView(
+                                        child:
+                                            !(economy.canPlay ||
+                                                _canResumeEnergyRound)
+                                            ? LivesRecoveryBanner(
+                                                onGetLives: _openLivesExchange,
+                                              )
+                                            : _TapToStartBanner(
+                                                brand: l10n.appTitle,
+                                                text: economy.energyEnabled
+                                                    ? (Localizations.localeOf(
+                                                                context,
+                                                              ).languageCode ==
+                                                              'ru'
+                                                          ? 'Попытка: ${economy.attemptEnergyCost} ⚡ · коснитесь поля'
+                                                          : 'Run: ${economy.attemptEnergyCost} ⚡ · touch the field')
+                                                    : l10n.tapHintPlayful,
+                                              ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                // Подсказка: полупрозрачный палец водит внизу до первого касания
+                if (_phase == _Phase.idle &&
+                    (economy.canPlay || _canResumeEnergyRound) &&
+                    config.game.startHintEnabled &&
+                    economy.showSwipeHint)
+                  const Positioned.fill(
+                    child: IgnorePointer(child: _FingerDragHint()),
+                  ),
+              ],
+            );
+            // Freeze only the expensive scene. Wallet/HUD changes must still be
+            // painted while a non-opaque dialog covers the game route.
+            final frozenField = !kIsWeb && AppTargetConfig.isMobile
+                ? SnapshotWidget(
+                    key: const ValueKey('game-modal-backdrop'),
+                    controller: _modalBackdrop,
+                    mode: SnapshotMode.permissive,
+                    autoresize: true,
+                    child: field,
+                  )
+                : field;
+            final body = Stack(
+              key: const ValueKey('arcade-play-area'),
+              children: [
+                Positioned.fill(child: frozenField),
+                // HUD поверх жестов — кнопки перехватывают клики
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: Padding(
+                    key: const ValueKey('arcade-hud-region'),
+                    padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
+                    child: SizedBox(
+                      height: max(0, hudHeight - 8),
+                      child: ArcadeHud(
+                        isPlaying: _phase != _Phase.idle || _startingRound,
+                        onTimerTap: GameplayDebug.enabled
+                            ? _debugTimerTap
+                            : null,
+                        helmetActive: _phase == _Phase.idle
+                            ? (economy.energyEnabled
+                                  ? economy.helmetSelected
+                                  : economy.hasHelmetRental)
+                            : _runHelmetActive,
+                        helmetEquipped: _phase == _Phase.idle
+                            ? (economy.energyEnabled
+                                  ? economy.helmetSelected
+                                  : economy.hasHelmetRental)
+                            : _runHadHelmet,
+                        compact:
+                            media.textScaler.scale(12) > 18 &&
+                            hudHeight < desiredHudHeight,
+                        jumpWarnLit: _jumpWarnLit,
+                        frame: _hudFrame,
+                        animationFrame: _frame,
+                        timeMs: () => _aliveMs,
+                        riskCount: () => _world?.nearMissCount ?? 0,
+                        runDistance: () => _world == null
+                            ? 0
+                            : ArcadeRules.runSteps(
+                                _world!.playerDistance,
+                                _world!.playerSize,
+                              ),
+                        jumpProgress: () {
+                          final w = _world;
+                          return w == null
+                              ? 1.0
+                              : (1 -
+                                        w.jumpCooldownRemaining() /
+                                            w.jumpCooldownMs)
+                                    .clamp(0.0, 1.0);
+                        },
+                        jumpRemainingMs: () =>
+                            _world?.jumpCooldownRemaining() ?? 0,
+                        onProfileTap: () => showProfileSheet(context),
+                        onLeave: widget.onLeave,
+                        onLivesTap: () {
+                          AppAnalytics.tapLives();
+                          _openLivesExchange();
+                        },
+                        onCrystalsTap: () {
+                          AppAnalytics.tapCrystals();
+                          showCrystalsSheet(context);
+                        },
+                        onRecordTap: () {
+                          AppAnalytics.tapRecord();
+                          showLeaderboardSheet(context);
+                        },
                       ),
                     ),
                   ),
-                ],
-              ),
-              // Подсказка: полупрозрачный палец водит внизу до первого касания
-              if (_phase == _Phase.idle &&
-                  config.game.startHintEnabled &&
-                  economy.showSwipeHint)
-                const Positioned.fill(
-                  child: IgnorePointer(
-                    child: _FingerDragHint(),
+                ),
+                if (_debugVisible &&
+                    GameplayDebug.enabled &&
+                    world != null &&
+                    _phase != _Phase.result)
+                  Positioned(
+                    left: 12,
+                    right: 12,
+                    bottom: 8,
+                    child: GameDebugPanel(
+                      world: world,
+                      frame: _debugFrame,
+                      timeMs: () => _aliveMs,
+                      phase: () => _phase.name.toUpperCase(),
+                    ),
                   ),
-                ),
-              // HUD поверх жестов — кнопки перехватывают клики
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                  child: _Hud(
-                    jumpWarnLit: _jumpWarnLit,
-                    onLeave: widget.onLeave,
-                    onLivesTap: () {
-                      AppAnalytics.tapLives();
-                      showLivesSheet(context);
+                if (_phase == _Phase.result)
+                  ResultOverlay(
+                    key: ValueKey('result-$_session-$_resultMs'),
+                    timeMs: _resultMs,
+                    previousBestTimeMs: _previousBestTimeMs,
+                    rewardClaimed: _resultRewardClaimed,
+                    onClaimReward: () async {
+                      if (_resultRewardClaimed) {
+                        return true;
+                      }
+                      final resultSession = _session;
+                      final economy = context.read<EconomyStore>();
+                      final scores = context.read<ScoresStore>();
+                      if (!await ensureResourceAge(context) ||
+                          !mounted ||
+                          resultSession != _session ||
+                          _phase != _Phase.result) {
+                        return false;
+                      }
+                      if (!_resultRewardClaimed) {
+                        final attempt = scores.latestAttempt;
+                        // The current mobile API grants the round reward itself.
+                        // Never add a second local credit on top of its wallet.
+                        final serverReward =
+                            economy.sendOperation != null &&
+                            scores.account != null &&
+                            attempt != null &&
+                            (attempt.shared ||
+                                scores.isAttemptPending(attempt.id));
+                        if (serverReward) {
+                          await scores.retryPendingResults();
+                          if (!mounted ||
+                              resultSession != _session ||
+                              scores.isAttemptPending(attempt.id)) {
+                            return false;
+                          }
+                          try {
+                            await scores.account!.refreshProfile();
+                          } catch (_) {
+                            return false;
+                          }
+                          if (!mounted || resultSession != _session) {
+                            return false;
+                          }
+                        } else {
+                          economy.grantCrystals(
+                            ArcadeRules.roundReward(
+                              economy.config,
+                              _resultRun.round(),
+                              _resultRisk,
+                            ),
+                          );
+                        }
+                        _resultRewardClaimed = true;
+                      }
+                      return true;
                     },
-                    onCrystalsTap: () {
-                      AppAnalytics.tapCrystals();
-                      showCrystalsSheet(context);
-                    },
-                    onRecordTap: () {
-                      AppAnalytics.tapRecord();
-                      showLeaderboardSheet(context);
+                    runDistance: _resultRun,
+                    riskCount: _resultRisk,
+                    newlyUnlockedEarnIds: List<String>.from(_runEarnUnlocks),
+                    onOk: _resetToIdle,
+                    onShare: () async {
+                      await showLeaderboardSheet(context);
                     },
                   ),
-                ),
-              ),
-              if (_phase == _Phase.result)
-                ResultOverlay(
-                  key: ValueKey('result-$_session-$_resultMs'),
-                  timeMs: _resultMs,
-                  runDistance: _resultRun,
-                  riskCount: _resultRisk,
-                  newlyUnlockedEarnIds:
-                      List<String>.from(_runEarnUnlocks),
-                  onOk: _resetToIdle,
-                  onShare: () async {
-                    AppAnalytics.shareOpen();
-                    await showShareScoreSheet(
-                      context,
-                      timeMs: _resultMs,
-                      riskCount: _resultRisk,
-                      runDistance: _resultRun.round(),
-                      hadJump: _runHadJump,
-                      hadHelmet: _runHadHelmet,
-                    );
-                    if (mounted) _resetToIdle();
-                  },
-                ),
-            ],
-          );
+              ],
+            );
 
-          if (AppTargetConfig.isTelegram) {
-            return Padding(padding: tgPad, child: body);
-          }
-          return SafeArea(child: body);
-        },
+            if (AppTargetConfig.isTelegram) {
+              return Padding(
+                padding: tgPad,
+                child: TickerMode(enabled: _routeCurrent, child: body),
+              );
+            }
+            return SafeArea(
+              child: TickerMode(enabled: _routeCurrent, child: body),
+            );
+          },
+        ),
       ),
     );
   }
@@ -870,7 +1473,9 @@ class _FingerDragHintState extends State<_FingerDragHint>
           builder: (context, constraints) {
             final w = constraints.maxWidth;
             final h = constraints.maxHeight;
-            if (w < 40 || h < 40) return const SizedBox.shrink();
+            if (w < 40 || h < 40) {
+              return const SizedBox.shrink();
+            }
 
             const size = 78.0;
             final t = _anim.value;
@@ -887,8 +1492,8 @@ class _FingerDragHintState extends State<_FingerDragHint>
             final opacity = t < 0.08
                 ? (t / 0.08)
                 : t > 0.82
-                    ? ((1.0 - t) / 0.18).clamp(0.0, 1.0)
-                    : 1.0;
+                ? ((1.0 - t) / 0.18).clamp(0.0, 1.0)
+                : 1.0;
 
             return Stack(
               children: [
@@ -924,861 +1529,43 @@ class _FingerDragHintState extends State<_FingerDragHint>
   }
 }
 
-class _LaptopTouchpad extends StatelessWidget {
-  const _LaptopTouchpad();
-
-  @override
-  Widget build(BuildContext context) {
-    return CustomPaint(
-      painter: _TouchpadPainter(),
-      child: const SizedBox.expand(),
-    );
-  }
-}
-
-class _TouchpadPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (size.isEmpty) return;
-    final pad = RRect.fromRectAndRadius(
-      Offset.zero & size,
-      Radius.circular(min(28.0, size.shortestSide * 0.12)),
-    );
-
-    // Матовая «резина» тачпада
-    final fill = Paint()
-      ..shader = const LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [
-          Color(0xFF2A3138),
-          Color(0xFF1C2228),
-          Color(0xFF171C21),
-        ],
-        stops: [0.0, 0.55, 1.0],
-      ).createShader(Offset.zero & size);
-    canvas.drawRRect(pad, fill);
-
-    // Лёгкая кромка как у ноутбука
-    canvas.drawRRect(
-      pad,
-      Paint()
-        ..color = Colors.white.withValues(alpha: 0.07)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.4,
-    );
-    canvas.drawRRect(
-      pad.deflate(1.2),
-      Paint()
-        ..color = Colors.black.withValues(alpha: 0.35)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.2,
-    );
-
-    // Внутренний блик сверху
-    final glossRect = Rect.fromLTWH(
-      size.width * 0.08,
-      size.height * 0.06,
-      size.width * 0.84,
-      size.height * 0.28,
-    );
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(glossRect, const Radius.circular(18)),
-      Paint()
-        ..shader = LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Colors.white.withValues(alpha: 0.06),
-            Colors.white.withValues(alpha: 0.0),
-          ],
-        ).createShader(glossRect),
-    );
-
-    // Нижняя «кнопка» / разделитель как на классическом тачпаде
-    final grooveY = size.height * 0.78;
-    final groove = Paint()
-      ..color = Colors.white.withValues(alpha: 0.08)
-      ..strokeWidth = 1.1
-      ..strokeCap = StrokeCap.round;
-    canvas.drawLine(
-      Offset(size.width * 0.18, grooveY),
-      Offset(size.width * 0.82, grooveY),
-      groove,
-    );
-    canvas.drawLine(
-      Offset(size.width * 0.18, grooveY + 1.2),
-      Offset(size.width * 0.82, grooveY + 1.2),
-      Paint()
-        ..color = Colors.black.withValues(alpha: 0.35)
-        ..strokeWidth = 1.1
-        ..strokeCap = StrokeCap.round,
-    );
-
-    // Едва заметная сетка текстуры
-    final dot = Paint()..color = Colors.white.withValues(alpha: 0.018);
-    const step = 11.0;
-    for (var x = step; x < size.width; x += step) {
-      for (var y = step; y < size.height; y += step) {
-        if (((x ~/ step) + (y ~/ step)) % 2 == 0) {
-          canvas.drawCircle(Offset(x, y), 0.7, dot);
-        }
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
 class _TapToStartBanner extends StatelessWidget {
-  const _TapToStartBanner({
-    required this.pulse,
-    required this.brand,
-    required this.text,
-    this.challenge,
-    this.outOfLives = false,
-  });
-
-  final Animation<double> pulse;
+  const _TapToStartBanner({required this.brand, required this.text});
   final String brand;
   final String text;
-  final String? challenge;
-  final bool outOfLives;
 
   @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: pulse,
-      builder: (context, _) {
-        final t = pulse.value;
-        final accent = outOfLives
-            ? const Color(0xFF7EE0FF)
-            : const Color(0xFF3DDC97);
-        return Center(
-          child: Container(
-            margin: const EdgeInsets.fromLTRB(28, 8, 28, 24),
-            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(24),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Color.lerp(
-                    const Color(0xFF1A2A32),
-                    outOfLives
-                        ? const Color(0xFF1E2C38)
-                        : const Color(0xFF243840),
-                    t,
-                  )!,
-                  const Color(0xFF12181E),
-                ],
-              ),
-              border: Border.all(
-                color: Color.lerp(
-                  accent.withValues(alpha: 0.35),
-                  accent.withValues(alpha: 0.55),
-                  t,
-                )!,
-                width: 1.4,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: accent.withValues(alpha: 0.12 + t * 0.18),
-                  blurRadius: 18 + t * 10,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Логотип / имя игры — не инструкция «не трогай».
-                DecoratedBox(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(999),
-                    color: const Color(0xFF0C1218).withValues(alpha: 0.72),
-                    border: Border.all(
-                      color: const Color(0xFF7EE0FF).withValues(alpha: 0.28),
-                    ),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(10, 6, 14, 6),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const RestingCubeIcon(size: 18),
-                        const SizedBox(width: 8),
-                        Text(
-                          brand,
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 0.6,
-                            height: 1,
-                            color: Color.lerp(
-                              const Color(0xFF9ED8E8),
-                              const Color(0xFFB8F4FF),
-                              t,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                if (outOfLives) ...[
-                  const SizedBox(height: 12),
-                  Transform.translate(
-                    offset: Offset(0, sin(t * pi) * 2),
-                    child: const RestingCubeIcon(size: 72),
-                  ),
-                ],
-                if (challenge != null) ...[
-                  const SizedBox(height: 14),
-                  Transform.scale(
-                    scale: 0.97 + t * 0.05,
-                    child: Text(
-                      challenge!,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 21,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0.2,
-                        height: 1.2,
-                        color: Color.lerp(
-                          const Color(0xFFE8EEF4),
-                          const Color(0xFFB8F4FF),
-                          t * 0.45,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    text,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0.2,
-                      height: 1.25,
-                      color: Color.lerp(
-                        const Color(0xFF9AA8B4),
-                        accent.withValues(alpha: 0.9),
-                        t * 0.55,
-                      ),
-                    ),
-                  ),
-                ] else ...[
-                  const SizedBox(height: 10),
-                  Transform.scale(
-                    scale: 0.96 + t * 0.06,
-                    child: Text(
-                      text,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0.4,
-                        height: 1.25,
-                        color: Color.lerp(
-                          const Color(0xFFE8EEF4),
-                          const Color(0xFFB8F4FF),
-                          t * 0.5,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-                if (!outOfLives) ...[
-                  const SizedBox(height: 8),
-                  Opacity(
-                    opacity: 0.45 + t * 0.35,
-                    child: const Icon(
-                      Icons.touch_app_rounded,
-                      color: Color(0xFF7EE0FF),
-                      size: 22,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _PlayInfoBar extends StatelessWidget {
-  const _PlayInfoBar({
-    required this.frame,
-    required this.timeMs,
-    required this.enemyCount,
-    required this.averageSpeed,
-    required this.playerRun,
-    required this.nearMiss,
-  });
-
-  static const _pulseFrom = 200.0;
-  static const _cool = Color(0xFF7EE0FF);
-  static const _hot = Color(0xFFFF3D4A);
-  static const _labelH = 12.0;
-  static const _gapH = 4.0;
-  static const _valueH = 22.0;
-
-  final ValueNotifier<int> frame;
-  final int Function() timeMs;
-  final int Function() enemyCount;
-  final double Function() averageSpeed;
-  final double Function() playerRun;
-  final int Function() nearMiss;
-
-  Color _speedColor(double speed, double scaleMax) {
-    final t = Curves.easeIn.transform(
-      (speed / scaleMax).clamp(0.0, 1.0),
-    );
-    return Color.lerp(_cool, _hot, t)!;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
-    final scaleMax = context
-        .watch<GameplayConfig>()
-        .hudSpeedScaleMax
-        .clamp(50.0, 2000.0);
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-      child: ListenableBuilder(
-        listenable: frame,
-        builder: (context, _) {
-          final enemies = enemyCount();
-          final speed = averageSpeed();
-          final run = playerRun();
-          final near = nearMiss();
-          final bar = (speed / scaleMax).clamp(0.0, 1.0);
-          final color = _speedColor(speed, scaleMax);
-
-          final over =
-              ((speed - _pulseFrom) / (scaleMax - _pulseFrom)).clamp(0.0, 1.0);
-          final pulse = over <= 0
-              ? 0.0
-              : (sin(frame.value * (0.22 + over * 0.55)) + 1) / 2;
-          final pulseAmp = over * (0.22 + over * 0.45);
-          final barScaleY = 1.0 + pulse * pulseAmp;
-          // BoxShadow.blur на каждом кадре на web даёт микрофризы.
-          final glow = kIsWeb
-              ? null
-              : color.withValues(alpha: 0.35 + pulse * over * 0.45);
-          final displayColor = over <= 0
-              ? color
-              : Color.lerp(color, Colors.white, pulse * over * 0.35)!;
-
-          final speedBar = SizedBox(
-            height: 6,
-            child: Transform.scale(
-              scaleY: barScaleY,
-              alignment: Alignment.centerLeft,
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(99),
-                  boxShadow: glow == null || over <= 0
-                      ? null
-                      : [
-                          BoxShadow(
-                            color: glow,
-                            blurRadius: 6 + pulse * over * 10,
-                            spreadRadius: pulse * over * 1.5,
-                          ),
-                        ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(99),
-                  child: LinearProgressIndicator(
-                    value: bar,
-                    minHeight: 6,
-                    backgroundColor: Colors.white12,
-                    color: displayColor,
-                  ),
-                ),
+  Widget build(BuildContext context) => Center(
+    key: const ValueKey('game-start-caption'),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const GameArtwork(GameArt.crouched, size: 32),
+            const SizedBox(width: 8),
+            Text(
+              brand,
+              style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w800,
+                color: Color(0xFFB8F4FF),
               ),
             ),
-          );
-
-          return DecoratedBox(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14),
-              color: theme.colorScheme.surface.withValues(alpha: 0.92),
-              border: Border.all(
-                color: theme.colorScheme.primary.withValues(alpha: 0.28),
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-              child: SizedBox(
-                height: _labelH + _gapH + _valueH,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Expanded(
-                      flex: 15,
-                      child: _InfoChip(
-                        label: l10n.playInfoEnemies,
-                        value: '$enemies',
-                        labelHeight: _labelH,
-                        gap: _gapH,
-                        valueHeight: _valueH,
-                      ),
-                    ),
-                    Expanded(
-                      flex: 15,
-                      child: _InfoChip(
-                        label: l10n.playInfoSpeed,
-                        labelHeight: _labelH,
-                        gap: _gapH,
-                        valueHeight: _valueH,
-                        valueChild: speedBar,
-                      ),
-                    ),
-                    Expanded(
-                      flex: 40,
-                      child: _InfoTimerChip(timeMs: timeMs()),
-                    ),
-                    Expanded(
-                      flex: 15,
-                      child: _InfoChip(
-                        label: l10n.playInfoNear,
-                        value: '$near',
-                        accent: const Color(0xFFFFC107),
-                        labelHeight: _labelH,
-                        gap: _gapH,
-                        valueHeight: _valueH,
-                      ),
-                    ),
-                    Expanded(
-                      flex: 15,
-                      child: _InfoChip(
-                        label: l10n.playInfoRun,
-                        value: '${run.round()}',
-                        labelHeight: _labelH,
-                        gap: _gapH,
-                        valueHeight: _valueH,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-class _InfoTimerChip extends StatelessWidget {
-  const _InfoTimerChip({required this.timeMs});
-
-  final int timeMs;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final ms = timeMs.clamp(0, 99 * 60 * 1000);
-    final totalSec = ms ~/ 1000;
-    final minutes = (totalSec ~/ 60).toString().padLeft(2, '0');
-    final seconds = (totalSec % 60).toString().padLeft(2, '0');
-    final millis = (ms % 1000).toString().padLeft(3, '0');
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 2),
-      child: FittedBox(
-        fit: BoxFit.contain,
-        child: Text(
-          '$minutes:$seconds.$millis',
+          ],
+        ),
+        const SizedBox(height: 8),
+        Text(
+          text,
           textAlign: TextAlign.center,
-          maxLines: 1,
-          style: TextStyle(
-            fontSize: 48,
-            height: 1.0,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 0.2,
-            color: theme.colorScheme.primary,
-            fontFeatures: const [FontFeature.tabularFigures()],
+          style: const TextStyle(
+            fontSize: 14,
+            height: 1.25,
+            color: Color(0xFFE8EEF4),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _RentalTimerChip extends StatelessWidget {
-  const _RentalTimerChip({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.accent,
-    required this.active,
-    this.onTap,
-    this.compact = false,
-    this.warnFlash = false,
-  });
-
-  final IconData icon;
-  final String label;
-  final String value;
-  final Color accent;
-  final bool active;
-  final VoidCallback? onTap;
-  final bool compact;
-  final bool warnFlash;
-
-  @override
-  Widget build(BuildContext context) {
-    const warn = Color(0xFFFF5A5F);
-    final color = warnFlash
-        ? warn
-        : (active ? accent : Colors.white38);
-    final chip = Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: compact ? 6 : 2,
-        vertical: compact ? 4 : 2,
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: compact ? 14 : 15, color: color),
-          SizedBox(width: compact ? 3 : 4),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: compact ? 8 : 9,
-                  fontWeight: FontWeight.w700,
-                  height: 1.1,
-                  color: warnFlash
-                      ? warn.withValues(alpha: 0.9)
-                      : Colors.white.withValues(alpha: 0.55),
-                ),
-              ),
-              Text(
-                value,
-                style: TextStyle(
-                  fontSize: compact ? 11 : 12,
-                  fontWeight: FontWeight.w900,
-                  height: 1.15,
-                  color: color,
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-
-    if (compact) {
-      return Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(18),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 80),
-            decoration: BoxDecoration(
-              color: warnFlash
-                  ? warn.withValues(alpha: 0.28)
-                  : Theme.of(context).colorScheme.surface,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                // Ширина рамки фиксирована — иначе мигание трясёт HUD.
-                width: 1.5,
-                color: warnFlash
-                    ? warn
-                    : (active
-                        ? accent.withValues(alpha: 0.55)
-                        : Colors.white12),
-              ),
-            ),
-            child: chip,
-          ),
-        ),
-      );
-    }
-
-    return SizedBox(
-      width: 72,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(10),
-          child: chip,
-        ),
-      ),
-    );
-  }
-}
-
-class _InfoChip extends StatelessWidget {
-  const _InfoChip({
-    required this.label,
-    this.value,
-    this.valueChild,
-    this.accent,
-    this.labelHeight = 12,
-    this.gap = 4,
-    this.valueHeight = 16,
-  });
-
-  final String label;
-  final String? value;
-  final Widget? valueChild;
-  final Color? accent;
-  final double labelHeight;
-  final double gap;
-  final double valueHeight;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 2),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SizedBox(
-            height: labelHeight,
-            width: double.infinity,
-            child: Align(
-              alignment: Alignment.bottomLeft,
-              child: Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 10,
-                  height: 1.0,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white.withValues(alpha: 0.55),
-                ),
-              ),
-            ),
-          ),
-          SizedBox(height: gap),
-          SizedBox(
-            height: valueHeight,
-            width: double.infinity,
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: valueChild ??
-                  Text(
-                    value ?? '',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 14,
-                      height: 1.0,
-                      fontWeight: FontWeight.w900,
-                      color: accent ?? const Color(0xFFE8EEF4),
-                      fontFeatures: const [FontFeature.tabularFigures()],
-                    ),
-                  ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _Hud extends StatefulWidget {
-  const _Hud({
-    required this.onLivesTap,
-    required this.onCrystalsTap,
-    required this.onRecordTap,
-    this.onLeave,
-    this.jumpWarnLit = false,
-  });
-
-  final VoidCallback onLivesTap;
-  final VoidCallback onCrystalsTap;
-  final VoidCallback onRecordTap;
-  final VoidCallback? onLeave;
-  final bool jumpWarnLit;
-
-  @override
-  State<_Hud> createState() => _HudState();
-}
-
-class _HudState extends State<_Hud> {
-  Timer? _rentTick;
-
-  static String _fmtRent(Duration? d) {
-    if (d == null) return '--:--';
-    final total = d.inSeconds.clamp(0, 24 * 3600);
-    final m = total ~/ 60;
-    final s = total % 60;
-    return '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _rentTick = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (mounted) setState(() {});
-    });
-  }
-
-  @override
-  void dispose() {
-    _rentTick?.cancel();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final economy = context.watch<EconomyStore>();
-    final gameplay = context.watch<GameplayConfig>();
-    final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
-    final showJump = gameplay.jumpEnabled;
-    final showHelmet = gameplay.helmetEnabled;
-    final jumpLeft = economy.jumpRentalRemaining;
-    final helmetLeft = economy.helmetRentalRemaining;
-
-    void openRent() => showCrystalsSheet(context, initialTab: 2);
-
-    return SizedBox(
-      height: 44,
-      child: Row(
-        children: [
-          if (widget.onLeave != null) ...[
-            IconButton(
-              onPressed: widget.onLeave,
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
-              icon: const Icon(Icons.arrow_back_rounded, size: 22),
-              color: Colors.white70,
-            ),
-            const SizedBox(width: 2),
-          ],
-          GestureDetector(
-            onTap: widget.onLivesTap,
-            child: KeyedSubtree(
-              key: HudFlyTargets.livesKey,
-              child: _HudChip(
-                icon: Icon(
-                  Icons.favorite,
-                  size: 16,
-                  color: theme.colorScheme.error,
-                ),
-                label: '${economy.lives}',
-                highlight: true,
-              ),
-            ),
-          ),
-          const SizedBox(width: 6),
-          GestureDetector(
-            onTap: widget.onCrystalsTap,
-            child: KeyedSubtree(
-              key: HudFlyTargets.crystalsKey,
-              child: _HudChip(
-                icon: const CrystalCubeIcon(size: 16, glow: false),
-                label: '${economy.tokens}',
-                highlight: true,
-              ),
-            ),
-          ),
-          if (showJump) ...[
-            const SizedBox(width: 6),
-            _RentalTimerChip(
-              icon: Icons.keyboard_double_arrow_up_rounded,
-              label: l10n.rentJumpTitle,
-              value: _fmtRent(jumpLeft),
-              accent: const Color(0xFF3DDC97),
-              active: jumpLeft != null,
-              compact: true,
-              warnFlash: widget.jumpWarnLit,
-              onTap: openRent,
-            ),
-          ],
-          if (showHelmet) ...[
-            const SizedBox(width: 6),
-            _RentalTimerChip(
-              icon: Icons.shield_outlined,
-              label: l10n.rentHelmetTitle,
-              value: _fmtRent(helmetLeft),
-              accent: const Color(0xFF7EE0FF),
-              active: helmetLeft != null,
-              compact: true,
-              onTap: openRent,
-            ),
-          ],
-          const Spacer(),
-          GestureDetector(
-            onTap: widget.onRecordTap,
-            child: _HudChip(
-              icon: Icon(
-                Icons.emoji_events_rounded,
-                size: 16,
-                color: theme.colorScheme.primary,
-              ),
-              label: economy.bestTimeMs > 0
-                  ? '${(economy.bestTimeMs / 1000).toStringAsFixed(2)}s'
-                  : '0',
-              highlight: true,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _HudChip extends StatelessWidget {
-  const _HudChip({
-    required this.icon,
-    required this.label,
-    this.highlight = false,
-  });
-
-  final Widget icon;
-  final String label;
-  final bool highlight;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: highlight
-              ? const Color(0xFF7EE0FF).withValues(alpha: 0.5)
-              : Colors.white12,
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          icon,
-          const SizedBox(width: 5),
-          Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
-        ],
-      ),
-    );
-  }
+      ],
+    ),
+  );
 }

@@ -365,7 +365,7 @@ abstract class AppLocalizations {
   /// No description provided for @earnPreviewHint.
   ///
   /// In en, this message translates to:
-  /// **'Preview until ads & SDKs are connected'**
+  /// **'Complete tasks and collect available bonuses'**
   String get earnPreviewHint;
 
   /// No description provided for @shop.
@@ -377,7 +377,7 @@ abstract class AppLocalizations {
   /// No description provided for @plusActive.
   ///
   /// In en, this message translates to:
-  /// **'Boost active'**
+  /// **'Plus active'**
   String get plusActive;
 
   /// No description provided for @plusCancel.
@@ -389,37 +389,37 @@ abstract class AppLocalizations {
   /// No description provided for @plusButton.
   ///
   /// In en, this message translates to:
-  /// **'Boost · {price}'**
+  /// **'Plus · {price}'**
   String plusButton(String price);
 
   /// No description provided for @plusToast.
   ///
   /// In en, this message translates to:
-  /// **'Boost · Daily ×2'**
+  /// **'Plus · Daily ×2'**
   String get plusToast;
 
   /// No description provided for @plusCancelledToast.
   ///
   /// In en, this message translates to:
-  /// **'Boost turned off'**
+  /// **'Plus turned off'**
   String get plusCancelledToast;
 
   /// No description provided for @plusManageTitle.
   ///
   /// In en, this message translates to:
-  /// **'Manage Boost'**
+  /// **'Manage Plus'**
   String get plusManageTitle;
 
   /// No description provided for @plusOfferTitle.
   ///
   /// In en, this message translates to:
-  /// **'Boost subscription'**
+  /// **'Plus subscription'**
   String get plusOfferTitle;
 
   /// No description provided for @plusOfferSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Boost is a weekly subscription for \$1. You get no ads and ×2 crystals on the Daily bonus. Cancel anytime in this window (billing via Google Play / App Store later).'**
+  /// **'Plus is a weekly subscription: no ads and double crystals on the daily bonus. Google Play shows the price and payment terms. Manage your subscription in Google Play.'**
   String get plusOfferSubtitle;
 
   /// No description provided for @plusSubscribe.
@@ -431,7 +431,7 @@ abstract class AppLocalizations {
   /// No description provided for @plusManageSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Boost gives perks in the game. This is a local preview — real billing will go through Google Play / App Store later.'**
+  /// **'Plus gives in-game benefits. Manage auto-renewal or cancel your subscription in Google Play.'**
   String get plusManageSubtitle;
 
   /// No description provided for @plusManageBenefitAds.
@@ -455,7 +455,7 @@ abstract class AppLocalizations {
   /// No description provided for @plusManageNextCharge.
   ///
   /// In en, this message translates to:
-  /// **'Next charge: {date}'**
+  /// **'Active until: {date}'**
   String plusManageNextCharge(String date);
 
   /// No description provided for @resetDataTitle.
@@ -515,7 +515,7 @@ abstract class AppLocalizations {
   /// No description provided for @premiumTimesLocked.
   ///
   /// In en, this message translates to:
-  /// **'×{mult} with Boost'**
+  /// **'×{mult} with Plus'**
   String premiumTimesLocked(String mult);
 
   /// No description provided for @claimed.
@@ -683,13 +683,13 @@ abstract class AppLocalizations {
   /// No description provided for @runTipHow.
   ///
   /// In en, this message translates to:
-  /// **'Run is the distance your cube travels during the round.'**
+  /// **'Run is distance in steps. 1 step = 0.1 of hero width (same on all screens).'**
   String get runTipHow;
 
   /// No description provided for @runTipConvert.
   ///
   /// In en, this message translates to:
-  /// **'At the end of the run: every {every} run = {reward} crystal(s).'**
+  /// **'At the end of the run: every {every} steps = {reward} crystal(s).'**
   String runTipConvert(int every, int reward);
 
   /// No description provided for @earnReward.
@@ -821,7 +821,7 @@ abstract class AppLocalizations {
   /// No description provided for @plusTitle.
   ///
   /// In en, this message translates to:
-  /// **'Boost'**
+  /// **'Plus'**
   String get plusTitle;
 
   /// No description provided for @plusBenefits.
@@ -1085,7 +1085,7 @@ abstract class AppLocalizations {
   /// No description provided for @periodMine.
   ///
   /// In en, this message translates to:
-  /// **'My attempts'**
+  /// **'Mine'**
   String get periodMine;
 
   /// No description provided for @colAttempt.
@@ -1109,8 +1109,32 @@ abstract class AppLocalizations {
   /// No description provided for @attemptLocal.
   ///
   /// In en, this message translates to:
-  /// **'Not shared'**
+  /// **'On this device'**
   String get attemptLocal;
+
+  /// No description provided for @scoreAutoSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved to the shared ranking'**
+  String get scoreAutoSaved;
+
+  /// No description provided for @scoreSyncPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved on this device · will sync automatically'**
+  String get scoreSyncPending;
+
+  /// No description provided for @scorePracticeOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved on this device · outside shared ranking'**
+  String get scorePracticeOnly;
+
+  /// No description provided for @scoreAutoSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Results are saved automatically'**
+  String get scoreAutoSave;
 }
 
 class _AppLocalizationsDelegate

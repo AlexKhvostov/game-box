@@ -1,0 +1,368 @@
+'use strict';
+const crypto = require('node:crypto');
+const {defaults, validatePolicy, product, hash, requireThat, integer, nonce} = require('./policy');
+const clone = v => structuredClone(v);
+const owner = uid => `firebase:${uid}`;
+const canonical = v => Array.isArray(v) ? v.map(canonical) : v && typeof v === 'object' ? Object.fromEntries(Object.keys(v).sort().map(k => [k, canonical(v[k])])) : v;
+const digest = v => hash(canonical(v));
+const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+const codeFor = uid => [...Buffer.from(hash(`invite:${uid}`), 'hex').subarray(0, 12)].map(b => alphabet[b & 31]).join('');
+function seed(uid, policy, now) {
+  return {
+    uid, nickname:`Игрок ${hash(uid).slice(0,8)}`, hideGoogleAccount:true, version:1, createdAt:now,
+    ownCode:codeFor(uid), inviterUid:null, inviterCode:null, inviteRewarded:false, completedGames:0, rewardTotal:0,
+    wallet:{lives:0,tokens:0,dailyStreak:0,lastDailyAt:0,lastTimedAt:0,lastAdAt:0,jumpUntil:0,helmetUntil:0,
+      bestTimeMs:0,gamesStarted:0,plusUntil:0,claimed:[],unlocked:[],energyVersion:2,
+      energy:policy.config.economy.androidEnergyV2.simpleBonus.initialEnergy,batteries:[],energySubscription:null,
+      simpleBonus:{contract:3,nextAt:0,durationMs:policy.config.economy.androidEnergyV2.simpleBonus.periodSec*1000,lastClaimAt:0}}
+  };
+}
+function publicProfile(p, policy, identity, now) {
+  const wallet = clone(p.wallet), config = clone(policy.config.economy.androidEnergyV2), b = config.simpleBonus;
+  const sub = wallet.energySubscription;
+  const pending = sub && sub.expiresAt <= now && !sub.endConfirmed;
+  if (pending) sub.awaitingReconciliation = true;
+  const tier = sub && (sub.expiresAt > now || pending) ? sub.batteryCount : 1;
+  wallet.simpleBonus = {...wallet.simpleBonus, policy:b, tier, reward:tier === 5 ? b.tier5Reward : tier === 2 ? b.tier2Reward : b.reward};
+  config.initialEnergy=b.initialEnergy; config.rewards.ad=b.videoReward; config.rewards.invite=b.inviterReward;
+  config.watchAdCooldownSec=b.videoCooldownSec;
+  wallet.energyConfig=config; wallet.energyGoogleReady=identity.googleLinked;
+  wallet.nickname=p.nickname;
+  return {id:owner(p.uid),nickname:p.nickname,googleLinked:identity.googleLinked,
+    googleName:identity.googleLinked ? identity.name ?? null : null, googleEmail:identity.googleLinked ? identity.email ?? null : null,
+    hideGoogleAccount:p.hideGoogleAccount, wallet, walletVersion:p.version, serverNow:now, timezoneOffset:180};
+}
+function createEngine({db, getPolicy = async () => defaults, verifyPlay, googleLinkedForUid, now = Date.now}) {
+  const playerRef = uid => db.collection('players').doc(uid);
+  const boards=new Map();
+  const linked=googleLinkedForUid ?? (async uid=>(await playerRef(uid).get()).data()?.googleLinked === true);
+  async function execute(uid, input, identity = {}) {
+    requireThat(typeof uid === 'string' && /^[A-Za-z0-9_-]{1,128}$/.test(uid), 'unauthorized', 401);
+    requireThat(input && typeof input.action === 'string', 'action_invalid', 400);
+    identity = {googleLinked:false,...identity};
+    const policy = validatePolicy(await getPolicy());
+    const stamp = now();
+    if (input.action === 'scores') {
+      // Rate-limit once per board request, including a single all-period fetch.
+      await execute(uid,{action:'profile'},identity);
+      if(input.period === 'allPeriods') {
+        const periods={};for(const period of ['all','day','week','month','year']) periods[period]=(await scores({period},stamp)).scores;
+        const unique=new Map(Object.values(periods).flat().map(r=>[r.id,r]));
+        const decorated=new Map((await publicRows([...unique.values()])).map(r=>[r.id,r]));
+        for(const period of Object.keys(periods)) periods[period]=periods[period].map(r=>decorated.get(r.id));
+        return {ok:true,source:'firebase',periods,serverNow:stamp};
+      }
+      const result=await scores(input,stamp);result.scores=await publicRows(result.scores);return result;
+    }
+    // External Play verification occurs outside the retryable Firestore transaction.
+    let verified;
+    if (input.action === 'play_verify') {
+      requireThat(typeof input.purchaseToken === 'string' && input.purchaseToken.length >= 8 && input.purchaseToken.length <= 4096,'purchase_invalid',400);
+      const receipt=await db.collection('purchases').doc(hash(input.purchaseToken)).get();
+      requireThat(identity.googleLinked || receipt.exists && receipt.data().uid === uid, 'purchase_requires_recovery');
+      requireThat(verifyPlay, 'play_verification_unavailable', 503);
+      verified = await verifyPlay(uid, input.productId, input.purchaseToken);
+    }
+    if (input.action === 'play_sync') return syncPlay(uid, identity, policy);
+    return db.runTransaction(async tx => {
+      const ref=playerRef(uid), snap=await tx.get(ref);
+      const p=snap.exists ? snap.data() : seed(uid,policy,stamp);
+      p.googleLinked=identity.googleLinked;
+      const writes=[];
+      const put=(ref,data) => writes.push([ref,data]);
+      if (!snap.exists) {
+        const codeRef=db.collection('inviteCodes').doc(p.ownCode), code=await tx.get(codeRef);
+        requireThat(!code.exists || code.data().uid === uid, 'invite_code_collision', 503);
+        put(codeRef,{uid,createdAt:stamp});
+        for(const width of [8,12,16]) {
+          p.nickname=`Игрок ${hash(uid).slice(0,width)}`;
+          const nameRef=db.collection('names').doc(hash(p.nickname.toLocaleLowerCase('ru'))), existing=await tx.get(nameRef);
+          if(!existing.exists || existing.data().uid === uid) {p.nameKey=nameRef.id;put(nameRef,{uid});break;}
+        }
+        requireThat(p.nameKey,'nickname_unavailable',503);
+      }
+      const limit=stamp - (p.rateSince ?? 0) < 60000;
+      requireThat(!limit || (p.rateCount ?? 0) < 180, 'rate_limited', 429);
+      p.rateCount=limit ? (p.rateCount ?? 0)+1 : 1; p.rateSince=limit ? p.rateSince : stamp;
+      let response={};
+      const action=input.action;
+      if (['guest','profile','google_link','google_restore','google_details','google_unlink'].includes(action)) {
+        // Auth SDK owns link/restore/unlink. The HTTP server trusts only Admin
+        // getUser(), not an identity flag or raw Google token sent by the client.
+        if (['google_link','google_restore'].includes(action)) requireThat(identity.googleLinked,'google_not_linked');
+      } else if (action === 'rename') {
+        const name=typeof input.nickname === 'string' ? input.nickname.trim().normalize('NFC') : '';
+        requireThat([...name].length >= 2 && [...name].length <= 24 && !/[\p{C}<>]/u.test(name), 'nickname_invalid',400);
+        const nr=db.collection('names').doc(hash(name.toLocaleLowerCase('ru'))), taken=await tx.get(nr);
+        requireThat(!taken.exists || taken.data().uid === uid, 'nickname_taken');
+        if (p.nameKey && p.nameKey !== nr.id) writes.push([db.collection('names').doc(p.nameKey), null]);
+        put(nr,{uid}); p.nameKey=nr.id;p.nickname=name;
+        boards.clear();
+      } else if (action === 'wallet_operation') {
+        const opId=nonce(input.operationId), args=input.args ?? {}, kind=input.kind;
+        requireThat(args && typeof args === 'object' && !Array.isArray(args), 'operation_invalid',400);
+        const opRef=ref.collection('operations').doc(opId), old=await tx.get(opRef), fingerprint=digest({kind,args});
+        if (old.exists) {
+          requireThat(old.data().fingerprint === fingerprint,'operation_conflict'); response=old.data().response;
+        } else {
+          response=walletOperation(p,kind,args,opId,policy,identity,stamp,put);
+          put(opRef,{fingerprint,response,createdAt:stamp,policyRevision:policy.revision});
+        }
+      } else if (['round_start','round_activate','round_cancel','round_finish'].includes(action)) {
+        response=await round(tx,p,input,policy,stamp,put);
+      } else if (action === 'play_quote') {
+        const sku=input.productId, originalTerms=product(sku), requestId=nonce(input.requestId);
+        const config=policy.config.economy.androidEnergyV2;
+        const terms=originalTerms?.kind === 'energy_subscription' ? {...originalTerms,chargeHours:Math.min(originalTerms.chargeHours,config.chargeHours)} : originalTerms;
+        requireThat(terms && [...config.packages,...config.subscriptions].some(o => o.id === sku),'offer_invalid');
+        const qr=ref.collection('quotes').doc(requestId), old=await tx.get(qr);
+        if (old.exists) { requireThat(old.data().productId === sku,'operation_conflict');response={quote:old.data()}; }
+        else { const quote={requestId,productId:sku,owner:owner(uid),revision:config.revision,terms,originalTerms,immutableSku:true,createdAt:stamp};put(qr,quote);response={quote}; }
+      } else if (action === 'play_verify') {
+        const pr=db.collection('purchases').doc(hash(input.purchaseToken)), old=await tx.get(pr);
+        requireThat(!old.exists || old.data().uid === uid,'purchase_owner_invalid');
+        requireThat(!old.exists || old.data().productId === input.productId,'purchase_product_invalid');
+        const terms=product(input.productId);
+        requireThat(terms && verified?.valid === true,'purchase_invalid');
+        const tokenHash=hash(input.purchaseToken);
+        const record={...(old.exists ? old.data() : {}),uid,productId:input.productId,token:input.purchaseToken,kind:terms.kind,...verified,checkedAt:stamp};
+        if (terms.kind === 'energy') {
+          requireThat(!verified.consumed || old.exists,'purchase_already_consumed');
+          if (!old.exists) p.wallet.energy+=terms.amount;
+        } else {
+          if(verified.linkedPurchaseToken) {
+            const linkedRef=db.collection('purchases').doc(hash(verified.linkedPurchaseToken)),linked=await tx.get(linkedRef);
+            requireThat(!linked.exists || linked.data().uid === uid,'purchase_owner_invalid');
+            put(linkedRef,{...(linked.exists ? linked.data() : {}),uid,kind:'energy_subscription',supersededBy:tokenHash});
+          }
+          const sub=p.wallet.energySubscription;
+          const activeProductId=verified.activeProductId ?? input.productId,activeTerms=product(activeProductId);
+          requireThat(activeTerms?.kind === 'energy_subscription','purchase_product_invalid');
+          if (!record.supersededBy && (!sub || sub.tokenHash === tokenHash ||
+              verified.linkedPurchaseToken && sub.tokenHash === hash(verified.linkedPurchaseToken) ||
+              sub.expiresAt <= stamp || activeTerms.batteryCount >= sub.batteryCount)) {
+            p.wallet.energySubscription=verified.expiresAt > stamp ? {productId:activeProductId,tokenHash,batteryCount:activeTerms.batteryCount,
+              expiresAt:verified.expiresAt,periodId:verified.orderId,capacity:20,durationMs:28800000,revision:policy.revision,endConfirmed:verified.endConfirmed === true} : null;
+          }
+        }
+        put(pr,record);
+      } else if (['invites_state','invites_bind','invites_list'].includes(action)) {
+        if (action === 'invites_bind') {
+          const code=typeof input.code === 'string' ? input.code.trim().toUpperCase() : '';
+          requireThat(/^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{12}$/.test(code),'invite_code_invalid',400);
+          requireThat(!p.inviterUid || p.inviterCode === code,'invite_already_bound');
+          const target=await tx.get(db.collection('inviteCodes').doc(code));
+          requireThat(target.exists,'invite_not_found'); const targetUid=target.data().uid;
+          requireThat(targetUid !== uid,'invite_self');
+          if (!p.inviterUid) {
+            p.inviterUid=targetUid;p.inviterCode=code;
+            put(db.collection('invitations').doc(uid),{inviterUid:targetUid,inviteeUid:uid,boundAt:stamp,rewardedAt:null});
+          }
+        }
+      } else { requireThat(false,'action_invalid',400); }
+      // Atomic invitation reward: only five server-finished rounds + Google.
+      if (p.inviterUid && !p.inviteRewarded && p.completedGames >= 5 && identity.googleLinked) {
+        const inviterRef=playerRef(p.inviterUid), inviterSnap=await tx.get(inviterRef);
+        if (inviterSnap.exists && inviterSnap.data().googleLinked && await linked(p.inviterUid)) {
+          const inviter=inviterSnap.data(), amount=policy.config.economy.androidEnergyV2.simpleBonus.inviterReward;
+          inviter.wallet.energy+=amount;inviter.rewardTotal+=amount;inviter.version++;
+          put(inviterRef,inviter);p.inviteRewarded=true;
+          const inviteeAmount=policy.config.economy.androidEnergyV2.rewards.invite;
+          p.wallet.energy+=inviteeAmount;
+          const ir=db.collection('invitations').doc(uid), previous=await tx.get(ir);
+          put(ir,{...(previous.exists ? previous.data() : {inviterUid:p.inviterUid,inviteeUid:uid,boundAt:stamp}),rewardedAt:stamp,amount,inviteeAmount,nickname:p.nickname});
+        }
+      }
+      p.publicGoogleName=identity.googleLinked && !p.hideGoogleAccount
+        ? Object.hasOwn(identity,'name') ? identity.name ?? null : p.publicGoogleName ?? null : null;
+      p.version++;put(ref,p);
+      for (const [r,data] of writes) { if (data === null) tx.delete(r); else tx.set(r,data); }
+      // Respond after transaction commit, including latest server-owned wallet.
+      return {ok:true,...response,profile:publicProfile(p,policy,identity,stamp),serverNow:stamp,
+        ...(['invites_state','invites_bind','invites_list'].includes(action) ? {_invitePlayer:p} : {})};
+    }).then(async result => {
+      if(identity.googleLinked && ['google_link','google_restore','invites_state','invites_list'].includes(input.action)) {
+        let cursor=null;
+        while(true) {
+          let query=db.collection('invitations').where('inviterUid','==',uid).where('rewardedAt','==',null).orderBy('__name__').limit(100);
+          if(cursor) query=query.startAfter(cursor);
+          const page=await query.get();
+          for(const doc of page.docs) {
+            if(await linked(doc.id)) await execute(doc.id,{action:'profile'},{googleLinked:true});
+          }
+          if(page.size < 100) break;cursor=page.docs.at(-1);
+        }
+        // Incoming rewards can update this player's wallet in another tx.
+        const current=await playerRef(uid).get();
+        result.profile=publicProfile(current.data(),policy,identity,stamp);
+        if(result._invitePlayer) result._invitePlayer=current.data();
+      }
+      if (result._invitePlayer) {result.invites=await inviteState(result._invitePlayer,identity,policy,input);delete result._invitePlayer;}
+      return result;
+    });
+  }
+  function walletOperation(p,kind,args,opId,policy,identity,stamp,put) {
+    const w=p.wallet,e=policy.config.economy.androidEnergyV2,b=e.simpleBonus;
+    const empty=() => requireThat(Object.keys(args).length === 0,'operation_invalid',400);
+    if (kind === 'energy_hidden_tap') {empty();w.energy+=20;return {energyGrant:{kind,operationId:opId,amount:20}};}
+    if (kind === 'energy_bonus_claim') {
+      empty();const sub=w.energySubscription;
+      requireThat(!sub || sub.expiresAt > stamp || sub.endConfirmed,'subscription_verification_pending');
+      requireThat(stamp >= w.simpleBonus.nextAt,'bonus_not_ready');
+      const tier=sub && sub.expiresAt > stamp ? sub.batteryCount : 1;
+      const amount=tier === 5 ? b.tier5Reward : tier === 2 ? b.tier2Reward : b.reward;
+      w.energy+=amount;w.simpleBonus={contract:3,nextAt:stamp+b.periodSec*1000,durationMs:b.periodSec*1000,lastClaimAt:stamp};
+      return {bonusClaim:{kind,operationId:opId,amount,tier,claimedAt:stamp}};
+    }
+    if (kind === 'google_privacy') {requireThat(typeof args.hide === 'boolean','operation_invalid',400);p.hideGoogleAccount=args.hide;return {};}
+    if (kind === 'energy_age_completed') {empty();w.energyAgeCompleted=true;return {};}
+    if (kind === 'energy_reward') {
+      const id=args.id, claim=['survive_10s','record_20s','risks_5'].includes(id) ? id : `energy_${id}`;
+      if (w.claimed.includes(claim)) return {};
+      if (id === 'google') requireThat(identity.googleLinked,'bonus_locked');
+      else if (id === 'age') requireThat(w.energyAgeCompleted,'bonus_locked');
+      else requireThat(w.unlocked.includes(id) && ['survive_10s','record_20s','risks_5'].includes(id),'bonus_locked');
+      w.energy+=e.rewards[['google','age'].includes(id) ? id : 'achievement'];w.claimed.push(claim);return {};
+    }
+    if (kind === 'energy_feedback') {
+      if (w.claimed.includes('energy_feedback')) return {};
+      const comment=typeof args.comment === 'string' ? args.comment.trim() : '';
+      requireThat([...comment].length >= 20 && [...comment].length <= 1000,'feedback_length',400);
+      if (args.rating != null) integer(args.rating,1,5,'feedback_rating');
+      put(db.collection('feedback').doc(hash(`${p.uid}:${opId}`)),{uid:p.uid,comment,rating:args.rating ?? null,createdAt:stamp,revision:policy.revision});
+      w.energy+=e.rewards.feedback;w.claimed.push('energy_feedback');return {};
+    }
+    if (kind === 'watch_ad') {
+      empty();requireThat(!w.lastAdAt || stamp >= w.lastAdAt+b.videoCooldownSec*1000,'ad_not_ready');
+      // Existing Yandex integration has no signed SSV receipt. Only SDK reward
+      // event invokes this operation. Server fixes amount, ownership and cooldown.
+      w.energy+=b.videoReward;w.lastAdAt=stamp;return {};
+    }
+    requireThat(false,'legacy_operation_disabled');
+  }
+  async function round(tx,p,input,policy,stamp,put) {
+    const start=input.action === 'round_start', finish=input.action === 'round_finish';
+    const roundId=finish ? nonce(input.roundId) : hash(`${p.uid}:${nonce(input.requestId)}`);
+    const rr=db.collection('rounds').doc(roundId), old=await tx.get(rr);
+    if (start) {
+      const fingerprint=digest({helmet:input.helmet === true,jump:input.jump === true,rulesRevision:input.rulesRevision,revision:input.revision});
+      if (old.exists) {
+        const r=old.data();requireThat(r.uid === p.uid && r.fingerprint === fingerprint,'operation_conflict');
+        requireThat(!r.canceled,'round_canceled');return {roundId,activated:r.activatedAt != null,finished:r.finishedAt != null,hadHelmet:r.hadHelmet,hadJump:r.hadJump,attemptCost:r.cost};
+      }
+      requireThat(input.rulesRevision === policy.revision,'rules_changed');
+      const e=policy.config.economy.androidEnergyV2;
+      requireThat(!input.revision || input.revision === e.revision,'revision_mismatch');
+      const hadHelmet=input.helmet === true,hadJump=input.jump === true;
+      requireThat(!hadHelmet || policy.config.game.helmetEnabled !== false,'result_boost_invalid');
+      requireThat(!hadJump || policy.config.game.jumpEnabled !== false,'result_boost_invalid');
+      const cost=e.baseAttemptCost+(hadHelmet ? e.helmetExtraCost : 0)+(hadJump ? e.jumpExtraCost : 0);
+      requireThat(p.wallet.energy >= cost,'insufficient_energy');p.wallet.energy-=cost;p.wallet.gamesStarted++;
+      p.activeRound=roundId;
+      put(rr,{uid:p.uid,fingerprint,startedAt:stamp,activatedAt:null,finishedAt:null,canceled:false,hadHelmet,hadJump,cost,policy});
+      return {roundId,activated:false,finished:false,hadHelmet,hadJump,attemptCost:cost};
+    }
+    requireThat(old.exists && old.data().uid === p.uid,'round_not_found',404);
+    const r=old.data();requireThat(!r.canceled || input.action === 'round_cancel','round_canceled');
+    if (input.action === 'round_cancel') {
+      requireThat(!r.activatedAt && !r.finishedAt,'round_already_started');
+      if (!r.canceled) {p.wallet.energy+=r.cost;p.wallet.gamesStarted--;r.canceled=true;delete p.activeRound;put(rr,r);}
+      return {canceled:true};
+    }
+    if (input.action === 'round_activate') {
+      requireThat(!r.finishedAt,'round_already_started');
+      if (!r.activatedAt) {r.activatedAt=stamp;put(rr,r);}return {activated:true};
+    }
+    const result={timeMs:input.timeMs,runDistance:input.runDistance,riskCount:input.riskCount,hadJump:input.hadJump === true,hadHelmet:input.hadHelmet === true};
+    const resultHash=digest(result);
+    if (r.finishedAt) {requireThat(r.resultHash === resultHash,'operation_conflict');return r.result;}
+    requireThat(r.activatedAt != null,'round_not_activated');
+    integer(result.timeMs,1,3600000,'result_invalid');integer(result.runDistance,0,10000000,'result_invalid');integer(result.riskCount,0,10000,'result_invalid');
+    requireThat(result.timeMs <= stamp-r.activatedAt+1200,'result_time_invalid');
+    requireThat(result.hadHelmet === r.hadHelmet && result.hadJump === r.hadJump,'result_boost_invalid');
+    const e=r.policy.config.economy;
+    const reward=Math.floor(result.runDistance/e.runRewardEvery)+Math.floor(result.riskCount/e.riskRewardEvery);
+    p.wallet.energy+=reward;p.wallet.bestTimeMs=Math.max(p.wallet.bestTimeMs,result.timeMs);p.completedGames++;
+    for (const [id,condition] of Object.entries({survive_10s:result.timeMs >= e.earnSurviveSeconds*1000,record_20s:p.wallet.bestTimeMs >= e.earnRecordSeconds*1000,risks_5:result.riskCount >= e.earnRisksInRun})) if (condition && !p.wallet.unlocked.includes(id)) p.wallet.unlocked.push(id);
+    const answer={scoreId:roundId,energyReward:reward,score:Math.round(result.timeMs/1000*result.runDistance*(1+result.riskCount))};
+    put(db.collection('scores').doc(roundId),{...result,id:roundId,userId:owner(p.uid),uid:p.uid,playerName:p.nickname,createdAt:stamp});
+    r.finishedAt=stamp;r.result=answer;r.resultHash=resultHash;put(rr,r);delete p.activeRound;
+    boards.clear();
+    return answer;
+  }
+  async function inviteState(p,identity,policy,input) {
+    let query=db.collection('invitations').where('inviterUid','==',p.uid).orderBy('boundAt','desc').orderBy('__name__','desc');
+    if (input.before != null) {
+      requireThat(typeof input.before === 'string' && /^\d+_[A-Za-z0-9_-]+$/.test(input.before),'invite_cursor_invalid',400);
+      const separator=input.before.indexOf('_'),at=Number(input.before.slice(0,separator)),id=input.before.slice(separator+1);
+      requireThat(Number.isSafeInteger(at),'invite_cursor_invalid',400);query=query.startAfter(at,id);
+    }
+    const rows=await query.limit(51).get();
+    const total=await db.collection('invitations').where('inviterUid','==',p.uid).count().get();
+    const paid=[],pending=[];
+    const page=rows.docs.slice(0,50);
+    const invitees=page.length ? await db.getAll(...page.map(d => playerRef(d.id))) : [];
+    for (let i=0;i<page.length;i++) { const doc=page[i],r=doc.data(),member=invitees[i].data();const id=BigInt('0x'+hash(doc.id).slice(0,14)).toString();
+      if (r.rewardedAt) paid.push({id,nickname:r.nickname ?? null,rewardedAt:r.rewardedAt,amount:r.amount,currency:'energy',energyEquivalent:r.amount});
+      else pending.push({id,nickname:member?.nickname ?? null,games:Math.min(5,member?.completedGames ?? 0),googleLinked:member?.googleLinked === true,bonusStatus:(member?.completedGames ?? 0) < 5 ? 'waiting_games' : 'waiting_google'});
+    }
+    return {profileId:owner(p.uid),ownCode:p.ownCode,inviteUrl:`https://untouch-android-game-box-b30d4.web.app/a/${p.ownCode}`,inviterAssigned:!!p.inviterUid,
+      inviterCode:p.inviterCode,googleLinked:identity.googleLinked,completedGames:Math.min(5,p.completedGames),
+      bonusStatus:p.inviteRewarded ? 'rewarded' : !p.inviterUid ? 'unbound' : p.completedGames < 5 ? 'waiting_games' : 'waiting_google',
+      reward:policy.config.economy.androidEnergyV2.simpleBonus.inviterReward,currency:'energy',requiredGames:5,rewardTotal:p.rewardTotal,energyRewardTotal:p.rewardTotal,
+      invitedCount:total.data().count,paidRows:paid,pendingRows:pending,
+      nextCursor:rows.size > 50 ? `${page.at(-1).data().boundAt}_${page.at(-1).id}` : null,pendingNextCursor:null};
+  }
+  async function scores(input,stamp) {
+    const date=new Date(stamp);
+    const start={all:0,day:Date.UTC(date.getUTCFullYear(),date.getUTCMonth(),date.getUTCDate()),week:stamp-7*86400000,
+      month:Date.UTC(date.getUTCFullYear(),date.getUTCMonth(),1),year:Date.UTC(date.getUTCFullYear(),0,1)};
+    requireThat(Object.hasOwn(start,input.period),'period_invalid',400);
+    const cached=boards.get(input.period);
+    if(cached && stamp >= cached.at && stamp-cached.at < 20000) return {ok:true,source:'firebase',scores:cached.rows,serverNow:stamp};
+    const seen=new Set(),rows=[];
+    let cursor=null;
+    while(rows.length < 150) {
+      let query=db.collection('scores').where('timeMs','>=',1).where('createdAt','>=',start[input.period]).orderBy('timeMs','desc').orderBy('createdAt','desc').limit(200);
+      if(cursor) query=query.startAfter(cursor);
+      const page=await query.get();
+      for (const doc of page.docs) {const row=doc.data();if (!seen.has(row.uid)) {seen.add(row.uid);rows.push(row);}if(rows.length === 150) break;}
+      if(page.size < 200) break;cursor=page.docs.at(-1);
+    }
+    boards.set(input.period,{at:stamp,rows});
+    return {ok:true,source:'firebase',scores:rows,serverNow:stamp};
+  }
+  async function publicRows(rows) {
+    const ids=[...new Set(rows.map(r=>r.uid))],profiles=new Map();
+    for(let i=0;i<ids.length;i+=100) {
+      const page=await db.getAll(...ids.slice(i,i+100).map(playerRef));
+      for(const doc of page) if(doc.exists) profiles.set(doc.id,doc.data());
+    }
+    return rows.map(row=>{const p=profiles.get(row.uid);return {...row,playerName:p?.nickname ?? row.playerName,
+      googleName:p?.googleLinked && !p?.hideGoogleAccount ? p.publicGoogleName ?? null : null};});
+  }
+  async function syncPlay(uid,identity,policy) {
+    const player=await playerRef(uid).get(), tokenHash=player.data()?.wallet.energySubscription?.tokenHash;
+    if(tokenHash) {
+      const receipt=await db.collection('purchases').doc(tokenHash).get(),r=receipt.data();
+      requireThat(r?.uid === uid && r.token && !r.supersededBy,'purchase_owner_invalid');
+      await execute(uid,{action:'play_verify',productId:r.productId,purchaseToken:r.token},identity);
+    }
+    return execute(uid,{action:'profile'},identity);
+  }
+  async function revokePurchase(uid,token) {
+    const receiptRef=db.collection('purchases').doc(hash(token));
+    await db.runTransaction(async tx=>{
+      const receipt=await tx.get(receiptRef),player=await tx.get(playerRef(uid));
+      requireThat(receipt.exists && receipt.data().uid === uid && player.exists,'purchase_owner_invalid');
+      const r=receipt.data(),p=player.data();if(r.revoked) return;
+      const terms=product(r.productId);
+      if(terms.kind === 'energy') p.wallet.energy=Math.max(0,p.wallet.energy-terms.amount);
+      else if(p.wallet.energySubscription?.tokenHash === receiptRef.id) p.wallet.energySubscription=null;
+      r.revoked=true;r.revokedAt=now();p.version++;
+      tx.set(receiptRef,r);tx.set(playerRef(uid),p);
+    });
+  }
+  return {execute,revokePurchase};
+}
+module.exports={createEngine,seed,publicProfile,owner,codeFor};

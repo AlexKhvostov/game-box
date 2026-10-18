@@ -1,0 +1,74 @@
+/* Native profile settings/support presentation; all existing preference bindings stay unchanged. */
+#sheet-panel.sheet-profile .neon-profile-settings {
+  background: linear-gradient(135deg, #153f58, #0d2a40);
+  border: 1px solid #376984; border-radius: 12px; padding: 6px 10px;
+  color: #f0fbff; box-shadow: none;
+}
+#sheet-panel.sheet-profile .neon-profile-settings .profile-stats-title {
+  color: #f0fbff; font-size: 12px; font-weight: 800; line-height: 1.3;
+  text-transform: none; letter-spacing: normal;
+  padding: 0; margin: 0; overflow-wrap: anywhere;
+}
+#sheet-panel.sheet-profile .neon-profile-settings .profile-switch {
+  position: relative; min-height: 48px; min-width: 0; gap: 8px;
+  padding: 0; margin: 0; border: 0; border-radius: 0; background: none;
+}
+#sheet-panel.sheet-profile .neon-profile-settings .profile-switch + .profile-switch { border-top: 1px solid #31556b; }
+#sheet-panel.sheet-profile .neon-profile-settings .profile-switch-copy { flex: 1; min-width: 0; padding: 6px 0; gap: 2px; }
+#sheet-panel.sheet-profile .neon-profile-settings .profile-switch-label {
+  color: #f0fbff; font-size: 13px; font-weight: 400; line-height: 1.3; overflow-wrap: anywhere;
+}
+#sheet-panel.sheet-profile .neon-profile-settings .profile-switch-hint {
+  color: #a9cbe4; font-size: 11px; font-weight: 400; line-height: 1.3; overflow-wrap: anywhere;
+}
+#sheet-panel.sheet-profile .neon-profile-settings .profile-switch input {
+  position: absolute; right: 0; top: calc(50% - 24px); width: 48px; height: 48px;
+  margin: 0; opacity: 0; pointer-events: auto; cursor: pointer;
+}
+#sheet-panel.sheet-profile .neon-profile-settings .profile-switch-track {
+  width: 48px; height: 28px; border: 2px solid #8da6b7; border-radius: 99px;
+  background: #253d4d; box-shadow: none; transition: background .15s, border-color .15s;
+}
+#sheet-panel.sheet-profile .neon-profile-settings .profile-switch-track::after {
+  width: 20px; height: 20px; top: 2px; left: 2px; background: #d3dfe5;
+  box-shadow: 0 1px 2px #020e1f55; transition: transform .15s, background .15s;
+}
+#sheet-panel.sheet-profile .neon-profile-settings .profile-switch input:checked + .profile-switch-track {
+  border-color: #43ecc0; background: #43ecc0; box-shadow: none;
+}
+#sheet-panel.sheet-profile .neon-profile-settings .profile-switch input:checked + .profile-switch-track::after {
+  transform: translateX(20px); background: #91ffd0;
+}
+#sheet-panel.sheet-profile .neon-profile-settings .profile-switch input:focus-visible + .profile-switch-track { outline: 3px solid #79f1f5; outline-offset: 3px; }
+#sheet-panel.sheet-profile .profile-help { margin: 0; min-width: 0; color: #f0fbff; }
+#sheet-panel.sheet-profile .profile-help summary {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  min-height: 48px; padding: 0; cursor: pointer; list-style: none;
+  color: #f0fbff; font-size: 12px; font-weight: 400; line-height: 1.3;
+}
+#sheet-panel.sheet-profile .profile-help summary::-webkit-details-marker { display: none; }
+#sheet-panel.sheet-profile .profile-help summary > span { min-width: 0; overflow-wrap: anywhere; }
+#sheet-panel.sheet-profile .profile-help-arrow { color: #79f1f5; flex-shrink: 0; }
+#sheet-panel.sheet-profile .profile-help[open] .profile-help-arrow { transform: rotate(180deg); }
+#sheet-panel.sheet-profile .profile-help-panel {
+  padding: 4px 8px; border: 1px solid #376984; border-radius: 12px;
+  background: linear-gradient(135deg, #153f58, #0d2a40); color: #f0fbff;
+}
+#sheet-panel.sheet-profile .profile-help-panel a {
+  display: flex; align-items: center; gap: 8px; min-height: 48px; min-width: 0;
+  padding: 8px 4px; color: #79f1f5; font-size: 12px; font-weight: 600; line-height: 1.3; text-decoration: none;
+}
+#sheet-panel.sheet-profile .profile-help-panel a svg { flex-shrink: 0; }
+#sheet-panel.sheet-profile .profile-help-panel a span { min-width: 0; overflow-wrap: anywhere; }
+#sheet-panel.sheet-profile .profile-help-note {
+  margin: 0; color: #a9cbe4; font-size: 11px; font-weight: 400; line-height: 1.3; overflow-wrap: anywhere;
+}
+#sheet-panel.sheet-profile .profile-help-email {
+  min-height: 48px; display: flex; align-items: center; margin: 0; padding: 8px 4px;
+  color: #79f1f5; font-size: 12px; font-weight: 600; line-height: 1.3; overflow-wrap: anywhere; user-select: text;
+}
+#sheet-panel.sheet-profile .profile-help :is(summary, a):focus-visible { outline: 2px solid #79f1f5; outline-offset: -2px; border-radius: 8px; }
+@media (prefers-reduced-motion: reduce) {
+  #sheet-panel.sheet-profile .neon-profile-settings .profile-switch-track,
+  #sheet-panel.sheet-profile .neon-profile-settings .profile-switch-track::after { transition: none; }
+}

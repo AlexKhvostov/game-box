@@ -1,0 +1,776 @@
+{
+    "revision": "6d426e457cdfb033fd95849328c28c16ad2ef37c6713691333a98901b7ce7684",
+    "cases": [
+        {
+            "name": "clamp and actual distance",
+            "player": [
+                120,
+                120
+            ],
+            "enemies": [],
+            "actions": [
+                [
+                    "move",
+                    -1000,
+                    -1000
+                ],
+                [
+                    "move",
+                    -10,
+                    -10
+                ],
+                [
+                    "move",
+                    1000,
+                    1000
+                ]
+            ],
+            "expected": [
+                {
+                    "player": [
+                        3.5,
+                        3.5
+                    ],
+                    "distance": 164.7558800164656,
+                    "risks": 0,
+                    "jumping": false,
+                    "hit": false,
+                    "result": null,
+                    "enemies": []
+                },
+                {
+                    "player": [
+                        3.5,
+                        3.5
+                    ],
+                    "distance": 164.7558800164656,
+                    "risks": 0,
+                    "jumping": false,
+                    "hit": false,
+                    "result": null,
+                    "enemies": []
+                },
+                {
+                    "player": [
+                        260.5,
+                        260.5
+                    ],
+                    "distance": 528.2087655463511,
+                    "risks": 0,
+                    "jumping": false,
+                    "hit": false,
+                    "result": null,
+                    "enemies": []
+                }
+            ]
+        },
+        {
+            "name": "near miss enter then leave",
+            "player": [
+                100,
+                100
+            ],
+            "enemies": [
+                {
+                    "pos": {
+                        "dx": 150,
+                        "dy": 100
+                    },
+                    "vel": {
+                        "dx": 0,
+                        "dy": 0
+                    },
+                    "w": 40,
+                    "h": 20,
+                    "aspect": 2,
+                    "angleDeg": 0,
+                    "quadrantN": 1,
+                    "fieldQuadrant": 0,
+                    "initialSpeed": 0,
+                    "acceleration": 0,
+                    "orientDeg": 0,
+                    "spinDegPerSec": 0
+                }
+            ],
+            "actions": [
+                [
+                    "move",
+                    2,
+                    0
+                ],
+                [
+                    "move",
+                    -40,
+                    0
+                ],
+                [
+                    "move",
+                    40,
+                    0
+                ],
+                [
+                    "move",
+                    -40,
+                    0
+                ]
+            ],
+            "expected": [
+                {
+                    "player": [
+                        102,
+                        100
+                    ],
+                    "distance": 2,
+                    "risks": 0,
+                    "jumping": false,
+                    "hit": false,
+                    "result": null,
+                    "enemies": [
+                        [
+                            150,
+                            100,
+                            0,
+                            0,
+                            0
+                        ]
+                    ]
+                },
+                {
+                    "player": [
+                        62,
+                        100
+                    ],
+                    "distance": 42,
+                    "risks": 1,
+                    "jumping": false,
+                    "hit": false,
+                    "result": null,
+                    "enemies": [
+                        [
+                            150,
+                            100,
+                            0,
+                            0,
+                            0
+                        ]
+                    ]
+                },
+                {
+                    "player": [
+                        102,
+                        100
+                    ],
+                    "distance": 82,
+                    "risks": 1,
+                    "jumping": false,
+                    "hit": false,
+                    "result": null,
+                    "enemies": [
+                        [
+                            150,
+                            100,
+                            0,
+                            0,
+                            0
+                        ]
+                    ]
+                },
+                {
+                    "player": [
+                        62,
+                        100
+                    ],
+                    "distance": 122,
+                    "risks": 2,
+                    "jumping": false,
+                    "hit": false,
+                    "result": null,
+                    "enemies": [
+                        [
+                            150,
+                            100,
+                            0,
+                            0,
+                            0
+                        ]
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "jump overlap counted once",
+            "player": [
+                100,
+                100
+            ],
+            "enemies": [
+                {
+                    "pos": {
+                        "dx": 105,
+                        "dy": 105
+                    },
+                    "vel": {
+                        "dx": 0,
+                        "dy": 0
+                    },
+                    "w": 40,
+                    "h": 20,
+                    "aspect": 2,
+                    "angleDeg": 0,
+                    "quadrantN": 1,
+                    "fieldQuadrant": 0,
+                    "initialSpeed": 0,
+                    "acceleration": 0,
+                    "orientDeg": 0,
+                    "spinDegPerSec": 0
+                }
+            ],
+            "actions": [
+                [
+                    "jump",
+                    0
+                ],
+                [
+                    "move",
+                    1,
+                    0
+                ],
+                [
+                    "move",
+                    1,
+                    0
+                ],
+                [
+                    "jump",
+                    2000
+                ],
+                [
+                    "jumpTick",
+                    1
+                ],
+                [
+                    "jump",
+                    1999
+                ],
+                [
+                    "jump",
+                    2000
+                ],
+                [
+                    "move",
+                    1,
+                    0
+                ]
+            ],
+            "expected": [
+                {
+                    "player": [
+                        100,
+                        100
+                    ],
+                    "distance": 0,
+                    "risks": 1,
+                    "jumping": true,
+                    "hit": false,
+                    "result": true,
+                    "enemies": [
+                        [
+                            105,
+                            105,
+                            0,
+                            0,
+                            0
+                        ]
+                    ]
+                },
+                {
+                    "player": [
+                        101,
+                        100
+                    ],
+                    "distance": 1,
+                    "risks": 1,
+                    "jumping": true,
+                    "hit": false,
+                    "result": null,
+                    "enemies": [
+                        [
+                            105,
+                            105,
+                            0,
+                            0,
+                            0
+                        ]
+                    ]
+                },
+                {
+                    "player": [
+                        102,
+                        100
+                    ],
+                    "distance": 2,
+                    "risks": 1,
+                    "jumping": true,
+                    "hit": false,
+                    "result": null,
+                    "enemies": [
+                        [
+                            105,
+                            105,
+                            0,
+                            0,
+                            0
+                        ]
+                    ]
+                },
+                {
+                    "player": [
+                        102,
+                        100
+                    ],
+                    "distance": 2,
+                    "risks": 1,
+                    "jumping": true,
+                    "hit": false,
+                    "result": false,
+                    "enemies": [
+                        [
+                            105,
+                            105,
+                            0,
+                            0,
+                            0
+                        ]
+                    ]
+                },
+                {
+                    "player": [
+                        102,
+                        100
+                    ],
+                    "distance": 2,
+                    "risks": 1,
+                    "jumping": false,
+                    "hit": true,
+                    "result": null,
+                    "enemies": [
+                        [
+                            105,
+                            105,
+                            0,
+                            0,
+                            0
+                        ]
+                    ]
+                },
+                {
+                    "player": [
+                        102,
+                        100
+                    ],
+                    "distance": 2,
+                    "risks": 1,
+                    "jumping": false,
+                    "hit": true,
+                    "result": false,
+                    "enemies": [
+                        [
+                            105,
+                            105,
+                            0,
+                            0,
+                            0
+                        ]
+                    ]
+                },
+                {
+                    "player": [
+                        102,
+                        100
+                    ],
+                    "distance": 2,
+                    "risks": 2,
+                    "jumping": true,
+                    "hit": false,
+                    "result": true,
+                    "enemies": [
+                        [
+                            105,
+                            105,
+                            0,
+                            0,
+                            0
+                        ]
+                    ]
+                },
+                {
+                    "player": [
+                        103,
+                        100
+                    ],
+                    "distance": 3,
+                    "risks": 2,
+                    "jumping": true,
+                    "hit": false,
+                    "result": null,
+                    "enemies": [
+                        [
+                            105,
+                            105,
+                            0,
+                            0,
+                            0
+                        ]
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "rotated collision",
+            "player": [
+                100,
+                100
+            ],
+            "enemies": [
+                {
+                    "pos": {
+                        "dx": 135,
+                        "dy": 110
+                    },
+                    "vel": {
+                        "dx": 0,
+                        "dy": 0
+                    },
+                    "w": 40,
+                    "h": 20,
+                    "aspect": 2,
+                    "angleDeg": 0,
+                    "quadrantN": 1,
+                    "fieldQuadrant": 0,
+                    "initialSpeed": 0,
+                    "acceleration": 0,
+                    "orientDeg": 45,
+                    "spinDegPerSec": 0
+                }
+            ],
+            "actions": [
+                [
+                    "move",
+                    5,
+                    0
+                ],
+                [
+                    "move",
+                    -20,
+                    0
+                ]
+            ],
+            "expected": [
+                {
+                    "player": [
+                        105,
+                        100
+                    ],
+                    "distance": 5,
+                    "risks": 0,
+                    "jumping": false,
+                    "hit": true,
+                    "result": null,
+                    "enemies": [
+                        [
+                            135,
+                            110,
+                            0,
+                            0,
+                            45
+                        ]
+                    ]
+                },
+                {
+                    "player": [
+                        85,
+                        100
+                    ],
+                    "distance": 25,
+                    "risks": 0,
+                    "jumping": false,
+                    "hit": false,
+                    "result": null,
+                    "enemies": [
+                        [
+                            135,
+                            110,
+                            0,
+                            0,
+                            45
+                        ]
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "rotating wall bounce",
+            "player": [
+                120,
+                120
+            ],
+            "enemies": [
+                {
+                    "pos": {
+                        "dx": 5,
+                        "dy": 50
+                    },
+                    "vel": {
+                        "dx": -100,
+                        "dy": 40
+                    },
+                    "w": 40,
+                    "h": 20,
+                    "aspect": 2,
+                    "angleDeg": 0,
+                    "quadrantN": 1,
+                    "fieldQuadrant": 0,
+                    "initialSpeed": 107.70329614269009,
+                    "acceleration": 0,
+                    "orientDeg": 30,
+                    "spinDegPerSec": 90
+                }
+            ],
+            "actions": [
+                [
+                    "play",
+                    0.05,
+                    0.05,
+                    1
+                ],
+                [
+                    "play",
+                    0.05,
+                    0.1,
+                    1
+                ],
+                [
+                    "play",
+                    0.05,
+                    0.15,
+                    1
+                ]
+            ],
+            "expected": [
+                {
+                    "player": [
+                        120,
+                        120
+                    ],
+                    "distance": 0,
+                    "risks": 0,
+                    "jumping": false,
+                    "hit": false,
+                    "result": null,
+                    "enemies": [
+                        [
+                            5.6465861416886405,
+                            52,
+                            100,
+                            40,
+                            34.5
+                        ]
+                    ]
+                },
+                {
+                    "player": [
+                        120,
+                        120
+                    ],
+                    "distance": 0,
+                    "risks": 0,
+                    "jumping": false,
+                    "hit": false,
+                    "result": null,
+                    "enemies": [
+                        [
+                            10.64658614168864,
+                            54,
+                            100,
+                            40,
+                            39
+                        ]
+                    ]
+                },
+                {
+                    "player": [
+                        120,
+                        120
+                    ],
+                    "distance": 0,
+                    "risks": 0,
+                    "jumping": false,
+                    "hit": false,
+                    "result": null,
+                    "enemies": [
+                        [
+                            15.646586141688644,
+                            56,
+                            100,
+                            40,
+                            43.5
+                        ]
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "enemy collision",
+            "player": [
+                200,
+                200
+            ],
+            "enemies": [
+                {
+                    "pos": {
+                        "dx": 90,
+                        "dy": 90
+                    },
+                    "vel": {
+                        "dx": 100,
+                        "dy": 0
+                    },
+                    "w": 40,
+                    "h": 20,
+                    "aspect": 2,
+                    "angleDeg": 0,
+                    "quadrantN": 1,
+                    "fieldQuadrant": 0,
+                    "initialSpeed": 100,
+                    "acceleration": 0,
+                    "orientDeg": 25,
+                    "spinDegPerSec": 0
+                },
+                {
+                    "pos": {
+                        "dx": 125,
+                        "dy": 90
+                    },
+                    "vel": {
+                        "dx": -100,
+                        "dy": 0
+                    },
+                    "w": 40,
+                    "h": 20,
+                    "aspect": 2,
+                    "angleDeg": 0,
+                    "quadrantN": 1,
+                    "fieldQuadrant": 0,
+                    "initialSpeed": 100,
+                    "acceleration": 0,
+                    "orientDeg": -25,
+                    "spinDegPerSec": 0
+                }
+            ],
+            "actions": [
+                [
+                    "play",
+                    0.05,
+                    0.05,
+                    1
+                ],
+                [
+                    "play",
+                    0.05,
+                    0.1,
+                    1
+                ]
+            ],
+            "expected": [
+                {
+                    "player": [
+                        200,
+                        200
+                    ],
+                    "distance": 0,
+                    "risks": 0,
+                    "jumping": false,
+                    "hit": false,
+                    "result": null,
+                    "enemies": [
+                        [
+                            95,
+                            90,
+                            100,
+                            0,
+                            25
+                        ],
+                        [
+                            120,
+                            90,
+                            -100,
+                            0,
+                            -25
+                        ]
+                    ]
+                },
+                {
+                    "player": [
+                        200,
+                        200
+                    ],
+                    "distance": 0,
+                    "risks": 0,
+                    "jumping": false,
+                    "hit": false,
+                    "result": null,
+                    "enemies": [
+                        [
+                            100,
+                            90,
+                            100,
+                            0,
+                            25
+                        ],
+                        [
+                            115,
+                            90,
+                            -100,
+                            0,
+                            -25
+                        ]
+                    ]
+                }
+            ]
+        }
+    ],
+    "scores": [
+        {
+            "ms": 1234,
+            "px": 199.5,
+            "size": 36,
+            "risk": 4,
+            "steps": 55,
+            "score": 339
+        },
+        {
+            "ms": 10000,
+            "px": 718.2,
+            "size": 36,
+            "risk": 5,
+            "steps": 200,
+            "score": 12000
+        },
+        {
+            "ms": 0,
+            "px": 0,
+            "size": 36,
+            "risk": 0,
+            "steps": 0,
+            "score": 0
+        },
+        {
+            "ms": 999,
+            "px": 300,
+            "size": 30,
+            "risk": 2,
+            "steps": 100,
+            "score": 300
+        }
+    ]
+}

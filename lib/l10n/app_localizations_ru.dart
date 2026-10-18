@@ -107,7 +107,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get cancel => 'Отмена';
 
   @override
-  String get crystals => 'Кристалы';
+  String get crystals => 'Кристаллы';
 
   @override
   String get crystalsGenitive => 'кристалов';
@@ -166,37 +166,38 @@ class AppLocalizationsRu extends AppLocalizations {
   String get earn => 'Заработать';
 
   @override
-  String get earnPreviewHint => 'Заглушки до подключения рекламы и SDK';
+  String get earnPreviewHint =>
+      'Выполняйте задания и забирайте доступные бонусы';
 
   @override
   String get shop => 'Магазин';
 
   @override
-  String get plusActive => 'Boost активен';
+  String get plusActive => 'Plus активен';
 
   @override
   String get plusCancel => 'Отменить подписку';
 
   @override
   String plusButton(String price) {
-    return 'Boost · $price';
+    return 'Plus · $price';
   }
 
   @override
-  String get plusToast => 'Boost · ежедневно ×2';
+  String get plusToast => 'Plus · ежедневно ×2';
 
   @override
-  String get plusCancelledToast => 'Boost отключён';
+  String get plusCancelledToast => 'Plus отключён';
 
   @override
-  String get plusManageTitle => 'Управление Boost';
+  String get plusManageTitle => 'Управление Plus';
 
   @override
-  String get plusOfferTitle => 'Подписка Boost';
+  String get plusOfferTitle => 'Подписка Plus';
 
   @override
   String get plusOfferSubtitle =>
-      'Boost — еженедельная подписка за \$1. Без рекламы и ×2 кристаллы в ежедневном бонусе. Отменить можно в этом окне (оплата через Google Play / App Store — позже).';
+      'Plus — недельная подписка: без рекламы и ×2 кристаллы в ежедневном бонусе. Цена и условия оплаты отображаются в Google Play. Управление подпиской — в Google Play.';
 
   @override
   String plusSubscribe(String price) {
@@ -205,7 +206,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get plusManageSubtitle =>
-      'Boost даёт бонусы в игре. Пока это локальный preview — после подключения магазина списание пойдёт через Google Play / App Store.';
+      'Подписка Plus даёт бонусы в игре. Изменить автопродление или отменить подписку можно в Google Play.';
 
   @override
   String get plusManageBenefitAds => 'Без рекламы';
@@ -220,7 +221,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String plusManageNextCharge(String date) {
-    return 'Следующее списание: $date';
+    return 'Активна до: $date';
   }
 
   @override
@@ -261,7 +262,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String premiumTimesLocked(String mult) {
-    return '×$mult с Boost';
+    return '×$mult с Plus';
   }
 
   @override
@@ -427,7 +428,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get tabEarn => 'Действия';
 
   @override
-  String get plusTitle => 'Boost';
+  String get plusTitle => 'Plus';
 
   @override
   String get plusBenefits => 'Без рекламы';
@@ -575,7 +576,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get youGhost => 'Вы';
 
   @override
-  String get periodMine => 'Мои попытки';
+  String get periodMine => 'Мои';
 
   @override
   String get colAttempt => 'Попытка';
@@ -587,5 +588,19 @@ class AppLocalizationsRu extends AppLocalizations {
   String get attemptShared => 'В рейтинге';
 
   @override
-  String get attemptLocal => 'Не сохранено';
+  String get attemptLocal => 'На устройстве';
+
+  @override
+  String get scoreAutoSaved => 'Сохранено в общем рейтинге';
+
+  @override
+  String get scoreSyncPending =>
+      'Сохранено на устройстве · отправим автоматически';
+
+  @override
+  String get scorePracticeOnly =>
+      'Сохранено на устройстве · без общего рейтинга';
+
+  @override
+  String get scoreAutoSave => 'Результаты сохраняются автоматически';
 }

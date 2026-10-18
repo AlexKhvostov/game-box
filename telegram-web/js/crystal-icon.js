@@ -1,4 +1,4 @@
-/** CrystalCubeIcon — lib/ui/crystal_cube_icon.dart */
+﻿/** CrystalCubeIcon — lib/ui/crystal_cube_icon.dart */
 const CRYSTAL_SVG = 'icons/crystal.svg';
 
 export function crystalImg(size = 24, glow = false) {

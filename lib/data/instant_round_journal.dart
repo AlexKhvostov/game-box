@@ -1,0 +1,352 @@
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'economy_store.dart';
+import 'mobile_account.dart';
+
+/// Game input never waits for this worker. Each run has a durable, unique
+/// request, frozen equipment and an owner; only server acknowledgements publish
+/// scores or grant rewards. The original server validation remains unchanged.
+class InstantRoundJournal {
+  InstantRoundJournal({
+    required this.account,
+    required this.economy,
+    required this.published,
+    required this.recoverResult,
+    required this.changed,
+    int Function()? elapsedMilliseconds,
+  }) : _elapsed = elapsedMilliseconds {
+    account.addListener(_accountChanged);
+  }
+
+  final MobileAccount account;
+  final EconomyStore economy;
+  final Future<void> Function(String owner, String attemptId) published;
+  final Map<String, dynamic>? Function(String attemptId) recoverResult;
+  final void Function() changed;
+  final int Function()? _elapsed;
+  final Stopwatch _clock = Stopwatch()..start();
+  int get _now => _elapsed?.call() ?? _clock.elapsedMilliseconds;
+  final List<Map<String, dynamic>> _rows = [];
+  final Map<String, int> _activationAges = {};
+  SharedPreferences? _prefs;
+  String? _owner, _active;
+  Future<void> _writes = Future.value();
+  Future<void> _binding = Future.value();
+  Timer? _retry;
+  bool _running = false, _disposed = false, _loaded = false;
+  bool _needsWork = false;
+  int? _retryAt;
+  int _backoff = 1;
+  String? lastError;
+  String? get activeKey => _active;
+  bool get ready => _loaded && _owner == account.id;
+  bool get hasPending => _rows.isNotEmpty;
+  bool pendingAttempt(String id) => _rows.any((r) => r['requestId'] == id);
+  String _key(String owner) =>
+      '${account.storagePrefix}instant_rounds_v1_$owner';
+
+  void _accountChanged() {
+    if (_owner != account.id) {
+      unawaited(bindOwner());
+    }
+  }
+
+  Future<void> bindOwner() {
+    final owner = account.id;
+    _binding = _binding
+        .catchError((Object _) {})
+        .then((_) async {
+          if (_disposed ||
+              owner != account.id ||
+              (_loaded && owner == _owner)) {
+            return;
+          }
+          _loaded = false;
+          await _writes.catchError((Object _) {});
+          _prefs ??= await SharedPreferences.getInstance();
+          if (_disposed || owner != account.id) return;
+          _owner = owner;
+          _active = null;
+          _rows.clear();
+          _activationAges.clear();
+          if (owner != null) {
+            final raw = _prefs!.getString(_key(owner));
+            if (raw != null) {
+              final saved = jsonDecode(raw) as List;
+              for (final item in saved) {
+                final row = Map<String, dynamic>.from(item as Map);
+                if (row['owner'] != owner) continue;
+                if (row['result'] == null) {
+                  final result = recoverResult(row['requestId'] as String);
+                  if (result != null) {
+                    row['result'] = result;
+                  } else {
+                    // A killed process cannot resume a moving game. Its already
+                    // started attempt is paid once, without inventing a score.
+                    row['abandoned'] = true;
+                  }
+                }
+                _rows.add(row);
+              }
+            }
+          }
+          _loaded = true;
+          _costs();
+          changed();
+          retry();
+        })
+        .catchError((Object _) {
+          // Preserve an unreadable journal for recovery; never replace it with an
+          // empty queue or publish guessed results.
+          _loaded = false;
+          lastError = 'round_storage_failed';
+          changed();
+        });
+    return _binding;
+  }
+
+  String? begin({required bool helmet, required bool jump, required int cost}) {
+    final owner = _owner;
+    if (!ready ||
+        owner == null ||
+        _active != null ||
+        _rows.length >= 10000 ||
+        cost < 1 ||
+        economy.energy < cost ||
+        economy.energyOwner != owner ||
+        account.googleStage != null) {
+      return null;
+    }
+    final requestId = account.operationId();
+    _rows.add({
+      'owner': owner,
+      'requestId': requestId,
+      'helmet': helmet,
+      'jump': jump,
+      'cost': cost,
+      'revision': economy.energyConfig.revision,
+      'rulesRevision': account.rulesRevision,
+    });
+    _active = requestId;
+    lastError = null;
+    _costs();
+    changed();
+    // Local animation can start now. No HTTP is sent until the intent is saved.
+    unawaited(
+      _save().then((_) => retry()).catchError((Object _) {
+        lastError = 'round_storage_failed';
+        _later();
+      }),
+    );
+    return requestId;
+  }
+
+  Future<void> complete(String key, Map<String, dynamic> result) async {
+    final row = _rows.where((r) => r['requestId'] == key).firstOrNull;
+    if (row == null) return;
+    row['result'] = Map<String, dynamic>.from(result);
+    if (_active == key) _active = null;
+    await _save();
+    changed();
+    retry();
+  }
+
+  void _costs() {
+    final owner = _owner;
+    if (owner == null) return;
+    economy.setPendingRunCosts(owner, {
+      for (final row in _rows)
+        if (row['charged'] != true && row['rejected'] == null)
+          row['requestId'] as String: row['cost'] as int,
+    });
+  }
+
+  Future<void> _save() {
+    final owner = _owner;
+    if (owner == null || _prefs == null) return Future.value();
+    final encoded = jsonEncode(_rows);
+    final job = _writes.catchError((Object _) {}).then((_) async {
+      if (!await _prefs!.setString(_key(owner), encoded)) {
+        throw StateError('round_storage_failed');
+      }
+    });
+    _writes = job;
+    return job;
+  }
+
+  void retry() {
+    if (_running) {
+      _needsWork = true;
+      return;
+    }
+    _retry?.cancel();
+    _retry = null;
+    _retryAt = null;
+    if (_disposed || !ready || _rows.isEmpty) return;
+    unawaited(_work());
+  }
+
+  void _later([int? milliseconds]) {
+    if (_disposed || _rows.isEmpty) return;
+    final delay = milliseconds ?? _backoff * 1000;
+    if (_retry != null && (_retryAt ?? 0) <= _now + delay) return;
+    _retry?.cancel();
+    _retryAt = _now + delay;
+    _retry = Timer(Duration(milliseconds: delay), retry);
+  }
+
+  Future<Map<String, dynamic>> _request(
+    String owner,
+    Map<String, dynamic> command,
+  ) async {
+    if (_disposed || _owner != owner || account.id != owner) {
+      throw const MobileApiError('wallet_owner_changed');
+    }
+    return account.synchronizeRun(owner, command);
+  }
+
+  Future<void> _wallet() async {
+    if (_disposed || _owner != account.id || account.wallet == null) return;
+    _costs();
+    await economy.applyServerWallet(
+      account.wallet!,
+      owner: _owner,
+      serverNow: account.serverNow,
+      preserveBest: true,
+    );
+  }
+
+  static const _terminal = {
+    'insufficient_energy',
+    'rules_changed',
+    'revision_mismatch',
+    'economy_update_required',
+    'update_required',
+    'profile_disabled',
+    'result_boost_invalid',
+    'round_canceled',
+    'operation_conflict',
+    'result_invalid',
+    'round_not_found',
+  };
+
+  Future<void> _work() async {
+    _running = true;
+    final owner = _owner!;
+    try {
+      await _save();
+      for (final row in [..._rows]) {
+        if (_disposed || owner != _owner || owner != account.id) return;
+        final key = row['requestId'] as String;
+        if (row['rejected'] != null) {
+          if (row['result'] == null && row['abandoned'] != true) continue;
+          _rows.remove(row);
+          await _save();
+          changed();
+          continue;
+        }
+        try {
+          if (!account.onlineAllowed || !account.ready) {
+            _later();
+            return;
+          }
+          if (row['roundId'] == null) {
+            await account.beforeRound?.call();
+            final data = await _request(owner, {
+              'action': 'round_start',
+              'requestId': key,
+              'helmet': row['helmet'],
+              'jump': row['jump'],
+              'rulesRevision': row['rulesRevision'],
+              'revision': row['revision'],
+            });
+            if (owner != _owner || _disposed) return;
+            row['roundId'] = data['roundId'];
+            row['charged'] = true;
+            // Lost replies replay this exact ID. The wallet and projected cost
+            // now describe the same charge; subsequent profile loads retain it.
+            _costs();
+            await _wallet();
+            await _save();
+          }
+          if (row['activated'] != true) {
+            await _request(owner, {
+              'action': 'round_activate',
+              'requestId': key,
+            });
+            if (owner != _owner || _disposed) return;
+            row['activated'] = true;
+            _activationAges[key] = _now;
+            await _wallet();
+            await _save();
+          }
+          if (row['abandoned'] != true) {
+            final result = row['result'];
+            if (result is! Map) continue;
+            // A late activation must never relax the server's elapsed-time
+            // check. Delay only delivery, never input or the result screen.
+            final age = _now - (_activationAges[key] ??= _now);
+            final remaining = (result['timeMs'] as int) - age;
+            if (remaining > 0) {
+              _later(remaining);
+              continue;
+            }
+            await _request(owner, {
+              'action': 'round_finish',
+              'roundId': row['roundId'],
+              ...Map<String, dynamic>.from(result),
+            });
+            if (owner != _owner || _disposed) return;
+            await _wallet();
+            await published(owner, key);
+          }
+          _rows.remove(row);
+          _activationAges.remove(key);
+          await _save();
+          _backoff = 1;
+          _costs();
+          changed();
+        } on MobileApiError catch (error) {
+          if (owner != _owner || _disposed) return;
+          lastError = error.code;
+          if (_terminal.contains(error.code)) {
+            if (error.code == 'insufficient_energy') {
+              // Another device or an administrator may have spent the cached
+              // balance. Refresh it before releasing this local reservation;
+              // otherwise the rejected cost would become spendable again.
+              await _request(owner, {'action': 'profile'});
+              if (owner != _owner || _disposed) return;
+              await _wallet();
+            }
+            row['rejected'] = error.code;
+            _costs();
+            await _save();
+            changed();
+            continue;
+          }
+          _backoff = (_backoff * 2).clamp(2, 60);
+          _later();
+          return;
+        }
+      }
+    } catch (_) {
+      _backoff = (_backoff * 2).clamp(2, 60);
+      _later();
+    } finally {
+      _running = false;
+      if (!_disposed && (owner != _owner || _needsWork)) {
+        _needsWork = false;
+        retry();
+      }
+    }
+  }
+
+  void dispose() {
+    _disposed = true;
+    _retry?.cancel();
+    account.removeListener(_accountChanged);
+  }
+}

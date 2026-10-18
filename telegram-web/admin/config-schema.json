@@ -1,0 +1,1238 @@
+{
+  "version": 1,
+  "groups": [
+    {
+      "id": "theme",
+      "title": "Цвета игры",
+      "description": "Оформление тёмной темы. Светлая тема использует фиксированные цвета. Эти настройки пока не читаются APK.",
+      "fields": [
+        {
+          "path": "theme.bg",
+          "label": "Фон страницы",
+          "description": "Цвет в формате #RRGGBB.",
+          "type": "string",
+          "format": "color"
+        },
+        {
+          "path": "theme.surface",
+          "label": "Фон поля",
+          "description": "Цвет в формате #RRGGBB.",
+          "type": "string",
+          "format": "color"
+        },
+        {
+          "path": "theme.primary",
+          "label": "Герой и акценты",
+          "description": "Цвет в формате #RRGGBB.",
+          "type": "string",
+          "format": "color"
+        },
+        {
+          "path": "theme.danger",
+          "label": "Враги и опасность",
+          "description": "Цвет в формате #RRGGBB.",
+          "type": "string",
+          "format": "color"
+        },
+        {
+          "path": "theme.text",
+          "label": "Основной текст",
+          "description": "Цвет в формате #RRGGBB.",
+          "type": "string",
+          "format": "color"
+        },
+        {
+          "path": "theme.muted",
+          "label": "Вторичный текст",
+          "description": "Цвет в формате #RRGGBB.",
+          "type": "string",
+          "format": "color"
+        },
+        {
+          "path": "theme.cyan",
+          "label": "Дополнительный акцент",
+          "description": "Цвет в формате #RRGGBB.",
+          "type": "string",
+          "format": "color"
+        }
+      ]
+    },
+    {
+      "id": "enemies",
+      "title": "Враги",
+      "description": "Геометрия, скорость и поведение. Каждый элемент пропорций создаёт одного врага.",
+      "fields": [
+        {
+          "path": "enemies.areaMultiplier",
+          "label": "Площадь относительно героя",
+          "description": "Площадь врага = площадь героя × это число.",
+          "type": "number",
+          "min": 0.2,
+          "max": 20,
+          "step": 0.1
+        },
+        {
+          "path": "enemies.angleMinDeg",
+          "label": "Минимальный угол",
+          "description": "Начальное направление внутри квадранта, градусы.",
+          "type": "number",
+          "min": 0,
+          "max": 90,
+          "step": 1
+        },
+        {
+          "path": "enemies.angleMaxDeg",
+          "label": "Максимальный угол",
+          "description": "Не меньше минимального угла.",
+          "type": "number",
+          "min": 0,
+          "max": 90,
+          "step": 1
+        },
+        {
+          "path": "enemies.speedMin",
+          "label": "Минимальная скорость",
+          "description": "Пиксели игрового поля в секунду.",
+          "type": "number",
+          "min": 0,
+          "max": 2000,
+          "step": 1
+        },
+        {
+          "path": "enemies.speedMax",
+          "label": "Максимальная скорость",
+          "description": "Верхняя граница начальной скорости.",
+          "type": "number",
+          "min": 0,
+          "max": 2000,
+          "step": 1
+        },
+        {
+          "path": "enemies.accelMin",
+          "label": "Минимальное ускорение",
+          "description": "Прибавка скорости за секунду игры.",
+          "type": "number",
+          "min": 0,
+          "max": 100,
+          "step": 1
+        },
+        {
+          "path": "enemies.accelMax",
+          "label": "Максимальное ускорение",
+          "description": "Верхняя граница ускорения.",
+          "type": "number",
+          "min": 0,
+          "max": 100,
+          "step": 1
+        },
+        {
+          "path": "enemies.spinDegPerSec",
+          "label": "Вращение",
+          "description": "Градусы в секунду; 0 выключает.",
+          "type": "number",
+          "min": -360,
+          "max": 360,
+          "step": 1
+        },
+        {
+          "path": "enemies.aspects",
+          "label": "Пропорции и число врагов",
+          "description": "Ширина / высота: 1 — квадрат, 0,25 — вертикальный, 3 — горизонтальный.",
+          "type": "array",
+          "items": {
+            "type": "number",
+            "label": "Пропорция",
+            "min": 0.06,
+            "max": 49,
+            "step": 0.01
+          },
+          "minItems": 1,
+          "maxItems": 16
+        },
+        {
+          "path": "enemies.collideWithEachOther",
+          "label": "Взаимные столкновения",
+          "description": "Враги отталкиваются; увеличивает нагрузку при большом числе фигур.",
+          "type": "boolean"
+        }
+      ]
+    },
+    {
+      "id": "player",
+      "title": "Герой",
+      "description": "Размер влияет на столкновения и единицу пробега.",
+      "fields": [
+        {
+          "path": "player.size",
+          "label": "Размер героя",
+          "description": "Сторона кубика в игровых пикселях.",
+          "type": "number",
+          "min": 8,
+          "max": 80,
+          "step": 1
+        },
+        {
+          "path": "player.showFace",
+          "label": "Лицо героя",
+          "description": "Показывать лицо на кубике.",
+          "type": "boolean"
+        }
+      ]
+    },
+    {
+      "id": "field",
+      "title": "Игровое поле",
+      "description": "Размер, рамка и освещение.",
+      "fields": [
+        {
+          "path": "field.borderWidth",
+          "label": "Толщина рамки",
+          "description": "Пиксели; влияет на отступ столкновений.",
+          "type": "number",
+          "min": 0,
+          "max": 12,
+          "step": 0.5
+        },
+        {
+          "path": "field.brightness",
+          "label": "Яркость поля",
+          "description": "1 — исходный цвет.",
+          "type": "number",
+          "min": 0.4,
+          "max": 1.8,
+          "step": 0.05
+        },
+        {
+          "path": "field.shadowBrightness",
+          "label": "Освещение теней",
+          "description": "Больше — тени светлее.",
+          "type": "number",
+          "min": 0.4,
+          "max": 2.5,
+          "step": 0.05
+        },
+        {
+          "path": "field.cornerRadius",
+          "label": "Скругление",
+          "description": "Радиус углов в пикселях.",
+          "type": "number",
+          "min": 0,
+          "max": 64,
+          "step": 1
+        },
+        {
+          "path": "field.maxSide",
+          "label": "Максимальная сторона",
+          "description": "Максимальный размер поля в CSS-пикселях.",
+          "type": "number",
+          "min": 200,
+          "max": 600,
+          "step": 1
+        },
+        {
+          "path": "field.colorHex",
+          "label": "Свой цвет поля",
+          "description": "Пусто — цвет поверхности темы.",
+          "type": "string",
+          "format": "color",
+          "nullable": true
+        }
+      ]
+    },
+    {
+      "id": "game",
+      "title": "Правила и управление",
+      "description": "Старт, прыжок, защита и вибрация. Рейтинг единый для всех усилений.",
+      "fields": [
+        {
+          "path": "game.startHintEnabled",
+          "label": "Подсказка перед стартом",
+          "description": "Показывать приглашение начать игру.",
+          "type": "boolean"
+        },
+        {
+          "path": "game.idleEnemiesMove",
+          "label": "Движение до старта",
+          "description": "Враги двигаются в ожидании.",
+          "type": "boolean"
+        },
+        {
+          "path": "game.jumpEnabled",
+          "label": "Прыжок разрешён",
+          "description": "Для игроков с действующей арендой.",
+          "type": "boolean"
+        },
+        {
+          "path": "game.helmetEnabled",
+          "label": "Шлем разрешён",
+          "description": "Защита первого попадания при аренде.",
+          "type": "boolean"
+        },
+        {
+          "path": "game.wallsKillPlayer",
+          "label": "Стены смертельны",
+          "description": "Выключено — герой ограничивается полем.",
+          "type": "boolean"
+        },
+        {
+          "path": "game.heartbeatHaptic",
+          "label": "Вибрация секундомера",
+          "description": "Работает вместе с timerHaptic.",
+          "type": "boolean"
+        },
+        {
+          "path": "game.timerHaptic",
+          "label": "Секундные сигналы",
+          "description": "Общий выключатель вибрации секундомера.",
+          "type": "boolean"
+        },
+        {
+          "path": "game.idleSpeedMultiplier",
+          "label": "Скорость до старта",
+          "description": "Множитель обычной скорости.",
+          "type": "number",
+          "min": 0.05,
+          "max": 1,
+          "step": 0.05
+        },
+        {
+          "path": "game.speedRampSeconds",
+          "label": "Разгон после старта",
+          "description": "Секунды перехода к полной скорости.",
+          "type": "number",
+          "min": 0.05,
+          "max": 10,
+          "step": 0.05
+        },
+        {
+          "path": "game.jumpDurationSec",
+          "label": "Длительность прыжка",
+          "description": "Секунды защиты от врагов.",
+          "type": "number",
+          "min": 0.12,
+          "max": 3,
+          "step": 0.01
+        },
+        {
+          "path": "game.jumpScale",
+          "label": "Увеличение при прыжке",
+          "description": "Только визуальный масштаб.",
+          "type": "number",
+          "min": 1.05,
+          "max": 1.8,
+          "step": 0.01
+        },
+        {
+          "path": "game.jumpCooldownSec",
+          "label": "Откат прыжка",
+          "description": "Минимальный интервал между началами прыжков. По умолчанию 2 секунды; также нужно приземлиться.",
+          "type": "number",
+          "optional": true,
+          "min": 2,
+          "max": 30,
+          "step": 0.1
+        },
+        {
+          "path": "game.helmetInvulnSec",
+          "label": "Защита после шлема",
+          "description": "Секунды неуязвимости после разрушения.",
+          "type": "number",
+          "min": 0,
+          "max": 10,
+          "step": 0.05
+        },
+        {
+          "path": "game.startInvulnSec",
+          "label": "Защита на старте",
+          "description": "Секунды неуязвимости в начале.",
+          "type": "number",
+          "min": 0,
+          "max": 10,
+          "step": 0.1
+        },
+        {
+          "path": "game.hudSpeedScaleMax",
+          "label": "Шкала скорости",
+          "description": "Скорость полной полоски индикатора.",
+          "type": "number",
+          "min": 1,
+          "max": 4000,
+          "step": 1
+        },
+        {
+          "path": "game.timerHapticStyle",
+          "label": "Обычный сигнал",
+          "description": "Стиль уведомления Telegram.",
+          "type": "string",
+          "choices": [
+            "warning",
+            "success",
+            "error"
+          ]
+        },
+        {
+          "path": "game.timerHapticStyle5",
+          "label": "Каждая пятая секунда",
+          "description": "Стиль уведомления Telegram.",
+          "type": "string",
+          "choices": [
+            "warning",
+            "success",
+            "error"
+          ]
+        },
+        {
+          "path": "game.timerHapticStyle10",
+          "label": "Каждая десятая секунда",
+          "description": "Стиль уведомления Telegram.",
+          "type": "string",
+          "choices": [
+            "warning",
+            "success",
+            "error"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "audio",
+      "title": "Музыка и звуки",
+      "description": "Общие настройки; пользователь может отдельно выключить музыку.",
+      "fields": [
+        {
+          "path": "audio.music",
+          "label": "Музыка",
+          "description": "Включить фоновую петлю.",
+          "type": "boolean"
+        },
+        {
+          "path": "audio.sfxMobWall",
+          "label": "Враг касается стены",
+          "description": "Включить звук.",
+          "type": "boolean"
+        },
+        {
+          "path": "audio.sfxMobCollide",
+          "label": "Враги сталкиваются",
+          "description": "Включить звук.",
+          "type": "boolean"
+        },
+        {
+          "path": "audio.sfxHeroMob",
+          "label": "Герой касается врага",
+          "description": "Включить звук.",
+          "type": "boolean"
+        },
+        {
+          "path": "audio.sfxHeroWall",
+          "label": "Герой касается стены",
+          "description": "Включить звук.",
+          "type": "boolean"
+        },
+        {
+          "path": "audio.sfxNearMiss",
+          "label": "Близкий проход",
+          "description": "Включить звук риска.",
+          "type": "boolean"
+        },
+        {
+          "path": "audio.sfxHelmet",
+          "label": "Разрушение шлема",
+          "description": "Включить звук.",
+          "type": "boolean"
+        },
+        {
+          "path": "audio.sfxJump",
+          "label": "Прыжок",
+          "description": "Включить звук.",
+          "type": "boolean"
+        },
+        {
+          "path": "audio.sfxStart",
+          "label": "Начало раунда",
+          "description": "Включить звук.",
+          "type": "boolean"
+        },
+        {
+          "path": "audio.musicVolume",
+          "label": "Громкость музыки",
+          "description": "От 0 до 1.",
+          "type": "number",
+          "min": 0,
+          "max": 1,
+          "step": 0.05
+        },
+        {
+          "path": "audio.sfxVolume",
+          "label": "Громкость эффектов",
+          "description": "От 0 до 1.",
+          "type": "number",
+          "min": 0,
+          "max": 1,
+          "step": 0.05
+        }
+      ]
+    },
+    {
+      "id": "start",
+      "title": "Старт и жизни",
+      "description": "Старт применяется к новым профилям. Существующий прогресс не сбрасывается.",
+      "fields": [
+        {
+          "path": "economy.initialLives",
+          "label": "Жизни нового игрока",
+          "description": "Начальное число попыток.",
+          "type": "number",
+          "min": 1,
+          "max": 1000,
+          "step": 1
+        },
+        {
+          "path": "economy.initialTokens",
+          "label": "Стартовые кристаллы",
+          "description": "Начальный баланс.",
+          "type": "number",
+          "min": 0,
+          "max": 100000,
+          "step": 1
+        },
+        {
+          "path": "economy.installBonusAutoClaim",
+          "label": "Отметить стартовый подарок полученным",
+          "description": "Текущий код отмечает install_bonus без повторного начисления.",
+          "type": "boolean"
+        },
+        {
+          "path": "economy.lifePacks",
+          "label": "Пакеты жизней",
+          "description": "Цена в кристаллах. Порядок соответствует витрине.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "fields": {
+              "lives": {
+                "type": "number",
+                "label": "Жизни",
+                "min": 1,
+                "max": 10000,
+                "step": 1
+              },
+              "costTokens": {
+                "type": "number",
+                "label": "Цена",
+                "min": 1,
+                "max": 100000,
+                "step": 1
+              }
+            }
+          },
+          "minItems": 1,
+          "maxItems": 12
+        }
+      ]
+    },
+    {
+      "id": "daily",
+      "title": "Бесплатные награды",
+      "description": "Daily, подарок и заезды. После последнего дня текущая игра повторяет последнюю выплату.",
+      "fields": [
+        {
+          "path": "economy.dailyRewardTokens",
+          "label": "Награды по дням",
+          "description": "Кристаллы за каждый день серии.",
+          "type": "array",
+          "items": {
+            "type": "number",
+            "label": "Кристаллы",
+            "min": 0,
+            "max": 10000,
+            "step": 1
+          },
+          "minItems": 1,
+          "maxItems": 31
+        },
+        {
+          "path": "economy.premiumDailyMultiplier",
+          "label": "Множитель Daily для Plus",
+          "description": "Множитель базовой награды.",
+          "type": "number",
+          "min": 1,
+          "max": 10,
+          "step": 0.1
+        },
+        {
+          "path": "economy.timedBonusTokens",
+          "label": "Подарок по таймеру",
+          "description": "Кристаллы за подарок.",
+          "type": "number",
+          "min": 0,
+          "max": 10000,
+          "step": 1
+        },
+        {
+          "path": "economy.timedBonusHours",
+          "label": "Интервал подарка",
+          "description": "Часы; 0 убирает ожидание.",
+          "type": "number",
+          "min": 0,
+          "max": 720,
+          "step": 1
+        },
+        {
+          "path": "economy.riskRewardEvery",
+          "label": "Рисков на выплату",
+          "description": "Полный порог рисков.",
+          "type": "number",
+          "min": 1,
+          "max": 10000,
+          "step": 1
+        },
+        {
+          "path": "economy.riskRewardTokens",
+          "label": "Награда за риски",
+          "description": "Кристаллы за порог; 0 выключает.",
+          "type": "number",
+          "min": 0,
+          "max": 10000,
+          "step": 1
+        },
+        {
+          "path": "economy.runRewardEvery",
+          "label": "Шагов на выплату",
+          "description": "Полный порог пробега.",
+          "type": "number",
+          "min": 1,
+          "max": 100000,
+          "step": 1
+        },
+        {
+          "path": "economy.runRewardTokens",
+          "label": "Награда за шаги",
+          "description": "Кристаллы за порог; 0 выключает.",
+          "type": "number",
+          "min": 0,
+          "max": 10000,
+          "step": 1
+        }
+      ]
+    },
+    {
+      "id": "rent",
+      "title": "Аренда усилений",
+      "description": "Реальные минуты, включая время вне игры. Короткий и длинный тариф.",
+      "fields": [
+        {
+          "path": "economy.jumpRentalCost",
+          "label": "Прыжок · короткая цена",
+          "description": "Кристаллы.",
+          "type": "number",
+          "min": 0,
+          "max": 100000,
+          "step": 1
+        },
+        {
+          "path": "economy.jumpRentalMinutes",
+          "label": "Прыжок · короткий срок",
+          "description": "Минуты.",
+          "type": "number",
+          "min": 1,
+          "max": 10080,
+          "step": 1
+        },
+        {
+          "path": "economy.jumpRentalHourCost",
+          "label": "Прыжок · длинная цена",
+          "description": "Кристаллы.",
+          "type": "number",
+          "min": 0,
+          "max": 100000,
+          "step": 1
+        },
+        {
+          "path": "economy.jumpRentalHourMinutes",
+          "label": "Прыжок · длинный срок",
+          "description": "Минуты; не обязательно ровно час.",
+          "type": "number",
+          "min": 1,
+          "max": 10080,
+          "step": 1
+        },
+        {
+          "path": "economy.helmetRentalCost",
+          "label": "Шлем · короткая цена",
+          "description": "Кристаллы.",
+          "type": "number",
+          "min": 0,
+          "max": 100000,
+          "step": 1
+        },
+        {
+          "path": "economy.helmetRentalMinutes",
+          "label": "Шлем · короткий срок",
+          "description": "Минуты.",
+          "type": "number",
+          "min": 1,
+          "max": 10080,
+          "step": 1
+        },
+        {
+          "path": "economy.helmetRentalHourCost",
+          "label": "Шлем · длинная цена",
+          "description": "Кристаллы.",
+          "type": "number",
+          "min": 0,
+          "max": 100000,
+          "step": 1
+        },
+        {
+          "path": "economy.helmetRentalHourMinutes",
+          "label": "Шлем · длинный срок",
+          "description": "Минуты; не обязательно ровно час.",
+          "type": "number",
+          "min": 1,
+          "max": 10080,
+          "step": 1
+        }
+      ]
+    },
+    {
+      "id": "ads",
+      "title": "Реклама",
+      "description": "Rewarded — по кнопке. Interstitial — на результате после первого Daily; Plus отключает его.",
+      "fields": [
+        {
+          "path": "economy.adsgramBlockId",
+          "label": "ID rewarded",
+          "description": "Пустое значение выключает блок.",
+          "type": "string",
+          "format": "rewardedId"
+        },
+        {
+          "path": "economy.adsgramInterstitialBlockId",
+          "label": "ID interstitial",
+          "description": "Например int-46979; пусто выключает.",
+          "type": "string",
+          "format": "interstitialId"
+        },
+        {
+          "path": "economy.watchAdCooldownSec",
+          "label": "Пауза rewarded",
+          "description": "Секунды после получения награды.",
+          "type": "number",
+          "min": 0,
+          "max": 86400,
+          "step": 1
+        },
+        {
+          "path": "economy.interstitialGraceSec",
+          "label": "Фриз после первого Daily",
+          "description": "Секунды после первого Daily.",
+          "type": "number",
+          "min": 0,
+          "max": 86400,
+          "step": 1
+        },
+        {
+          "path": "economy.interstitialSessionGraceSec",
+          "label": "Фриз при каждом запуске",
+          "description": "Секунды без межстраничной рекламы с открытия приложения. Android и Telegram.",
+          "type": "number",
+          "min": 0,
+          "max": 86400,
+          "step": 1,
+          "optional": true
+        },
+        {
+          "path": "economy.interstitialSessionFreeRounds",
+          "label": "Попытки без рекламы при запуске",
+          "description": "Первые N завершённых попыток без рекламы. Показ возможен на следующем проигрыше, если фриз по времени тоже закончился.",
+          "type": "number",
+          "min": 0,
+          "max": 1000,
+          "step": 1,
+          "optional": true
+        },
+        {
+          "path": "economy.interstitialCooldownSec",
+          "label": "Пауза interstitial",
+          "description": "Секунды между успешными показами.",
+          "type": "number",
+          "min": 0,
+          "max": 86400,
+          "step": 1
+        },
+        {
+          "path": "economy.interstitialMinLives",
+          "label": "Минимум жизней",
+          "description": "0 выключает фильтр по жизням.",
+          "type": "number",
+          "min": 0,
+          "max": 99,
+          "step": 1
+        }
+      ]
+    },
+    {
+      "id": "earn",
+      "title": "Задания и приглашения",
+      "description": "ID связывает награду с функцией. Новый ID сам по себе не добавляет механику.",
+      "fields": [
+        {
+          "path": "economy.earnSurviveSeconds",
+          "label": "Цель выживания",
+          "description": "Секунды для survive_10s; ID сохраняется.",
+          "type": "number",
+          "min": 1,
+          "max": 10000,
+          "step": 1
+        },
+        {
+          "path": "economy.earnRecordSeconds",
+          "label": "Цель рекорда",
+          "description": "Секунды для record_20s.",
+          "type": "number",
+          "min": 1,
+          "max": 10000,
+          "step": 1
+        },
+        {
+          "path": "economy.earnRisksInRun",
+          "label": "Цель по рискам",
+          "description": "Риски в одной попытке для risks_5.",
+          "type": "number",
+          "min": 1,
+          "max": 10000,
+          "step": 1
+        },
+        {
+          "path": "economy.earnActions",
+          "label": "Награды действий",
+          "description": "Для invite_friend сумма используется также в тексте приглашения.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "fields": {
+              "id": {
+                "type": "string",
+                "label": "ID действия",
+                "format": "identifier"
+              },
+              "reward": {
+                "type": "number",
+                "label": "Кристаллы",
+                "min": 0,
+                "max": 100000,
+                "step": 1
+              }
+            }
+          },
+          "minItems": 1,
+          "maxItems": 32
+        }
+      ]
+    },
+    {
+      "id": "stars",
+      "title": "Покупки за Stars",
+      "description": "PHP и витрина используют этот каталог. Для APK способы оплаты подключаются отдельно.",
+      "fields": [
+        {
+          "path": "economy.starsShop.packs",
+          "label": "Пакеты кристаллов",
+          "description": "Сохраняйте ID продуктов: они используются в существующих счетах.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "fields": {
+              "id": {
+                "type": "string",
+                "label": "ID",
+                "format": "identifier"
+              },
+              "title": {
+                "type": "string",
+                "label": "Название",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              "crystals": {
+                "type": "number",
+                "label": "Кристаллы",
+                "min": 1,
+                "max": 1000000,
+                "step": 1
+              },
+              "stars": {
+                "type": "number",
+                "label": "Цена Stars",
+                "min": 1,
+                "max": 1000000,
+                "step": 1
+              },
+              "badge": {
+                "type": "string",
+                "label": "Метка",
+                "choices": [
+                  "",
+                  "deal",
+                  "best",
+                  "max"
+                ],
+                "optional": true
+              }
+            }
+          },
+          "minItems": 1,
+          "maxItems": 12
+        },
+        {
+          "path": "economy.starsShop.plus.id",
+          "label": "ID Plus",
+          "description": "Сохраняйте ID при изменении тарифа.",
+          "type": "string",
+          "format": "identifier"
+        },
+        {
+          "path": "economy.starsShop.plus.title",
+          "label": "Название Plus",
+          "description": "Название в витрине и счёте.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        {
+          "path": "economy.starsShop.plus.stars",
+          "label": "Цена Plus",
+          "description": "Stars за разовую покупку.",
+          "type": "number",
+          "min": 1,
+          "max": 1000000,
+          "step": 1
+        },
+        {
+          "path": "economy.starsShop.plus.days",
+          "label": "Срок Plus",
+          "description": "Дни действия. 30 дней включает автопродление Stars; остальные сроки — разовая покупка.",
+          "type": "number",
+          "min": 1,
+          "max": 365,
+          "step": 1
+        }
+      ]
+    },
+    {
+      "id": "service",
+      "title": "Аналитика и тестирование",
+      "description": "Публичные параметры. Токены бота, пароли и ключ админки остаются в серверных PHP-файлах.",
+      "fields": [
+        {
+          "path": "yandexMetrikaId",
+          "label": "Номер Яндекс Метрики",
+          "description": "Пусто выключает счётчик.",
+          "type": "string",
+          "format": "digits"
+        },
+        {
+          "path": "economy.avatarCheatEnabled",
+          "label": "Тестовая выдача через аватар",
+          "description": "Для обычной игры держите выключенным.",
+          "type": "boolean"
+        },
+        {
+          "path": "economy.avatarCheatTokens",
+          "label": "Тестовая награда",
+          "description": "Кристаллы за начисление.",
+          "type": "number",
+          "min": 1,
+          "max": 9999,
+          "step": 1
+        },
+        {
+          "path": "forceLocale",
+          "label": "Язык APK",
+          "description": "Пусто — язык устройства. Telegram сейчас использует русский.",
+          "type": "string",
+          "choices": [
+            "",
+            "ru",
+            "en"
+          ],
+          "optional": true
+        }
+      ]
+    },
+    {
+      "id": "androidEnergyV2",
+      "title": "Android: единая энергия V2",
+      "description": "Изолированная экономика Android. Бесплатная зарядка и будущие награды управляются здесь; денежные цены в Google Play. При публикации новая версия условий применяется к новым циклам, прошлые начисления сохраняются.",
+      "fields": [
+        {
+          "path": "economy.androidEnergyV2.enabled",
+          "label": "Включить Android Energy V2",
+          "type": "boolean",
+          "optional": true,
+          "description": "Только после установки новых API, схемы и проверки новой версии Android. Telegram не меняется."
+        },
+        {
+          "path": "economy.androidEnergyV2.revision",
+          "label": "Версия условий",
+          "type": "string",
+          "optional": true,
+          "minLength": 1,
+          "maxLength": 128
+        },
+        {
+          "path": "economy.androidEnergyV2.initialEnergy",
+          "label": "Энергия нового игрока",
+          "type": "number",
+          "optional": true,
+          "min": 0,
+          "max": 100000,
+          "step": 1
+        },
+        {
+          "path": "economy.androidEnergyV2.batteryCapacity",
+          "label": "Ёмкость бесплатной батарейки",
+          "type": "number",
+          "optional": true,
+          "min": 1,
+          "max": 10000,
+          "step": 1
+        },
+        {
+          "path": "economy.androidEnergyV2.chargeHours",
+          "label": "Исходные часы бесплатной батарейки (до ускорения)",
+          "description": "Эффективное время всех батареек задаётся отдельной политикой ниже. Исходные оплаченные SKU остаются неизменными.",
+          "type": "number",
+          "optional": true,
+          "min": 1,
+          "max": 720,
+          "step": 1
+        },
+        {
+          "path": "economy.androidEnergyV2.chargePolicy.version",
+          "label": "Версия ускорения всех батареек (0 — без политики)",
+          "type": "number",
+          "optional": true,
+          "min": 0,
+          "max": 1000000,
+          "step": 1
+        },
+        {
+          "path": "economy.androidEnergyV2.chargePolicy.effectiveAt",
+          "label": "Начало ускорения — серверное время в миллисекундах UTC",
+          "description": "Накопленный до этой даты заряд сохраняется по старой скорости; ускорение применяется только после неё.",
+          "type": "number",
+          "optional": true,
+          "min": 0,
+          "max": 9999999999999,
+          "step": 1
+        },
+        {
+          "path": "economy.androidEnergyV2.chargePolicy.chargeHours",
+          "label": "Эффективная полная зарядка ВСЕХ батареек, часы",
+          "description": "Однократный переход всех старых батареек:8 вместо исходных12ч. После вступления в силу версию, дату и время зарядки менять нельзя без отдельной поддержки истории. Цена, срок, ёмкость и исходные SKU сохраняются; остальные награды и настройки меняются независимо.",
+          "type": "number",
+          "optional": true,
+          "min": 1,
+          "max": 720,
+          "step": 1
+        },
+        {
+          "path": "economy.androidEnergyV2.baseAttemptCost",
+          "label": "Базовый расход попытки",
+          "type": "number",
+          "optional": true,
+          "min": 1,
+          "max": 100,
+          "step": 1
+        },
+        {
+          "path": "economy.androidEnergyV2.helmetExtraCost",
+          "label": "Доплата за шлем",
+          "type": "number",
+          "optional": true,
+          "min": 0,
+          "max": 100,
+          "step": 1
+        },
+        {
+          "path": "economy.androidEnergyV2.jumpExtraCost",
+          "label": "Доплата за прыжок",
+          "type": "number",
+          "optional": true,
+          "min": 0,
+          "max": 100,
+          "step": 1
+        },
+        {
+          "path": "economy.androidEnergyV2.watchAdCooldownSec",
+          "label": "Пауза между наградами за видео, сек. (Android)",
+          "type": "number",
+          "optional": true,
+          "min": 0,
+          "max": 86400,
+          "step": 1,
+          "description": "От успешного начисления за реальное или тестовое видео; не влияет на Telegram. По умолчанию 120 секунд."
+        },
+        {
+          "path": "economy.androidEnergyV2.rewards.achievement",
+          "label": "Награда: Достижение",
+          "type": "number",
+          "optional": true,
+          "min": 0,
+          "max": 100000,
+          "step": 1
+        },
+        {
+          "path": "economy.androidEnergyV2.rewards.ad",
+          "label": "Награда: Видео",
+          "type": "number",
+          "optional": true,
+          "min": 0,
+          "max": 100000,
+          "step": 1
+        },
+        {
+          "path": "economy.androidEnergyV2.rewards.google",
+          "label": "Награда: Google",
+          "type": "number",
+          "optional": true,
+          "min": 0,
+          "max": 100000,
+          "step": 1
+        },
+        {
+          "path": "economy.androidEnergyV2.rewards.age",
+          "label": "Награда: Возраст",
+          "type": "number",
+          "optional": true,
+          "min": 0,
+          "max": 100000,
+          "step": 1
+        },
+        {
+          "path": "economy.androidEnergyV2.rewards.feedback",
+          "label": "Награда: Отзыв",
+          "type": "number",
+          "optional": true,
+          "min": 0,
+          "max": 100000,
+          "step": 1
+        },
+        {
+          "path": "economy.androidEnergyV2.rewards.invite",
+          "label": "Награда: Приглашение",
+          "type": "number",
+          "optional": true,
+          "min": 0,
+          "max": 100000,
+          "step": 1
+        },
+        {
+          "path": "economy.androidEnergyV2.packages",
+          "label": "Пакеты энергии",
+          "type": "array",
+          "optional": true,
+          "minItems": 1,
+          "maxItems": 8,
+          "description": "Выбираются заранее подготовленные неизменяемые SKU. Число энергии должно совпадать с SKU; денежная цена берётся из Google Play.",
+          "items": {
+            "type": "object",
+            "fields": {
+              "id": {
+                "type": "string",
+                "label": "ID",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "productId": {
+                "type": "string",
+                "label": "Google SKU",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "energy": {
+                "type": "number",
+                "label": "Энергия",
+                "min": 1,
+                "max": 10000000,
+                "step": 1
+              }
+            }
+          }
+        },
+        {
+          "path": "economy.androidEnergyV2.subscriptions",
+          "label": "Подключение батареек",
+          "type": "array",
+          "optional": true,
+          "minItems": 1,
+          "maxItems": 2,
+          "description": "Исходные платные ёмкость/время фиксируются SKU и сохраняются в истории. Отдельная политика выше может благоприятно ускорять все батарейки; здесь остаются исходные12ч для v1.",
+          "items": {
+            "type": "object",
+            "fields": {
+              "id": {
+                "type": "string",
+                "label": "ID",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "productId": {
+                "type": "string",
+                "label": "Google SKU",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "batteryCount": {
+                "type": "number",
+                "label": "Всего батареек",
+                "min": 2,
+                "max": 5,
+                "step": 1
+              },
+              "basePlanId": {
+                "type": "string",
+                "label": "Base plan",
+                "choices": [
+                  "weekly"
+                ]
+              },
+              "capacity": {
+                "type": "number",
+                "label": "Энергия одной батарейки",
+                "min": 1,
+                "max": 10000,
+                "step": 1
+              },
+              "chargeHours": {
+                "type": "number",
+                "label": "Исходные часы SKU (v1:12; эффективные — в политике)",
+                "min": 1,
+                "max": 720,
+                "step": 1
+              },
+              "periodDays": {
+                "type": "number",
+                "label": "Дни периода",
+                "min": 7,
+                "max": 7,
+                "step": 1
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "remoteConfigKeys": [
+    "economy",
+    "enemies",
+    "player",
+    "field",
+    "game",
+    "audio",
+    "forceLocale"
+  ]
+}

@@ -1,4 +1,4 @@
-/** Тексты из lib/l10n/app_ru.arb — без импровизации. */
+﻿/** Тексты из lib/l10n/app_ru.arb — без импровизации. */
 export const RU = {
   livesConvertTitle: 'Получить жизни',
   livesConvertSubtitle: 'Обменяйте кристалы на жизни',

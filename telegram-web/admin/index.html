@@ -1,11 +1,12 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
   <title>Untouch · Админка</title>
-  <link rel="stylesheet" href="admin.css">
+  <link rel="stylesheet" href="admin.css?v=v1.0.61_20261006_213029_176">
+  <link rel="stylesheet" href="config-editor.css?v=v1.0.61_20261006_213029_176">
 </head>
 <body>
   <div id="login" class="login">
@@ -36,6 +37,7 @@
       <button type="button" data-view="people" class="on">Люди</button>
       <button type="button" data-view="ads">Реклама</button>
       <button type="button" data-view="monetize">Монетизация</button>
+      <button type="button" data-view="config">Настройки игры</button>
     </nav>
 
     <div id="view-people">
@@ -50,6 +52,7 @@
         <p id="list-meta" class="sub"></p>
       </div>
       <div class="toolbar">
+        <select id="users-platform" aria-label="Платформа пользователей"><option value="telegram">Telegram</option><option value="android">Android / Google</option></select>
         <input id="search" type="search" placeholder="Имя, @username или ID">
         <div id="filters" class="filters"></div>
       </div>
@@ -154,7 +157,7 @@
 
       <section class="panel">
         <h2>Реклама внутри игры</h2>
-        <p>Это монетизация уже пришедших игроков. Ключи в Firebase Remote Config, JSON <code>economy</code>.</p>
+        <p>Это монетизация уже пришедших игроков. Рабочие параметры публикуются во вкладке «Настройки игры», блок <code>economy</code>.</p>
         <div class="table-wrap">
           <table>
             <thead>
@@ -175,9 +178,10 @@
     </div>
 
     <div id="view-monetize" class="notes hidden"></div>
+    <div id="view-config" class="hidden"></div>
   </div>
 
-  <script src="monetize.js"></script>
-  <script src="admin.js"></script>
+  <script src="monetize.js?v=v1.0.61_20261006_213029_176"></script>
+  <script type="module" src="admin.js?v=enemy-variation-1.0.15"></script>
 </body>
 </html>

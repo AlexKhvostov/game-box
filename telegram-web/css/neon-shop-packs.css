@@ -1,0 +1,40 @@
+/* Android113 CrystalPackageCard; Telegram prices and catalog remain authoritative. */
+#sheet-panel.sheet-crystals .neon-shop-packs-pane { padding: 8px 12px; overflow-x: hidden; overflow-y: auto; display: block; min-height: 0; }
+.neon-shop-packs-pane .neon-shop-pack-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 10px; row-gap: 8px; }
+.neon-shop-packs-pane .neon-shop-pack {
+  --pack-accent: #79f1f5; --pack-tint: #79f1f529; --pack-edge: #79f1f599;
+  display: flex; flex-direction: column; gap: 0; min-width: 0; margin: 0; padding: 8px 10px;
+  border: 1px solid var(--pack-edge); border-radius: 17px;
+  background: linear-gradient(135deg, var(--pack-tint), #0a2b43 50%, #071f34);
+  color: #f0fbff; font-family: inherit; text-align: left; cursor: pointer;
+  appearance: none; -webkit-tap-highlight-color: transparent;
+}
+.neon-shop-packs-pane .neon-shop-pack.tier-1 { --pack-accent: #69cfff; --pack-tint: #69cfff29; --pack-edge: #69cfff99; }
+.neon-shop-packs-pane .neon-shop-pack.tier-2 { --pack-accent: #43ecc0; --pack-tint: #43ecc029; --pack-edge: #43ecc099; }
+.neon-shop-packs-pane .neon-shop-pack.tier-3 { --pack-accent: #ffd778; --pack-tint: #ffd77829; --pack-edge: #ffd778e6; border-width: 1.5px; }
+.neon-shop-packs-pane .neon-shop-pack:focus-visible { outline: 2px solid #fff; outline-offset: -4px; }
+.neon-shop-packs-pane .neon-shop-pack-heading { display: flex; align-items: center; gap: 3px; height: 16px; flex: 0 0 16px; }
+.neon-shop-packs-pane .neon-shop-pack-title { flex: 1; min-width: 0; height: 16px; color: #f0fbff; font-size: 11px; line-height: 1.1; font-weight: 800; }
+.neon-shop-packs-pane .neon-shop-pack-badge { width: 46%; max-width: 76px; height: 16px; flex: 0 0 auto; color: var(--pack-accent); background: color-mix(in srgb, var(--pack-accent) 12%, transparent); border-radius: 6px; font-size: 9px; font-weight: 800; line-height: 1.1; }
+.neon-shop-packs-pane .neon-shop-pack-main { display: flex; gap: 6px; align-items: center; height: 44px; flex: 0 0 44px; margin-top: 4px; }
+.neon-shop-packs-pane .neon-shop-pack-quantity { flex: 1; min-width: 0; height: 100%; display: flex; flex-direction: column; justify-content: center; gap: 2px; }
+.neon-shop-packs-pane .neon-shop-pack-amount { flex: 1; min-height: 0; width: 100%; color: #f0fbff; font-size: 32px; line-height: 1; font-weight: 900; font-variant-numeric: tabular-nums; }
+.neon-shop-packs-pane .neon-shop-pack-unit { flex: 0 0 12px; width: 100%; height: 12px; color: #a9cbe4; font-size: 10px; line-height: 1.1; }
+.neon-shop-packs-pane .neon-shop-pack-pile { width: 46px; height: 44px; flex: 0 0 46px; position: relative; }
+.neon-shop-packs-pane .neon-shop-cube-scene { position: absolute; top: 50%; left: 50%; display: block; width: 60px; height: 60px; transform: translate(-50%, -50%) scale(.7333333); }
+.neon-shop-packs-pane .neon-shop-cube-scene.solo { display: grid; place-items: center; }
+.neon-shop-packs-pane .neon-shop-cube { position: absolute; display: block; }
+.neon-shop-packs-pane .neon-shop-pack-price { width: 100%; height: 30px; flex: 0 0 30px; margin-top: 6px; padding: 4px 6px; border-radius: 9px; background: linear-gradient(135deg, var(--pack-accent), #5adfcb); color: #061b2d; font-size: 16px; font-weight: 900; line-height: 1; font-variant-numeric: tabular-nums; }
+.neon-shop-packs-pane .neon-shop-pack-caption { width: 100%; height: 12px; flex: 0 0 12px; margin-top: 4px; color: #a9cbe4; font-size: 9px; font-weight: 400; line-height: 1.1; }
+.neon-shop-packs-pane [data-shop-fit] { display: block; position: relative; overflow: hidden; }
+.neon-shop-packs-pane [data-shop-fit] > span { position: absolute; left: 50%; top: 50%; display: block; width: max-content; white-space: nowrap; transform-origin: center; }
+.neon-shop-packs-pane [data-shop-fit="left"] > span { left: 0; transform-origin: left center; }
+.neon-shop-packs-pane.compact .neon-shop-pack { padding-top: 5px; padding-bottom: 5px; }
+.neon-shop-packs-pane.compact .neon-shop-pack-heading, .neon-shop-packs-pane.compact .neon-shop-pack-title, .neon-shop-packs-pane.compact .neon-shop-pack-badge { height: 14px; flex-basis: 14px; }
+.neon-shop-packs-pane.compact .neon-shop-pack-badge { flex-basis: auto; }
+.neon-shop-packs-pane.compact .neon-shop-pack-main { height: 36px; flex-basis: 36px; margin-top: 2px; }
+.neon-shop-packs-pane.compact .neon-shop-pack-pile { width: 40px; height: 36px; flex-basis: 40px; }
+.neon-shop-packs-pane.compact .neon-shop-cube-scene { transform: translate(-50%, -50%) scale(.6); }
+.neon-shop-packs-pane.compact .neon-shop-pack-price { height: 28px; flex-basis: 28px; margin-top: 3px; }
+.neon-shop-packs-pane.compact .neon-shop-pack-caption { height: 10px; flex-basis: 10px; margin-top: 3px; }
+.neon-shop-packs-pane .shop-iap-note { margin: 12px 0 0; color: #a9cbe4; font-size: 11px; line-height: 1.35; text-align: center; overflow-wrap: anywhere; }

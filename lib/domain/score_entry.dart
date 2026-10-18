@@ -1,3 +1,5 @@
+import 'arcade_rules.dart';
+
 class ScoreEntry {
   const ScoreEntry({
     required this.id,
@@ -6,14 +8,17 @@ class ScoreEntry {
     required this.createdAt,
     this.countryCode = '--',
     this.uid,
+    this.accountName,
     this.riskCount = 0,
     this.runDistance = 0,
     this.hadJump = false,
     this.hadHelmet = false,
+    this.place,
   });
 
   final String id;
   final String displayName;
+  final String? accountName;
   final int timeMs;
   final DateTime createdAt;
 
@@ -26,7 +31,7 @@ class ScoreEntry {
   /// Near-miss / прыжки через врага.
   final int riskCount;
 
-  /// Пробег за партию (px), округлённый.
+  /// Пробег за партию в шагах (0,1 ширины героя), округлённый.
   final int runDistance;
 
   /// В партии была активна аренда прыжка.
@@ -35,37 +40,47 @@ class ScoreEntry {
   /// В партии был активен шлем (на старте раунда).
   final bool hadHelmet;
 
+  /// Server place before the public top-200 cut; null for local/legacy scores.
+  final int? place;
+
   double get timeSec => timeMs / 1000.0;
+  int get score => ArcadeRules.score(timeMs, runDistance, riskCount);
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'displayName': displayName,
-        'timeMs': timeMs,
-        'createdAt': createdAt.toIso8601String(),
-        'countryCode': countryCode,
-        if (uid != null) 'uid': uid,
-        'riskCount': riskCount,
-        'runDistance': runDistance,
-        'hadJump': hadJump,
-        'hadHelmet': hadHelmet,
-      };
+    'id': id,
+    'displayName': displayName,
+    if (accountName != null) 'accountName': accountName,
+    'timeMs': timeMs,
+    'createdAt': createdAt.toIso8601String(),
+    'countryCode': countryCode,
+    if (uid != null) 'uid': uid,
+    'riskCount': riskCount,
+    'runDistance': runDistance,
+    'hadJump': hadJump,
+    'hadHelmet': hadHelmet,
+    if (place != null) 'place': place,
+  };
 
   factory ScoreEntry.fromJson(Map<String, dynamic> json) {
     return ScoreEntry(
       id: json['id'] as String,
       displayName: json['displayName'] as String,
+      accountName: json['accountName'] as String?,
       timeMs: json['timeMs'] as int,
       createdAt: DateTime.parse(json['createdAt'] as String),
       countryCode: (json['countryCode'] as String?)?.toUpperCase() ?? '--',
       uid: json['uid'] as String?,
-      riskCount: (json['riskCount'] as num?)?.toInt() ??
+      riskCount:
+          (json['riskCount'] as num?)?.toInt() ??
           (json['nearMissCount'] as num?)?.toInt() ??
           0,
-      runDistance: (json['runDistance'] as num?)?.toInt() ??
+      runDistance:
+          (json['runDistance'] as num?)?.toInt() ??
           (json['playerDistance'] as num?)?.toInt() ??
           0,
       hadJump: json['hadJump'] as bool? ?? false,
       hadHelmet: json['hadHelmet'] as bool? ?? false,
+      place: (json['place'] as num?)?.toInt(),
     );
   }
 }
@@ -97,6 +112,7 @@ class LocalAttempt {
   final bool hadHelmet;
 
   double get timeSec => timeMs / 1000.0;
+  int get score => ArcadeRules.score(timeMs, runDistance, riskCount);
 
   LocalAttempt copyWith({
     bool? shared,
@@ -120,29 +136,32 @@ class LocalAttempt {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'timeMs': timeMs,
-        'createdAt': createdAt.toIso8601String(),
-        'shared': shared,
-        if (displayName != null) 'displayName': displayName,
-        'riskCount': riskCount,
-        'runDistance': runDistance,
-        'hadJump': hadJump,
-        'hadHelmet': hadHelmet,
-      };
+    'id': id,
+    'timeMs': timeMs,
+    'createdAt': createdAt.toIso8601String(),
+    'shared': shared,
+    if (displayName != null) 'displayName': displayName,
+    'riskCount': riskCount,
+    'runDistance': runDistance,
+    'hadJump': hadJump,
+    'hadHelmet': hadHelmet,
+  };
 
   factory LocalAttempt.fromJson(Map<String, dynamic> json) {
     return LocalAttempt(
-      id: json['id'] as String? ??
+      id:
+          json['id'] as String? ??
           DateTime.now().microsecondsSinceEpoch.toString(),
       timeMs: (json['timeMs'] as num?)?.toInt() ?? 0,
       createdAt: DateTime.tryParse('${json['createdAt']}') ?? DateTime.now(),
       shared: json['shared'] as bool? ?? false,
       displayName: json['displayName'] as String?,
-      riskCount: (json['riskCount'] as num?)?.toInt() ??
+      riskCount:
+          (json['riskCount'] as num?)?.toInt() ??
           (json['nearMissCount'] as num?)?.toInt() ??
           0,
-      runDistance: (json['runDistance'] as num?)?.toInt() ??
+      runDistance:
+          (json['runDistance'] as num?)?.toInt() ??
           (json['playerDistance'] as num?)?.toInt() ??
           0,
       hadJump: json['hadJump'] as bool? ?? false,

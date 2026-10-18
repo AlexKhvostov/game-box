@@ -1,0 +1,69 @@
+/* Android113 Lives Dialog. All values/actions still come from the existing economy. */
+#sheet-root.sheet-lives-dialog {
+  --lives-inset-top: max(28px, calc(var(--tg-pad-top, 0px) + 16px));
+  --lives-inset-bottom: max(28px, calc(var(--tg-pad-bottom, 0px) + 16px));
+  display: flex; align-items: center; justify-content: center;
+  padding: var(--lives-inset-top) max(16px, var(--tg-pad-right, 0px)) var(--lives-inset-bottom) max(16px, var(--tg-pad-left, 0px));
+  box-sizing: border-box;
+}
+#sheet-panel.sheet-lives {
+  --sheet-max-height: min(86dvh, calc(100dvh - var(--lives-inset-top) - var(--lives-inset-bottom)));
+  position: relative; inset: auto; width: 100%; max-width: 440px;
+  height: auto; min-height: 0; max-height: var(--sheet-max-height);
+  border: 2px solid #baf1ff; border-radius: 18px; overflow: hidden;
+  color: #f0fbff;
+  background: url('../assets/branding/ui/lives-room-v2.png') top right / 100% auto no-repeat, linear-gradient(#0d3148, #061b2d);
+  box-shadow: 0 8px 22px #0006;
+  transform: translateY(24px); opacity: 0; transition: transform .22s ease-out, opacity .22s;
+}
+#sheet-root.open #sheet-panel.sheet-lives { transform: translateY(0); opacity: 1; }
+#sheet-panel.sheet-lives .sheet-handle, #sheet-panel.sheet-lives .neon-window-close { display: none; }
+#sheet-panel.sheet-lives #sheet-body { flex: 0 1 auto; height: auto; overflow-y: auto; overflow-x: hidden; display: block; overscroll-behavior: contain; }
+#sheet-panel.sheet-lives .neon-lives-sheet { height: auto; min-height: 0; padding: 12px 14px 18px; display: block; }
+#sheet-panel.sheet-lives .neon-lives-hero { min-height: 190px; background: linear-gradient(90deg, #061b2de6, #061b2db3 38%, #061b2d00 65%); }
+.neon-lives-heading { display: flex; align-items: flex-start; gap: 4px; min-width: 0; }
+.neon-lives-heading h2 { flex: 1; min-width: 0; margin: 9px 0 0; color: #f0fbff; font-size: 18px; line-height: 1.2; font-weight: 900; text-transform: uppercase; overflow-wrap: normal; }
+.lives-close-btn { width: 44px; height: 44px; flex: 0 0 44px; padding: 10px; border: 0; border-radius: 8px; background: transparent; color: #f0fbff; cursor: pointer; }
+.lives-close-btn svg { display: block; width: 24px; height: 24px; stroke: currentColor; stroke-width: 2; stroke-linecap: round; fill: none; }
+.neon-lives-inventory { width: clamp(84px, 29%, 112px); aspect-ratio: 1 / 1.15; margin-top: 8px; padding: 8px; border: 1.5px solid #ef7885; border-radius: 17px; background: linear-gradient(135deg, #24475d, #102c45 50%, #091d32); box-shadow: 0 4px 8px #00000024; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 3px; box-sizing: border-box; }
+.neon-lives-heart { flex: 0 0 34px; width: 34px; height: 34px; filter: drop-shadow(0 0 5px #ff5a7066); animation: neon-life-beat 1.6s infinite; transform-origin: center; }
+.neon-lives-amount { flex: 1; min-height: 0; width: 100%; color: #f0fbff; font-size: 30px; font-weight: 900; line-height: 1; font-variant-numeric: tabular-nums; text-align: center; }
+.neon-lives-label { width: 100%; height: 12px; flex: 0 0 12px; color: #a9cbe4; font-size: 10px; line-height: 1.15; text-align: center; }
+#sheet-panel.sheet-lives [data-life-fit] { display: block; position: relative; overflow: hidden; }
+#sheet-panel.sheet-lives [data-life-fit] > span { display: block; position: absolute; top: 50%; left: 50%; width: max-content; min-width: 0; white-space: nowrap; transform-origin: center; }
+.neon-lives-currency { margin-top: 6px; padding: 10px 12px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; border: 1.5px solid #79f1f5; border-radius: 12px; background: linear-gradient(135deg, #17698d, #0b3959 50%, #082a43); }
+.neon-lives-currency > .crystal-img { flex: 0 0 34px; }
+.neon-lives-currency-copy { flex: 1 1 70px; min-width: 0; display: flex; flex-direction: column; gap: 3px; overflow-wrap: anywhere; }
+.neon-lives-currency-copy strong { font-size: 13px; line-height: 1.2; font-weight: 800; color: #f0fbff; }
+.neon-lives-currency-copy span { font-size: 11px; line-height: 1.2; color: #b6dfed; }
+#sheet-root.lives-large-text .neon-lives-currency-copy { flex: 1 0 100%; order: -1; overflow-wrap: normal; }
+#sheet-root.lives-large-text .neon-lives-currency-copy strong, #sheet-root.lives-large-text .neon-lives-currency-copy span { overflow-wrap: normal; }
+#sheet-root.lives-large-text .neon-lives-heading { display: grid; grid-template-columns: minmax(0, 1fr) 44px; }
+#sheet-root.lives-large-text .neon-lives-heading h2 { grid-row: 2; grid-column: 1 / -1; margin-top: 0; overflow-wrap: anywhere; }
+#sheet-root.lives-large-text .lives-close-btn { grid-row: 1; grid-column: 2; }
+.neon-lives-crystals-amount { width: min(80px, 19%); height: 29px; flex: 0 0 min(80px, 19%); min-width: 0; font-size: 26px; line-height: 1.1; font-weight: 900; font-variant-numeric: tabular-nums; color: #f0fbff; }
+.neon-lives-shop { display: grid; place-items: center; width: 44px; height: 44px; flex: 0 0 44px; padding: 10px; border: 0; border-radius: 8px; background: transparent; color: #79f1f5; cursor: pointer; margin-left: auto; }
+.neon-lives-shop svg { width: 23px; height: 23px; }
+.neon-lives-packs { display: grid; grid-template-columns: repeat(2, minmax(0, 176px)); justify-content: center; gap: 8px; margin-top: 8px; }
+.neon-life-pack { min-width: 0; padding: 8px; border-radius: 18px; border: 1px solid #81cce2; background: linear-gradient(#174c68, #0a3048); }
+.neon-life-pack.best-deal { border-width: 1.5px; border-color: #ffd54a; }
+.neon-life-pack.need-more { border-color: #677887; }
+.neon-life-pack-top { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 4px; min-width: 0; }
+.neon-life-gain { flex: 1 1 44px; display: flex; align-items: flex-start; gap: 3px; min-width: 0; color: #f0fbff; font-size: 17px; line-height: 1.1; font-weight: 900; }
+.neon-life-gain > span { min-width: 0; overflow-wrap: anywhere; }
+.neon-life-gain .ui-icon { width: 17px; height: 17px; flex: 0 0 17px; }
+.neon-life-cost { display: inline-flex; align-items: center; gap: 3px; padding: 4px 6px; margin-left: auto; max-width: 100%; min-width: 0; border: 1px solid #79f1f5; border-radius: 7px; background: #052d47; color: #f0fbff; font-size: 13px; line-height: 1.1; font-weight: 900; }
+.neon-life-cost > span { min-width: 0; overflow-wrap: anywhere; }
+.neon-life-cost.unavailable { color: #bac7d0; background: #263847; border-color: #687987; }
+.neon-life-cost.unavailable .crystal-img { opacity: .5; }
+#sheet-root.lives-large-text .neon-life-cost { order: -1; }
+#sheet-root.lives-large-text .neon-life-gain { flex-basis: 100%; }
+.neon-life-pack-status { min-height: 11px; margin: 4px 0; font-size: 10px; line-height: 1.1; font-weight: 700; text-align: center; color: #ffd54a; overflow-wrap: anywhere; }
+.neon-life-exchange { display: block; width: 100%; min-height: 44px; padding: 8px 4px; border: 1px solid #5ee6b0; border-radius: 8px; background: linear-gradient(90deg, #84e2bd, #43ba98); color: #061b2d; font: inherit; font-size: 12px; font-weight: 900; line-height: 1.2; cursor: pointer; overflow-wrap: anywhere; }
+.need-more .neon-life-exchange { background: linear-gradient(90deg, #43596b, #2d4253); border-color: #677887; color: #bac7d0; }
+.lives-close-btn:focus-visible, .neon-lives-shop:focus-visible, .neon-life-exchange:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+#sheet-root:not(.open) .neon-lives-heart, #sheet-root.lives-background .neon-lives-heart { animation: none; }
+@keyframes neon-life-beat { 0%, 28.125%, 100% { transform: scale(1); } 5.625% { transform: scale(1.1); } 14.0625% { transform: scale(1); } 19.6875% { transform: scale(1.055); } }
+@media (prefers-reduced-motion: reduce) { .neon-lives-heart { animation: none !important; } #sheet-panel.sheet-lives { transition: none; } }
+/* Android keeps this illustrated window navy in the app's light mode too. */
+html[data-theme="light"] #sheet-panel.sheet-lives { background: url('../assets/branding/ui/lives-room-v2.png') top right / 100% auto no-repeat, linear-gradient(#0d3148, #061b2d); color: #f0fbff; border-color: #baf1ff; }

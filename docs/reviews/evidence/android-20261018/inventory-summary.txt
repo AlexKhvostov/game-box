@@ -1,0 +1,84 @@
+{
+  "note": "All-platform lexical graph. Platform/feature guards require manual review.",
+  "dart_files": 127,
+  "dart_lines": 45203,
+  "unreachable_from_main": [
+    {
+      "file": "lib/data/firebase_mobile_client.dart",
+      "lines": 140
+    },
+    {
+      "file": "lib/data/remote_config_loader.dart",
+      "lines": 145
+    },
+    {
+      "file": "lib/domain/currency.dart",
+      "lines": 5
+    },
+    {
+      "file": "lib/features/balance/balance_screen.dart",
+      "lines": 877
+    },
+    {
+      "file": "lib/features/game/game_play_screen.dart",
+      "lines": 327
+    },
+    {
+      "file": "lib/features/game/widgets/freeze_sheet.dart",
+      "lines": 63
+    },
+    {
+      "file": "lib/features/leaderboard/leaderboard_screen.dart",
+      "lines": 10
+    },
+    {
+      "file": "lib/telegram/telegram_bridge_web.dart",
+      "lines": 156
+    },
+    {
+      "file": "lib/ui/bonus_celebration.dart",
+      "lines": 6
+    },
+    {
+      "file": "lib/ui/country_flag.dart",
+      "lines": 10
+    },
+    {
+      "file": "lib/ui/game_status_bar.dart",
+      "lines": 85
+    },
+    {
+      "file": "lib/ui/info_tip_bubble.dart",
+      "lines": 222
+    },
+    {
+      "file": "lib/ui/resting_cube_icon.dart",
+      "lines": 191
+    }
+  ],
+  "dependencies": {
+    "cupertino_icons": [],
+    "flutter_svg": [
+      "lib/features/leaderboard/ranking_art.dart",
+      "lib/ui/energy_reward_motion.dart",
+      "lib/ui/neon_chrome.dart"
+    ],
+    "firebase_auth": [
+      "lib/data/firebase_bootstrap.dart",
+      "lib/data/firebase_mobile_client.dart"
+    ],
+    "firebase_analytics": [
+      "lib/data/app_analytics.dart"
+    ],
+    "cloud_firestore": [
+      "lib/data/scores_store.dart"
+    ],
+    "firebase_remote_config": [
+      "lib/data/android_firebase_config.dart",
+      "lib/data/remote_config_loader.dart"
+    ],
+    "supabase_flutter": [
+      "lib/data/supabase_mobile_client.dart"
+    ]
+  }
+}

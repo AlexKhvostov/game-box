@@ -1,0 +1,4 @@
+(node:34472) ExperimentalWarning: Importing JSON modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"probe":"R06 impossible 1ms result accepted","energyReward":11260,"energy":11309,"score":100010000}
+{"probe":"R07 watch_ad accepted without ad-session proof","reward":40}

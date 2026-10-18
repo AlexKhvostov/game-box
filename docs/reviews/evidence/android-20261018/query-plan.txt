@@ -1,0 +1,156 @@
+(node:26732) ExperimentalWarning: Importing JSON modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+200 synthetic players, 10000 scores; PGlite EXPLAIN ANALYZE, not a live-server benchmark.
+RECORD:
+GroupAggregate  (cost=994.73..994.88 rows=1 width=64) (actual time=290.589..311.567 rows=5 loops=1)
+  Group Key: ranked.period
+  Buffers: shared hit=20320, temp read=1521 written=1524
+  ->  Incremental Sort  (cost=994.73..994.77 rows=2 width=305) (actual time=281.137..303.618 rows=1000 loops=1)
+        Sort Key: ranked.period, ranked.place
+        Presorted Key: ranked.period
+        Full-sort Groups: 5  Sort Method: quicksort  Average Memory: 32kB  Peak Memory: 32kB
+        Pre-sorted Groups: 5  Sort Method: quicksort  Average Memory: 63kB  Peak Memory: 63kB
+        Buffers: shared hit=20320, temp read=1521 written=1524
+        ->  Subquery Scan on ranked  (cost=994.60..994.72 rows=1 width=305) (actual time=273.721..302.917 rows=1000 loops=1)
+              Filter: ((ranked.place <= 200) OR ((ranked.body ->> 'uid'::text) = 'p1'::text))
+              Buffers: shared hit=20320, temp read=1521 written=1524
+              ->  WindowAgg  (cost=994.60..994.68 rows=2 width=361) (actual time=273.718..302.558 rows=1000 loops=1)
+                    Buffers: shared hit=20320, temp read=1521 written=1524
+                    ->  Incremental Sort  (cost=994.55..994.60 rows=2 width=349) (actual time=273.711..301.874 rows=1000 loops=1)
+                          Sort Key: best.period, (((best.body ->> 'timeMs'::text))::bigint) DESC, (((best.body ->> 'createdAt'::text))::bigint) DESC, ((best.body ->> 'uid'::text))
+                          Presorted Key: best.period
+                          Full-sort Groups: 5  Sort Method: quicksort  Average Memory: 33kB  Peak Memory: 33kB
+                          Pre-sorted Groups: 5  Sort Method: quicksort  Average Memory: 67kB  Peak Memory: 67kB
+                          Buffers: shared hit=20320, temp read=1521 written=1524
+                          ->  Subquery Scan on best  (cost=992.63..994.54 rows=1 width=349) (actual time=265.023..300.893 rows=1000 loops=1)
+                                Filter: (best.attempt = 1)
+                                Buffers: shared hit=20320, temp read=1521 written=1524
+                                ->  WindowAgg  (cost=992.63..994.11 rows=33 width=357) (actual time=265.014..300.128 rows=1000 loops=1)
+                                      Run Condition: (row_number() OVER (?) <= 1)
+                                      Buffers: shared hit=20320, temp read=1521 written=1524
+                                      ->  Sort  (cost=992.63..992.71 rows=33 width=349) (actual time=264.998..287.558 rows=50000 loops=1)
+                                            Sort Key: jsonb_each_text.key, ((s.body ->> 'uid'::text)), (((s.body ->> 'timeMs'::text))::bigint) DESC, (((s.body ->> 'createdAt'::text))::bigint) DESC, s.key DESC
+                                            Sort Method: external merge  Disk: 12168kB
+                                            Buffers: shared hit=20320, temp read=1521 written=1524
+                                            ->  Nested Loop  (cost=355.44..991.79 rows=33 width=349) (actual time=0.498..141.290 rows=50000 loops=1)
+                                                  Join Filter: (((s.body ->> 'createdAt'::text))::bigint >= (jsonb_each_text.value)::bigint)
+                                                  Buffers: shared hit=20320
+                                                  ->  Nested Loop  (cost=355.44..987.71 rows=1 width=269) (actual time=0.477..79.891 rows=10000 loops=1)
+                                                        Buffers: shared hit=20320
+                                                        ->  Bitmap Heap Scan on documents s  (cost=355.29..883.29 rows=17 width=137) (actual time=0.444..6.229 rows=10000 loops=1)
+                                                              Recheck Cond: (parent = 'scores'::text)
+                                                              Filter: (((body ->> 'platform'::text) = 'android'::text) AND (((body ->> 'timeMs'::text))::bigint >= 1))
+                                                              Heap Blocks: exact=250
+                                                              Buffers: shared hit=320
+                                                              ->  Bitmap Index Scan on documents_parent  (cost=0.00..355.29 rows=10000 width=0) (actual time=0.391..0.391 rows=10000 loops=1)
+                                                                    Index Cond: (parent = 'scores'::text)
+                                                                    Buffers: shared hit=70
+                                                        ->  Index Scan using players_updated on documents p  (cost=0.15..6.14 rows=1 width=137) (actual time=0.007..0.007 rows=1 loops=10000)
+                                                              Index Cond: (key = (s.body ->> 'uid'::text))
+                                                              Filter: (NOT COALESCE(((body ->> 'supportDisabled'::text))::boolean, false))
+                                                              Buffers: shared hit=20000
+                                                  ->  Function Scan on jsonb_each_text  (cost=0.00..1.00 rows=100 width=64) (actual time=0.000..0.001 rows=5 loops=10000)
+Planning:
+  Buffers: shared hit=6
+Planning Time: 0.686 ms
+Execution Time: 311.894 ms
+AVERAGE:
+Result  (cost=1784.64..1784.65 rows=1 width=64) (actual time=136.558..136.580 rows=1 loops=1)
+  Buffers: shared hit=20643
+  CTE totals
+    ->  GroupAggregate  (cost=784.83..785.96 rows=50 width=36) (actual time=7.199..11.098 rows=200 loops=1)
+          Group Key: ((documents.body ->> 'uid'::text))
+          Buffers: shared hit=320
+          ->  Sort  (cost=784.83..784.96 rows=50 width=32) (actual time=7.155..8.835 rows=10000 loops=1)
+                Sort Key: ((documents.body ->> 'uid'::text))
+                Sort Method: quicksort  Memory: 257kB
+                Buffers: shared hit=320
+                ->  Bitmap Heap Scan on documents  (cost=355.30..783.42 rows=50 width=32) (actual time=0.402..4.859 rows=10000 loops=1)
+                      Recheck Cond: (parent = 'scores'::text)
+                      Filter: ((body ->> 'platform'::text) = 'android'::text)
+                      Heap Blocks: exact=250
+                      Buffers: shared hit=320
+                      ->  Bitmap Index Scan on documents_parent  (cost=0.00..355.29 rows=10000 width=0) (actual time=0.363..0.363 rows=10000 loops=1)
+                            Index Cond: (parent = 'scores'::text)
+                            Buffers: shared hit=70
+  CTE aggregates
+    ->  GroupAggregate  (cost=987.74..987.89 rows=1 width=112) (actual time=85.073..122.088 rows=200 loops=1)
+          Group Key: ((s.body ->> 'uid'::text))
+          Buffers: shared hit=20320
+          ->  WindowAgg  (cost=987.74..987.83 rows=1 width=125) (actual time=84.806..104.991 rows=10000 loops=1)
+                Filter: ((row_number() OVER (?)) <= '50'::bigint)
+                Buffers: shared hit=20320
+                ->  WindowAgg  (cost=987.74..987.78 rows=1 width=317) (actual time=84.682..93.219 rows=10000 loops=1)
+                      Run Condition: (row_number() OVER (?) <= '50'::bigint)
+                      Buffers: shared hit=20320
+                      ->  Sort  (cost=987.74..987.75 rows=1 width=309) (actual time=84.661..86.338 rows=10000 loops=1)
+                            Sort Key: ((s.body ->> 'uid'::text)), (COALESCE(((s.body ->> 'attemptAt'::text))::bigint, ((s.body ->> 'createdAt'::text))::bigint)) DESC, s.key DESC
+                            Sort Method: quicksort  Memory: 2629kB
+                            Buffers: shared hit=20320
+                            ->  Nested Loop  (cost=355.44..987.73 rows=1 width=309) (actual time=0.385..77.421 rows=10000 loops=1)
+                                  Buffers: shared hit=20320
+                                  ->  Bitmap Heap Scan on documents s  (cost=355.29..883.29 rows=17 width=137) (actual time=0.363..6.429 rows=10000 loops=1)
+                                        Recheck Cond: (parent = 'scores'::text)
+                                        Filter: (((body ->> 'platform'::text) = 'android'::text) AND (((body ->> 'timeMs'::text))::numeric > '1000'::numeric))
+                                        Heap Blocks: exact=250
+                                        Buffers: shared hit=320
+                                        ->  Bitmap Index Scan on documents_parent  (cost=0.00..355.29 rows=10000 width=0) (actual time=0.325..0.326 rows=10000 loops=1)
+                                              Index Cond: (parent = 'scores'::text)
+                                              Buffers: shared hit=70
+                                  ->  Index Scan using players_updated on documents p  (cost=0.15..6.14 rows=1 width=137) (actual time=0.006..0.006 rows=1 loops=10000)
+                                        Index Cond: (key = (s.body ->> 'uid'::text))
+                                        Filter: (NOT COALESCE(((body ->> 'supportDisabled'::text))::boolean, false))
+                                        Buffers: shared hit=20000
+  CTE ranked
+    ->  WindowAgg  (cost=0.03..0.06 rows=1 width=116) (actual time=122.412..122.533 rows=200 loops=1)
+          Buffers: shared hit=20320
+          ->  Sort  (cost=0.03..0.04 rows=1 width=112) (actual time=122.407..122.436 rows=200 loops=1)
+                Sort Key: aggregates.average_ms DESC, aggregates.uid
+                Sort Method: quicksort  Memory: 29kB
+                Buffers: shared hit=20320
+                ->  CTE Scan on aggregates  (cost=0.00..0.02 rows=1 width=112) (actual time=85.078..122.278 rows=200 loops=1)
+                      Filter: (eligible_count >= 20)
+                      Buffers: shared hit=20320
+  InitPlan 4
+    ->  Aggregate  (cost=1.20..1.21 rows=1 width=32) (actual time=136.388..136.393 rows=1 loops=1)
+          Buffers: shared hit=20640
+          ->  Sort  (cost=1.18..1.19 rows=1 width=120) (actual time=134.327..134.415 rows=200 loops=1)
+                Sort Key: r.place
+                Sort Method: quicksort  Memory: 31kB
+                Buffers: shared hit=20640
+                ->  Merge Join  (cost=0.03..1.17 rows=1 width=120) (actual time=129.933..134.219 rows=200 loops=1)
+                      Merge Cond: (t.uid = r.uid)
+                      Buffers: shared hit=20640
+                      ->  CTE Scan on totals t  (cost=0.00..1.00 rows=50 width=36) (actual time=7.203..11.214 rows=200 loops=1)
+                            Buffers: shared hit=320
+                      ->  Sort  (cost=0.03..0.04 rows=1 width=116) (actual time=122.724..122.771 rows=200 loops=1)
+                            Sort Key: r.uid
+                            Sort Method: quicksort  Memory: 31kB
+                            Buffers: shared hit=20320
+                            ->  CTE Scan on ranked r  (cost=0.00..0.02 rows=1 width=116) (actual time=122.415..122.649 rows=200 loops=1)
+                                  Filter: (place <= 200)
+                                  Buffers: shared hit=20320
+  InitPlan 5
+    ->  Nested Loop Left Join  (cost=0.29..9.52 rows=1 width=32) (actual time=0.082..0.153 rows=1 loops=1)
+          Buffers: shared hit=3
+          ->  Nested Loop Left Join  (cost=0.29..8.38 rows=1 width=181) (actual time=0.064..0.112 rows=1 loops=1)
+                Buffers: shared hit=3
+                ->  Nested Loop Left Join  (cost=0.29..8.35 rows=1 width=177) (actual time=0.060..0.085 rows=1 loops=1)
+                      Buffers: shared hit=3
+                      ->  Index Scan using documents_parent on documents p_1  (cost=0.29..8.31 rows=1 width=137) (actual time=0.051..0.054 rows=1 loops=1)
+                            Index Cond: ((parent = 'players'::text) AND (key = 'p1'::text))
+                            Filter: (NOT COALESCE(((body ->> 'supportDisabled'::text))::boolean, false))
+                            Buffers: shared hit=3
+                      ->  CTE Scan on aggregates a  (cost=0.00..0.02 rows=1 width=72) (actual time=0.003..0.024 rows=1 loops=1)
+                            Filter: (uid = 'p1'::text)
+                            Rows Removed by Filter: 199
+                ->  CTE Scan on ranked r_1  (cost=0.00..0.02 rows=1 width=36) (actual time=0.001..0.022 rows=1 loops=1)
+                      Filter: (uid = 'p1'::text)
+                      Rows Removed by Filter: 199
+          ->  CTE Scan on totals t_1  (cost=0.00..1.12 rows=1 width=36) (actual time=0.002..0.023 rows=1 loops=1)
+                Filter: (uid = 'p1'::text)
+                Rows Removed by Filter: 199
+Planning:
+  Buffers: shared hit=12
+Planning Time: 1.002 ms
+Execution Time: 136.785 ms

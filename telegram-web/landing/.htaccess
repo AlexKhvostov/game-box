@@ -1,0 +1,8 @@
+# Android-only invitation route. The Telegram root /i route is independent.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule ^a/((?:[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{6}|[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{12}))/?$ invite.php?code=$1 [L,NC]
+</IfModule>
+<Files "assetlinks.json">
+  ForceType application/json
+</Files>

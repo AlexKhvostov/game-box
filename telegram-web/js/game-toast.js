@@ -1,6 +1,8 @@
-/** Порт lib/ui/game_toast.dart — вспышка и полёт к чипу HUD. */
+﻿/** Порт lib/ui/game_toast.dart — вспышка и полёт к чипу HUD. */
 
 const CRYSTAL_SVG = 'icons/crystal.svg';
+
+import { fitGameToast } from './neon-messages-fit.js';
 
 function easeOutBack(t) {
   const c1 = 1.70158;
@@ -29,6 +31,7 @@ function ensureRoot() {
   if (!root) {
     root = document.createElement('div');
     root.id = 'fly-toast-root';
+    root.className = 'fly-toast-root';
     root.setAttribute('aria-live', 'polite');
     document.body.appendChild(root);
   }
@@ -87,6 +90,10 @@ export function showGameToast(opts) {
 
   root.appendChild(card);
 
+  // NEON_MESSAGE_UI_START — readonly SafeArea/FittedBox presentation.
+  const presentation = fitGameToast(card, start, end, flyTo);
+  // NEON_MESSAGE_UI_END
+
   const duration = festive ? 1100 : 920;
   const t0 = performance.now();
 
@@ -130,7 +137,7 @@ export function showGameToast(opts) {
     const x = lerp(start.x, end.x, fly);
     const y = lerp(start.y, end.y, fly);
 
-    card.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%) scale(${Math.max(0.12, Math.min(1.2, scale))})`;
+    card.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%) scale(${Math.max(0.12, Math.min(1.2, scale)) * presentation.scale})`;
     card.style.opacity = String(opacity);
 
     drawBurst(t);

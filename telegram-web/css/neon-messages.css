@@ -1,0 +1,105 @@
+/* Current Android _ToastCard / SnackBarTheme / startup theme.
+   JS owns appearance, flight, dismissal and duration; these rules own material. */
+#fly-toast-root .fly-toast-card {
+  box-sizing: border-box;
+  max-width: min(280px, calc((100vw - var(--tg-pad-left, 0px) - var(--tg-pad-right, 0px) - 32px) / 1.2));
+  padding: 12px 16px;
+  gap: 10px;
+  border-radius: 18px;
+  border: 1px solid color-mix(in srgb, var(--toast-accent) 55%, transparent);
+  background: linear-gradient(135deg, #1A2A35, color-mix(in srgb, #1A2A35 72%, var(--toast-accent)));
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--toast-accent) 35%, transparent);
+}
+#fly-toast-root .fly-toast-card.festive {
+  background: linear-gradient(135deg, #FF8A5C, color-mix(in srgb, var(--toast-accent) 55%, #C44BFF) 50%, #1A2A35);
+  border: 1.6px solid color-mix(in srgb, var(--toast-accent) 85%, transparent);
+  box-shadow: 0 8px 28px color-mix(in srgb, var(--toast-accent) 55%, transparent), 0 0 18px #FFD54F59;
+}
+#fly-toast-root .fly-toast-icon {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+}
+#fly-toast-root .fly-toast-icon.heart {
+  width: 26px;
+  height: 26px;
+}
+#fly-toast-root .fly-toast-msg {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: #E8EEF4;
+  font-size: 15px;
+  font-weight: 900;
+  line-height: 1.25;
+  letter-spacing: normal;
+  text-shadow: none;
+}
+#fly-toast-root .festive .fly-toast-msg {
+  font-size: 17px;
+  text-shadow: 0 0 8px #FFD54F88;
+}
+
+/* Telegram's existing top notice keeps its input/timing behavior. The public
+   Android SnackBar material is intentionally the same in both app themes. */
+#sys-toast-root .sys-toast {
+  box-sizing: border-box;
+  min-width: 0;
+  border: 0;
+  border-radius: 4px;
+  background: #EDFAFF;
+  box-shadow: 0 3px 8px #00000040;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+#sys-toast-root .sys-toast-msg {
+  color: #103E5C;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: normal;
+  overflow-wrap: anywhere;
+}
+
+#boot-loader {
+  box-sizing: border-box;
+  padding: max(16px, var(--tg-pad-top, 0px)) max(16px, var(--tg-pad-right, 0px)) max(16px, var(--tg-pad-bottom, 0px)) max(16px, var(--tg-pad-left, 0px));
+  background: #061B2D;
+  color: #A9CBE4;
+}
+#boot-loader .boot-spin {
+  flex: 0 0 auto;
+  border-color: #243F54;
+  border-top-color: #79F1F5;
+}
+
+/* Existing anchored Telegram tips keep their location and actions. The panel
+   material follows current ResultScreen._showTip / GameUi.panel. */
+#game-tip-pop .result-tip-pop-card,
+#result-tip-pop .result-tip-pop-card {
+  max-width: calc(100vw - var(--tg-pad-left, 0px) - var(--tg-pad-right, 0px) - 20px);
+  max-height: max(1px, calc(100dvh - var(--tg-pad-top, 0px) - var(--tg-pad-bottom, 0px) - 20px));
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #79BEDB transparent;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid #ECFCFF;
+  background: linear-gradient(164deg, #FFFFFF99 0%, #FFFFFF33 5%, #FFFFFF00 24%), linear-gradient(180deg, #DCFDFB, #ABE8F2);
+  box-shadow: 0 2px 0 #23649766, 0 3px 6px #0A426626;
+}
+#game-tip-pop .result-tip-pop-card::after,
+#result-tip-pop .result-tip-pop-card::after {
+  /* Android's source dialog has no decorative arrow. */
+  display: none;
+}
+#game-tip-pop .result-tip-pop-body,
+#result-tip-pop .result-tip-pop-body {
+  color: #082E4C;
+  font-size: 13px;
+  line-height: 1.4;
+}
+#game-tip-pop .result-tip-pop-foot,
+#result-tip-pop .result-tip-pop-foot {
+  color: #103E5C;
+  background: #FFFFFF59;
+}

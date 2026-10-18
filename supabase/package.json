@@ -1,0 +1,18 @@
+{
+  "name": "untouch-supabase-backend",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "prepare:core": "node ../tools/prepare_supabase_core.mjs",
+    "test": "node --test --test-concurrency=1 test/*.test.mjs"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.100.0",
+    "google-auth-library": "^9.15.1",
+    "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.3.14",
+    "supabase": "^2.121.0"
+  }
+}

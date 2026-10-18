@@ -1,4 +1,4 @@
-/** Web Audio SFX (lightweight, no audioplayers overhead). */
+﻿/** Web Audio SFX (lightweight, no audioplayers overhead). */
 
 export class GameAudio {
   constructor(config) {

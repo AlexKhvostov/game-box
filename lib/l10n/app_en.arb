@@ -8,14 +8,20 @@
   "livesGained": "+{count} lives",
   "@livesGained": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "buyLivesButton": "+{lives} lives · {cost} crystals",
   "@buyLivesButton": {
     "placeholders": {
-      "lives": {"type": "int"},
-      "cost": {"type": "int"}
+      "lives": {
+        "type": "int"
+      },
+      "cost": {
+        "type": "int"
+      }
     }
   },
   "toCrystals": "Get crystals",
@@ -24,14 +30,20 @@
   "rankFaster": "#{place} · faster than {percent}%",
   "@rankFaster": {
     "placeholders": {
-      "place": {"type": "int"},
-      "percent": {"type": "int"}
+      "place": {
+        "type": "int"
+      },
+      "percent": {
+        "type": "int"
+      }
     }
   },
   "rankToday": "Better than {percent}% of players!",
   "@rankToday": {
     "placeholders": {
-      "percent": {"type": "int"}
+      "percent": {
+        "type": "int"
+      }
     }
   },
   "share": "Save",
@@ -39,16 +51,24 @@
   "shareBoast": "I lasted {time}s in {app}!",
   "@shareBoast": {
     "placeholders": {
-      "time": {"type": "String"},
-      "app": {"type": "String"}
+      "time": {
+        "type": "String"
+      },
+      "app": {
+        "type": "String"
+      }
     }
   },
   "shareSend": "Send",
   "shareScoreCaption": "{app} — {time}s",
   "@shareScoreCaption": {
     "placeholders": {
-      "app": {"type": "String"},
-      "time": {"type": "String"}
+      "app": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
     }
   },
   "ok": "OK",
@@ -56,7 +76,9 @@
   "saveScoreSubtitle": "{time} s · top 20",
   "@saveScoreSubtitle": {
     "placeholders": {
-      "time": {"type": "String"}
+      "time": {
+        "type": "String"
+      }
     }
   },
   "nameLabel": "Name",
@@ -65,7 +87,9 @@
   "savedPlace": "Saved · #{place}",
   "@savedPlace": {
     "placeholders": {
-      "place": {"type": "int"}
+      "place": {
+        "type": "int"
+      }
     }
   },
   "saving": "Saving…",
@@ -76,7 +100,9 @@
   "giftToast": "Gift! +{count} crystals",
   "@giftToast": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "daily": "Daily",
@@ -90,60 +116,78 @@
   "riskCrystalHint": "{every} risks = {reward} crystal",
   "@riskCrystalHint": {
     "placeholders": {
-      "every": {"type": "int"},
-      "reward": {"type": "int"}
+      "every": {
+        "type": "int"
+      },
+      "reward": {
+        "type": "int"
+      }
     }
   },
   "runCrystalHint": "{every} run = {reward} crystal",
   "@runCrystalHint": {
     "placeholders": {
-      "every": {"type": "int"},
-      "reward": {"type": "int"}
+      "every": {
+        "type": "int"
+      },
+      "reward": {
+        "type": "int"
+      }
     }
   },
   "riskCrystalsEarned": "+{count}",
   "@riskCrystalsEarned": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "playInfoScore": "Score",
   "attemptTapToSave": "Tap to save",
   "earn": "Earn",
-  "earnPreviewHint": "Preview until ads & SDKs are connected",
+  "earnPreviewHint": "Complete tasks and collect available bonuses",
   "shop": "Shop",
-  "plusActive": "Boost active",
+  "plusActive": "Plus active",
   "plusCancel": "Cancel subscription",
-  "plusButton": "Boost · {price}",
+  "plusButton": "Plus · {price}",
   "@plusButton": {
     "placeholders": {
-      "price": {"type": "String"}
+      "price": {
+        "type": "String"
+      }
     }
   },
-  "plusToast": "Boost · Daily ×2",
-  "plusCancelledToast": "Boost turned off",
-  "plusManageTitle": "Manage Boost",
-  "plusOfferTitle": "Boost subscription",
-  "plusOfferSubtitle": "Boost is a weekly subscription for $1. You get no ads and ×2 crystals on the Daily bonus. Cancel anytime in this window (billing via Google Play / App Store later).",
+  "plusToast": "Plus · Daily ×2",
+  "plusCancelledToast": "Plus turned off",
+  "plusManageTitle": "Manage Plus",
+  "plusOfferTitle": "Plus subscription",
+  "plusOfferSubtitle": "Plus is a weekly subscription: no ads and double crystals on the daily bonus. Google Play shows the price and payment terms. Manage your subscription in Google Play.",
   "plusSubscribe": "Subscribe · {price}",
   "@plusSubscribe": {
     "placeholders": {
-      "price": {"type": "String"}
+      "price": {
+        "type": "String"
+      }
     }
   },
-  "plusManageSubtitle": "Boost gives perks in the game. This is a local preview — real billing will go through Google Play / App Store later.",
+  "plusManageSubtitle": "Plus gives in-game benefits. Manage auto-renewal or cancel your subscription in Google Play.",
   "plusManageBenefitAds": "No ads",
   "plusManageBenefitDaily": "×2 crystals on the Daily bonus",
   "plusManagePrice": "Price: {price}",
   "@plusManagePrice": {
     "placeholders": {
-      "price": {"type": "String"}
+      "price": {
+        "type": "String"
+      }
     }
   },
-  "plusManageNextCharge": "Next charge: {date}",
+  "plusManageNextCharge": "Active until: {date}",
   "@plusManageNextCharge": {
     "placeholders": {
-      "date": {"type": "String"}
+      "date": {
+        "type": "String"
+      }
     }
   },
   "resetDataTitle": "Reset all data?",
@@ -152,35 +196,49 @@
   "giftCrystals": "+{count} crystals",
   "@giftCrystals": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "claimGift": "Claim gift",
   "dayReward": "Day {day} · +{amount}",
   "@dayReward": {
     "placeholders": {
-      "day": {"type": "int"},
-      "amount": {"type": "int"}
+      "day": {
+        "type": "int"
+      },
+      "amount": {
+        "type": "int"
+      }
     }
   },
   "dailyStreakHint": "Claim every day to keep your streak",
   "dailyStreakActive": "Streak {days} days · miss a day = back to day 1",
   "@dailyStreakActive": {
     "placeholders": {
-      "days": {"type": "int"}
+      "days": {
+        "type": "int"
+      }
     }
   },
   "premiumTimesBase": "{base} × {mult}",
   "@premiumTimesBase": {
     "placeholders": {
-      "base": {"type": "int"},
-      "mult": {"type": "String"}
+      "base": {
+        "type": "int"
+      },
+      "mult": {
+        "type": "String"
+      }
     }
   },
-  "premiumTimesLocked": "×{mult} with Boost",
+  "premiumTimesLocked": "×{mult} with Plus",
   "@premiumTimesLocked": {
     "placeholders": {
-      "mult": {"type": "String"}
+      "mult": {
+        "type": "String"
+      }
     }
   },
   "claimed": "Claimed",
@@ -188,13 +246,17 @@
   "dailyToast": "Daily +{count}",
   "@dailyToast": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "crystalsPlus": "+{count} crystals",
   "@crystalsPlus": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "earnWatchAd": "Watch an ad",
@@ -219,7 +281,9 @@
   "earnBonusUnlocked": "Unlocked: {title}",
   "@earnBonusUnlocked": {
     "placeholders": {
-      "title": {"type": "String"}
+      "title": {
+        "type": "String"
+      }
     }
   },
   "earnUnlockedBannerTap": "Tap to claim in Earn",
@@ -227,16 +291,24 @@
   "riskTipConvert": "At the end of the run: every {every} risks = {reward} crystal(s).",
   "@riskTipConvert": {
     "placeholders": {
-      "every": {"type": "int"},
-      "reward": {"type": "int"}
+      "every": {
+        "type": "int"
+      },
+      "reward": {
+        "type": "int"
+      }
     }
   },
   "runTipHow": "Run is distance in steps. 1 step = 0.1 of hero width (same on all screens).",
   "runTipConvert": "At the end of the run: every {every} steps = {reward} crystal(s).",
   "@runTipConvert": {
     "placeholders": {
-      "every": {"type": "int"},
-      "reward": {"type": "int"}
+      "every": {
+        "type": "int"
+      },
+      "reward": {
+        "type": "int"
+      }
     }
   },
   "earnReward": "Reward",
@@ -260,27 +332,33 @@
   "tabShop": "Shop",
   "tabRent": "Rent",
   "tabEarn": "Earn",
-  "plusTitle": "Boost",
+  "plusTitle": "Plus",
   "plusBenefits": "No ads",
   "plusDailyBoost": "on Daily",
   "giftReady": "Ready!",
   "tapHintChallenge": "Can you last {seconds} sec?",
   "@tapHintChallenge": {
     "placeholders": {
-      "seconds": {"type": "int"}
+      "seconds": {
+        "type": "int"
+      }
     }
   },
   "tapHintNextChallenge": "Think you can do {seconds} sec?",
   "@tapHintNextChallenge": {
     "placeholders": {
-      "seconds": {"type": "int"}
+      "seconds": {
+        "type": "int"
+      }
     }
   },
   "tapHintPlayful": "Tap and dodge",
   "livesBalance": "{count} lives",
   "@livesBalance": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "colDate": "Date",
@@ -295,7 +373,9 @@
   "livesPackLabel": "+{count} lives",
   "@livesPackLabel": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "shopFree": "FREE",
@@ -309,25 +389,33 @@
   "rentHourSub": "{minutes} min pack",
   "@rentHourSub": {
     "placeholders": {
-      "minutes": {"type": "int"}
+      "minutes": {
+        "type": "int"
+      }
     }
   },
   "rentMinsLabel": "{minutes} min",
   "@rentMinsLabel": {
     "placeholders": {
-      "minutes": {"type": "int"}
+      "minutes": {
+        "type": "int"
+      }
     }
   },
   "rentDiscountBadge": "−{percent}%",
   "@rentDiscountBadge": {
     "placeholders": {
-      "percent": {"type": "int"}
+      "percent": {
+        "type": "int"
+      }
     }
   },
   "rentActive": "Active · {time}",
   "@rentActive": {
     "placeholders": {
-      "time": {"type": "String"}
+      "time": {
+        "type": "String"
+      }
     }
   },
   "rentExtend": "Extend",
@@ -344,9 +432,13 @@
   "rankSliceYear": "This year",
   "rankSliceAll": "All time",
   "youGhost": "You",
-  "periodMine": "My attempts",
+  "periodMine": "Mine",
   "colAttempt": "Attempt",
   "myAttemptsEmpty": "No runs yet — play a round",
   "attemptShared": "Shared",
-  "attemptLocal": "Not shared"
+  "attemptLocal": "On this device",
+  "scoreAutoSaved": "Saved to the shared ranking",
+  "scoreSyncPending": "Saved on this device · will sync automatically",
+  "scorePracticeOnly": "Saved on this device · outside shared ranking",
+  "scoreAutoSave": "Results are saved automatically"
 }

@@ -10,70 +10,98 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Untouch</title>
-  <script>
-    try {
-      var _e = JSON.parse(localStorage.getItem('untouch_tg_economy') || '{}');
-      if (_e.lightTheme) document.documentElement.setAttribute('data-theme', 'light');
-    } catch (e) {}
-  </script>
+  <style>html:not([data-launch-verified="true"]) body > :not(#launch-gate):not(script):not(noscript){display:none!important}</style>
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
   <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="css/app.css">
-  <link rel="stylesheet" href="css/sheets.css">
-  <link rel="stylesheet" href="css/theme-light.css">
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+  <link data-game-style href="css/app.css?v=v1.0.22_20261003_233329_134">
+  <link data-game-style href="css/sheets.css?v=v1.0.22_20261003_233329_134">
+  <link data-game-style href="css/ui-kit.css">
+  <link data-game-style href="css/theme-light.css?v=v1.0.22_20261003_233329_134">
+  <link data-game-style href="css/neon-home.css">
+  <link data-game-style href="css/neon-windows.css">
+  <link data-game-style href="css/neon-lives.css">
+  <link data-game-style href="css/neon-shop.css">
+  <link data-game-style href="css/neon-shop-packs.css">
+  <link data-game-style href="css/neon-daily.css">
+  <link data-game-style href="css/neon-plus.css">
+  <link data-game-style href="css/neon-rent.css">
+  <link data-game-style href="css/neon-earn.css">
+  <link data-game-style href="css/neon-result.css">
+  <link data-game-style href="css/neon-share.css">
+  <link data-game-style href="css/neon-ranking.css">
+  <link data-game-style href="css/neon-player.css">
+  <link data-game-style href="css/neon-profile.css">
+  <link data-game-style href="css/neon-profile-help.css">
+  <link data-game-style href="css/neon-messages.css">
+  <link rel="stylesheet" href="css/neon-launch.css">
 </head>
 <body>
+  <section id="launch-gate" aria-labelledby="launch-title">
+    <div class="launch-card">
+      <svg class="launch-mark" viewBox="0 0 64 64" aria-hidden="true"><path fill="currentColor" d="M57 9 47 55c-.7 3-2.7 3.7-5.4 2.3L26 46l-7.5 7.2c-.8.8-1.5 1.5-3.1 1.5l1.1-16.3L46 12.2c1.3-1.1-.3-1.7-2-.6L7.7 34.4 1.9 32.6C-.9 31.7-.9 29.8 2.5 28.5L53.4 8.9c2.4-.9 4.5.6 3.6.1Z"/></svg>
+      <h1 id="launch-title">Откройте игру в приложении Telegram</h1>
+      <p id="launch-status" role="status" aria-live="polite">Игра доступна в Telegram для телефона и компьютера.</p>
+      <div class="launch-actions">
+        <a id="launch-open" href="tg://resolve?domain=UntouchGameBot&amp;appname=untouch">Открыть Telegram</a>
+        <button type="button" id="launch-retry" hidden>Повторить проверку</button>
+        <a class="launch-install" href="https://telegram.org/apps" rel="noopener noreferrer">Установить Telegram</a>
+      </div>
+      <noscript><p>Для запуска через Telegram включите JavaScript.</p></noscript>
+    </div>
+  </section>
   <div id="boot-loader" class="boot-loader" aria-live="polite">
     <div class="boot-spin" aria-hidden="true"></div>
     <p>Загрузка…</p>
   </div>
-  <div class="score-strip idle" id="score-strip">
-    <div class="score-strip-pill" id="score-strip-pill">
-      <span class="score-strip-label">ОЧКИ</span>
-      <span class="score-strip-value" id="top-score">0</span>
-    </div>
-  </div>
 
-  <div id="app">
+
+  <div id="app" class="neon-home">
+    <svg id="finger-hint" class="finger-hint" viewBox="0 0 64 80" aria-hidden="true" hidden><path fill="currentColor" d="M25 40V9a6 6 0 0 1 12 0v24l5-2c3-1 7 1 7 4l3-1c4-1 7 2 7 5v17c0 8-3 14-8 19H26c-5-5-10-11-14-16L3 48c-3-4 2-10 6-7l12 9c2 1 4-1 4-3Z"/></svg>
     <header class="hud">
-      <div class="hud-chip lives" id="hud-lives-chip">
-        <img src="icons/ui-heart.svg" class="game-icon hud-icon heart" width="14" height="14" alt="" draggable="false">
-        <span id="hud-lives">0</span>
+      <div class="hud-cards">
+        <button type="button" class="hud-chip lives" id="hud-lives-chip" aria-label="Жизни — открыть обменник">
+          <span class="hud-resource"><svg class="hud-icon heart" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 21 3.6 12.8C-2 7.2 5.9-.8 12 5.4 18.1-.8 26 7.2 20.4 12.8Z"/></svg><span id="hud-lives">0</span></span>
+          <span class="hud-card-label">Жизни</span>
+        </button>
+        <button type="button" class="hud-chip crystals" id="hud-crystals-chip" aria-label="Кристаллы — открыть магазин">
+          <span class="hud-resource"><img loading="lazy" src="icons/crystal.svg" class="crystal-img hud-crystal" width="20" height="20" alt="" draggable="false"><span id="hud-crystals">0</span></span>
+          <span class="hud-card-label">Кристаллы</span>
+        </button>
+        <button type="button" class="hud-chip record" id="hud-record-chip" aria-label="Топ дня — открыть рейтинг">
+          <span class="hud-resource"><svg class="hud-icon trophy" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7 2h10v3h4v3a5 5 0 0 1-5 5 6 6 0 0 1-3 2v4h4v3H7v-3h4v-4a6 6 0 0 1-3-2 5 5 0 0 1-5-5V5h4zm10 5v4a3 3 0 0 0 2-3V7zM5 7v1a3 3 0 0 0 2 3V7z"/></svg><span id="hud-day-best">—</span></span>
+          <span class="hud-card-label">Топ дня</span>
+        </button>
+        <button type="button" class="hud-profile-btn" id="hud-profile-btn" aria-label="Аккаунт — мой рекорд" title="Профиль игрока">
+          <span class="hud-profile-portrait"><img loading="lazy" src="assets/branding/ui/hud-player-portrait-v1.png" class="hud-profile-avatar" id="hud-profile-avatar" width="34" height="34" alt="" draggable="false"></span>
+          <span id="hud-record">0.000</span>
+        </button>
       </div>
-      <div class="hud-chip crystals" id="hud-crystals-chip">
-        <img src="icons/crystal.svg" class="crystal-img hud-crystal" width="14" height="14" alt="" draggable="false">
-        <span id="hud-crystals">0</span>
+      <div class="hud-play-row">
+        <button type="button" class="rent-chip helmet" id="helmet-chip" aria-label="Шлем — аренда">
+          <span class="ability-ring"><svg viewBox="0 0 36 36" aria-hidden="true"><circle class="ability-track" cx="18" cy="18" r="15"/><circle class="ability-progress" cx="18" cy="18" r="15" pathLength="100"/></svg><img loading="lazy" src="assets/branding/ui/ability-helmet.png" width="24" height="24" alt=""><span class="ability-broken-mark" aria-hidden="true">ϟ</span></span>
+          <span class="ability-status" id="helmet-status">Выкл.</span><span class="rent-value" id="helmet-rent" hidden>--:--</span>
+        </button>
+        <div class="hud-center">
+          <div class="score-strip idle" id="score-strip"><div class="score-strip-pill" id="score-strip-pill"><span class="score-strip-value" id="top-score" aria-label="Время попытки">00:00.000</span></div></div>
+          <div class="hud-metrics">Риск <span id="info-risk">0</span> · Пробег <span id="info-run">0</span></div>
+        </div>
+        <button type="button" class="rent-chip jump" id="jump-chip" aria-label="Прыжок — аренда">
+          <span class="ability-ring"><svg class="jump-recharge" viewBox="0 0 36 36" aria-hidden="true"><circle class="ability-track" cx="18" cy="18" r="15"/><circle class="ability-progress" cx="18" cy="18" r="15" pathLength="100"/><circle class="ability-tip" cx="18" cy="3" r="2.1"/></svg><img loading="lazy" src="assets/branding/ui/ability-jump.png" width="24" height="24" alt=""></span>
+          <span class="ability-status" id="jump-status">Выкл.</span><span class="rent-value" id="jump-rent" hidden>--:--</span>
+        </button>
       </div>
-      <div class="rent-chip jump" id="jump-chip">
-        <span class="rent-label">Прыжок</span>
-        <span class="rent-value" id="jump-rent">--:--</span>
-      </div>
-      <div class="rent-chip helmet">
-        <span class="rent-label">Шлем</span>
-        <span class="rent-value" id="helmet-rent">--:--</span>
-      </div>
-      <div class="hud-spacer"></div>
-      <div class="hud-chip record" id="hud-record-chip">
-        <img src="icons/ui-trophy.svg" class="game-icon hud-icon trophy" width="14" height="14" alt="" draggable="false">
-        <span id="hud-record">0</span>
-      </div>
-      <button type="button" class="hud-profile-btn" id="hud-profile-btn" aria-label="Профиль игрока" title="Профиль игрока">
-        <img src="" class="hud-profile-avatar" id="hud-profile-avatar" alt="" style="display:none;" draggable="false">
-        <span class="hud-profile-cube" id="hud-profile-cube"></span>
-      </button>
     </header>
 
     <div class="game-column" id="touch-zone">
+      <canvas class="touchpad-surface" id="touchpad-surface" aria-hidden="true"></canvas>
       <div class="field-wrap">
         <div class="field-frame">
           <canvas id="game-canvas" width="380" height="380"></canvas>
         </div>
       </div>
 
-      <div class="info-bar">
+      <div class="info-bar" hidden aria-hidden="true">
         <div class="info-row">
           <div class="info-chip col-enemies">
             <div class="info-label">Враги</div>
@@ -88,27 +116,24 @@
           <div class="info-timer col-timer" id="info-timer">00:00.000</div>
           <div class="info-chip col-risk">
             <div class="info-label">Риск</div>
-            <div class="info-value risk" id="info-risk">0</div>
+            <div class="info-value risk">0</div>
           </div>
           <div class="info-chip col-run">
             <div class="info-label">Шаги</div>
-            <div class="info-value" id="info-run">0</div>
+            <div class="info-value">0</div>
           </div>
         </div>
       </div>
 
       <div class="touch-pad">
-        <div class="touchpad-hint" aria-hidden="true"></div>
         <div class="start-banner" id="start-banner">
           <div class="start-card">
-            <div class="brand-pill">
-              <img src="icons/resting-cube.svg" class="game-icon resting-cube-img brand-cube-img" width="18" height="18" alt="" draggable="false">
-              <span class="brand-name">Untouch</span>
+            <div class="start-brand"><img loading="lazy" src="assets/branding/ui/hero-start-crouched-v1.png" width="32" height="32" alt="" draggable="false"><span>Untouch</span></div>
+            <div class="recovery-content">
+              <div class="recovery-copy"><strong class="recovery-title">Продолжим игру?</strong><p class="start-text" id="start-text">Коснись и уворачивайся</p></div>
+              <div class="start-hero-cube" id="start-hero-cube" hidden><img loading="lazy" src="assets/branding/ui/lives-resting-sofa-v2.png" class="start-hero-cube-img" width="104" height="104" alt="" draggable="false"></div>
             </div>
-            <div class="start-hero-cube" id="start-hero-cube" hidden>
-              <img src="icons/resting-cube.svg" class="game-icon resting-cube-img start-hero-cube-img" width="72" height="72" alt="" draggable="false">
-            </div>
-            <p class="start-text" id="start-text">Коснитесь экрана и уводите куб</p>
+            <button type="button" class="recovery-action" id="get-lives-btn" hidden>Открыть обменник</button>
           </div>
         </div>
       </div>
@@ -117,48 +142,57 @@
 
   <div class="result-overlay" id="result-overlay" hidden>
     <div class="result-bg"></div>
+    <div class="result-viewport">
     <div class="result-inner">
       <div class="result-card" id="result-card">
-        <div class="result-brand-pill">
-          <img src="icons/resting-cube.svg" class="game-icon resting-cube-img result-brand-cube-img" width="18" height="18" alt="" draggable="false">
-          <span class="result-brand-name">Untouch</span>
-        </div>
-        <div class="result-kicker">НОВЫЙ РЕЗУЛЬТАТ</div>
-        <div class="result-time" id="result-time">0.000</div>
-        <div class="result-time-unit">секунд</div>
-        <div class="result-score-banner" id="result-score-banner">
-          <span class="result-score-tag">⚡ ОЧКИ ПОПЫТКИ</span>
-          <span class="result-score-number" id="result-score">0</span>
-        </div>
-        <div class="result-rank" id="result-rank">Новый результат</div>
-        <div class="result-stats-row">
+        <img loading="lazy" class="result-scene" src="assets/branding/ui/result-scene-v1.png" width="1086" height="1448" alt="" draggable="false" aria-hidden="true">
+        <div class="result-scene-shade" aria-hidden="true"></div>
+        <div class="result-kicker">Результат попытки</div>
+        <div class="result-scroll">
+          <div class="result-rank" id="result-rank">Новый результат</div>
+          <div class="result-time-slot" data-result-fit="left"><span class="result-time-copy"><span class="result-time" id="result-time">0.000</span><span class="result-time-unit"> с</span></span></div>
+          <div class="result-best" id="result-best">Ваш рекорд: 0.000 с</div>
+          <div class="result-score-banner" id="result-score-banner">
+            <span class="result-score-tag">⚡ ОЧКИ ПОПЫТКИ</span>
+            <span class="result-score-slot" data-result-fit="left"><span class="result-score-number" id="result-score">0</span></span>
+          </div>
+          <div class="result-scene-space" aria-hidden="true"></div>
+          <div class="result-stats-row">
           <button type="button" class="result-stat risk" id="result-stat-risk" aria-label="Риск — подробнее">
             <div class="result-stat-head">
-              <span class="result-stat-label">РИСК</span>
+              <img loading="lazy" class="result-metric-icon" src="assets/branding/ui/ability-risk.png" width="12" height="12" alt="" aria-hidden="true">
+              <span class="result-stat-label">Риск</span>
               <span class="result-stat-rate" id="result-risk-rate"></span>
+              <svg class="result-metric-info" width="11" height="11" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path fill="currentColor" d="M11 10h2v7h-2zM11 6h2v2h-2z"/></svg>
             </div>
             <div class="result-stat-body">
-              <span class="result-stat-value" id="result-risk">0</span>
-              <span class="result-stat-earn" id="result-risk-earn" hidden></span>
+              <div class="result-value-slot" data-result-fit="left"><span class="result-stat-value" id="result-risk">0</span></div>
+              <div class="result-earn-slot" data-result-fit="left"><span class="result-stat-earn" id="result-risk-earn" hidden></span></div>
             </div>
           </button>
           <button type="button" class="result-stat run" id="result-stat-run" aria-label="Шаги — подробнее">
             <div class="result-stat-head">
-              <span class="result-stat-label">ШАГИ</span>
+              <img loading="lazy" class="result-metric-icon" src="assets/branding/ui/ability-distance.png" width="12" height="12" alt="" aria-hidden="true">
+              <span class="result-stat-label">Шаги</span>
               <span class="result-stat-rate" id="result-run-rate"></span>
+              <svg class="result-metric-info" width="11" height="11" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path fill="currentColor" d="M11 10h2v7h-2zM11 6h2v2h-2z"/></svg>
             </div>
             <div class="result-stat-body">
-              <span class="result-stat-value" id="result-run">0</span>
-              <span class="result-stat-earn" id="result-run-earn" hidden></span>
+              <div class="result-value-slot" data-result-fit="left"><span class="result-stat-value" id="result-run">0</span></div>
+              <div class="result-earn-slot" data-result-fit="left"><span class="result-stat-earn" id="result-run-earn" hidden></span></div>
             </div>
           </button>
+          </div>
+        </div>
+        <div class="result-actions">
+          <div class="result-actions-row">
+            <button type="button" class="result-btn outline accent" id="result-share-social">Поделиться</button>
+            <button type="button" class="result-btn outline auto-saved" id="result-save">Сохранено ✓</button>
+          </div>
+          <button type="button" class="result-btn primary" id="result-ok"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 5V1L7 6l5 5V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-8Z"/></svg> Ещё раз</button>
         </div>
       </div>
-      <div class="result-actions-row">
-        <button type="button" class="result-btn outline accent" id="result-share-social">Поделиться</button>
-        <button type="button" class="result-btn outline auto-saved" id="result-save">Сохранено ✓</button>
-      </div>
-      <button type="button" class="result-btn primary" id="result-ok">Ещё раз</button>
+    </div>
     </div>
   </div>
 
@@ -169,6 +203,7 @@
     <div id="sheet-backdrop" class="sheet-backdrop"></div>
     <div id="sheet-panel" class="sheet-panel">
       <div class="sheet-handle"></div>
+      <button type="button" class="neon-window-close" id="sheet-window-close" aria-label="Закрыть окно"><span aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></span></button>
       <div id="sheet-body" class="sheet-body"></div>
     </div>
   </div>
@@ -176,7 +211,7 @@
   <div id="ad-fail-overlay" class="ad-fail-overlay" hidden>
     <button type="button" class="ad-fail-backdrop" id="ad-fail-backdrop" aria-label="Закрыть"></button>
     <div class="ad-fail-card" role="dialog" aria-modal="true" aria-labelledby="ad-fail-title">
-      <img class="ad-fail-art" src="assets/branding/ad_tv_sad.jpg" width="280" height="280" alt="">
+      <img loading="lazy" class="ad-fail-art" src="assets/branding/ad_tv_sad.jpg" width="280" height="280" alt="">
       <h3 class="ad-fail-title" id="ad-fail-title">Телевизор барахлит</h3>
       <p class="ad-fail-body" id="ad-fail-body">Ролик не загрузился. Кубик уже чинит — загляните чуть позже.</p>
       <button type="button" class="ad-fail-ok" id="ad-fail-ok">Понятно</button>
@@ -186,13 +221,13 @@
   <div id="ad-watch-hint" class="ad-fail-overlay" hidden>
     <button type="button" class="ad-fail-backdrop" id="ad-watch-hint-backdrop" aria-label="Отмена"></button>
     <div class="ad-fail-card ad-hint-card" role="dialog" aria-modal="true" aria-labelledby="ad-watch-hint-title">
-      <img class="ad-fail-art ad-hint-art" src="assets/branding/ad_tv_watch.png" width="280" height="280" alt="">
+      <img loading="lazy" class="ad-fail-art ad-hint-art" src="assets/branding/ad_tv_watch.png" width="280" height="280" alt="">
       <h3 class="ad-fail-title" id="ad-watch-hint-title">Минутка у телевизора</h3>
       <p class="ad-fail-body ad-hint-lead">Ролик около минуты. Его нельзя свернуть. Кристаллы — только если досмотреть до конца.</p>
       <div class="ad-hint-facts" aria-hidden="true">
         <span class="ad-hint-fact">~1 мин</span>
         <span class="ad-hint-fact">Не сворачивается</span>
-        <span class="ad-hint-fact ad-hint-fact-pay"><img src="icons/crystal.svg" width="11" height="11" alt="">+<span id="ad-watch-hint-reward">5</span></span>
+        <span class="ad-hint-fact ad-hint-fact-pay"><img loading="lazy" src="icons/crystal.svg" width="11" height="11" alt="">+<span id="ad-watch-hint-reward">5</span></span>
       </div>
       <label class="ad-hint-skip">
         <input type="checkbox" id="ad-watch-hint-skip">
@@ -208,7 +243,6 @@
     </div>
   </div>
 
-  <script type="module" src="js/main.js"></script>
-  <noscript><div><img src="https://mc.yandex.ru/watch/112365078" style="position:absolute;left:-9999px" alt=""></div></noscript>
+  <script type="module" src="js/launch.js"></script>
 </body>
 </html>

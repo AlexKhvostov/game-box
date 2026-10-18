@@ -1,16 +1,231 @@
 import 'dart:convert';
+import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../domain/score_entry.dart';
+import '../domain/average_ranking.dart';
 import 'firebase_bootstrap.dart';
+import 'mobile_account.dart';
+import 'economy_store.dart';
+import 'instant_round_journal.dart';
+import 'package:http/http.dart' as http;
 
-/// Онлайн-рейтинг (Firestore) с локальным кэшем на случай офлайна.
+/// Shared Android ranking with durable, account-scoped automatic delivery.
 class ScoresStore extends ChangeNotifier {
-  static const _kScores = 'local_scores_v1';
-  static const _kAttempts = 'local_attempts_v1';
+  ScoresStore({
+    this.account,
+    http.Client? client,
+    this.storagePrefix = '',
+    EconomyStore? instantEconomy,
+  }) : _client = client ?? http.Client() {
+    _attemptOwner = account?.id;
+    final walletFlush = account?.beforeRound;
+    account?.beforeRound = () async {
+      await _scheduleDelivery();
+      await walletFlush?.call();
+    };
+    account?.addListener(_accountUpdated);
+    if (account != null && instantEconomy != null) {
+      _instant = InstantRoundJournal(
+        account: account!,
+        economy: instantEconomy,
+        changed: _changed,
+        recoverResult: (id) {
+          final a = _attempts.where((a) => a.id == id).firstOrNull;
+          return a == null ? null : _attemptResult(a);
+        },
+        published: (owner, id) async {
+          if (_disposed || account!.id != owner) return;
+          final index = _attempts.indexWhere((a) => a.id == id);
+          if (index >= 0) {
+            _attempts[index] = _attempts[index].copyWith(
+              shared: true,
+              displayName: account!.nickname,
+            );
+            await _persistAttempts();
+            _lastRemoteOkAt = null;
+          }
+          _changed();
+        },
+      );
+    }
+    account?.beforeIdentityChange = () async {
+      await _scheduleDelivery();
+      await _recording;
+      if (_outbox.isNotEmpty ||
+          _roundPending != null ||
+          _instant?.activeKey != null) {
+        throw const MobileApiError('round_delivery_pending');
+      }
+    };
+  }
+  String? _attemptOwner;
+  Future<void> _ownerChange = Future.value();
+  void _accountUpdated() {
+    if (account?.id == null || _attemptOwner == account!.id) return;
+    _attemptOwner = account!.id;
+    _periodScores.clear();
+    _scores.clear();
+    averageRanking = null;
+    _loadAverageCache();
+    _attempts.clear();
+    _outbox.clear();
+    if (_prefs != null) {
+      _ownerChange = _loadAttempts().then((_) => _changed());
+    }
+  }
+
+  final MobileAccount? account;
+  bool get supportsAverage =>
+      account?.storagePrefix.startsWith('supabase_android_') ?? false;
+  AverageRanking? averageRanking;
+  String get _averageCacheKey =>
+      '${storagePrefix}average_ranking_v1_${_attemptOwner ?? 'pending'}';
+  String get _recordCacheKey =>
+      '${storagePrefix}record_ranking_v1_${_attemptOwner ?? 'pending'}';
+  void _loadAverageCache() {
+    averageRanking = null;
+    if (supportsAverage) {
+      _periodScores.clear();
+      final records = _prefs?.getString(_recordCacheKey);
+      if (records != null) {
+        try {
+          final decoded = jsonDecode(records) as Map<String, dynamic>;
+          for (final item in decoded.entries) {
+            _periodScores[item.key] = (item.value as List)
+                .map(
+                  (v) =>
+                      ScoreEntry.fromJson(Map<String, dynamic>.from(v as Map)),
+                )
+                .toList();
+          }
+          _scores
+            ..clear()
+            ..addAll(_periodScores['all'] ?? []);
+        } catch (_) {
+          _periodScores.clear();
+        }
+      }
+    }
+    final raw = _prefs?.getString(_averageCacheKey);
+    if (!supportsAverage || raw == null) return;
+    try {
+      averageRanking = AverageRanking.fromJson(
+        jsonDecode(raw) as Map<String, dynamic>,
+      );
+    } catch (_) {
+      averageRanking = null;
+    }
+  }
+
+  final String storagePrefix;
+  final http.Client _client;
+  InstantRoundJournal? _instant;
+  bool get instantRoundsEnabled => _instant != null;
+  String? beginInstantRound({
+    required bool helmet,
+    required bool jump,
+    required int cost,
+  }) => _instant?.begin(helmet: helmet, jump: jump, cost: cost);
+  Map<String, dynamic> _attemptResult(LocalAttempt a) => {
+    'timeMs': a.timeMs,
+    'runDistance': a.runDistance,
+    'riskCount': a.riskCount,
+    'hadJump': a.hadJump,
+    'hadHelmet': a.hadHelmet,
+  };
+  final Map<String, List<ScoreEntry>> _periodScores = {};
+  Future<String?>? _roundPending;
+  Future<bool> beginRound({
+    bool helmet = false,
+    bool jump = false,
+    String? economyRevision,
+  }) async {
+    await _recording;
+    await _ensureLocalReady();
+    _roundPending = account?.startRound(
+      helmet: helmet,
+      jump: jump,
+      economyRevision: economyRevision,
+    );
+    final confirmed = account == null || await _roundPending != null;
+    if (!confirmed) _roundPending = null;
+    return confirmed;
+  }
+
+  Future<void> activateRound() async => account?.activateRound();
+
+  Future<void> cancelRound() async {
+    await account?.cancelRound();
+    _roundPending = null;
+  }
+
+  String get _kOutbox => '${storagePrefix}mobile_round_outbox_v1';
+  Future<void> _delivery = Future.value();
+  Future<void> _localWrites = Future.value();
+  Future<void>? _recording;
+  final List<Map<String, dynamic>> _outbox = [];
+  Timer? _retryTimer;
+  int _retrySeconds = 1;
+  bool _disposed = false;
+  String get _stateKey =>
+      '${storagePrefix}mobile_score_state_v2_${_attemptOwner ?? 'pending'}';
+  bool isAttemptPending(String id) =>
+      _outbox.any((item) => item['attemptId'] == id) ||
+      (_instant?.pendingAttempt(id) ?? false);
+  Future<void> retryPendingResults() async {
+    _instant?.retry();
+    await _scheduleDelivery();
+  }
+
+  void _armRetry() {
+    if (_disposed || _outbox.isEmpty || _retryTimer != null) return;
+    _retryTimer = Timer(Duration(seconds: _retrySeconds), () {
+      _retryTimer = null;
+      if (_roundPending != null) {
+        _armRetry();
+        return;
+      }
+      unawaited(_scheduleDelivery());
+    });
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    _retryTimer?.cancel();
+    _instant?.dispose();
+    account?.removeListener(_accountUpdated);
+    super.dispose();
+  }
+
+  void _changed() {
+    if (!_disposed) super.notifyListeners();
+  }
+
+  Future<void> _ensureLocalReady() async {
+    _prefs ??= await SharedPreferences.getInstance();
+    await _ownerChange;
+    if (_localReady) return;
+    await _loadLocal();
+    await _loadAttempts();
+    _localReady = true;
+  }
+
+  Future<void> loadLocal() async {
+    await _ensureLocalReady();
+    await _instant?.bindOwner();
+  }
+
+  String get _kScores => supportsAverage
+      ? '${storagePrefix}local_scores_v2_${_attemptOwner ?? 'pending'}'
+      : '${storagePrefix}local_scores_v1';
+  String get _kAttempts => account == null
+      ? '${storagePrefix}local_attempts_v1'
+      : '${storagePrefix}mobile_attempts_v1_${account!.id ?? 'pending'}';
   static const _collection = 'scores';
   static const _maxTimeMs = 60 * 60 * 1000; // 1 час — античит-потолок
   static const _maxAttempts = 200;
@@ -25,6 +240,7 @@ class ScoresStore extends ChangeNotifier {
   Future<void>? _inFlightLoad;
 
   List<ScoreEntry> get scores => scoresForPeriod(null);
+  LocalAttempt? get latestAttempt => _attempts.isEmpty ? null : _attempts.first;
 
   /// Мои попытки (сохранённые и нет), новые сверху.
   List<LocalAttempt> get myAttempts {
@@ -45,7 +261,10 @@ class ScoresStore extends ChangeNotifier {
 
   /// День / неделя / месяц / год / всё время.
   List<ScoreEntry> scoresForNamedPeriod(String period) {
-    final now = DateTime.now();
+    if (account != null && _periodScores.containsKey(period)) {
+      return List.unmodifiable(_periodScores[period]!);
+    }
+    final now = DateTime.now().toUtc();
     switch (period) {
       case 'day':
         return scoresForPeriod(DateTime(now.year, now.month, now.day));
@@ -65,9 +284,7 @@ class ScoresStore extends ChangeNotifier {
     Duration maxAge = const Duration(seconds: 20),
   }) async {
     final last = _lastRemoteOkAt;
-    if (online &&
-        last != null &&
-        DateTime.now().difference(last) < maxAge) {
+    if (online && last != null && DateTime.now().difference(last) < maxAge) {
       return;
     }
     await load();
@@ -86,20 +303,108 @@ class ScoresStore extends ChangeNotifier {
 
   Future<void> _loadBody() async {
     loading = true;
-    notifyListeners();
+    _changed();
 
-    _prefs ??= await SharedPreferences.getInstance();
-    if (!_localReady) {
-      await _loadLocal();
-      await _loadAttempts();
-      _localReady = true;
-      notifyListeners();
+    await _ensureLocalReady();
+    await _instant?.bindOwner();
+    _instant?.retry();
+    _changed();
+
+    if (account != null) {
+      if (!account!.onlineAllowed) {
+        online = false;
+        loading = false;
+        _changed();
+        return;
+      }
+      await _scheduleDelivery();
+      final loadingOwner = account!.id;
+      try {
+        final firebaseBoards =
+            (account!.storagePrefix.startsWith('firebase_android_') ||
+                account!.storagePrefix.startsWith('supabase_android_'))
+            ? await account!.request({
+                'action': 'scores',
+                'period': 'allPeriods',
+              })
+            : null;
+        final periods = await Future.wait(
+          ['all', 'day', 'week', 'month', 'year'].map((period) async {
+            final Map body;
+            if (firebaseBoards != null) {
+              body = {'scores': (firebaseBoards['periods'] as Map)[period]};
+            } else {
+              final uri = Uri.parse(
+                'https://untouch.ballaball.xyz/api/scores.php',
+              ).replace(queryParameters: {'period': period});
+              final response = await _client
+                  .get(uri)
+                  .timeout(const Duration(seconds: 4));
+              body = jsonDecode(response.body) as Map;
+              if (response.statusCode != 200 || body['source'] != 'mysql') {
+                throw const MobileApiError('ranking_unavailable');
+              }
+            }
+            if (body['scores'] is! List) {
+              throw const MobileApiError('ranking_unavailable');
+            }
+            return MapEntry(
+              period,
+              (body['scores'] as List).map((value) {
+                final row = value as Map;
+                return ScoreEntry(
+                  id: '${row['id']}',
+                  displayName: row['playerName'] as String,
+                  accountName: row['googleName'] as String?,
+                  timeMs: (row['timeMs'] as num).toInt(),
+                  createdAt: DateTime.fromMillisecondsSinceEpoch(
+                    (row['createdAt'] as num).toInt(),
+                    isUtc: true,
+                  ),
+                  uid: row['userId'] as String?,
+                  runDistance: (row['runDistance'] as num?)?.toInt() ?? 0,
+                  riskCount: (row['riskCount'] as num?)?.toInt() ?? 0,
+                  hadJump: row['hadJump'] == true,
+                  hadHelmet: row['hadHelmet'] == true,
+                  place: (row['place'] as num?)?.toInt(),
+                );
+              }).toList(),
+            );
+          }),
+        );
+        if (account!.id != loadingOwner) {
+          throw const MobileApiError('wallet_owner_changed');
+        }
+        _periodScores
+          ..clear()
+          ..addEntries(periods);
+        _scores
+          ..clear()
+          ..addAll(_periodScores['all']!);
+        if (supportsAverage && firebaseBoards?['average'] is Map) {
+          averageRanking = AverageRanking.fromJson(
+            Map<String, dynamic>.from(firebaseBoards!['average'] as Map),
+          );
+          await _prefs!.setString(
+            _averageCacheKey,
+            jsonEncode(averageRanking!.toJson()),
+          );
+        }
+        online = true;
+        _lastRemoteOkAt = DateTime.now();
+        await _persistLocal();
+      } catch (_) {
+        online = false;
+      }
+      loading = false;
+      _changed();
+      return;
     }
 
     if (!FirebaseBootstrap.ready) {
       online = false;
       loading = false;
-      notifyListeners();
+      _changed();
       return;
     }
 
@@ -114,21 +419,21 @@ class ScoresStore extends ChangeNotifier {
         _lastRemoteOkAt = DateTime.now();
         await _persistLocal();
         loading = false;
-        notifyListeners();
+        _changed();
         return;
       } catch (e, st) {
         lastError = e;
-        debugPrint('Firestore leaderboard load attempt ${attempt + 1}: $e\n$st');
-        await Future<void>.delayed(
-          Duration(milliseconds: 350 * (attempt + 1)),
+        debugPrint(
+          'Firestore leaderboard load attempt ${attempt + 1}: $e\n$st',
         );
+        await Future<void>.delayed(Duration(milliseconds: 350 * (attempt + 1)));
       }
     }
 
     debugPrint('Firestore leaderboard load gave up: $lastError');
     online = false;
     loading = false;
-    notifyListeners();
+    _changed();
   }
 
   /// Top по времени + свежие записи за ~31 день (для вкладок day/week/month).
@@ -161,8 +466,7 @@ class ScoresStore extends ChangeNotifier {
     }
 
     // 2) Recent window — иначе Day/Week пустые, если свежие не в all-time top
-    final since =
-        DateTime.now().toUtc().subtract(const Duration(days: 31));
+    final since = DateTime.now().toUtc().subtract(const Duration(days: 31));
     try {
       final snap = await FirebaseFirestore.instance
           .collection(_collection)
@@ -203,6 +507,7 @@ class ScoresStore extends ChangeNotifier {
     final prefs = _prefs!;
     final raw = prefs.getString(_kScores);
     _scores.clear();
+    _loadAverageCache();
     if (raw != null && raw.isNotEmpty) {
       final list = jsonDecode(raw) as List<dynamic>;
       for (final item in list) {
@@ -214,37 +519,123 @@ class ScoresStore extends ChangeNotifier {
   Future<void> _persistLocal() async {
     final prefs = _prefs!;
     final encoded = jsonEncode(_scores.map((e) => e.toJson()).toList());
+    final recordsKey = _recordCacheKey;
+    final records = supportsAverage
+        ? jsonEncode(
+            _periodScores.map(
+              (key, value) =>
+                  MapEntry(key, value.map((r) => r.toJson()).toList()),
+            ),
+          )
+        : null;
     await prefs.setString(_kScores, encoded);
+    if (records != null) await prefs.setString(recordsKey, records);
   }
 
   Future<void> _loadAttempts() async {
     _attempts.clear();
+    _outbox.clear();
+    final state = account == null ? null : _prefs!.getString(_stateKey);
+    if (state != null) {
+      final data = jsonDecode(state) as Map;
+      _attempts.addAll(
+        (data['attempts'] as List).map(
+          (e) => LocalAttempt.fromJson(Map<String, dynamic>.from(e as Map)),
+        ),
+      );
+      _outbox.addAll(
+        (data['outbox'] as List).map(
+          (e) => Map<String, dynamic>.from(e as Map),
+        ),
+      );
+      _armRetry();
+      await _adoptLocalPractice();
+      return;
+    }
     final raw = _prefs!.getString(_kAttempts);
-    if (raw == null || raw.isEmpty) return;
+    if (raw == null || raw.isEmpty) {
+      await _adoptLocalPractice();
+      return;
+    }
     try {
       final list = jsonDecode(raw) as List<dynamic>;
       for (final item in list) {
         _attempts.add(LocalAttempt.fromJson(item as Map<String, dynamic>));
       }
+      if (account != null) {
+        // Legacy outbox did not store an owner. Only migrate rows whose attempt
+        // exists in this profile's history; never send another profile's rows.
+        final legacy = jsonDecode(_prefs!.getString(_kOutbox) ?? '[]') as List;
+        _outbox.addAll(
+          legacy
+              .map((e) => Map<String, dynamic>.from(e as Map))
+              .where((e) => _attempts.any((a) => a.id == e['attemptId'])),
+        );
+        await _persistAttempts();
+        _armRetry();
+      }
     } catch (e, st) {
       debugPrint('Local attempts load failed: $e\n$st');
+    }
+    await _adoptLocalPractice();
+  }
+
+  Future<void> _adoptLocalPractice() async {
+    final owner = _attemptOwner;
+    if (account == null || owner == null) return;
+    final adoptedKey = '${storagePrefix}mobile_practice_adopted_owner_v1';
+    final adopted = _prefs!.getString(adoptedKey);
+    if (adopted != null && adopted != owner) return;
+    final raw = _prefs!.getString(
+      '${storagePrefix}mobile_score_state_v2_pending',
+    );
+    if (raw == null) return;
+    try {
+      final data = jsonDecode(raw) as Map;
+      // Unconfirmed practice never has a server round or publication payload.
+      if ((data['outbox'] as List).isNotEmpty) return;
+      final practice = (data['attempts'] as List)
+          .map(
+            (e) => LocalAttempt.fromJson(Map<String, dynamic>.from(e as Map)),
+          )
+          .where((a) => !a.shared && !_attempts.any((v) => v.id == a.id));
+      _attempts.addAll(practice);
+      _attempts.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      if (_attempts.length > _maxAttempts) {
+        _attempts.removeRange(_maxAttempts, _attempts.length);
+      }
+      await _persistAttempts();
+      await _prefs!.setString(adoptedKey, owner);
+    } catch (_) {
+      // Invalid unowned data never authorizes a score or crosses identities.
     }
   }
 
   Future<void> _persistAttempts() async {
-    final encoded = jsonEncode(_attempts.map((e) => e.toJson()).toList());
-    await _prefs!.setString(_kAttempts, encoded);
+    final key = account == null ? _kAttempts : _stateKey;
+    final attempts = _attempts.map((e) => e.toJson()).toList();
+    final encoded = jsonEncode(
+      account == null ? attempts : {'attempts': attempts, 'outbox': _outbox},
+    );
+    final write = _localWrites.then((_) async {
+      if (!await _prefs!.setString(key, encoded)) {
+        throw StateError('Score storage failed');
+      }
+    });
+    _localWrites = write.catchError((Object _) {});
+    await write;
   }
 
   /// Сброс локальных очков и попыток (тех. сброс «как после установки»).
   Future<void> clearLocalData() async {
     _prefs ??= await SharedPreferences.getInstance();
     _scores.clear();
-    _attempts.clear();
+    // Do not discard confirmed rounds awaiting acknowledgement during a reset.
+    _attempts.removeWhere((attempt) => !isAttemptPending(attempt.id));
     _lastRemoteOkAt = null;
     await _prefs!.remove(_kScores);
-    await _prefs!.remove(_kAttempts);
-    notifyListeners();
+    await _persistAttempts();
+    _changed();
     await load();
   }
 
@@ -255,12 +646,34 @@ class ScoresStore extends ChangeNotifier {
     int runDistance = 0,
     bool hadJump = false,
     bool hadHelmet = false,
+  }) {
+    final recording = _recordAttempt(
+      timeMs,
+      riskCount: riskCount,
+      runDistance: runDistance,
+      hadJump: hadJump,
+      hadHelmet: hadHelmet,
+    );
+    _recording = recording;
+    return recording.whenComplete(() {
+      if (identical(_recording, recording)) _recording = null;
+    });
+  }
+
+  Future<void> _recordAttempt(
+    int timeMs, {
+    required int riskCount,
+    required int runDistance,
+    required bool hadJump,
+    required bool hadHelmet,
   }) async {
+    final instantKey = _instant?.activeKey;
+    await _ensureLocalReady();
     final safeTime = timeMs.clamp(0, _maxTimeMs);
     _attempts.insert(
       0,
       LocalAttempt(
-        id: DateTime.now().microsecondsSinceEpoch.toString(),
+        id: instantKey ?? DateTime.now().microsecondsSinceEpoch.toString(),
         timeMs: safeTime,
         createdAt: DateTime.now(),
         riskCount: riskCount.clamp(0, 99999),
@@ -272,8 +685,112 @@ class ScoresStore extends ChangeNotifier {
     if (_attempts.length > _maxAttempts) {
       _attempts.removeRange(_maxAttempts, _attempts.length);
     }
+    final attempt = _attempts.first;
+    if (instantKey != null) {
+      // Save visible history first. If the process dies before journal update,
+      // its request ID recovers these exact metrics on the next launch.
+      await _persistAttempts();
+      await _instant!.complete(instantKey, _attemptResult(attempt));
+      _changed();
+      return;
+    }
+    final roundPending = _roundPending;
+    if (account != null && roundPending != null) {
+      final round = await roundPending;
+      if (round != null &&
+          safeTime > 0 &&
+          !_outbox.any((item) => item['roundId'] == round)) {
+        _outbox.add({
+          'roundId': round,
+          'attemptId': attempt.id,
+          'result': {
+            'timeMs': safeTime,
+            'runDistance': attempt.runDistance,
+            'riskCount': attempt.riskCount,
+            'hadJump': hadJump,
+            'hadHelmet': hadHelmet,
+          },
+        });
+      }
+    }
+    // Attempt and delivery payload commit in ONE value, before any network work.
     await _persistAttempts();
-    notifyListeners();
+    _roundPending = null;
+    _changed();
+    _retrySeconds = 1;
+    _armRetry();
+  }
+
+  Future<void> _scheduleDelivery() {
+    _retryTimer?.cancel();
+    _retryTimer = null;
+    _delivery = _delivery
+        .then((_) async {
+          if (_disposed ||
+              account == null ||
+              !account!.onlineAllowed ||
+              _prefs == null ||
+              _outbox.isEmpty) {
+            return;
+          }
+          if (!account!.ready) await account!.load();
+          if (!account!.ready) return;
+          var acknowledged = false;
+          for (final item in [..._outbox]) {
+            try {
+              await account!.finishRound(
+                item['roundId'] as String,
+                Map<String, dynamic>.from(item['result'] as Map),
+              );
+              final index = _attempts.indexWhere(
+                (a) => a.id == item['attemptId'],
+              );
+              if (index >= 0) {
+                _attempts[index] = _attempts[index].copyWith(
+                  shared: true,
+                  displayName: account!.nickname,
+                );
+              }
+              _outbox.remove(item);
+              await _persistAttempts();
+              acknowledged = true;
+            } on MobileApiError catch (e) {
+              if ([
+                'round_not_found',
+                'round_invalid',
+                'result_invalid',
+                'result_time_invalid',
+                'result_boost_invalid',
+              ].contains(e.code)) {
+                _outbox.remove(item);
+                await _persistAttempts();
+                continue;
+              }
+              break;
+            } catch (_) {
+              break;
+            }
+          }
+          if (acknowledged) {
+            _lastRemoteOkAt = null;
+            // A lost PROFILE response must not turn an accepted score into a
+            // pending score. Round acknowledgement is the publication boundary.
+            try {
+              await account!.refreshProfile();
+            } catch (_) {}
+          }
+          _changed();
+        })
+        .catchError((Object _) {})
+        .whenComplete(() {
+          if (_outbox.isEmpty) {
+            _retrySeconds = 1;
+          } else {
+            _retrySeconds = (_retrySeconds * 2).clamp(2, 120);
+            _armRetry();
+          }
+        });
+    return _delivery;
   }
 
   Future<void> _markNearestAttemptShared(
@@ -306,10 +823,12 @@ class ScoresStore extends ChangeNotifier {
       createdAt: createdAt,
       countryCode: (data['countryCode'] as String?)?.toUpperCase() ?? '--',
       uid: data['uid'] as String?,
-      riskCount: (data['riskCount'] as num?)?.toInt() ??
+      riskCount:
+          (data['riskCount'] as num?)?.toInt() ??
           (data['nearMissCount'] as num?)?.toInt() ??
           0,
-      runDistance: (data['runDistance'] as num?)?.toInt() ??
+      runDistance:
+          (data['runDistance'] as num?)?.toInt() ??
           (data['playerDistance'] as num?)?.toInt() ??
           0,
       hadJump: data['hadJump'] as bool? ?? false,
@@ -349,6 +868,12 @@ class ScoresStore extends ChangeNotifier {
     bool hadJump = false,
     bool hadHelmet = false,
   }) async {
+    if (account != null) {
+      final saved = _attempts.any((a) => a.timeMs == timeMs && a.shared);
+      if (!saved) throw const MobileApiError('round_not_confirmed');
+      await load();
+      return rankFor(timeMs);
+    }
     final safeTime = timeMs.clamp(0, _maxTimeMs);
     final cc = (countryCode ?? '--').toUpperCase();
     final risk = riskCount.clamp(0, 99999);
@@ -369,18 +894,20 @@ class ScoresStore extends ChangeNotifier {
 
     if (FirebaseBootstrap.ready && myUid != null) {
       try {
-        final ref = await FirebaseFirestore.instance.collection(_collection).add({
-          'uid': myUid,
-          'displayName': displayName,
-          'timeMs': safeTime,
-          'countryCode': cc,
-          'riskCount': risk,
-          'runDistance': run,
-          'hadJump': hadJump,
-          'hadHelmet': hadHelmet,
-          'fair': true,
-          'createdAt': FieldValue.serverTimestamp(),
-        });
+        final ref = await FirebaseFirestore.instance
+            .collection(_collection)
+            .add({
+              'uid': myUid,
+              'displayName': displayName,
+              'timeMs': safeTime,
+              'countryCode': cc,
+              'riskCount': risk,
+              'runDistance': run,
+              'hadJump': hadJump,
+              'hadHelmet': hadHelmet,
+              'fair': true,
+              'createdAt': FieldValue.serverTimestamp(),
+            });
         final onlineEntry = ScoreEntry(
           id: ref.id,
           displayName: displayName,
@@ -399,7 +926,7 @@ class ScoresStore extends ChangeNotifier {
         }
         await _markNearestAttemptShared(safeTime, displayName: displayName);
         await _persistLocal();
-        notifyListeners();
+        _changed();
         _lastRemoteOkAt = null; // форсируем полный reload
         await load();
         return rankFor(safeTime);
@@ -411,7 +938,7 @@ class ScoresStore extends ChangeNotifier {
     _scores.add(entry);
     await _markNearestAttemptShared(safeTime, displayName: displayName);
     await _persistLocal();
-    notifyListeners();
+    _changed();
     return rankFor(safeTime);
   }
 }

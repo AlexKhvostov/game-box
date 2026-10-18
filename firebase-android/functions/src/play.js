@@ -1,0 +1,59 @@
+'use strict';
+const {GoogleAuth} = require('google-auth-library');
+const {product,hash,requireThat,ApiError} = require('./policy');
+const packageName='com.best4u.untouch';
+const root=`https://androidpublisher.googleapis.com/androidpublisher/v3/applications/${packageName}`;
+function createPlayVerifier({request} = {}) {
+  const auth=new GoogleAuth({scopes:['https://www.googleapis.com/auth/androidpublisher']});
+  const call=request ?? (async options => (await auth.request({...options,timeout:10000})).data);
+  return {
+    async verify(uid,sku,token) {
+      const terms=product(sku);
+      requireThat(terms && typeof token === 'string' && token.length >= 8 && token.length <= 4096,'purchase_invalid',400);
+      const account=hash(`firebase:${uid}`);
+      try {
+        if (terms.kind === 'energy') {
+          const p=await call({url:`${root}/purchases/products/${encodeURIComponent(sku)}/tokens/${encodeURIComponent(token)}`,method:'GET'});
+          requireThat(p.obfuscatedExternalAccountId === account,'purchase_owner_invalid');
+          requireThat(p.purchaseState !== 1,'purchase_canceled');
+          requireThat(p.purchaseState === 0,'purchase_pending');
+          return {valid:true,consumed:p.consumptionState === 1,orderId:p.orderId ?? hash(token),kind:terms.kind};
+        }
+        const p=await call({url:`${root}/purchases/subscriptionsv2/tokens/${encodeURIComponent(token)}`,method:'GET'});
+        const purchased=p.lineItems?.find(l => l.productId === sku && l.offerDetails?.basePlanId === 'weekly');
+        requireThat(purchased && p.externalAccountIdentifiers?.obfuscatedExternalAccountId === account,'purchase_owner_invalid');
+        // DEFERRED replacements have a new item with no expiry and an old,
+        // still-paid item with a future expiry. Keep the old tier until renewal.
+        const deferred=p.lineItems.find(l => l.deferredItemReplacement?.productId === sku &&
+          l.offerDetails?.basePlanId === 'weekly' && product(l.productId) && Date.parse(l.expiryTime) > Date.now());
+        const line=deferred ?? purchased;
+        const states=['SUBSCRIPTION_STATE_ACTIVE','SUBSCRIPTION_STATE_IN_GRACE_PERIOD','SUBSCRIPTION_STATE_CANCELED','SUBSCRIPTION_STATE_EXPIRED','SUBSCRIPTION_STATE_ON_HOLD','SUBSCRIPTION_STATE_PAUSED'];
+        requireThat(states.includes(p.subscriptionState),'purchase_pending');
+        let expiresAt=Date.parse(line.expiryTime);requireThat(Number.isSafeInteger(expiresAt),'purchase_invalid');
+        // Hold/paused are not a grant of paid rights through their next date.
+        if (['SUBSCRIPTION_STATE_ON_HOLD','SUBSCRIPTION_STATE_PAUSED'].includes(p.subscriptionState)) expiresAt=0;
+        return {valid:true,expiresAt,activeProductId:line.productId,linkedPurchaseToken:p.linkedPurchaseToken ?? null,
+          orderId:line.latestSuccessfulOrderId ?? p.latestOrderId ?? hash(token),
+          endConfirmed:['SUBSCRIPTION_STATE_CANCELED','SUBSCRIPTION_STATE_EXPIRED','SUBSCRIPTION_STATE_ON_HOLD','SUBSCRIPTION_STATE_PAUSED'].includes(p.subscriptionState),kind:terms.kind};
+      } catch (e) {
+        if (e instanceof ApiError) throw e;
+        throw new ApiError('play_verification_unavailable',503);
+      }
+    },
+    async acknowledge(sku,token) {
+      const terms=product(sku);
+      if (terms.kind === 'energy') {
+        const state=await call({url:`${root}/purchases/products/${encodeURIComponent(sku)}/tokens/${encodeURIComponent(token)}`,method:'GET'});
+        requireThat(state.purchaseState !== 1,'purchase_canceled');
+        requireThat(state.purchaseState === 0,'purchase_pending');
+        if(state.consumptionState === 1) return;
+        await call({url:`${root}/purchases/products/${encodeURIComponent(sku)}/tokens/${encodeURIComponent(token)}:consume`,method:'POST'});
+      } else {
+        const state=await call({url:`${root}/purchases/subscriptionsv2/tokens/${encodeURIComponent(token)}`,method:'GET'});
+        if(state.acknowledgementState === 'ACKNOWLEDGEMENT_STATE_ACKNOWLEDGED' || state.subscriptionState === 'SUBSCRIPTION_STATE_EXPIRED') return;
+        await call({url:`${root}/purchases/subscriptions/${encodeURIComponent(sku)}/tokens/${encodeURIComponent(token)}:acknowledge`,method:'POST',data:{}});
+      }
+    }
+  };
+}
+module.exports={createPlayVerifier};

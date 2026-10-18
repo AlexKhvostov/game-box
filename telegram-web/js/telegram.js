@@ -1,4 +1,4 @@
-/** Telegram Mini App bridge (port of lib/telegram/telegram_bridge_web.dart). */
+﻿/** Telegram Mini App bridge (port of lib/telegram/telegram_bridge_web.dart). */
 
 function readStoredLightTheme() {
   try {
@@ -64,7 +64,7 @@ export class TelegramBridge {
   applyUiTheme(light) {
     const on = Boolean(light);
     document.documentElement.setAttribute('data-theme', on ? 'light' : 'dark');
-    const chrome = on ? '#D7E2EA' : '#0E1419';
+    const chrome = on ? '#D7E2EA' : '#061B2D';
     const tg = this._tg;
     try {
       if (typeof tg?.setHeaderColor === 'function') tg.setHeaderColor(chrome);

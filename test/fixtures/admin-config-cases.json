@@ -1,0 +1,234 @@
+[
+  {
+    "path": "enemies.areaMultiplier",
+    "value": 2.1
+  },
+  {
+    "path": "enemies.angleMinDeg",
+    "value": 25
+  },
+  {
+    "path": "enemies.angleMaxDeg",
+    "value": 65
+  },
+  {
+    "path": "enemies.collideWithEachOther",
+    "value": true
+  },
+  {
+    "path": "enemies.spinDegPerSec",
+    "value": 1
+  },
+  {
+    "path": "player.size",
+    "value": 37
+  },
+  {
+    "path": "player.showFace",
+    "value": false
+  },
+  {
+    "path": "field.borderWidth",
+    "value": 3.5
+  },
+  {
+    "path": "field.brightness",
+    "value": 1.05
+  },
+  {
+    "path": "field.shadowBrightness",
+    "value": 1.05
+  },
+  {
+    "path": "field.colorHex",
+    "value": "#123456"
+  },
+  {
+    "path": "game.startHintEnabled",
+    "value": false
+  },
+  {
+    "path": "game.idleSpeedMultiplier",
+    "value": 0.55
+  },
+  {
+    "path": "game.idleEnemiesMove",
+    "value": true
+  },
+  {
+    "path": "game.jumpEnabled",
+    "value": false
+  },
+  {
+    "path": "game.jumpDurationSec",
+    "value": 0.39
+  },
+  {
+    "path": "game.jumpScale",
+    "value": 1.33
+  },
+  {
+    "path": "game.helmetEnabled",
+    "value": false
+  },
+  {
+    "path": "game.helmetInvulnSec",
+    "value": 0.4
+  },
+  {
+    "path": "game.startInvulnSec",
+    "value": 0.1
+  },
+  {
+    "path": "game.wallsKillPlayer",
+    "value": true
+  },
+  {
+    "path": "game.jumpCooldownSec",
+    "value": 3
+  },
+  {
+    "path": "audio.music",
+    "value": false
+  },
+  {
+    "path": "audio.musicVolume",
+    "value": 0.4
+  },
+  {
+    "path": "audio.sfxVolume",
+    "value": 0.9
+  },
+  {
+    "path": "audio.sfxMobWall",
+    "value": false
+  },
+  {
+    "path": "audio.sfxMobCollide",
+    "value": true
+  },
+  {
+    "path": "audio.sfxHeroMob",
+    "value": false
+  },
+  {
+    "path": "audio.sfxHeroWall",
+    "value": false
+  },
+  {
+    "path": "audio.sfxNearMiss",
+    "value": false
+  },
+  {
+    "path": "audio.sfxHelmet",
+    "value": false
+  },
+  {
+    "path": "audio.sfxJump",
+    "value": false
+  },
+  {
+    "path": "audio.sfxStart",
+    "value": false
+  },
+  {
+    "path": "economy.androidEnergyV2.baseAttemptCost",
+    "value": 2
+  },
+  {
+    "path": "economy.androidEnergyV2.helmetExtraCost",
+    "value": 2
+  },
+  {
+    "path": "economy.androidEnergyV2.jumpExtraCost",
+    "value": 2
+  },
+  {
+    "path": "economy.androidEnergyV2.rewards.feedback",
+    "value": 51
+  },
+  {
+    "path": "economy.androidEnergyV2.rewards.invite",
+    "value": 21
+  },
+  {
+    "path": "economy.androidEnergyV2.simpleBonus.initialEnergy",
+    "value": 51
+  },
+  {
+    "path": "economy.androidEnergyV2.simpleBonus.reward",
+    "value": 31
+  },
+  {
+    "path": "economy.androidEnergyV2.simpleBonus.periodSec",
+    "value": 43200
+  },
+  {
+    "path": "economy.androidEnergyV2.simpleBonus.tier2Reward",
+    "value": 61
+  },
+  {
+    "path": "economy.androidEnergyV2.simpleBonus.tier5Reward",
+    "value": 151
+  },
+  {
+    "path": "economy.androidEnergyV2.simpleBonus.videoReward",
+    "value": 41
+  },
+  {
+    "path": "economy.androidEnergyV2.simpleBonus.videoCooldownSec",
+    "value": 121
+  },
+  {
+    "path": "economy.androidEnergyV2.simpleBonus.inviterReward",
+    "value": 61
+  },
+  {
+    "path": "economy.runRewardEvery",
+    "value": 1000
+  },
+  {
+    "path": "economy.riskRewardEvery",
+    "value": 9
+  },
+  {
+    "path": "economy.interstitialSessionGraceSec",
+    "value": 181
+  },
+  {
+    "path": "economy.interstitialSessionFreeRounds",
+    "value": 11
+  },
+  {
+    "path": "economy.interstitialGraceSec",
+    "value": 211
+  },
+  {
+    "path": "economy.interstitialCooldownSec",
+    "value": 221
+  },
+  {
+    "path": "economy.interstitialMinLives",
+    "value": 7
+  },
+  {
+    "path": "mobileEnemies.startSpeedSteps",
+    "value": 20.01
+  },
+  {
+    "path": "mobileEnemies.accelerationSteps",
+    "value": 4.01
+  },
+  {
+    "path": "mobileEnemies.speedVariation",
+    "value": 0.06
+  },
+  {
+    "path": "mobileEnemies.accelerationVariation",
+    "value": 0.09
+  },
+  {"path":"ranking.average.windowSize","value":30},
+  {"path":"ranking.average.previousWeightPercent","value":85},
+  {"path":"ranking.average.minAttempts","value":10},
+  {"path":"ranking.average.minDurationMs","value":1500}
+]

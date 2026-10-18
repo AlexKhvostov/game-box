@@ -1,4 +1,5 @@
 import 'dart:math';
+import '../../ui/game_ui.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -258,7 +259,7 @@ class _FloorsHomeScreenState extends State<FloorsHomeScreen>
   void _openFullMap() {
     showDialog<void>(
       context: context,
-      barrierColor: Colors.black.withValues(alpha: 0.82),
+      barrierColor: GameUi.modalBarrier,
       builder: (ctx) {
         final n = _session.floor.size;
         final maxSide = MediaQuery.sizeOf(ctx).shortestSide * 0.86;
@@ -1267,7 +1268,7 @@ class _StoryModal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.black.withValues(alpha: 0.78),
+      color: GameUi.modalBarrier,
       child: SafeArea(
         child: Center(
           child: ConstrainedBox(
@@ -1482,7 +1483,7 @@ class _FloorClearedOverlay extends StatelessWidget {
   Widget build(BuildContext context) {
     final accent = Theme.of(context).colorScheme.primary;
     return Material(
-      color: Colors.black.withValues(alpha: 0.72),
+      color: GameUi.modalBarrier,
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 340),
@@ -1566,7 +1567,7 @@ class _TowerStubOverlay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.black.withValues(alpha: 0.72),
+      color: GameUi.modalBarrier,
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 340),

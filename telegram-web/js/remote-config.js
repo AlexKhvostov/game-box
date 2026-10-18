@@ -1,146 +1,66 @@
-/**
- * Firebase Remote Config client for Telegram Web.
- * Connects directly to project game-box-b30d4 via Firebase REST API.
- */
+﻿/** Hosting configuration. The Mini App no longer fetches Firebase. */
+import { GameWorld } from './game-world.js?v=v1.0.22_20261003_233329_134';
 
-const FIREBASE_RC = {
-  apiKey: 'AIzaSyBQ5iCD9OAotliddp-j0Dp-GfbeyqSKTsY',
-  projectId: 'game-box-b30d4',
-  appId: '1:332169968823:android:a485d65569bb1269d4e132',
-};
-
-const CACHE_KEY = 'untouch_firebase_rc_cache_v1';
-
+const CACHE_KEY = 'untouch_hosting_config_v1';
+const DEFAULT_MOBILE_PACE = Object.freeze({ startSpeedSteps: 34.72, accelerationSteps: 4.63 });
+function mobilePace(config) {
+  const raw = config.mobileEnemies;
+  const pace = raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : DEFAULT_MOBILE_PACE;
+  if (!Number.isFinite(pace.startSpeedSteps) || pace.startSpeedSteps < 0.01 || pace.startSpeedSteps > 250 ||
+      !Number.isFinite(pace.accelerationSteps) || pace.accelerationSteps < 0 || pace.accelerationSteps > 50) {
+    throw new Error('Invalid mobile enemy pace');
+  }
+  return pace;
+}
+/** Same startup-only snapshot conversion as Android MobileGameplayTuning. */
+export function applyMobileGameplayTuning(config) {
+  const pace = mobilePace(config);
+  const step = Math.max(1e-6, config.player.size * GameWorld.characterSizeScale * 0.1);
+  const speed = pace.startSpeedSteps * step;
+  const acceleration = pace.accelerationSteps * step;
+  return {
+    ...config,
+    enemies: { ...config.enemies, speedMin: speed * 0.95, speedMax: speed * 1.05,
+      accelMin: acceleration * 0.92, accelMax: acceleration * 1.08 },
+    game: { ...config.game, speedRampSeconds: 0 },
+    mobileEnemies: { ...pace },
+  };
+}
+function isUsable(config) {
+  const usable = config && ['theme', 'enemies', 'player', 'field', 'game', 'audio', 'economy'].every(key => config[key] && typeof config[key] === 'object')
+    && Array.isArray(config.enemies.aspects) && config.enemies.aspects.length > 0
+    && Number.isFinite(config.player.size) && config.player.size > 0;
+  if (!usable) return false;
+  try { mobilePace(config); return true; } catch (_) { return false; }
+}
+async function readJson(url, timeoutMs = 2500) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, { signal: controller.signal, cache: 'no-cache' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } finally { clearTimeout(timer); }
+}
 export class RemoteConfigService {
-  constructor() {
-    this.templateVersion = null;
-    this.lastFetchMs = 0;
-  }
-
-  /**
-   * Загружает конфигурацию:
-   * 1. Базовый локальный JSON (гарантия быстрого запуска).
-   * 2. Накладывает кэш из localStorage (если был).
-   * 3. В фоне/асинхронно запрашивает свежий Firebase Remote Config.
-   */
+  constructor() { this.templateVersion = null; this.lastFetchMs = 0; }
   async loadConfig() {
-    let config = {};
-
-    // 1. Базовый локальный файл
     try {
-      const res = await fetch('config/gameplay-config.json');
-      if (res.ok) {
-        config = await res.json();
-      }
-    } catch (e) {
-      console.warn('[RemoteConfig] Local config fetch failed:', e);
-    }
-
-    // 2. Накладываем сохранённый кэш Firebase
-    const cached = this._readCache();
-    if (cached && cached.entries) {
-      config = this._mergeEntries(config, cached.entries);
-      this.templateVersion = cached.version;
-    }
-
-    // 3. Ждём свежий Remote Config, чтобы старт раунда шёл уже с RC
-    await this.fetchRemote(config);
-
-    return config;
-  }
-
-  /**
-   * Запрашивает свежие данные из Firebase Remote Config REST API.
-   */
-  async fetchRemote(targetConfigToUpdate = null) {
-    try {
-      const url = `https://firebaseremoteconfig.googleapis.com/v1/projects/${FIREBASE_RC.projectId}/namespaces/firebase:fetch?key=${FIREBASE_RC.apiKey}`;
-      const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
-      const t = ctrl ? setTimeout(() => ctrl.abort(), 5000) : null;
-
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          appId: FIREBASE_RC.appId,
-          appInstanceId: 'tg_web_' + (localStorage.getItem('untouch_tg_inst') || this._getOrCreateInstId()),
-        }),
-        signal: ctrl?.signal,
-      });
-
-      if (t) clearTimeout(t);
-      if (!res.ok) {
-        console.warn('[RemoteConfig] Firebase fetch returned HTTP', res.status);
-        return null;
-      }
-
-      const data = await res.json();
-      if (!data || !data.entries) return null;
-
-      this.templateVersion = data.templateVersion;
+      const published = await readJson('api/config.php');
+      if (!published.ok || !isUsable(published.config)) throw new Error('Invalid hosting config');
+      this.templateVersion = published.revision;
       this.lastFetchMs = Date.now();
-
-      const parsedEntries = {};
-      for (const [key, rawVal] of Object.entries(data.entries)) {
-        try {
-          parsedEntries[key] = JSON.parse(rawVal);
-        } catch (_) {
-          parsedEntries[key] = rawVal;
-        }
-      }
-
-      this._writeCache({
-        version: data.templateVersion,
-        timestamp: Date.now(),
-        entries: parsedEntries,
-      });
-
-      if (targetConfigToUpdate) {
-        this._mergeEntries(targetConfigToUpdate, parsedEntries);
-      }
-
-      console.log(`[RemoteConfig] Firebase Remote Config v${data.templateVersion} active.`);
-      return parsedEntries;
-    } catch (e) {
-      console.log('[RemoteConfig] Firebase offline or unavailable, using cached config');
-      return null;
+      try { localStorage.setItem(CACHE_KEY, JSON.stringify(published)); } catch (_) {}
+      return applyMobileGameplayTuning(published.config);
+    } catch (_) {
+      try {
+        const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+        if (isUsable(cached?.config)) { this.templateVersion = cached.revision; return applyMobileGameplayTuning(cached.config); }
+      } catch (_) {}
+      const defaults = await readJson('config/gameplay-config.json');
+      if (!isUsable(defaults)) throw new Error('Не удалось загрузить настройки игры');
+      return applyMobileGameplayTuning(defaults);
     }
-  }
-
-  _mergeEntries(base, entries) {
-    if (!entries) return base;
-    for (const [k, val] of Object.entries(entries)) {
-      if (val && typeof val === 'object' && !Array.isArray(val) && base[k] && typeof base[k] === 'object') {
-        base[k] = { ...base[k], ...val };
-      } else if (val !== undefined) {
-        base[k] = val;
-      }
-    }
-    return base;
-  }
-
-  _readCache() {
-    try {
-      const raw = localStorage.getItem(CACHE_KEY);
-      return raw ? JSON.parse(raw) : null;
-    } catch {
-      return null;
-    }
-  }
-
-  _writeCache(data) {
-    try {
-      localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-    } catch (_) {}
-  }
-
-  _getOrCreateInstId() {
-    const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
-    try {
-      localStorage.setItem('untouch_tg_inst', id);
-    } catch (_) {}
-    return id;
   }
 }
-
 export const remoteConfig = new RemoteConfigService();

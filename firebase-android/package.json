@@ -1,0 +1,12 @@
+{
+  "name": "untouch-android-firebase-tools",
+  "private": true,
+  "scripts": {
+    "test": "firebase emulators:exec --project demo-untouch-android --only auth,firestore,functions,hosting \"node --test --test-concurrency=1 test/*.test.js\""
+  },
+  "devDependencies": {
+    "firebase-tools": "^14.0.0",
+    "@firebase/rules-unit-testing": "^4.0.0",
+    "firebase": "^11.0.0"
+  }
+}

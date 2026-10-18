@@ -10,7 +10,12 @@
   },
   "enemies": {
     "areaMultiplier": 2.0,
-    "aspects": [1.0, 0.25, 0.5, 3.0],
+    "aspects": [
+      1.0,
+      0.25,
+      0.5,
+      3.0
+    ],
     "angleMinDeg": 30,
     "angleMaxDeg": 60,
     "speedMin": 75,
@@ -20,9 +25,13 @@
     "collideWithEachOther": false,
     "spinDegPerSec": 0
   },
+  "mobileEnemies": {
+    "startSpeedSteps": 34.72,
+    "accelerationSteps": 4.63
+  },
   "player": {
     "size": 36,
-    "showFace": false
+    "showFace": true
   },
   "field": {
     "borderWidth": 3,
@@ -39,6 +48,7 @@
     "speedRampSeconds": 0.5,
     "jumpEnabled": true,
     "jumpDurationSec": 0.38,
+    "jumpCooldownSec": 2,
     "jumpScale": 1.32,
     "helmetEnabled": true,
     "helmetInvulnSec": 0.3,
@@ -69,17 +79,52 @@
     "initialTokens": 15,
     "installBonusAutoClaim": true,
     "lifePacks": [
-      { "lives": 8, "costTokens": 10 },
-      { "lives": 25, "costTokens": 28 },
-      { "lives": 80, "costTokens": 80 },
-      { "lives": 250, "costTokens": 220 }
+      {
+        "lives": 1,
+        "costTokens": 1
+      },
+      {
+        "lives": 15,
+        "costTokens": 10
+      },
+      {
+        "lives": 50,
+        "costTokens": 25
+      },
+      {
+        "lives": 100,
+        "costTokens": 49
+      }
     ],
     "starsShop": {
       "packs": [
-        { "id": "pack_s", "title": "Горсть", "crystals": 30, "stars": 39 },
-        { "id": "pack_m", "title": "Стопка", "crystals": 80, "stars": 89, "badge": "deal" },
-        { "id": "pack_l", "title": "Сундук", "crystals": 200, "stars": 199, "badge": "best" },
-        { "id": "pack_xl", "title": "Сейф", "crystals": 500, "stars": 449, "badge": "max" }
+        {
+          "id": "pack_s",
+          "title": "Горсть",
+          "crystals": 20,
+          "stars": 39
+        },
+        {
+          "id": "pack_m",
+          "title": "Стопка",
+          "crystals": 50,
+          "stars": 89,
+          "badge": "deal"
+        },
+        {
+          "id": "pack_l",
+          "title": "Сундук",
+          "crystals": 200,
+          "stars": 199,
+          "badge": "best"
+        },
+        {
+          "id": "pack_xl",
+          "title": "Сейф",
+          "crystals": 1000,
+          "stars": 449,
+          "badge": "max"
+        }
       ],
       "plus": {
         "id": "plus_weekly",
@@ -88,25 +133,35 @@
         "days": 7
       }
     },
-    "dailyRewardTokens": [3, 4, 5, 6, 8, 10, 12],
-    "jumpRentalCost": 12,
+    "dailyRewardTokens": [
+      2,
+      4,
+      8,
+      12,
+      18,
+      24,
+      36
+    ],
+    "jumpRentalCost": 10,
     "jumpRentalMinutes": 10,
-    "jumpRentalHourCost": 36,
+    "jumpRentalHourCost": 20,
     "jumpRentalHourMinutes": 60,
-    "helmetRentalCost": 20,
+    "helmetRentalCost": 10,
     "helmetRentalMinutes": 10,
-    "helmetRentalHourCost": 60,
+    "helmetRentalHourCost": 20,
     "helmetRentalHourMinutes": 60,
     "riskRewardEvery": 8,
     "riskRewardTokens": 1,
     "runRewardEvery": 400,
     "runRewardTokens": 1,
-    "timedBonusTokens": 6,
-    "timedBonusHours": 6,
+    "timedBonusTokens": 4,
+    "timedBonusHours": 1,
     "watchAdCooldownSec": 180,
     "adsgramBlockId": "46825",
     "adsgramInterstitialBlockId": "int-46979",
     "interstitialGraceSec": 210,
+    "interstitialSessionGraceSec": 180,
+    "interstitialSessionFreeRounds": 10,
     "interstitialCooldownSec": 180,
     "interstitialMinLives": 3,
     "avatarCheatEnabled": false,
@@ -116,14 +171,122 @@
     "earnRecordSeconds": 20,
     "earnRisksInRun": 5,
     "earnActions": [
-      { "id": "install_bonus", "reward": 15 },
-      { "id": "survive_10s", "reward": 4 },
-      { "id": "record_20s", "reward": 8 },
-      { "id": "risks_5", "reward": 4 },
-      { "id": "watch_ad", "reward": 3 },
-      { "id": "enable_notifications", "reward": 5 },
-      { "id": "invite_friend", "reward": 15 }
-    ]
+      {
+        "id": "install_bonus",
+        "reward": 15
+      },
+      {
+        "id": "survive_10s",
+        "reward": 4
+      },
+      {
+        "id": "record_20s",
+        "reward": 8
+      },
+      {
+        "id": "risks_5",
+        "reward": 4
+      },
+      {
+        "id": "watch_ad",
+        "reward": 10
+      },
+      {
+        "id": "enable_notifications",
+        "reward": 5
+      },
+      {
+        "id": "invite_friend",
+        "reward": 15
+      }
+    ],
+    "lifePackSize": 1,
+    "lifePackCostTokens": 1,
+    "androidShop": {
+      "currency": "USD",
+      "packs": [
+        {
+          "id": "pack_s",
+          "crystals": 20,
+          "usdCents": 99
+        },
+        {
+          "id": "pack_m",
+          "crystals": 50,
+          "usdCents": 199
+        },
+        {
+          "id": "pack_l",
+          "crystals": 200,
+          "usdCents": 399
+        },
+        {
+          "id": "pack_xl",
+          "crystals": 1000,
+          "usdCents": 999
+        }
+      ]
+    },
+    "androidEnergyV2": {
+      "enabled": false,
+      "revision": "android-energy-v2-1",
+      "initialEnergy": 20,
+      "batteryCapacity": 20,
+      "chargeHours": 12,
+      "baseAttemptCost": 1,
+      "helmetExtraCost": 1,
+      "jumpExtraCost": 1,
+      "rewards": {
+        "achievement": 10,
+        "ad": 20,
+        "google": 10,
+        "age": 10,
+        "feedback": 20,
+        "invite": 20
+      },
+      "packages": [
+        {
+          "id": "energy_100_v1",
+          "productId": "energy_100_v1",
+          "energy": 100
+        },
+        {
+          "id": "energy_250_v1",
+          "productId": "energy_250_v1",
+          "energy": 250
+        },
+        {
+          "id": "energy_500_v1",
+          "productId": "energy_500_v1",
+          "energy": 500
+        },
+        {
+          "id": "energy_1000_v1",
+          "productId": "energy_1000_v1",
+          "energy": 1000
+        }
+      ],
+      "subscriptions": [
+        {
+          "id": "energy_batteries_2_v1",
+          "productId": "energy_batteries_2_v1",
+          "batteryCount": 2,
+          "basePlanId": "weekly",
+          "capacity": 20,
+          "chargeHours": 12,
+          "periodDays": 7
+        },
+        {
+          "id": "energy_batteries_5_v1",
+          "productId": "energy_batteries_5_v1",
+          "batteryCount": 5,
+          "basePlanId": "weekly",
+          "capacity": 20,
+          "chargeHours": 12,
+          "periodDays": 7
+        }
+      ]
+    }
   },
   "yandexMetrikaId": "112365078"
 }

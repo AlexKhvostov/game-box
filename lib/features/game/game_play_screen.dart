@@ -6,6 +6,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 
 import '../../domain/gameplay_config.dart';
+import '../../app/app_target.dart';
 import '../../ui/game_status_bar.dart';
 import 'game_field_painter.dart';
 import 'game_world.dart';
@@ -222,15 +223,26 @@ class _GamePlayScreenState extends State<GamePlayScreen>
                           child: CustomPaint(
                             size: Size(side, side),
                             painter: GameFieldPainter(
+                              drawGrid: AppTargetConfig.isMobile,
                               world: world,
-                              accent: theme.colorScheme.primary,
-                              danger: theme.colorScheme.error,
+                              accent: AppTargetConfig.isMobile
+                                  ? GameFieldColors.hero
+                                  : theme.colorScheme.primary,
+                              danger: AppTargetConfig.isMobile
+                                  ? GameFieldColors.enemy
+                                  : theme.colorScheme.error,
                               fieldColor: config.field.resolveSurfaceColor(
-                                theme.colorScheme.surface,
+                                AppTargetConfig.isMobile
+                                    ? GameFieldColors.floor
+                                    : theme.colorScheme.surface,
                               ),
                               borderColor: config.wallsKillPlayer
-                                  ? theme.colorScheme.error
-                                  : theme.colorScheme.primary,
+                                  ? (AppTargetConfig.isMobile
+                                        ? GameFieldColors.enemy
+                                        : theme.colorScheme.error)
+                                  : (AppTargetConfig.isMobile
+                                        ? GameFieldColors.wall
+                                        : theme.colorScheme.primary),
                               borderWidth: config.borderWidth,
                               shadowBrightness: config.field.shadowBrightness,
                               showFace: config.player.showFace,
@@ -256,12 +268,12 @@ class _GamePlayScreenState extends State<GamePlayScreen>
                               ),
                             )
                           : kDebugMode
-                              ? _DebugPanel(
-                                  world: world,
-                                  aliveMs: _aliveMs,
-                                  config: config,
-                                )
-                              : const SizedBox.expand(),
+                          ? _DebugPanel(
+                              world: world,
+                              aliveMs: _aliveMs,
+                              config: config,
+                            )
+                          : const SizedBox.expand(),
                     ),
                   ),
                 ),
@@ -306,10 +318,9 @@ class _DebugPanel extends StatelessWidget {
       alignment: Alignment.topLeft,
       child: Text(
         lines.join('\n'),
-        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              fontFamily: 'monospace',
-              height: 1.35,
-            ),
+        style: Theme.of(
+          context,
+        ).textTheme.bodySmall?.copyWith(fontFamily: 'monospace', height: 1.35),
       ),
     );
   }

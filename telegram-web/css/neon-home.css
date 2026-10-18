@@ -1,0 +1,128 @@
+/* Android113 home screen tokens. Scope deliberately stops at #app. */
+#app.neon-home {
+  --home-text: #f0fbff;
+  --home-muted: #a9cbe4;
+  --home-cyan: #79f1f5;
+  --home-mint: #43ecc0;
+  --home-bg: #061b2d;
+  background: var(--home-bg);
+  color: var(--home-text);
+  overflow: hidden;
+  position: relative;
+  padding-top: calc(var(--tg-pad-top, 0px) + 4px);
+}
+.neon-home .hud { display: flex; flex-direction: column; height: 104px; gap: 4px; align-items: stretch; padding: 0 2px; }
+.neon-home .hud-cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; height: 50px; min-width: 0; }
+.neon-home .hud-chip, .neon-home .hud-profile-btn {
+  width: 100%; min-width: 0; height: 50px; padding: 3px;
+  display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 2px;
+  border: 1px solid #79dbe9; border-radius: 8px;
+  background: linear-gradient(#367f9f, #155976 20%, #082e4c);
+  box-shadow: 0 2px 0 #031a2caa; color: var(--home-text); overflow: hidden;
+  font-family: inherit; font-variant-numeric: tabular-nums; cursor: pointer;
+}
+.neon-home .hud-resource { display: flex; align-items: center; justify-content: center; gap: 4px; width: auto; max-width: 100%; min-width: 0; }
+.neon-home .hud-resource > span { min-width: 0; font-size: 18px; font-weight: 700; line-height: 1.05; }
+.neon-home .hud-resource .hud-icon { width: 18px; height: 18px; flex-shrink: 0; }
+.neon-home .hud-resource .heart { color: #ff6b7a; }
+.neon-home .hud-resource .trophy { color: #ffd54a; width: 16px; height: 16px; }
+.neon-home .hud-crystal { width: 20px; height: 20px; flex-shrink: 0; }
+.neon-home .hud-card-label { width: auto; font-size: 11px; font-weight: 400; line-height: 1.05; color: var(--home-muted); white-space: nowrap; }
+.neon-home .hud-profile-portrait { width: 32px; height: 32px; flex-shrink: 0; border: 1px solid var(--home-cyan); border-radius: 50%; overflow: hidden; background: #061b2d; }
+.neon-home .hud-profile-avatar { display: block; width: 100%; height: 100%; object-fit: contain; }
+.neon-home #hud-record { font-size: 12px; font-weight: 700; line-height: 1.05; width: auto; max-width: 100%; }
+.neon-home .hud-play-row { display: grid; grid-template-columns: 64px minmax(0, 1fr) 64px; gap: 4px; flex: 1; min-height: 0; padding: 0 8px; align-items: center; }
+.neon-home .hud-center { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; min-width: 0; }
+.neon-home .score-strip { height: auto; width: 100%; z-index: auto; }
+.neon-home .score-strip-pill, .neon-home .score-strip.idle .score-strip-pill { padding: 0; border: 0; background: none; box-shadow: none; backdrop-filter: none; }
+.neon-home .score-strip-value, .neon-home .score-strip.idle .score-strip-value { font-size: clamp(21px, 7.7vw, 30px); font-weight: 700; line-height: 1.05; letter-spacing: 0; color: var(--home-text); text-shadow: none; white-space: nowrap; }
+.neon-home .hud-metrics { color: var(--home-muted); font-size: 11px; line-height: 1.1; white-space: nowrap; }
+.neon-home .rent-chip { width: 64px; height: 50px; min-width: 0; border: 0; border-radius: 8px; background: none; padding: 0; opacity: 1; display: flex; align-items: center; gap: 1px; color: var(--home-muted); font-family: inherit; }
+.neon-home .rent-chip.active { border: 0; }
+.neon-home .rent-value[hidden] { display: none; }
+.neon-home .ability-ring { position: relative; display: block; width: 36px; height: 36px; line-height: 0; }
+.neon-home .ability-ring svg { display: block; position: absolute; inset: 0; width: 36px; height: 36px; overflow: visible; }
+.neon-home .ability-track { fill: none; stroke: #81949f80; stroke-width: 3.5; }
+.neon-home .ability-progress { fill: none; stroke: #81949fa6; stroke-width: 3.5; stroke-dasharray: 100; stroke-dashoffset: var(--recharge-offset, 0); transform: rotate(-90deg); transform-origin: center; stroke-linecap: round; }
+.neon-home .ability-ring img { position: absolute; width: 24px; height: 24px; top: 6px; left: 6px; object-fit: contain; opacity: .45; }
+.neon-home .rent-chip.active .ability-track { stroke: #426077; }
+.neon-home .rent-chip.active .ability-progress { stroke: var(--home-mint); }
+.neon-home .rent-chip.active .ability-ring img { opacity: 1; }
+.neon-home .rent-chip.recharging .ability-progress { stroke: var(--home-cyan); }
+.neon-home .ability-tip { display: none; fill: #f0fbff; transform-origin: 18px 18px; transform: rotate(calc(360deg - var(--recharge-offset, 0) * 3.6deg)); }
+.neon-home .rent-chip.recharging .ability-tip { display: block; }
+.neon-home .ability-status { font-size: 11px; font-weight: 800; line-height: 1.05; white-space: nowrap; }
+.neon-home .rent-chip.active .ability-status { color: var(--home-mint); }
+.neon-home .rent-chip.recharging .ability-status { color: var(--home-text); }
+.neon-home .ability-broken-mark { display: none; position: absolute; inset: 0; color: #ffd54a; font-size: 25px; font-weight: 900; line-height: 36px; text-align: center; }
+.neon-home .rent-chip.broken .ability-broken-mark { display: block; }
+.neon-home .rent-chip.broken .ability-progress { stroke: #ffd54a; stroke-dasharray: 16 4; stroke-linecap: round; }
+.neon-home .rent-chip.broken .ability-status { color: #ffd54a; }
+.neon-home .rent-chip.warn-flash { animation: home-jump-warn .11s step-end 6; }
+@keyframes home-jump-warn { 50% { background: #ff6b7a; } }
+.neon-home .field-wrap { padding: 4px 8px 0; }
+.neon-home .field-frame, .neon-home #game-canvas { border-radius: 18px; }
+.neon-home .info-bar[hidden] { display: none; }
+.neon-home .touch-pad { min-height: 48px; margin: 4px 8px 0; }
+.neon-home .game-column { position: relative; }
+.neon-home .field-wrap, .neon-home .touch-pad { position: relative; }
+.neon-home .touchpad-surface { width: calc(100% + 128px); height: calc(100% - var(--field-side) * .35 - 16px); position: absolute; left: -64px; top: calc(var(--field-side) * .35); display: block; pointer-events: none; }
+.neon-home .start-banner { left: 10px; right: 10px; top: 8px; bottom: 10px; pointer-events: none; align-items: flex-start; }
+.neon-home .start-card { max-width: 340px; padding: 8px 12px; border: 0; border-radius: 10px; background: none; box-shadow: none; text-align: center; }
+.neon-home .start-brand { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 8px; color: #b8f4ff; font-size: 15px; font-weight: 800; }
+.neon-home .out-of-lives .start-brand { display: none; }
+.neon-home .start-text { margin: 0; color: #e8eef4; font-size: 14px; font-weight: 400; line-height: 1.25; }
+.neon-home .recovery-title { display: none; }
+.neon-home .recovery-content { display: flex; align-items: center; gap: 8px; }
+.neon-home .recovery-copy { min-width: 0; flex: 1; }
+.neon-home .start-banner.out-of-lives .start-card { padding: 12px; border: 1px solid #77c7e3; border-radius: 14px; background: #123d56d9; box-shadow: none; text-align: left; }
+.neon-home .out-of-lives .recovery-title { display: block; margin-bottom: 6px; font-size: 16px; font-weight: 900; color: var(--home-text); }
+.neon-home .out-of-lives .start-text { font-size: 12px; line-height: 1.3; font-weight: 400; color: #d7edfa; }
+.neon-home .start-hero-cube { margin: 0; width: 104px; height: 104px; flex-shrink: 0; }
+.neon-home .start-hero-cube-img { animation: none; object-fit: contain; }
+.neon-home .recovery-action { display: block; min-height: 52px; width: min(100%, 248px); margin: 8px auto 0; padding: 9px 20px; border: 1px solid #c1f4ff; border-radius: 10px; background: linear-gradient(#f0ffff, #baf9ff 8%, #76eaff 46%, #28a9e3); box-shadow: 0 3px 0 #075580; color: #082e4c; font-family: inherit; font-size: 16px; font-weight: 900; cursor: pointer; pointer-events: auto; }
+.neon-home .recovery-action[hidden] { display: none; }
+.neon-home button:focus-visible { outline: 2px solid #fff1a3; outline-offset: 1px; }
+.neon-home .finger-hint { position: absolute; left: calc(50% - 39px); top: 78%; z-index: 3; width: 78px; height: 78px; color: #d6eaf4; opacity: 0; pointer-events: none; filter: drop-shadow(0 4px 5px #0006); animation: home-finger-drag 3.76s ease-in infinite; }
+.neon-home .finger-hint[hidden] { display: none; }
+@keyframes home-finger-drag {
+  0% { opacity: 0; transform: translate(0, 0) rotate(.55rad); }
+  4% { opacity: .72; }
+  35% { opacity: .72; }
+  42.5% { opacity: 0; transform: translate(calc(-50vw + 47px), -20vh) rotate(.55rad); }
+  49.9% { opacity: 0; transform: translate(calc(-50vw + 47px), -20vh) rotate(.55rad); }
+  50% { opacity: 0; transform: translate(0, 0) rotate(-.55rad); }
+  54% { opacity: .72; }
+  85% { opacity: .72; }
+  92.5%, 100% { opacity: 0; transform: translate(calc(50vw - 47px), -20vh) rotate(-.55rad); }
+}
+@media (prefers-reduced-motion: reduce) { .neon-home .finger-hint { animation: none; opacity: .35; transform: rotate(.55rad); } }
+/* The Android neon surfaces stay navy in light mode; only the scene backdrop changes. */
+[data-theme="light"] #app.neon-home { --home-bg: #d7e2ea; }
+[data-theme="light"] .neon-home .hud-chip, [data-theme="light"] .neon-home .hud-profile-btn { color: var(--home-text); background: linear-gradient(#367f9f, #155976 20%, #082e4c); border-color: #79dbe9; box-shadow: 0 2px 0 #031a2caa; }
+[data-theme="light"] .neon-home .rent-chip, [data-theme="light"] .neon-home .rent-chip.active { background: none; border: 0; }
+[data-theme="light"] .neon-home .score-strip-pill { background: none; border: 0; box-shadow: none; }
+[data-theme="light"] .neon-home .start-card { background: none; box-shadow: none; }
+[data-theme="light"] .neon-home .start-banner.out-of-lives .start-card { background: #123d56d9; border-color: #77c7e3; box-shadow: none; }
+[data-theme="light"] .neon-home .start-banner:not(.out-of-lives) .start-text { color: #e8eef4; }
+[data-theme="light"] .neon-home .start-brand { color: #b8f4ff; }
+[data-theme="light"] .neon-home .rent-chip.active .ability-status { color: #067155; }
+[data-theme="light"] .neon-home .rent-chip.broken .ability-status { color: #805600; }
+[data-theme="light"] .neon-home .score-strip-value, [data-theme="light"] .neon-home .score-strip.idle .score-strip-value { color: #102028; }
+[data-theme="light"] .neon-home .hud-metrics { color: #3d5160; }
+[data-theme="light"] .neon-home .rent-chip:not(.active) .ability-status { color: #3d5160; }
+[data-theme="light"] .neon-home .rent-chip.recharging .ability-status { color: #102028; }
+@media (max-width: 340px) {
+  .neon-home .hud-play-row { grid-template-columns: 48px minmax(0, 1fr) 48px; padding-inline: 0; }
+  .neon-home .rent-chip { width: 48px; }
+  .neon-home .hud-resource { gap: 2px; }
+  .neon-home .hud-card-label { font-size: 10px; }
+  .neon-home .hud-resource .hud-icon, .neon-home .hud-crystal { width: 16px; height: 16px; }
+  .neon-home .out-of-lives .recovery-title { font-size: 14px; }
+}
+@media (max-height: 580px) {
+  .neon-home .hud { height: 100px; }
+  .neon-home .hud-cards, .neon-home .hud-chip, .neon-home .hud-profile-btn { height: 46px; }
+  .neon-home .hud-profile-portrait { width: 28px; height: 28px; }
+  .neon-home .start-banner.out-of-lives { position: fixed; z-index: 2; top: auto; bottom: max(16px, calc(var(--tg-pad-bottom, 0px) + 8px)); left: max(26px, calc(var(--tg-pad-left, 0px) + 18px)); right: max(26px, calc(var(--tg-pad-right, 0px) + 18px)); }
+}

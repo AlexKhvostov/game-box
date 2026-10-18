@@ -1,0 +1,62 @@
+/* Telegram Plus data/actions stay intact; Android113 supplies the window material. */
+#sheet-panel.sheet-plus,
+html[data-theme="light"] #sheet-panel.sheet-plus {
+  height: auto; background: linear-gradient(#123E58, #082E4C 50%, #061B2D);
+}
+#sheet-panel.sheet-plus > .sheet-handle { height: 16px; min-height: 16px; flex: 0 0 16px; padding-top: 4px; }
+#sheet-panel.sheet-plus > .sheet-body {
+  flex: 0 1 auto; height: auto; min-height: 0; display: block; overflow-y: auto;
+  overscroll-behavior: contain; margin-bottom: max(12px, var(--tg-pad-bottom, 0px));
+}
+#sheet-panel.sheet-plus .neon-plus-sheet {
+  display: block; height: auto; padding: 6px 12px 12px;
+  overflow: visible; color: #F0FBFF; min-width: 0;
+}
+#sheet-panel.sheet-plus .plus-head { gap: 7px; padding-right: 38px; min-height: 32px; min-width: 0; }
+#sheet-panel.sheet-plus .plus-premium-ico,
+#sheet-panel.sheet-plus .plus-premium-ico .ui-art { width: 24px; height: 24px; }
+#sheet-panel.sheet-plus .plus-head-title {
+  background: linear-gradient(#226078, #0B3550); border: 1px solid #BAF1FF; border-radius: 8px;
+  padding: 7px 10px; font-size: 18px; line-height: 1.2;
+  font-weight: 800; color: #F0FBFF; text-transform: uppercase; min-width: 0; overflow-wrap: anywhere;
+}
+#sheet-panel.sheet-plus .plus-head-check { color: #B6FFE2; }
+#sheet-panel.sheet-plus .plus-subtitle { display: none; }
+#sheet-panel.sheet-plus .plus-desc {
+  margin: 8px 0; color: #A9CBE4; font-size: 12px; line-height: 1.35;
+}
+#sheet-panel.sheet-plus .plus-benefits,
+#sheet-panel.sheet-plus .plus-price-panel {
+  padding: 10px; margin: 0 0 10px; border: 1px solid #86B9D3; border-radius: 12px;
+  background: var(--window-glass), linear-gradient(#9DD9EF, #79BEDB 35%, #6CB5D6);
+  color: #082E4C; box-shadow: none;
+}
+#sheet-panel.sheet-plus .plus-benefits { border-color: #00644C; }
+#sheet-panel.sheet-plus .plus-head { margin-bottom: 12px; }
+#sheet-panel.sheet-plus .plus-benefit {
+  color: #082E4C; font-size: 13px; line-height: 1.3; gap: 7px; align-items: flex-start;
+  flex-wrap: wrap;
+}
+#sheet-panel.sheet-plus .plus-benefit > span:nth-child(2) { flex: 1 1 120px; min-width: 0; }
+#sheet-panel.sheet-plus .plus-benefit-ico { color: #00644C; }
+#sheet-panel.sheet-plus .plus-benefit-ico .ui-icon { filter: brightness(0) saturate(100%) opacity(.7); }
+#sheet-panel.sheet-plus .plus-benefit-trail { color: #065781; white-space: nowrap; }
+#sheet-panel.sheet-plus .plus-price-line { color: #082E4C; font-size: 14px; font-weight: 800; line-height: 1.25; }
+#sheet-panel.sheet-plus .plus-next-charge { color: #21485E; font-size: 13px; line-height: 1.25; }
+#sheet-panel.sheet-plus .plus-btn {
+  min-height: 48px; height: auto; padding: 10px 14px; margin: 0;
+  font-size: 14px; line-height: 1.25; font-weight: 800; border-radius: 12px;
+  white-space: normal; overflow-wrap: anywhere;
+}
+#sheet-panel.sheet-plus .plus-btn.subscribe {
+  background: var(--window-action); color: #082E4C; border: 1px solid #BAF1FF; box-shadow: none;
+}
+#sheet-panel.sheet-plus .plus-btn.cancel {
+  background: linear-gradient(#A9DDF0, #76BFD9); color: #082E4C;
+  border: 1px solid #86B9D3; box-shadow: none;
+}
+#sheet-panel.sheet-plus .plus-back {
+  display: block; margin-top: 4px; min-height: 44px; height: auto; padding: 8px 0;
+  background: none; border: 0; color: #A9CBE4; box-shadow: none;
+  font-size: 13px; line-height: 1.25; white-space: normal;
+}

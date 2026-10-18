@@ -29,6 +29,13 @@ function tg_bot_token() {
     return $token !== '' && $token !== 'YOUR_BOT_TOKEN' ? $token : '';
 }
 
+function tg_webhook_secret() {
+    $configured = trim((string)(tg_bot_config()['webhook_secret'] ?? ''));
+    if ($configured !== '') return $configured;
+    $token = tg_bot_token();
+    return $token === '' ? '' : hash_hmac('sha256', 'untouch-telegram-webhook-v2', $token);
+}
+
 function tg_api_base() {
     $cfg = tg_bot_config();
     $base = trim((string)($cfg['api_base'] ?? 'https://api.telegram.org'));
@@ -41,157 +48,17 @@ function tg_api_proxy() {
     return trim((string)($cfg['proxy'] ?? ''));
 }
 
-function tg_firebase_rc() {
-    return [
-        'apiKey' => 'AIzaSyBQ5iCD9OAotliddp-j0Dp-GfbeyqSKTsY',
-        'projectId' => 'game-box-b30d4',
-        'appId' => '1:332169968823:android:a485d65569bb1269d4e132',
-    ];
-}
-
 function tg_local_gameplay_config() {
-    $file = dirname(__DIR__) . '/config/gameplay-config.json';
-    if (!is_file($file)) return [];
-    $raw = @file_get_contents($file);
-    $data = json_decode((string)$raw, true);
-    return is_array($data) ? $data : [];
-}
-
-function tg_rc_cache_file() {
-    return __DIR__ . '/rc_economy_cache.json';
-}
-
-function tg_read_rc_cache() {
-    $file = tg_rc_cache_file();
-    if (!is_file($file)) return null;
-    $data = json_decode((string)@file_get_contents($file), true);
-    return is_array($data) ? $data : null;
-}
-
-function tg_write_rc_cache($payload) {
-    $file = tg_rc_cache_file();
-    @file_put_contents($file, json_encode($payload, JSON_UNESCAPED_UNICODE));
-}
-
-function tg_http_post_json($url, $payload, $timeoutSec = 5) {
-    $json = json_encode($payload, JSON_UNESCAPED_UNICODE);
-    if (function_exists('curl_init')) {
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $json);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, $timeoutSec);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 4);
-        if (defined('CURL_IPRESOLVE_V4')) {
-            curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
-        }
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-        $raw = curl_exec($ch);
-        $err = curl_error($ch);
-        curl_close($ch);
-        if ($raw === false) {
-            throw new Exception($err !== '' ? $err : 'curl failed');
-        }
-        return $raw;
-    }
-    $ctx = stream_context_create([
-        'http' => [
-            'method' => 'POST',
-            'header' => "Content-Type: application/json\r\n",
-            'content' => $json,
-            'timeout' => $timeoutSec,
-            'ignore_errors' => true,
-        ],
-    ]);
-    $raw = @file_get_contents($url, false, $ctx);
-    if ($raw === false) {
-        throw new Exception('HTTP POST failed');
-    }
-    return $raw;
-}
-
-function tg_fetch_firebase_economy() {
-    $fb = tg_firebase_rc();
-    $url = 'https://firebaseremoteconfig.googleapis.com/v1/projects/'
-        . $fb['projectId'] . '/namespaces/firebase:fetch?key=' . $fb['apiKey'];
-    $raw = tg_http_post_json($url, [
-        'appId' => $fb['appId'],
-        'appInstanceId' => 'tg_php_host',
-    ], 5);
-    $data = json_decode($raw, true);
-    if (!is_array($data) || empty($data['entries']) || !is_array($data['entries'])) {
-        throw new Exception('Firebase RC: empty entries');
-    }
-    $economyRaw = $data['entries']['economy'] ?? null;
-    if (is_array($economyRaw) && isset($economyRaw['value'])) {
-        $economyRaw = $economyRaw['value'];
-    }
-    if (is_string($economyRaw)) {
-        $economy = json_decode($economyRaw, true);
-    } elseif (is_array($economyRaw)) {
-        $economy = $economyRaw;
-    } else {
-        throw new Exception('Firebase RC: no economy');
-    }
-    if (!is_array($economy)) {
-        throw new Exception('Firebase RC: economy is not JSON');
-    }
-    return $economy;
-}
-
-function tg_remote_economy() {
-    $ttl = 180;
-    $now = time();
-    $cache = tg_read_rc_cache();
-    if (is_array($cache) && isset($cache['economy']) && is_array($cache['economy'])) {
-        $age = $now - (int)($cache['ts'] ?? 0);
-        if ($age >= 0 && $age < $ttl) {
-            $cache['_fresh'] = true;
-            $cache['_source'] = 'firebase';
-            return $cache;
-        }
-    }
-    try {
-        $economy = tg_fetch_firebase_economy();
-        $payload = [
-            'ts' => $now,
-            'source' => 'firebase',
-            'economy' => $economy,
-        ];
-        tg_write_rc_cache($payload);
-        $payload['_fresh'] = true;
-        $payload['_source'] = 'firebase';
-        return $payload;
-    } catch (Exception $e) {
-        if (is_array($cache) && isset($cache['economy']) && is_array($cache['economy'])) {
-            $cache['_fresh'] = false;
-            $cache['_source'] = 'firebase_cache';
-            $cache['_error'] = $e->getMessage();
-            return $cache;
-        }
-        return [
-            'ts' => 0,
-            'source' => 'local',
-            'economy' => [],
-            '_fresh' => false,
-            '_source' => 'local',
-            '_error' => $e->getMessage(),
-        ];
-    }
+    require_once __DIR__ . '/gameplay_config.php';
+    return gameplay_snapshot()['config'];
 }
 
 function tg_load_economy() {
     static $eco = null;
     if ($eco !== null) return $eco;
     $local = tg_local_gameplay_config();
-    $base = isset($local['economy']) && is_array($local['economy']) ? $local['economy'] : [];
-    $remote = tg_remote_economy();
-    $overlay = isset($remote['economy']) && is_array($remote['economy']) ? $remote['economy'] : [];
-    $eco = array_merge($base, $overlay);
-    $eco['_catalog_source'] = $remote['_source'] ?? 'local';
-    if (!empty($remote['_error'])) $eco['_catalog_error'] = $remote['_error'];
+    $eco = isset($local['economy']) && is_array($local['economy']) ? $local['economy'] : [];
+    $eco['_catalog_source'] = 'hosting';
     return $eco;
 }
 
@@ -271,6 +138,10 @@ function tg_products_from_economy($economy) {
             'title' => $title,
             'description' => $crystals . ' кристаллов Untouch',
         ];
+        if (!empty($economy['energy'])) {
+            $out[$id]['energy'] = (int)($raw['energy'] ?? $crystals * (int)$economy['energy']['legacyCrystalEnergy']);
+            $out[$id]['description'] = $out[$id]['energy'] . ' энергии Untouch';
+        }
     }
     $plus = isset($shop['plus']) && is_array($shop['plus']) ? $shop['plus'] : [];
     $plusId = trim((string)($plus['id'] ?? 'plus_weekly'));
@@ -449,7 +320,36 @@ function tg_connect_pdo() {
     return [null, implode(' | ', $errors)];
 }
 
+function tg_schema_ready(PDO $pdo, $component, $version) {
+    try {
+        $query = $pdo->prepare('SELECT version FROM `schema_versions` WHERE component=:component');
+        $query->execute([':component' => $component]);
+        return (int)$query->fetchColumn() >= $version;
+    } catch (Exception $error) { return false; }
+}
+
+function tg_schema_complete(PDO $pdo, $component, $version) {
+    $pdo->exec('CREATE TABLE IF NOT EXISTS `schema_versions` (component VARCHAR(32) NOT NULL PRIMARY KEY, version INT UNSIGNED NOT NULL) ENGINE=InnoDB');
+    $pdo->prepare('INSERT INTO `schema_versions` (component,version) VALUES (:component,:version) ON DUPLICATE KEY UPDATE version=GREATEST(version,VALUES(version))')->execute([':component' => $component, ':version' => $version]);
+}
+
 function tg_ensure_commerce_tables(PDO $pdo) {
+    if (tg_schema_ready($pdo, 'commerce', 3)) return;
+    $pdo->exec("CREATE TABLE IF NOT EXISTS `energy_payments` (
+        charge_id VARCHAR(128) CHARACTER SET ascii COLLATE ascii_bin NOT NULL PRIMARY KEY,
+        user_id VARCHAR(64) NOT NULL, energy BIGINT UNSIGNED NOT NULL, crystals INT UNSIGNED NOT NULL,
+        KEY idx_user (user_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS `star_orders` (
+            `payload` VARCHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+            `user_id` VARCHAR(64) NOT NULL,
+            `product_json` TEXT NOT NULL,
+            `charge_id` VARCHAR(128) CHARACTER SET ascii COLLATE ascii_bin DEFAULT NULL,
+            `created_at` BIGINT UNSIGNED NOT NULL,
+            PRIMARY KEY (`payload`), KEY `idx_user_id` (`user_id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    ");
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS `wallets` (
             `user_id` VARCHAR(64) NOT NULL,
@@ -471,6 +371,8 @@ function tg_ensure_commerce_tables(PDO $pdo) {
             KEY `idx_user_id` (`user_id`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     ");
+    $pdo->exec('ALTER TABLE `star_payments` MODIFY product_id VARCHAR(64) NOT NULL');
+    tg_schema_complete($pdo, 'commerce', 3);
 }
 
 function tg_wallet_snapshot(PDO $pdo, $userId) {
@@ -487,20 +389,79 @@ function tg_wallet_snapshot(PDO $pdo, $userId) {
     ];
 }
 
-function tg_apply_product(PDO $pdo, $userId, $productId, $chargeId) {
+function tg_create_order(PDO $pdo, $userId, array $product) {
     tg_ensure_commerce_tables($pdo);
-    $product = tg_product($productId);
-    if (!$product) {
-        throw new Exception('Unknown product');
+    $payload = 'o1_' . bin2hex(random_bytes(24));
+    $pdo->prepare('INSERT INTO `star_orders` (payload, user_id, product_json, created_at) VALUES (:payload, :uid, :product, :now)')->execute([
+        ':payload' => $payload, ':uid' => (string)$userId,
+        ':product' => json_encode($product, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR),
+        ':now' => (int)(microtime(true) * 1000),
+    ]);
+    return $payload;
+}
+
+function tg_check_order(PDO $pdo, $payload, $userId, $currency, $amount, $lock = false) {
+    $stmt = $pdo->prepare('SELECT user_id, product_json, charge_id FROM `star_orders` WHERE payload = :payload' . ($lock ? ' FOR UPDATE' : ''));
+    $stmt->execute([':payload' => (string)$payload]);
+    $order = $stmt->fetch();
+    if (!$order || (string)$order['user_id'] !== (string)$userId) throw new Exception('Invoice owner mismatch');
+    $product = json_decode($order['product_json'], true);
+    if (!is_array($product) || $currency !== 'XTR' || (int)$amount !== (int)$product['stars']) throw new Exception('Invoice amount or currency mismatch');
+    return ['product' => $product, 'chargeId' => $order['charge_id']];
+}
+
+function tg_apply_invoice(PDO $pdo, $userId, array $payment) {
+    tg_ensure_commerce_tables($pdo);
+    $payload = (string)($payment['invoice_payload'] ?? '');
+    $chargeId = (string)($payment['telegram_payment_charge_id'] ?? '');
+    if ($chargeId === '' || strlen($chargeId) > 128) throw new Exception('Invalid payment charge');
+    if (strpos($payload, 'o1_') === 0) {
+        $order = tg_check_order($pdo, $payload, $userId, $payment['currency'] ?? '', $payment['total_amount'] ?? 0);
+        return tg_apply_product($pdo, $userId, $order['product']['id'], $chargeId, $order['product'], $payload, $payment);
     }
+    // Only already-paid legacy invoices use this compatibility path. Old unpaid
+    // invoices are refused at pre-checkout: their original composition is unknown.
+    [$owner, $productId] = tg_parse_payload($payload);
+    $product = tg_product($productId);
+    if ((string)$owner !== (string)$userId || !$product || ($payment['currency'] ?? '') !== 'XTR' || (int)($payment['total_amount'] ?? 0) !== (int)$product['stars']) throw new Exception('Legacy invoice requires reconciliation');
+    error_log('[payments] legacy invoice compatibility: ' . $productId);
+    return tg_apply_product($pdo, $userId, $productId, $chargeId, $product, null, $payment);
+}
+
+function tg_apply_product(PDO $pdo, $userId, $productId, $chargeId, $frozenProduct = null, $orderPayload = null, $payment = []) {
+    tg_ensure_commerce_tables($pdo);
     $now = (int)(microtime(true) * 1000);
     $pdo->beginTransaction();
     try {
-        $exists = $pdo->prepare('SELECT charge_id FROM `star_payments` WHERE `charge_id` = :id LIMIT 1');
+        // Create or lock the wallet before checking the charge. All payments
+        // for this user follow the same lock order, including the first one.
+        $pdo->prepare('
+            INSERT INTO `wallets` (`user_id`, `stars_tokens`, `plus_until_ms`, `updated_at`)
+            VALUES (:uid, 0, 0, :updated)
+            ON DUPLICATE KEY UPDATE `user_id` = `user_id`
+        ')->execute([':uid' => (string)$userId, ':updated' => $now]);
+        $cur = $pdo->prepare('SELECT stars_tokens, plus_until_ms FROM `wallets` WHERE `user_id` = :uid LIMIT 1 FOR UPDATE');
+        $cur->execute([':uid' => (string)$userId]);
+        $row = $cur->fetch();
+        if (!$row) throw new Exception('Wallet lock failed');
+
+        $exists = $pdo->prepare('SELECT charge_id, user_id, product_id FROM `star_payments` WHERE `charge_id` = :id LIMIT 1');
         $exists->execute([':id' => $chargeId]);
-        if ($exists->fetch()) {
+        $previous = $exists->fetch();
+        if ($previous) {
+            if ((string)$previous['user_id'] !== (string)$userId || (string)$previous['product_id'] !== (string)$productId) {
+                throw new Exception('Payment identity mismatch');
+            }
             $pdo->commit();
             return tg_wallet_snapshot($pdo, $userId);
+        }
+        $product = $frozenProduct ?? tg_product($productId);
+        if (!$product) throw new Exception('Unknown product');
+        if ($orderPayload !== null) {
+            $order = tg_check_order($pdo, $orderPayload, $userId, $payment['currency'] ?? '', $payment['total_amount'] ?? 0, true);
+            $product = $order['product'];
+            if ($order['chargeId'] !== null && empty($product['subscription_period'])) throw new Exception('Invoice already paid');
+            $pdo->prepare('UPDATE `star_orders` SET charge_id = :charge WHERE payload = :payload')->execute([':charge' => $chargeId, ':payload' => $orderPayload]);
         }
 
         $pdo->prepare('
@@ -515,17 +476,19 @@ function tg_apply_product(PDO $pdo, $userId, $productId, $chargeId) {
             ':created_at' => $now,
         ]);
 
-        $cur = $pdo->prepare('SELECT stars_tokens, plus_until_ms FROM `wallets` WHERE `user_id` = :uid LIMIT 1');
-        $cur->execute([':uid' => (string)$userId]);
-        $row = $cur->fetch();
         $tokens = $row ? (int)$row['stars_tokens'] : 0;
         $plusUntil = $row ? (int)$row['plus_until_ms'] : 0;
         $tokens += (int)$product['crystals'];
+        if (isset($product['energy'])) {
+            $pdo->prepare('INSERT INTO `energy_payments` (charge_id,user_id,energy,crystals) VALUES (:charge,:uid,:energy,:crystals)')->execute([':charge' => $chargeId, ':uid' => (string)$userId, ':energy' => (int)$product['energy'], ':crystals' => (int)$product['crystals']]);
+        }
         if ($product['kind'] === 'plus') {
             $days = (int)($product['days'] ?? 30);
             if ($days < 1) $days = 30;
-            $base = max($plusUntil, $now);
-            $plusUntil = $base + $days * 86400 * 1000;
+            $expiration = (int)($payment['subscription_expiration_date'] ?? 0) * 1000;
+            $plusUntil = !empty($product['subscription_period']) && $expiration > 0
+                ? max($plusUntil, $expiration)
+                : max($plusUntil, $now) + $days * 86400 * 1000;
         }
 
         if ($row) {
@@ -550,7 +513,7 @@ function tg_apply_product(PDO $pdo, $userId, $productId, $chargeId) {
             ]);
         }
         $pdo->commit();
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
         if ($pdo->inTransaction()) $pdo->rollBack();
         throw $e;
     }
@@ -579,8 +542,8 @@ function tg_api($method, $payload) {
         if (defined('CURL_IPRESOLVE_V4')) {
             curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
         }
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
         if ($proxy !== '') {
             curl_setopt($ch, CURLOPT_PROXY, $proxy);
             if (stripos($proxy, 'socks5') === 0 && defined('CURLPROXY_SOCKS5_HOSTNAME')) {
@@ -640,8 +603,8 @@ function tg_api_upload($method, $fields, $timeoutSec = 20) {
     if (defined('CURL_IPRESOLVE_V4')) {
         curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
     }
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
     if ($proxy !== '') {
         curl_setopt($ch, CURLOPT_PROXY, $proxy);
         if (stripos($proxy, 'socks5') === 0 && defined('CURLPROXY_SOCKS5_HOSTNAME')) {
@@ -680,7 +643,7 @@ function tg_webapp_url() {
 
 function tg_start_text() {
     return "Untouch — кубик, которого нельзя касаться.\n\n"
-        . "Уводите героя от красных. Риски и шаги дают кристаллы. Бейте свой рекорд.\n\n"
+        . "Уводите героя от красных и бейте рекорд по времени. Энергия оплачивает попытки и усиления.\n\n"
         . "Жмите Играть 👇";
 }
 
@@ -798,7 +761,7 @@ function tg_invite_message_html($userId, $timeLabel, $bonus) {
     } else {
         $record = 'Заходи, попробуй Untouch — уводи кубик от красных и бей рекорд.';
     }
-    $gift = $bonus > 0
+    $gift = empty(tg_load_economy()['energy']) && $bonus > 0
         ? ' Если зайдёшь сейчас, получишь бонус новичка — ' . $bonus . ' кристаллов.'
         : '';
     return $record . $gift . "\n\n" . '<a href="' . $url . '">' . $label . '</a>';
@@ -915,6 +878,7 @@ function tg_user_display_name($user) {
 }
 
 function tg_ensure_social_tables(PDO $pdo) {
+    if (tg_schema_ready($pdo, 'social', 1)) return;
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS `referrals` (
             `invitee_id` VARCHAR(64) NOT NULL,
@@ -950,6 +914,7 @@ function tg_ensure_social_tables(PDO $pdo) {
             PRIMARY KEY (`user_id`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     ");
+    tg_schema_complete($pdo, 'social', 1);
 }
 
 function tg_bind_referral(PDO $pdo, $inviteeId, $inviterId, $user = null) {
@@ -1025,6 +990,7 @@ function tg_list_invited(PDO $pdo, $inviterId) {
 }
 
 function tg_claim_pending_invite_rewards(PDO $pdo, $inviterId) {
+    if (!empty(tg_load_economy()['energy'])) return 0; // The energy transaction owns reward delivery.
     tg_ensure_social_tables($pdo);
     $inviterId = (string)$inviterId;
     if ($inviterId === '') return 0;
@@ -1106,6 +1072,7 @@ function tg_admin_today_ymd() {
 }
 
 function tg_ensure_bot_admin_tables(PDO $pdo) {
+    if (tg_schema_ready($pdo, 'bot_admin', 1)) return;
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS `bot_users` (
             `user_id` VARCHAR(64) NOT NULL,
@@ -1137,6 +1104,7 @@ function tg_ensure_bot_admin_tables(PDO $pdo) {
             KEY `idx_stat_day` (`stat_day`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     ");
+    tg_schema_complete($pdo, 'bot_admin', 1);
 }
 
 function tg_backfill_bot_users(PDO $pdo) {

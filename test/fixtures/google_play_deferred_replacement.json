@@ -1,0 +1,90 @@
+{
+  "syntheticOnly": true,
+  "source": "https://developer.android.com/google/play/billing/subscriptions#handle-deferred-replacement",
+  "nowMs": 2000000000000,
+  "cutoverMs": 2000007200000,
+  "afterMs": 2000010800000,
+  "owner": "android:123",
+  "targetProductId": "energy_batteries_2_v1",
+  "pending": {
+    "kind": "androidpublisher#subscriptionPurchaseV2",
+    "startTime": "2033-05-18T03:32:20Z",
+    "subscriptionState": "SUBSCRIPTION_STATE_ACTIVE",
+    "acknowledgementState": "ACKNOWLEDGEMENT_STATE_PENDING",
+    "externalAccountIdentifiers": {
+      "obfuscatedExternalAccountId": "859eb16bf2819cf2a1973159c1d728820e8b3911be4930962bc4297f9f8402d1"
+    },
+    "linkedPurchaseToken": "synthetic-old-token-five",
+    "testPurchase": {},
+    "lineItems": [
+      {
+        "productId": "energy_batteries_5_v1",
+        "expiryTime": "2033-05-18T05:33:20Z",
+        "latestSuccessfulOrderId": "synthetic-order-old",
+        "offerDetails": {
+          "basePlanId": "weekly"
+        },
+        "autoRenewingPlan": {
+          "autoRenewEnabled": false
+        },
+        "deferredItemReplacement": {
+          "productId": "energy_batteries_2_v1"
+        }
+      },
+      {
+        "productId": "energy_batteries_2_v1",
+        "offerDetails": {
+          "basePlanId": "weekly"
+        },
+        "autoRenewingPlan": {
+          "autoRenewEnabled": true
+        },
+        "itemReplacement": {
+          "productId": "energy_batteries_5_v1",
+          "basePlanId": "weekly",
+          "replacementMode": "DEFERRED"
+        }
+      }
+    ]
+  },
+  "active": {
+    "kind": "androidpublisher#subscriptionPurchaseV2",
+    "startTime": "2033-05-18T03:32:20Z",
+    "subscriptionState": "SUBSCRIPTION_STATE_ACTIVE",
+    "acknowledgementState": "ACKNOWLEDGEMENT_STATE_ACKNOWLEDGED",
+    "externalAccountIdentifiers": {
+      "obfuscatedExternalAccountId": "859eb16bf2819cf2a1973159c1d728820e8b3911be4930962bc4297f9f8402d1"
+    },
+    "linkedPurchaseToken": "synthetic-old-token-five",
+    "testPurchase": {},
+    "lineItems": [
+      {
+        "productId": "energy_batteries_5_v1",
+        "expiryTime": "2033-05-18T05:33:20Z",
+        "latestSuccessfulOrderId": "synthetic-order-old",
+        "offerDetails": {
+          "basePlanId": "weekly"
+        },
+        "autoRenewingPlan": {
+          "autoRenewEnabled": false
+        }
+      },
+      {
+        "productId": "energy_batteries_2_v1",
+        "offerDetails": {
+          "basePlanId": "weekly"
+        },
+        "autoRenewingPlan": {
+          "autoRenewEnabled": true
+        },
+        "itemReplacement": {
+          "productId": "energy_batteries_5_v1",
+          "basePlanId": "weekly",
+          "replacementMode": "DEFERRED"
+        },
+        "expiryTime": "2033-05-25T05:33:20Z",
+        "latestSuccessfulOrderId": "synthetic-order-target"
+      }
+    ]
+  }
+}

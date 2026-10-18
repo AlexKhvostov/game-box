@@ -1,0 +1,8 @@
+{
+  "name": "untouch-admin-console",
+  "private": true,
+  "type": "module",
+  "scripts": {"dev":"vite --host 127.0.0.1", "build":"vite build", "test":"node --test test/*.test.mjs"},
+  "dependencies": {"@supabase/supabase-js":"^2.100.0"},
+  "devDependencies": {"vite":"^6.4.0"}
+}

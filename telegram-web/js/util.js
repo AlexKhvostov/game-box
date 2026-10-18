@@ -1,4 +1,4 @@
-/** Shared math / color helpers (port of Flutter gameplay utils). */
+﻿/** Shared math / color helpers (port of Flutter gameplay utils). */
 
 export const PI = Math.PI;
 export const TAU = PI * 2;

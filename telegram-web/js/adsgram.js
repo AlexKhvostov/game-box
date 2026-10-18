@@ -1,6 +1,6 @@
 /** AdsGram rewarded + interstitial ads for Telegram Mini App. */
 
-import { RU } from './strings-ru.js';
+import { RU } from './strings-ru.js?v=v1.0.22_20261003_233329_134';
 
 export function adsgramBlockId(config) {
   const id = String(config?.economy?.adsgramBlockId ?? '').trim();
@@ -23,6 +23,8 @@ function adsgramSdk() {
   return typeof window !== 'undefined' ? window.Adsgram : null;
 }
 
+const controllers = new Map();
+
 function showAdsgram(blockId) {
   return new Promise((resolve, reject) => {
     const id = String(blockId || '').trim();
@@ -36,7 +38,18 @@ function showAdsgram(blockId) {
       return;
     }
     try {
-      const ctrl = adsgram.init({ blockId: id });
+      let ctrl = controllers.get(id);
+      if (!ctrl) {
+        ctrl = adsgram.init({ blockId: id });
+        // These documented subscriptions replace the SDK's blocking default
+        // alerts. Never reset or bypass the provider's session restrictions.
+        // Handle only the current request. A failed interstitial must never
+        // disable rewarded ads or prevent a later request reaching the SDK.
+        ctrl.addEventListener?.('onTooLongSession', () => {});
+        ctrl.addEventListener?.('onBannerNotFound', () => {});
+        ctrl.addEventListener?.('onNonStopShow', () => {});
+        controllers.set(id, ctrl);
+      }
       ctrl.show().then(resolve).catch((err) => {
         const desc = err && (err.description || err.error || err.state || err.message);
         const e = new Error(desc ? String(desc) : 'AD_FAILED');
@@ -62,6 +75,7 @@ export function showInterstitialAd(blockId) {
 
 export function classifyAdFail(message, cause) {
   const blob = `${message || ''} ${JSON.stringify(cause || {})}`.toLowerCase();
+  if (/too.?long.?session|session.*(long|expir)|сесси.*долг/.test(blob)) return 'session';
   if (/skip|close|cancel|user/.test(blob) && !/not active|no.?fill|load|network|timeout/.test(blob)) {
     return 'skip';
   }

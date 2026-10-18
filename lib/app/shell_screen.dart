@@ -15,9 +15,9 @@ class ShellScreen extends StatefulWidget {
 enum _AppMode { picker, arcade, floors }
 
 class _ShellScreenState extends State<ShellScreen> {
-  late _AppMode _mode = AppTargetConfig.isTelegram
-      ? _AppMode.arcade
-      : _AppMode.picker;
+  late _AppMode _mode = AppTargetConfig.showModePicker
+      ? _AppMode.picker
+      : _AppMode.arcade;
 
   void _backToPicker() {
     if (!AppTargetConfig.showModePicker) return;
@@ -45,10 +45,7 @@ class _ShellScreenState extends State<ShellScreen> {
 }
 
 class _ModePicker extends StatelessWidget {
-  const _ModePicker({
-    required this.onArcade,
-    this.onFloors,
-  });
+  const _ModePicker({required this.onArcade, this.onFloors});
 
   final VoidCallback onArcade;
   final VoidCallback? onFloors;

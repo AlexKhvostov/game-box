@@ -1,10 +1,21 @@
 import 'dart:math' as math;
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import '../../ui/hero_face.dart';
 import 'game_world.dart';
 import 'impact_burst.dart';
+
+abstract final class GameFieldColors {
+  static const floor = Color(0xFF08253B);
+  static const hero = Color(0xFF35F5C6);
+  // Sampled from the enemies' front and lit faces in result-scene-v1.png.
+  static const enemy = Color(0xFFF0363E);
+  static const enemyHighlight = Color(0xFFFE837D);
+  static const enemyShade = Color(0xFFDC2433);
+  static const enemyEdge = Color(0xFFFFC8B9);
+  static const wall = Color(0xFF58E2EC);
+}
 
 /// Отрисовка поля без MaskFilter.blur — blur на каждом кадре
 /// часто роняет Android-эмулятор (GPU / EGL).
@@ -25,9 +36,34 @@ class GameFieldPainter extends CustomPainter {
     this.invulnerableFactor,
     this.shadowBrightness = 1.0,
     this.drawBorder = true,
+    this.drawGrid = false,
     this.eyeLook = Offset.zero,
     this.showFace = false,
+    super.repaint,
+    this.frameValue,
+    this.invulnerableNow,
   });
+  final int Function()? frameValue;
+  final bool Function()? invulnerableNow;
+  Size? _shaderSize;
+  Shader? _backgroundShader;
+  Path? _floorGrid;
+  late final _gridPaint = Paint()
+    ..color = borderColor.withValues(alpha: .1)
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = .6;
+  late final _heroFill = Paint()
+    ..shader = LinearGradient(
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: [
+        Color.lerp(accent, Colors.white, .62)!,
+        accent,
+        Color.lerp(accent, const Color(0xFF007D74), .4)!,
+      ],
+      stops: const [0, .35, 1],
+    ).createShader(const Rect.fromLTWH(0, 0, 1, 1));
+  final _enemyFills = <Size, Paint>{};
 
   final GameWorld world;
   final Color accent;
@@ -36,23 +72,35 @@ class GameFieldPainter extends CustomPainter {
   final Color borderColor;
   final double borderWidth;
   final double cornerRadius;
+
   /// Меняется каждый тик — иначе CustomPaint не перерисует mutable world.
   final int frame;
-  /// До первого касания: игрок полупрозрачный.
+
+  /// До первого касания: яркий герой с рамкой ожидания.
   final bool playerPreview;
   final List<ImpactBurst> impacts;
+
   /// Активный шлем (1 заряд) — обводка на кубе.
   final bool hasHelmet;
+
   /// Мигание после разрушения шлема — неуязвимость.
   final bool invulnerable;
+
   /// Если задан — множитель альфы при [invulnerable] (0…1), иначе sin(frame).
   final double? invulnerableFactor;
+
   /// >1 — тень светлее; <1 — темнее. Из RC `field.shadowBrightness`.
   final double shadowBrightness;
+
   /// false — рамку рисует вызывающий (дыры в стене этажей).
   final bool drawBorder;
+
+  /// Mobile arena detail, independent of the configurable surface color.
+  final bool drawGrid;
+
   /// Направление взгляда глаз (−1…1 по X/Y). Если почти ноль — лёгкий idle-взгляд.
   final Offset eyeLook;
+
   /// RC A/B: аниме-личико; false = просто квадрат без мордочки.
   final bool showFace;
 
@@ -67,6 +115,15 @@ class GameFieldPainter extends CustomPainter {
       return;
     }
 
+    // Paint bodies, effects, walls and shadows in the same world units.
+    // Resizing the display never resizes or recreates the simulation.
+    canvas.save();
+    canvas.scale(
+      size.width / world.field.width,
+      size.height / world.field.height,
+    );
+    size = world.field;
+
     final r = math.min(cornerRadius, size.shortestSide / 2).clamp(0.0, 64.0);
     final outer = RRect.fromRectAndRadius(
       Offset.zero & size,
@@ -74,7 +131,35 @@ class GameFieldPainter extends CustomPainter {
     );
 
     // Фон
-    canvas.drawRRect(outer, Paint()..color = fieldColor);
+    if (_shaderSize != size) {
+      _shaderSize = size;
+      _backgroundShader = RadialGradient(
+        center: const Alignment(0, -.2),
+        radius: .85,
+        colors: [
+          Color.lerp(fieldColor, const Color(0xFF168899), .18)!,
+          fieldColor,
+        ],
+      ).createShader(Offset.zero & size);
+      // One cached path and one stroke for the entire arena grid.
+      _floorGrid = Path();
+      for (var i = 1; i < 12; i++) {
+        final x = size.width * i / 12;
+        final y = size.height * i / 12;
+        _floorGrid!
+          ..moveTo(x, 0)
+          ..lineTo(x, size.height)
+          ..moveTo(0, y)
+          ..lineTo(size.width, y);
+      }
+    }
+    canvas.drawRRect(outer, Paint()..shader = _backgroundShader);
+    if (drawGrid || fieldColor == GameFieldColors.floor) {
+      canvas.save();
+      canvas.clipRRect(outer);
+      canvas.drawPath(_floorGrid!, _gridPaint);
+      canvas.restore();
+    }
 
     // Лёгкая «глубина» без blur — полупрозрачный оверлей по краям через stroke
     canvas.drawRRect(
@@ -85,15 +170,10 @@ class GameFieldPainter extends CustomPainter {
         ..strokeWidth = size.shortestSide * 0.08,
     );
 
-    // Сетка — заметный расход на web; на Telegram без неё плавнее.
-    if (!kIsWeb) {
-      _drawSoftGrid(canvas, size, r);
-    }
-
     // Слой «пола»: только тень по форме объекта (без овала).
     const light = Offset(5.5, 7.0);
-    final enemyShadowPaint =
-        Paint()..color = Colors.black.withValues(alpha: _shadowAlpha(0.42));
+    final enemyShadowPaint = Paint()
+      ..color = Colors.black.withValues(alpha: _shadowAlpha(0.42));
     for (final e in world.enemies) {
       _paintEnemy(canvas, e, enemyShadowPaint, shift: light);
     }
@@ -108,13 +188,12 @@ class GameFieldPainter extends CustomPainter {
     );
     final lift = world.jumpLift;
     final jumping = lift > 0.02;
-    if (_isFiniteRect(base) && !jumping) {
+    if (_isFiniteRect(base) && !jumping && !playerPreview) {
       _paintPlayerShadow(canvas, base, lift: 0, preview: playerPreview);
     }
 
     // Тела мобов поверх всех напольных теней
-    final enemyPaint = Paint()..color = danger;
-    final enemyAura = Paint()..color = danger.withValues(alpha: 0.18);
+    final enemyAura = Paint()..color = danger.withValues(alpha: 0.24);
     final collideFrame = world.config.enemiesCollide;
     final collideStroke = Paint()
       ..color = Colors.white.withValues(alpha: 0.82)
@@ -122,7 +201,39 @@ class GameFieldPainter extends CustomPainter {
       ..strokeWidth = 2.0;
     for (final e in world.enemies) {
       _paintEnemy(canvas, e, enemyAura, inflate: 3);
-      _paintEnemy(canvas, e, enemyPaint);
+      _paintEnemy(
+        canvas,
+        e,
+        _enemyFills.putIfAbsent(
+          Size(e.w, e.h),
+          () => Paint()
+            ..shader = LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                danger == GameFieldColors.enemy
+                    ? GameFieldColors.enemyHighlight
+                    : Color.lerp(danger, Colors.white, .5)!,
+                danger,
+                danger,
+                danger == GameFieldColors.enemy
+                    ? GameFieldColors.enemyShade
+                    : Color.lerp(danger, Colors.black, .28)!,
+              ],
+              stops: const [0, .22, .7, 1],
+            ).createShader(Rect.fromLTWH(-e.w / 2, -e.h / 2, e.w, e.h)),
+        ),
+      );
+      _paintEnemy(
+        canvas,
+        e,
+        Paint()
+          ..color = danger == GameFieldColors.enemy
+              ? GameFieldColors.enemyEdge.withValues(alpha: .7)
+              : const Color(0x99FFE6DD)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1,
+      );
       // Рамочка = мобы сталкиваются; без рамки = проходят сквозь.
       if (collideFrame) {
         _paintEnemy(canvas, e, collideStroke, inflate: 1.2);
@@ -146,25 +257,40 @@ class GameFieldPainter extends CustomPainter {
         height: vis,
       );
       final pr = RRect.fromRectAndRadius(visualRect, const Radius.circular(4));
-      final blink = !invulnerable
+      final blink = !(invulnerableNow?.call() ?? invulnerable)
           ? 1.0
           : (invulnerableFactor ??
-              (0.22 + 0.78 * ((math.sin(frame * 1.35) + 1) * 0.5)));
-      final bodyAlpha = (playerPreview ? 0.38 : 1.0) * blink;
+                (0.22 +
+                    0.78 *
+                        ((math.sin((frameValue?.call() ?? frame) * 1.35) + 1) *
+                            0.5)));
+      final bodyAlpha = blink;
 
       canvas.drawRRect(
         pr.inflate(4),
         Paint()..color = accent.withValues(alpha: 0.2 * bodyAlpha),
       );
+      // The shader is fixed in unit coordinates; only its transform and alpha
+      // follow the hero. No gradient allocation on a moving game frame.
+      _heroFill.color = Colors.white.withValues(alpha: bodyAlpha);
+      canvas.save();
+      canvas.translate(visualRect.left, visualRect.top);
+      canvas.scale(vis, vis);
       canvas.drawRRect(
-        pr,
-        Paint()..color = accent.withValues(alpha: bodyAlpha),
+        RRect.fromRectAndRadius(
+          const Rect.fromLTWH(0, 0, 1, 1),
+          Radius.circular(4 / vis),
+        ),
+        _heroFill,
       );
+      canvas.restore();
       if (hasHelmet) {
         canvas.drawRRect(
           pr.inflate(2.5),
           Paint()
-            ..color = const Color(0xFF7EE0FF).withValues(alpha: 0.95 * bodyAlpha)
+            ..color = const Color(
+              0xFF7EE0FF,
+            ).withValues(alpha: 0.95 * bodyAlpha)
             ..style = PaintingStyle.stroke
             ..strokeWidth = 2.6,
         );
@@ -176,19 +302,31 @@ class GameFieldPainter extends CustomPainter {
             ..strokeWidth = 1.2,
         );
       }
-      final shine = vis * 0.18;
-      if (shine > 0 && shine * 2 < vis) {
+      canvas.drawRRect(
+        pr.deflate(.7),
+        Paint()
+          ..color = const Color(0xFF8AFFCD).withValues(alpha: bodyAlpha)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.4,
+      );
+      canvas.drawLine(
+        Offset(visualRect.left + vis * .17, visualRect.top + vis * .083),
+        Offset(visualRect.right - vis * .17, visualRect.top + vis * .083),
+        Paint()
+          ..color = const Color(0xFFC4FFE3).withValues(alpha: .65 * bodyAlpha)
+          ..strokeWidth = 1.2,
+      );
+      if (playerPreview) {
         canvas.drawRRect(
-          pr.deflate(shine),
-          Paint()..color = Colors.white.withValues(alpha: 0.2 * bodyAlpha),
+          pr.inflate(5),
+          Paint()
+            ..color = const Color(0x77B1FFD7)
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 1,
         );
       }
       if (showFace) {
-        _paintPlayerFace(
-          canvas,
-          visualRect,
-          bodyAlpha: bodyAlpha,
-        );
+        _paintPlayerFace(canvas, visualRect, bodyAlpha: bodyAlpha);
       }
     }
 
@@ -219,8 +357,6 @@ class GameFieldPainter extends CustomPainter {
             ..strokeJoin = StrokeJoin.round,
         );
       }
-
-      _drawCornerMarks(canvas, size, r, borderColor);
     }
 
     for (final burst in impacts) {
@@ -229,65 +365,19 @@ class GameFieldPainter extends CustomPainter {
     for (final fx in world.nearMissFx) {
       fx.paint(canvas);
     }
+    canvas.restore();
   }
 
   /// Милое аниме-личико в духе иконки приложения.
-  void _paintPlayerFace(
-    Canvas canvas,
-    Rect body, {
-    required double bodyAlpha,
-  }) {
-    if (bodyAlpha < 0.05) return;
-    final cx = body.center.dx;
-    final eyeCy = body.top + body.height * 0.36;
-    final gap = body.width * 0.2;
-    final eyeW = body.width * 0.16;
-    final eyeH = body.height * 0.28;
-    if (eyeH < 0.8) return;
-
-    var look = eyeLook;
-    if (look.distance < 0.04) {
-      look = Offset(
-        math.sin(frame * 0.042) * 0.45,
-        math.cos(frame * 0.031) * 0.25,
-      );
-    }
-    final lx = look.dx.clamp(-1.0, 1.0);
-    final ly = look.dy.clamp(-1.0, 1.0);
-
-    final brow = Paint()
-      ..color = const Color(0xFF1A222C).withValues(alpha: bodyAlpha)
-      ..strokeWidth = body.width * 0.035
-      ..strokeCap = StrokeCap.round
-      ..style = PaintingStyle.stroke;
-    final eyeFill = Paint()
-      ..color = const Color(0xFF1A222C).withValues(alpha: bodyAlpha);
-    final shine = Paint()
-      ..color = Colors.white.withValues(alpha: 0.92 * bodyAlpha);
-
-    for (final sign in [-1.0, 1.0]) {
-      final ex = cx + sign * gap + lx * eyeW * 0.15;
-      final ey = eyeCy + ly * eyeH * 0.12;
-      // Брови «домиком» к центру — дружелюбно-встревоженные.
-      final browY = ey - eyeH * 0.55;
-      canvas.drawLine(
-        Offset(ex - eyeW * 0.45, browY + eyeH * 0.08 * sign.abs()),
-        Offset(ex + eyeW * 0.35 * (-sign), browY - eyeH * 0.06),
-        brow,
-      );
-      // Вертикальные овальные глазки.
-      final eye = Rect.fromCenter(
-        center: Offset(ex, ey),
-        width: eyeW,
-        height: eyeH,
-      );
-      canvas.drawOval(eye, eyeFill);
-      canvas.drawCircle(
-        Offset(ex - eyeW * 0.12, ey - eyeH * 0.22),
-        eyeW * 0.22,
-        shine,
-      );
-    }
+  void _paintPlayerFace(Canvas canvas, Rect body, {required double bodyAlpha}) {
+    paintHeroFace(
+      canvas,
+      body,
+      alpha: bodyAlpha,
+      frame: (frameValue?.call() ?? frame).toDouble(),
+      look: eyeLook == Offset.zero ? nearestEnemyLook(world) : eyeLook,
+      startled: world.enemyAtRiskDistance,
+    );
   }
 
   void _paintEnemy(
@@ -345,113 +435,6 @@ class GameFieldPainter extends CustomPainter {
     );
   }
 
-  void _drawSoftGrid(Canvas canvas, Size size, double r) {
-    canvas.save();
-    canvas.clipRRect(
-      RRect.fromRectAndRadius(Offset.zero & size, Radius.circular(r)),
-    );
-    final paint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.035)
-      ..strokeWidth = 1;
-    const step = 28.0;
-    for (double x = step; x < size.width; x += step) {
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
-    }
-    for (double y = step; y < size.height; y += step) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
-    }
-    canvas.restore();
-  }
-
-  void _drawCornerMarks(
-    Canvas canvas,
-    Size size,
-    double r,
-    Color color,
-  ) {
-    final paint = Paint()
-      ..color = color.withValues(alpha: 0.85)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.2
-      ..strokeCap = StrokeCap.round;
-    const len = 16.0;
-    final m = borderWidth + 6;
-    final arc = math.max(2.0, r * 0.35);
-
-    // Простые L-уголки без arcToPoint (безопаснее на эмуляторе)
-    void corner(Offset a, Offset b, Offset c) {
-      canvas.drawPath(
-        Path()
-          ..moveTo(a.dx, a.dy)
-          ..lineTo(b.dx, b.dy)
-          ..lineTo(c.dx, c.dy),
-        paint,
-      );
-    }
-
-    corner(
-      Offset(m, m + len),
-      Offset(m, m),
-      Offset(m + len, m),
-    );
-    corner(
-      Offset(size.width - m - len, m),
-      Offset(size.width - m, m),
-      Offset(size.width - m, m + len),
-    );
-    corner(
-      Offset(m, size.height - m - len),
-      Offset(m, size.height - m),
-      Offset(m + len, size.height - m),
-    );
-    corner(
-      Offset(size.width - m - len, size.height - m),
-      Offset(size.width - m, size.height - m),
-      Offset(size.width - m, size.height - m - len),
-    );
-
-    // Небольшой скруглённый акцент у угла (опционально, только если r ок)
-    if (arc >= 4) {
-      final soft = Paint()
-        ..color = color.withValues(alpha: 0.35)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.2;
-      canvas.drawArc(
-        Rect.fromLTWH(m, m, arc * 2, arc * 2),
-        math.pi,
-        math.pi / 2,
-        false,
-        soft,
-      );
-      canvas.drawArc(
-        Rect.fromLTWH(size.width - m - arc * 2, m, arc * 2, arc * 2),
-        -math.pi / 2,
-        math.pi / 2,
-        false,
-        soft,
-      );
-      canvas.drawArc(
-        Rect.fromLTWH(m, size.height - m - arc * 2, arc * 2, arc * 2),
-        math.pi / 2,
-        math.pi / 2,
-        false,
-        soft,
-      );
-      canvas.drawArc(
-        Rect.fromLTWH(
-          size.width - m - arc * 2,
-          size.height - m - arc * 2,
-          arc * 2,
-          arc * 2,
-        ),
-        0,
-        math.pi / 2,
-        false,
-        soft,
-      );
-    }
-  }
-
   @override
   bool shouldRepaint(covariant GameFieldPainter oldDelegate) {
     return oldDelegate.frame != frame ||
@@ -466,10 +449,26 @@ class GameFieldPainter extends CustomPainter {
         oldDelegate.invulnerable != invulnerable ||
         oldDelegate.invulnerableFactor != invulnerableFactor ||
         oldDelegate.drawBorder != drawBorder ||
+        oldDelegate.drawGrid != drawGrid ||
         oldDelegate.shadowBrightness != shadowBrightness ||
         oldDelegate.fieldColor != fieldColor ||
         oldDelegate.borderColor != borderColor ||
         oldDelegate.eyeLook != eyeLook ||
         oldDelegate.showFace != showFace;
   }
+}
+
+Offset nearestEnemyLook(GameWorld world) {
+  final center =
+      world.player + Offset(world.playerSize / 2, world.playerSize / 2);
+  Offset delta = Offset.zero;
+  double nearest = double.infinity;
+  for (final enemy in world.enemies) {
+    final candidate = enemy.center - center;
+    if (candidate.distanceSquared < nearest) {
+      nearest = candidate.distanceSquared;
+      delta = candidate;
+    }
+  }
+  return delta.distance > .001 ? delta / delta.distance : Offset.zero;
 }

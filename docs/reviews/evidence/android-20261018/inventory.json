@@ -1,0 +1,730 @@
+{
+  "note": "All-platform lexical graph. Platform/feature guards require manual review.",
+  "dart_files": 127,
+  "dart_lines": 45203,
+  "unreachable_from_main": [
+    {
+      "file": "lib/data/firebase_mobile_client.dart",
+      "lines": 140
+    },
+    {
+      "file": "lib/data/remote_config_loader.dart",
+      "lines": 145
+    },
+    {
+      "file": "lib/domain/currency.dart",
+      "lines": 5
+    },
+    {
+      "file": "lib/features/balance/balance_screen.dart",
+      "lines": 877
+    },
+    {
+      "file": "lib/features/game/game_play_screen.dart",
+      "lines": 327
+    },
+    {
+      "file": "lib/features/game/widgets/freeze_sheet.dart",
+      "lines": 63
+    },
+    {
+      "file": "lib/features/leaderboard/leaderboard_screen.dart",
+      "lines": 10
+    },
+    {
+      "file": "lib/telegram/telegram_bridge_web.dart",
+      "lines": 156
+    },
+    {
+      "file": "lib/ui/bonus_celebration.dart",
+      "lines": 6
+    },
+    {
+      "file": "lib/ui/country_flag.dart",
+      "lines": 10
+    },
+    {
+      "file": "lib/ui/game_status_bar.dart",
+      "lines": 85
+    },
+    {
+      "file": "lib/ui/info_tip_bubble.dart",
+      "lines": 222
+    },
+    {
+      "file": "lib/ui/resting_cube_icon.dart",
+      "lines": 191
+    }
+  ],
+  "assets_without_literal_lib_reference": [
+    {
+      "file": "assets/brand-kit/originals/app-icon-v1.png",
+      "bytes": 1203218
+    },
+    {
+      "file": "assets/brand-kit/originals/bot-avatar-v1.png",
+      "bytes": 1271587
+    },
+    {
+      "file": "assets/brand-kit/originals/concept-board-v1.png",
+      "bytes": 1582053
+    },
+    {
+      "file": "assets/brand-kit/originals/crystals-v1.png",
+      "bytes": 769247
+    },
+    {
+      "file": "assets/brand-kit/originals/helmet-v1.png",
+      "bytes": 1031744
+    },
+    {
+      "file": "assets/brand-kit/originals/hero-delighted-v1.png",
+      "bytes": 867190
+    },
+    {
+      "file": "assets/brand-kit/originals/hero-focused-v1.png",
+      "bytes": 879687
+    },
+    {
+      "file": "assets/brand-kit/originals/hero-ready-v1.png",
+      "bytes": 979617
+    },
+    {
+      "file": "assets/brand-kit/originals/hero-resting-v1.png",
+      "bytes": 962689
+    },
+    {
+      "file": "assets/brand-kit/originals/lives-v1.png",
+      "bytes": 882483
+    },
+    {
+      "file": "assets/brand-kit/originals/player-avatar-v1.png",
+      "bytes": 1217203
+    },
+    {
+      "file": "assets/brand-kit/originals/plus-v1.png",
+      "bytes": 916432
+    },
+    {
+      "file": "assets/brand-kit/originals/promo-banner-v1.png",
+      "bytes": 1605769
+    },
+    {
+      "file": "assets/brand-kit/originals/reward-v1.png",
+      "bytes": 853176
+    },
+    {
+      "file": "assets/brand-kit/originals/start-banner-v1.png",
+      "bytes": 1597071
+    },
+    {
+      "file": "assets/brand-kit/previews/alpha-review.png",
+      "bytes": 822487
+    },
+    {
+      "file": "assets/brand-kit/previews/app-icon-1024-circle.png",
+      "bytes": 998209
+    },
+    {
+      "file": "assets/brand-kit/previews/app-icon-1024.png",
+      "bytes": 996928
+    },
+    {
+      "file": "assets/brand-kit/previews/app-icon-32-circle.png",
+      "bytes": 2181
+    },
+    {
+      "file": "assets/brand-kit/previews/app-icon-32.png",
+      "bytes": 2157
+    },
+    {
+      "file": "assets/brand-kit/previews/app-icon-48-circle.png",
+      "bytes": 4207
+    },
+    {
+      "file": "assets/brand-kit/previews/app-icon-48.png",
+      "bytes": 4153
+    },
+    {
+      "file": "assets/brand-kit/previews/app-icon-512-circle.png",
+      "bytes": 266035
+    },
+    {
+      "file": "assets/brand-kit/previews/app-icon-512.png",
+      "bytes": 265503
+    },
+    {
+      "file": "assets/brand-kit/previews/app-icon-640-circle.png",
+      "bytes": 413621
+    },
+    {
+      "file": "assets/brand-kit/previews/app-icon-640.png",
+      "bytes": 413089
+    },
+    {
+      "file": "assets/brand-kit/previews/app-icon-96-circle.png",
+      "bytes": 13077
+    },
+    {
+      "file": "assets/brand-kit/previews/app-icon-96.png",
+      "bytes": 12974
+    },
+    {
+      "file": "assets/brand-kit/previews/bot-avatar-1024-circle.png",
+      "bytes": 1058595
+    },
+    {
+      "file": "assets/brand-kit/previews/bot-avatar-1024.png",
+      "bytes": 1057563
+    },
+    {
+      "file": "assets/brand-kit/previews/bot-avatar-32-circle.png",
+      "bytes": 2387
+    },
+    {
+      "file": "assets/brand-kit/previews/bot-avatar-32.png",
+      "bytes": 2372
+    },
+    {
+      "file": "assets/brand-kit/previews/bot-avatar-48-circle.png",
+      "bytes": 4649
+    },
+    {
+      "file": "assets/brand-kit/previews/bot-avatar-48.png",
+      "bytes": 4601
+    },
+    {
+      "file": "assets/brand-kit/previews/bot-avatar-512-circle.png",
+      "bytes": 293220
+    },
+    {
+      "file": "assets/brand-kit/previews/bot-avatar-512.png",
+      "bytes": 292712
+    },
+    {
+      "file": "assets/brand-kit/previews/bot-avatar-640-circle.png",
+      "bytes": 448577
+    },
+    {
+      "file": "assets/brand-kit/previews/bot-avatar-640.png",
+      "bytes": 447905
+    },
+    {
+      "file": "assets/brand-kit/previews/bot-avatar-96-circle.png",
+      "bytes": 14620
+    },
+    {
+      "file": "assets/brand-kit/previews/bot-avatar-96.png",
+      "bytes": 14520
+    },
+    {
+      "file": "assets/brand-kit/previews/catalog-overview.png",
+      "bytes": 1265219
+    },
+    {
+      "file": "assets/brand-kit/previews/crystals-512.png",
+      "bytes": 151939
+    },
+    {
+      "file": "assets/brand-kit/previews/helmet-512.png",
+      "bytes": 173717
+    },
+    {
+      "file": "assets/brand-kit/previews/hero-delighted-512.png",
+      "bytes": 171768
+    },
+    {
+      "file": "assets/brand-kit/previews/hero-focused-512.png",
+      "bytes": 172906
+    },
+    {
+      "file": "assets/brand-kit/previews/hero-ready-512.png",
+      "bytes": 190628
+    },
+    {
+      "file": "assets/brand-kit/previews/hero-resting-512.png",
+      "bytes": 180837
+    },
+    {
+      "file": "assets/brand-kit/previews/icon-size-check.png",
+      "bytes": 94558
+    },
+    {
+      "file": "assets/brand-kit/previews/jump-512.png",
+      "bytes": 208430
+    },
+    {
+      "file": "assets/brand-kit/previews/lives-512.png",
+      "bytes": 164390
+    },
+    {
+      "file": "assets/brand-kit/previews/player-avatar-1024-circle.png",
+      "bytes": 1010089
+    },
+    {
+      "file": "assets/brand-kit/previews/player-avatar-1024.png",
+      "bytes": 1008783
+    },
+    {
+      "file": "assets/brand-kit/previews/player-avatar-32-circle.png",
+      "bytes": 2153
+    },
+    {
+      "file": "assets/brand-kit/previews/player-avatar-32.png",
+      "bytes": 2116
+    },
+    {
+      "file": "assets/brand-kit/previews/player-avatar-48-circle.png",
+      "bytes": 4106
+    },
+    {
+      "file": "assets/brand-kit/previews/player-avatar-48.png",
+      "bytes": 4064
+    },
+    {
+      "file": "assets/brand-kit/previews/player-avatar-512-circle.png",
+      "bytes": 263364
+    },
+    {
+      "file": "assets/brand-kit/previews/player-avatar-512.png",
+      "bytes": 262933
+    },
+    {
+      "file": "assets/brand-kit/previews/player-avatar-640-circle.png",
+      "bytes": 415045
+    },
+    {
+      "file": "assets/brand-kit/previews/player-avatar-640.png",
+      "bytes": 414355
+    },
+    {
+      "file": "assets/brand-kit/previews/player-avatar-96-circle.png",
+      "bytes": 12770
+    },
+    {
+      "file": "assets/brand-kit/previews/player-avatar-96.png",
+      "bytes": 12663
+    },
+    {
+      "file": "assets/brand-kit/previews/plus-512.png",
+      "bytes": 191202
+    },
+    {
+      "file": "assets/brand-kit/previews/reward-512.png",
+      "bytes": 170076
+    },
+    {
+      "file": "assets/brand-kit/previews/screenshots-overview.png",
+      "bytes": 333148
+    },
+    {
+      "file": "assets/brand-kit/screenshots/android-1.0.32-main.png",
+      "bytes": 131115
+    },
+    {
+      "file": "assets/brand-kit/screenshots/android-1.0.32-profile.png",
+      "bytes": 320768
+    },
+    {
+      "file": "assets/brand-kit/sources/previous-app-icon.png",
+      "bytes": 807442
+    },
+    {
+      "file": "assets/brand-kit/sources/previous-bot-avatar.png",
+      "bytes": 231155
+    },
+    {
+      "file": "assets/brand-kit/sources/ui-icons/crystal.svg",
+      "bytes": 978
+    },
+    {
+      "file": "assets/brand-kit/sources/ui-icons/resting-cube.svg",
+      "bytes": 1828
+    },
+    {
+      "file": "assets/brand-kit/sources/ui-icons/ui-check.svg",
+      "bytes": 211
+    },
+    {
+      "file": "assets/brand-kit/sources/ui-icons/ui-heart.svg",
+      "bytes": 269
+    },
+    {
+      "file": "assets/brand-kit/sources/ui-icons/ui-jump.svg",
+      "bytes": 224
+    },
+    {
+      "file": "assets/brand-kit/sources/ui-icons/ui-lock.svg",
+      "bytes": 263
+    },
+    {
+      "file": "assets/brand-kit/sources/ui-icons/ui-no-ads.svg",
+      "bytes": 221
+    },
+    {
+      "file": "assets/brand-kit/sources/ui-icons/ui-play.svg",
+      "bytes": 185
+    },
+    {
+      "file": "assets/brand-kit/sources/ui-icons/ui-premium.svg",
+      "bytes": 228
+    },
+    {
+      "file": "assets/brand-kit/sources/ui-icons/ui-share.svg",
+      "bytes": 219
+    },
+    {
+      "file": "assets/brand-kit/sources/ui-icons/ui-shield.svg",
+      "bytes": 217
+    },
+    {
+      "file": "assets/brand-kit/sources/ui-icons/ui-sparkle.svg",
+      "bytes": 226
+    },
+    {
+      "file": "assets/brand-kit/sources/ui-icons/ui-timer.svg",
+      "bytes": 199
+    },
+    {
+      "file": "assets/brand-kit/sources/ui-icons/ui-trophy.svg",
+      "bytes": 341
+    },
+    {
+      "file": "assets/brand-kit/variants/lives-with-hero-v1.png",
+      "bytes": 903257
+    },
+    {
+      "file": "assets/branding/account/eye.svg",
+      "bytes": 897
+    },
+    {
+      "file": "assets/branding/account/fire-v1.png",
+      "bytes": 934809
+    },
+    {
+      "file": "assets/branding/account/help.svg",
+      "bytes": 990
+    },
+    {
+      "file": "assets/branding/account/music.svg",
+      "bytes": 837
+    },
+    {
+      "file": "assets/branding/account/sound.svg",
+      "bytes": 908
+    },
+    {
+      "file": "assets/branding/account/trophy-v1.png",
+      "bytes": 860282
+    },
+    {
+      "file": "assets/branding/account/user.svg",
+      "bytes": 819
+    },
+    {
+      "file": "assets/branding/ad_tv_sad.png",
+      "bytes": 411316
+    },
+    {
+      "file": "assets/branding/ad_tv_watch.png",
+      "bytes": 194812
+    },
+    {
+      "file": "assets/branding/app_icon.png",
+      "bytes": 956941
+    },
+    {
+      "file": "assets/branding/landing/company-case-v1.png",
+      "bytes": 1968474
+    },
+    {
+      "file": "assets/branding/landing/metro-case-v1.png",
+      "bytes": 1885517
+    },
+    {
+      "file": "assets/branding/landing/office-kettle-benefit-v1.png",
+      "bytes": 1942319
+    },
+    {
+      "file": "assets/branding/landing/reaction-benefit-v1.png",
+      "bytes": 1855758
+    },
+    {
+      "file": "assets/branding/ranking/footsteps.svg",
+      "bytes": 311
+    },
+    {
+      "file": "assets/branding/ranking/helmet.svg",
+      "bytes": 980
+    },
+    {
+      "file": "assets/branding/ranking/jump.svg",
+      "bytes": 556
+    },
+    {
+      "file": "assets/branding/ranking/medal-1.svg",
+      "bytes": 1281
+    },
+    {
+      "file": "assets/branding/ranking/medal-2.svg",
+      "bytes": 1330
+    },
+    {
+      "file": "assets/branding/ranking/medal-3.svg",
+      "bytes": 1345
+    },
+    {
+      "file": "assets/branding/ranking/risk.svg",
+      "bytes": 466
+    },
+    {
+      "file": "assets/branding/ranking/trophy.svg",
+      "bytes": 746
+    },
+    {
+      "file": "assets/branding/ui/ability-distance.png",
+      "bytes": 3604
+    },
+    {
+      "file": "assets/branding/ui/ability-jump.png",
+      "bytes": 8964
+    },
+    {
+      "file": "assets/branding/ui/ability-risk.png",
+      "bytes": 2826
+    },
+    {
+      "file": "assets/branding/ui/crystals-v1.png",
+      "bytes": 769247
+    },
+    {
+      "file": "assets/branding/ui/helmet-v1.png",
+      "bytes": 1031744
+    },
+    {
+      "file": "assets/branding/ui/hero-delighted-v1.png",
+      "bytes": 867190
+    },
+    {
+      "file": "assets/branding/ui/hero-finished-v1.png",
+      "bytes": 1051630
+    },
+    {
+      "file": "assets/branding/ui/hero-focused-v1.png",
+      "bytes": 879687
+    },
+    {
+      "file": "assets/branding/ui/hero-ready-v1.png",
+      "bytes": 979617
+    },
+    {
+      "file": "assets/branding/ui/hero-resting-v1.png",
+      "bytes": 962689
+    },
+    {
+      "file": "assets/branding/ui/hero-start-crouched-v1.png",
+      "bytes": 936717
+    },
+    {
+      "file": "assets/branding/ui/lives-resting-sofa-v1.png",
+      "bytes": 954432
+    },
+    {
+      "file": "assets/branding/ui/lives-room-v1.png",
+      "bytes": 1568160
+    },
+    {
+      "file": "assets/branding/ui/player-avatar-v1.png",
+      "bytes": 1217203
+    },
+    {
+      "file": "assets/branding/ui/plus-v1.png",
+      "bytes": 916432
+    },
+    {
+      "file": "assets/branding/ui/profile-player-cube-v1.png",
+      "bytes": 1172551
+    },
+    {
+      "file": "assets/branding/ui/reward-v1.png",
+      "bytes": 853176
+    },
+    {
+      "file": "assets/branding/ui/simple-energy-jump.png",
+      "bytes": 175073
+    },
+    {
+      "file": "assets/sfx/wall_hit.wav",
+      "bytes": 6218
+    },
+    {
+      "file": "assets/sfx/wall_tick.wav",
+      "bytes": 4894
+    },
+    {
+      "file": "assets/ui-kit/previews/catalog-full-draft.jpg",
+      "bytes": 557372
+    },
+    {
+      "file": "assets/ui-kit/previews/catalog-full.jpg",
+      "bytes": 558396
+    },
+    {
+      "file": "assets/ui-kit/previews/components-desktop-draft.jpg",
+      "bytes": 100919
+    },
+    {
+      "file": "assets/ui-kit/previews/components-desktop.jpg",
+      "bytes": 111048
+    },
+    {
+      "file": "assets/ui-kit/previews/overview-desktop-draft.jpg",
+      "bytes": 98890
+    },
+    {
+      "file": "assets/ui-kit/previews/overview-desktop.jpg",
+      "bytes": 103398
+    },
+    {
+      "file": "assets/ui-kit/previews/profile-settings-320x560.jpg",
+      "bytes": 18629
+    },
+    {
+      "file": "assets/ui-kit/previews/profile-sheet-320x560.jpg",
+      "bytes": 19697
+    },
+    {
+      "file": "assets/ui-kit/previews/ranking-mobile-390-draft.jpg",
+      "bytes": 38651
+    },
+    {
+      "file": "assets/ui-kit/previews/ranking-mobile-390.jpg",
+      "bytes": 32191
+    },
+    {
+      "file": "assets/ui-kit/previews/shop-feedback-desktop-draft.jpg",
+      "bytes": 120315
+    },
+    {
+      "file": "assets/ui-kit/previews/shop-feedback-desktop.jpg",
+      "bytes": 74266
+    },
+    {
+      "file": "assets/ui-kit/previews/v2-home-desktop.jpg",
+      "bytes": 118563
+    },
+    {
+      "file": "assets/ui-kit/previews/v2-hud-desktop.jpg",
+      "bytes": 103323
+    },
+    {
+      "file": "assets/ui-kit/previews/v2-ranking-sheet-390x560.jpg",
+      "bytes": 24707
+    },
+    {
+      "file": "assets/ui-kit/previews/v2-shop-desktop.jpg",
+      "bytes": 121807
+    },
+    {
+      "file": "assets/ui-kit/previews/v2-shop-sheet-320x560.jpg",
+      "bytes": 22198
+    },
+    {
+      "file": "assets/ui-kit/previews/v3-shop-daily-390.jpg",
+      "bytes": 24976
+    },
+    {
+      "file": "assets/ui-kit/previews/v3-shop-earn-390.jpg",
+      "bytes": 26144
+    },
+    {
+      "file": "assets/ui-kit/previews/v3-shop-lives-390.jpg",
+      "bytes": 19674
+    },
+    {
+      "file": "assets/ui-kit/previews/v3-shop-plus-390.jpg",
+      "bytes": 24225
+    },
+    {
+      "file": "assets/ui-kit/previews/v3-shop-purchases-390.jpg",
+      "bytes": 23579
+    },
+    {
+      "file": "assets/ui-kit/previews/v3-shop-rentals-390.jpg",
+      "bytes": 24064
+    },
+    {
+      "file": "assets/ui-kit/previews/v4-field-desktop.jpg",
+      "bytes": 109482
+    },
+    {
+      "file": "assets/ui-kit/previews/v4-field-helmet.jpg",
+      "bytes": 20930
+    },
+    {
+      "file": "assets/ui-kit/previews/v4-field-impact.jpg",
+      "bytes": 21421
+    },
+    {
+      "file": "assets/ui-kit/previews/v4-field-jump.jpg",
+      "bytes": 20364
+    },
+    {
+      "file": "assets/ui-kit/previews/v4-field-play.jpg",
+      "bytes": 20333
+    },
+    {
+      "file": "assets/ui-kit/previews/v4-field-ready.jpg",
+      "bytes": 22769
+    },
+    {
+      "file": "assets/ui-kit/previews/v4-field-risk.jpg",
+      "bytes": 20647
+    },
+    {
+      "file": "assets/ui-kit/previews/v4-risk-surprised.jpg",
+      "bytes": 21589
+    },
+    {
+      "file": "assets/ui-kit/previews/v5-shop-spacing-desktop.jpg",
+      "bytes": 127941
+    },
+    {
+      "file": "assets/ui-kit/previews/v6-field-ready.jpg",
+      "bytes": 23842
+    },
+    {
+      "file": "assets/ui-kit/previews/v7-hud-component.jpg",
+      "bytes": 14834
+    },
+    {
+      "file": "assets/ui-kit/previews/v7-hud-desktop.jpg",
+      "bytes": 105578
+    }
+  ],
+  "dependencies": {
+    "cupertino_icons": [],
+    "flutter_svg": [
+      "lib/features/leaderboard/ranking_art.dart",
+      "lib/ui/energy_reward_motion.dart",
+      "lib/ui/neon_chrome.dart"
+    ],
+    "firebase_auth": [
+      "lib/data/firebase_bootstrap.dart",
+      "lib/data/firebase_mobile_client.dart"
+    ],
+    "firebase_analytics": [
+      "lib/data/app_analytics.dart"
+    ],
+    "cloud_firestore": [
+      "lib/data/scores_store.dart"
+    ],
+    "firebase_remote_config": [
+      "lib/data/android_firebase_config.dart",
+      "lib/data/remote_config_loader.dart"
+    ],
+    "supabase_flutter": [
+      "lib/data/supabase_mobile_client.dart"
+    ]
+  }
+}

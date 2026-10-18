@@ -10,6 +10,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 require_once __DIR__ . '/tg_common.php';
+require_once __DIR__ . '/schema_migrations.php';
+require_once __DIR__ . '/mobile_store.php';
+require_once __DIR__ . '/mobile_wallet.php';
 
 // 1. Подключение к MySQL через db_config.php
 $pdo = null;
@@ -79,98 +82,7 @@ if (file_exists($configFile)) {
         } else {
             // Соединение успешно — проверяем/создаем таблицу
             try {
-                $pdo->exec("
-                    CREATE TABLE IF NOT EXISTS `scores` (
-                        `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                        `score_day` VARCHAR(10) NOT NULL DEFAULT '',
-                        `user_id` VARCHAR(64) NULL,
-                        `username` VARCHAR(64) NULL,
-                        `first_name` VARCHAR(128) NULL,
-                        `last_name` VARCHAR(128) NULL,
-                        `player_name` VARCHAR(128) NOT NULL,
-                        `photo_url` VARCHAR(512) NULL,
-                        `time_ms` INT UNSIGNED NOT NULL,
-                        `run_distance` INT UNSIGNED NOT NULL DEFAULT 0,
-                        `risk_count` INT UNSIGNED NOT NULL DEFAULT 0,
-                        `score` BIGINT UNSIGNED NOT NULL DEFAULT 0,
-                        `had_jump` TINYINT(1) NOT NULL DEFAULT 0,
-                        `had_helmet` TINYINT(1) NOT NULL DEFAULT 0,
-                        `created_at` BIGINT UNSIGNED NOT NULL,
-                        KEY `idx_score_day` (`score_day`),
-                        KEY `idx_user_day` (`user_id`, `score_day`),
-                        KEY `idx_time_ms` (`time_ms`),
-                        KEY `idx_score` (`score`),
-                        KEY `idx_user_id` (`user_id`),
-                        KEY `idx_username` (`username`),
-                        KEY `idx_created_at` (`created_at`)
-                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-                ");
-
-                // Если таблица уже была создана раньше без колонки score — добавим её
-                try {
-                    $pdo->exec("ALTER TABLE `scores` ADD COLUMN `score` BIGINT UNSIGNED NOT NULL DEFAULT 0 AFTER `risk_count`");
-                    $pdo->exec("ALTER TABLE `scores` ADD INDEX `idx_score` (`score`)");
-                } catch (Exception $colEx) {}
-
-                // Если таблица создана без колонки score_day — добавим её
-                try {
-                    $pdo->exec("ALTER TABLE `scores` ADD COLUMN `score_day` VARCHAR(10) NOT NULL DEFAULT '' AFTER `id`");
-                    $pdo->exec("ALTER TABLE `scores` ADD INDEX `idx_score_day` (`score_day`)");
-                    $pdo->exec("ALTER TABLE `scores` ADD INDEX `idx_user_day` (`user_id`, `score_day`)");
-                } catch (Exception $colEx) {}
-
-                // Если таблица создана без колонки hide_telegram — добавим её
-                try {
-                    $pdo->exec("ALTER TABLE `scores` ADD COLUMN `hide_telegram` TINYINT(1) NOT NULL DEFAULT 0 AFTER `photo_url`");
-                } catch (Exception $colEx) {}
-
-                // Пробег больше не в метрах, а в шагах — старый рейтинг несовместим.
-                // Один раз очищаем таблицу и scores.json; флаг остаётся на хосте.
-                $resetFlag = __DIR__ . '/scores_steps_v1.flag';
-                if (!is_file($resetFlag)) {
-                    try {
-                        $pdo->exec('TRUNCATE TABLE `scores`');
-                    } catch (Exception $wipeEx) {
-                        error_log('[scores.php] scores unit reset: ' . $wipeEx->getMessage());
-                    }
-                    @unlink(__DIR__ . '/scores.json');
-                    @file_put_contents($resetFlag, date('c') . "\n");
-                }
-
-                // Заполняем score_day для старых записей, где он пуст
-                try {
-                    $pdo->exec("UPDATE `scores` SET `score_day` = DATE_FORMAT(FROM_UNIXTIME(`created_at` / 1000), '%Y-%m-%d') WHERE `score_day` = ''");
-                } catch (Exception $e) {}
-
-                // Очистка дубликатов за один и тот же день для одного и того же пользователя:
-                // Оставляем только лучшую запись (с максимальным time_ms) за каждый день.
-                try {
-                    $dupRows = $pdo->query("
-                        SELECT id, user_id, username, player_name, score_day, time_ms 
-                        FROM `scores` 
-                        ORDER BY score_day DESC, time_ms DESC
-                    ")->fetchAll();
-
-                    if (!empty($dupRows)) {
-                        $bestSeen = [];
-                        $idsToDelete = [];
-                        foreach ($dupRows as $row) {
-                            $ukey = !empty($row['user_id']) ? "id_" . $row['user_id'] : (!empty($row['username']) ? "u_" . strtolower($row['username']) : "p_" . $row['player_name']);
-                            $dayKey = ($row['score_day'] ?: 'today') . "_" . $ukey;
-                            if (!isset($bestSeen[$dayKey])) {
-                                $bestSeen[$dayKey] = $row['id'];
-                            } else {
-                                $idsToDelete[] = (int)$row['id'];
-                            }
-                        }
-                        if (!empty($idsToDelete)) {
-                            $inList = implode(',', $idsToDelete);
-                            $pdo->exec("DELETE FROM `scores` WHERE `id` IN ($inList)");
-                        }
-                    }
-                } catch (Exception $cleanEx) {
-                    error_log('[scores.php] Duplicate cleanup notice: ' . $cleanEx->getMessage());
-                }
+                tg_ensure_score_tables($pdo);
             } catch (Exception $e) {
                 $dbError = "Table init error: " . $e->getMessage();
                 error_log('[scores.php] ' . $dbError);
@@ -204,40 +116,39 @@ function saveFileScores($file, $scores) {
 }
 
 function fetchMergedScoresFromMysql($pdo) {
-    // 1) Топ-150 за всё время по времени
+    $period = (string)($_GET['period'] ?? 'all');
+    $now = time();
+    $since = 0;
+    if ($period === 'day') $since = strtotime(gmdate('Y-m-d', $now) . ' UTC') * 1000;
+    elseif ($period === 'week') $since = ($now - 7 * 86400) * 1000;
+    elseif ($period === 'month') $since = strtotime(gmdate('Y-m-01', $now) . ' UTC') * 1000;
+    elseif ($period === 'year') $since = strtotime(gmdate('Y-01-01', $now) . ' UTC') * 1000;
+    // Best row per player in the requested period. Daily rows outside an
+    // arbitrary recent-row limit can no longer disappear from the rating.
     $topStmt = $pdo->query("
         SELECT id, user_id as userId, username, first_name as firstName, last_name as lastName,
                player_name as playerName, photo_url as photoUrl, hide_telegram as hideTelegram,
                time_ms as timeMs, run_distance as runDistance, risk_count as riskCount, score,
                had_jump as hadJump, had_helmet as hadHelmet, created_at as createdAt,
                score_day as scoreDay
-        FROM `scores`
-        ORDER BY `time_ms` DESC
+        FROM (
+            SELECT ranked.*, ROW_NUMBER() OVER (
+                PARTITION BY CASE
+                    WHEN user_id IS NOT NULL AND user_id != '' THEN CONCAT('id:',user_id)
+                    WHEN username IS NOT NULL AND username != '' THEN CONCAT('user:',username)
+                    ELSE CONCAT('name:',player_name) END
+                ORDER BY time_ms DESC,id DESC
+            ) AS player_rank
+            FROM `scores` ranked WHERE created_at >= $since
+        ) s
+        WHERE s.player_rank = 1
+        ORDER BY s.time_ms DESC, s.id DESC
         LIMIT 150
     ");
     $topRows = $topStmt->fetchAll();
 
-    // 2) Свежие заезды за 35 дней (для Day / Week / Month)
-    $since35Days = (int)((time() - 35 * 86400) * 1000);
-    $recentStmt = $pdo->prepare("
-        SELECT id, user_id as userId, username, first_name as firstName, last_name as lastName,
-               player_name as playerName, photo_url as photoUrl, hide_telegram as hideTelegram,
-               time_ms as timeMs, run_distance as runDistance, risk_count as riskCount, score,
-               had_jump as hadJump, had_helmet as hadHelmet, created_at as createdAt,
-               score_day as scoreDay
-        FROM `scores`
-        WHERE `created_at` >= :since
-        ORDER BY `created_at` DESC
-        LIMIT 300
-    ");
-    $recentStmt->execute([':since' => $since35Days]);
-    $recentRows = $recentStmt->fetchAll();
-
     $byId = [];
     foreach ($topRows as $r) {
-        $byId[$r['id']] = $r;
-    }
-    foreach ($recentRows as $r) {
         $byId[$r['id']] = $r;
     }
 
@@ -281,51 +192,7 @@ function fetchMergedScoresFromMysql($pdo) {
         return $b['timeMs'] <=> $a['timeMs'];
     });
 
-    return $formatted;
-}
-
-// Авто-перенос существующих рекордов из scores.json в MySQL (если MySQL таблица пока пуста)
-if ($pdo !== null) {
-    try {
-        $cntStmt = $pdo->query("SELECT COUNT(*) FROM `scores`");
-        if ($cntStmt && (int)$cntStmt->fetchColumn() === 0) {
-            $existingFileScores = getFileScores($dataFile);
-            if (!empty($existingFileScores)) {
-                $migStmt = $pdo->prepare("
-                    INSERT INTO `scores` (
-                        `user_id`, `username`, `first_name`, `last_name`, `player_name`, `photo_url`,
-                        `time_ms`, `run_distance`, `risk_count`, `score`, `had_jump`, `had_helmet`, `created_at`
-                    ) VALUES (
-                        :user_id, :username, :first_name, :last_name, :player_name, :photo_url,
-                        :time_ms, :run_distance, :risk_count, :score, :had_jump, :had_helmet, :created_at
-                    )
-                ");
-                foreach ($existingFileScores as $fs) {
-                    $tMs = (int)($fs['timeMs'] ?? 0);
-                    $rDist = (int)($fs['runDistance'] ?? 0);
-                    $rCount = (int)($fs['riskCount'] ?? 0);
-                    $calcScore = (int)round(($tMs / 1000.0) * $rDist * (1 + $rCount));
-                    $migStmt->execute([
-                        ':user_id'      => $fs['userId'] ?? null,
-                        ':username'     => $fs['username'] ?? null,
-                        ':first_name'   => $fs['firstName'] ?? null,
-                        ':last_name'    => $fs['lastName'] ?? null,
-                        ':player_name'  => $fs['playerName'] ?? 'Игрок',
-                        ':photo_url'    => $fs['photoUrl'] ?? null,
-                        ':time_ms'      => $tMs,
-                        ':run_distance' => $rDist,
-                        ':risk_count'   => $rCount,
-                        ':score'        => $calcScore,
-                        ':had_jump'     => !empty($fs['hadJump']) ? 1 : 0,
-                        ':had_helmet'   => !empty($fs['hadHelmet']) ? 1 : 0,
-                        ':created_at'   => (int)($fs['createdAt'] ?? (time() * 1000)),
-                    ]);
-                }
-            }
-        }
-    } catch (Exception $migEx) {
-        error_log('[scores.php] Migration from JSON to MySQL notice: ' . $migEx->getMessage());
-    }
+    return mobile_identity_public_scores($pdo,$formatted);
 }
 
 // Диагностика только с ключом из bot_config.php (diag_key). Без ключа — 404.
@@ -367,7 +234,7 @@ if ($method === 'GET') {
                 'ok' => false,
                 'source' => 'mysql',
                 'dbStatus' => 'error',
-                'error' => $dbError,
+                'error' => 'Рейтинг временно недоступен',
                 'scores' => [],
             ]);
             exit;
@@ -378,7 +245,7 @@ if ($method === 'GET') {
         'ok' => false,
         'source' => 'none',
         'dbStatus' => 'error',
-        'error' => $dbError ?: 'База недоступна',
+        'error' => 'Рейтинг временно недоступен',
         'scores' => [],
     ]);
     exit;
@@ -413,6 +280,100 @@ if ($method === 'POST') {
 
     // 1) ОБНОВЛЕНИЕ ПРОФИЛЯ ИГРОКА (ник, скрытие telegram) В БАЗЕ ДАННЫХ
     if ($action === 'update_profile') {
+        $profileMode = is_string($input['mode'] ?? null) ? $input['mode'] : '';
+        if (($input['strictNickname'] ?? false) === true) $profileMode = 'rename';
+        if ($profileMode === 'rename' || $profileMode === 'privacy') {
+          for ($profileAttempt = 0; $profileAttempt < 3; $profileAttempt++) {
+            try {
+                // New partial writes require a verified owner and the shared registry.
+                // The legacy branch below retains its existing compatibility behavior.
+                if ($authUserId === null || $authUserId === '') throw new MobileError('unauthorized', 401);
+                if ($pdo === null) throw new MobileError('profile_unavailable', 503);
+                if (!tg_schema_ready($pdo, 'mobile', 1)) throw new MobileError('schema_unavailable', 503);
+                if ($profileMode === 'privacy' && (!isset($input['hideTelegram']) || !is_bool($input['hideTelegram']))) throw new MobileError('profile_invalid', 400);
+                $hideTelegram = $profileMode === 'privacy' ? $input['hideTelegram'] : null;
+                $playerName = $profileMode === 'rename' ? mobile_name($input['playerName'] ?? null) : null;
+                $username = !empty($authUser['username']) ? '@' . ltrim((string)$authUser['username'], '@') : null;
+                if ($hideTelegram) $username = null;
+
+                $pdo->beginTransaction();
+                if ($profileMode === 'rename') {
+                    $nameOwner = 'telegram:' . $authUserId;
+                    $owned = $pdo->prepare('SELECT name_key,nickname FROM mobile_names WHERE owner=? FOR UPDATE');
+                    $owned->execute([$nameOwner]);
+                    $owned->fetchAll();
+                    $nameKey = mobile_name_key($playerName);
+                    $reserved = $pdo->prepare('SELECT owner FROM mobile_names WHERE name_key=? FOR UPDATE');
+                    $reserved->execute([$nameKey]);
+                    $taken = $reserved->fetchColumn();
+                    // Strict rename never uses the helper's legacy-duplicate exception.
+                    if ($taken && $taken !== $nameOwner) throw new MobileError('nickname_taken', 409);
+                    mobile_reserve_telegram($pdo, $authUserId, $playerName);
+                    $reserved->execute([$nameKey]);
+                    if ($reserved->fetchColumn() !== $nameOwner) throw new MobileError('nickname_taken', 409);
+                    $pdo->prepare('UPDATE mobile_names SET nickname=? WHERE name_key=? AND owner=?')->execute([$playerName, $nameKey, $nameOwner]);
+                }
+                $params = [':user_id' => $authUserId];
+                // Privacy-only does not carry or reserve a draft and does not rename.
+                if ($profileMode === 'rename') {
+                    $setSql = '`player_name`=:player_name';
+                    $params[':player_name'] = $playerName;
+                } else {
+                    $setSql = '`username`=:username, `hide_telegram`=:hide_telegram';
+                    $params[':username'] = $username;
+                    $params[':hide_telegram'] = $hideTelegram ? 1 : 0;
+                }
+                $update = $pdo->prepare("UPDATE scores SET $setSql WHERE `user_id`=:user_id");
+                $update->execute($params);
+                $updatedRows = $update->rowCount();
+                // Refresh inside the transaction: a refresh error cannot follow an
+                // already committed rename and falsely report it as refused.
+                $formatted = fetchMergedScoresFromMysql($pdo);
+                $pdo->commit();
+                $reply = [
+                    'ok' => true,
+                    'action' => 'update_profile',
+                    'mode' => $profileMode,
+                    'updatedRows' => $updatedRows,
+                    'source' => 'mysql',
+                    'scores' => $formatted,
+                ];
+                if ($profileMode === 'rename') {
+                    $reply['uniquenessVerified'] = true;
+                    $reply['playerName'] = $playerName;
+                } else {
+                    $reply['username'] = $username;
+                    $reply['hideTelegram'] = $hideTelegram;
+                }
+                echo json_encode($reply);
+                exit;
+            } catch (Throwable $error) {
+                if ($pdo !== null && $pdo->inTransaction()) $pdo->rollBack();
+                if ($error instanceof PDOException && in_array((int)($error->errorInfo[1] ?? 0), [1213, 1205], true) && $profileAttempt < 2) {
+                    usleep(20000);
+                    continue;
+                }
+                $code = $error instanceof MobileError ? $error->getMessage() : 'profile_unavailable';
+                $status = $error instanceof MobileError ? $error->status : 503;
+                if ($error instanceof PDOException && (int)($error->errorInfo[1] ?? 0) === 1062) {
+                    $code = 'nickname_taken';
+                    $status = 409;
+                }
+                http_response_code($status);
+                echo json_encode(['ok' => false, 'error' => $code, 'code' => $code]);
+                exit;
+            }
+          }
+        }
+        // Older authenticated clients remain supported, but cannot bypass the
+        // shared registry through a spoofed userId or a file-only profile write.
+        $legacyProfileError = $authUserId === null || $authUserId === '' ? 'unauthorized' :
+            ($pdo === null ? 'profile_unavailable' : (!tg_schema_ready($pdo, 'mobile', 1) ? 'schema_unavailable' : null));
+        if ($legacyProfileError !== null) {
+            http_response_code($legacyProfileError === 'unauthorized' ? 401 : 503);
+            echo json_encode(['ok'=>false,'error'=>$legacyProfileError,'code'=>$legacyProfileError]);
+            exit;
+        }
         $userId = isset($input['userId']) && $input['userId'] !== '' ? (string)$input['userId'] : null;
         if ($authUserId !== null) {
             $userId = $authUserId;
@@ -431,9 +392,8 @@ if ($method === 'POST') {
             $username = null;
         }
 
-        $playerName = isset($input['playerName']) ? trim(strip_tags((string)$input['playerName'])) : 'Игрок';
-        if ($playerName === '') $playerName = 'Игрок';
-        if (mb_strlen($playerName) > 40) $playerName = mb_substr($playerName, 0, 40);
+        $nameProvided = array_key_exists('playerName', $input);
+        $playerName = $nameProvided && is_string($input['playerName']) ? trim($input['playerName']) : null;
 
         $firstName = isset($input['firstName']) ? trim(strip_tags((string)$input['firstName'])) : null;
         $lastName = isset($input['lastName']) ? trim(strip_tags((string)$input['lastName'])) : null;
@@ -444,6 +404,30 @@ if ($method === 'POST') {
         if ($pdo !== null) {
             try {
                 // Обновляем все записи игрока в таблице scores по userId или username
+                $sharedNames = true;
+                if ($sharedNames) {
+                    $pdo->beginTransaction();
+                    $nameOwner = 'telegram:' . $authUserId;
+                    $owned = $pdo->prepare('SELECT name_key,nickname FROM mobile_names WHERE owner=? FOR UPDATE');
+                    $owned->execute([$nameOwner]);
+                    $ownedRows = $owned->fetchAll();
+                    $currentName = $ownedRows ? $ownedRows[0]['nickname'] : null;
+                    if ($currentName === null) {
+                        $current = $pdo->prepare('SELECT player_name FROM scores WHERE user_id=? ORDER BY id DESC LIMIT 1 FOR UPDATE');
+                        $current->execute([$authUserId]);
+                        $stored = $current->fetchColumn();
+                        if ($stored !== false) $currentName = $stored;
+                    }
+                    if (!$nameProvided) $playerName = $currentName ?? 'Игрок';
+                    elseif ($playerName === null || $playerName !== $currentName) $playerName = mobile_name($input['playerName']);
+                    $nameKey = mobile_name_key($playerName);
+                    $reserved = $pdo->prepare('SELECT owner FROM mobile_names WHERE name_key=? FOR UPDATE');
+                    $reserved->execute([$nameKey]);
+                    $taken = $reserved->fetchColumn();
+                    if ($taken && $taken !== $nameOwner) throw new MobileError('nickname_taken', 409);
+                    mobile_reserve_telegram($pdo, $authUserId, $playerName);
+                    $pdo->prepare('UPDATE mobile_names SET nickname=? WHERE name_key=? AND owner=?')->execute([$playerName, $nameKey, $nameOwner]);
+                }
                 $params = [
                     ':player_name'   => $playerName,
                     ':username'      => $username,
@@ -460,7 +444,7 @@ if ($method === 'POST') {
                     $whereParts[] = "`user_id` = :cond_user_id";
                 }
                 $matchUser = $rawUsername ?: $username;
-                if ($matchUser !== null && $matchUser !== '') {
+                if ($authUserId === null && $matchUser !== null && $matchUser !== '') {
                     $cleanMatch = ltrim(strtolower($matchUser), '@');
                     $params[':cond_uname'] = $matchUser;
                     $params[':cond_uname_clean'] = $cleanMatch;
@@ -484,6 +468,7 @@ if ($method === 'POST') {
                     $updatedRows = $updStmt->rowCount();
                 }
 
+                if ($sharedNames) $pdo->commit();
                 $formatted = fetchMergedScoresFromMysql($pdo);
                 echo json_encode([
                     'ok'          => true,
@@ -496,6 +481,13 @@ if ($method === 'POST') {
                 ]);
                 exit;
             } catch (Exception $e) {
+                if ($pdo->inTransaction()) $pdo->rollBack();
+                if ($e instanceof MobileError || (isset($sharedNames) && $sharedNames)) {
+                    http_response_code($e instanceof MobileError ? $e->status : 503);
+                    $code = $e instanceof MobileError ? $e->getMessage() : 'profile_unavailable';
+                    echo json_encode(['ok'=>false,'error'=>$code,'code'=>$code]);
+                    exit;
+                }
                 error_log('[scores.php] update_profile MySQL error: ' . $e->getMessage());
             }
         }
@@ -638,8 +630,28 @@ if ($method === 'POST') {
     if ($authUserId !== null) {
         $userId = $authUserId;
     }
+    // Android results require the authenticated mobile round protocol.
+    if ($authUserId === null && $userId !== null && strpos($userId, 'android:') === 0) {
+        http_response_code(401); echo '{"ok":false,"error":"Unauthorized"}'; exit;
+    }
     $runDistance = isset($input['runDistance']) ? max(0, (int)$input['runDistance']) : 0;
     $riskCount = isset($input['riskCount']) ? max(0, (int)$input['riskCount']) : 0;
+    if (!empty(tg_load_economy()['energy'])) {
+        if ($authUserId === null || $pdo === null || empty($input['roundId'])) {
+            http_response_code(401); echo json_encode(['ok'=>false,'error'=>'Требуется подтверждённая попытка Telegram']); exit;
+        }
+        $confirmed = $pdo->prepare('SELECT result_json, loadout_json, finished_at FROM `energy_rounds` WHERE user_id=:uid AND round_id=:id');
+        $confirmed->execute([':uid'=>$authUserId, ':id'=>(string)$input['roundId']]);
+        $round = $confirmed->fetch();
+        $run = $round ? json_decode($round['result_json'] ?? '', true) : null;
+        if (!$run || (int)$run['timeMs'] !== $timeMs || (int)$run['steps'] !== $runDistance || (int)$run['risks'] !== $riskCount) {
+            http_response_code(409); echo json_encode(['ok'=>false,'error'=>'Попытка ещё не подтверждена']); exit;
+        }
+        $input['createdAt'] = (int)$round['finished_at'];
+        $input['score'] = (int)round(($timeMs / 1000.0) * $runDistance * (1 + $riskCount));
+        $loadout = json_decode($round['loadout_json'], true);
+        $input['hadJump'] = !empty($loadout['jumps']); $input['hadHelmet'] = !empty($loadout['shield']);
+    }
     $score = isset($input['score']) && is_numeric($input['score'])
         ? max(0, (int)$input['score'])
         : (int)round(($timeMs / 1000.0) * $runDistance * (1 + $riskCount));
@@ -651,10 +663,30 @@ if ($method === 'POST') {
     }
     $createdAt = isset($input['createdAt']) && is_numeric($input['createdAt']) ? (int)$input['createdAt'] : (int)(microtime(true) * 1000);
 
-    $scoreDay = date('Y-m-d', (int)($createdAt / 1000));
+    $scoreDay = gmdate('Y-m-d', (int)($createdAt / 1000));
 
     if ($pdo !== null) {
         try {
+            $sharedNames = tg_schema_ready($pdo, 'mobile', 1);
+            if ($sharedNames) {
+                if ($authUserId === null) {
+                    // A browser preview cannot claim or overwrite a reserved player name.
+                    $reserved=$pdo->prepare('SELECT owner FROM mobile_names WHERE name_key=?');
+                    $reserved->execute([mobile_name_key($playerName)]);
+                    if ($reserved->fetchColumn()) throw new MobileError('nickname_taken',409);
+                } else {
+                    $pdo->beginTransaction();
+                    // A late score uploads run data, not a new profile nickname.
+                    // Lock the existing owner's reservation before the target,
+                    // in the same order as profile rename. First-score bootstrap
+                    // keeps its former behavior when this owner has no reservation.
+                    $owned = $pdo->prepare('SELECT name_key,nickname FROM mobile_names WHERE owner=? FOR UPDATE');
+                    $owned->execute(['telegram:' . $authUserId]);
+                    $ownedRows = $owned->fetchAll();
+                    if ($ownedRows && $ownedRows[0]['nickname'] !== '') $playerName = $ownedRows[0]['nickname'];
+                    mobile_reserve_telegram($pdo, $authUserId, $playerName);
+                }
+            }
             // Ищем существующую запись этого игрока за СЕГОДНЯ
             $whereParts = ["`score_day` = :score_day"];
             $findParams = [':score_day' => $scoreDay];
@@ -701,7 +733,7 @@ if ($method === 'POST') {
                             `first_name`    = :first_name,
                             `last_name`     = :last_name,
                             `photo_url`     = :photo_url
-                        WHERE `id` = :id
+                        WHERE `id` = :id AND `time_ms` < :new_best_time
                     ";
                     $updStmt = $pdo->prepare($updSql);
                     $updStmt->execute([
@@ -719,6 +751,7 @@ if ($method === 'POST') {
                         ':last_name'     => $lastName,
                         ':photo_url'     => $photoUrl,
                         ':id'            => $existingId,
+                        ':new_best_time' => $timeMs,
                     ]);
                 } else {
                     // Попытка слабее рекорда за сегодня: рекорд НЕ ухудшаем, только обновляем аватар и имя
@@ -773,6 +806,7 @@ if ($method === 'POST') {
                 ]);
             }
 
+            if ($pdo->inTransaction()) $pdo->commit();
             $formatted = fetchMergedScoresFromMysql($pdo);
             echo json_encode([
                 'ok' => true,
@@ -783,10 +817,14 @@ if ($method === 'POST') {
             ]);
             exit;
         } catch (Exception $e) {
+            if ($pdo->inTransaction()) $pdo->rollBack();
+            if ($e instanceof MobileError) {
+                http_response_code($e->status); echo json_encode(['ok'=>false,'error'=>$e->getMessage()]); exit;
+            }
             $dbError = 'INSERT/UPDATE failed: ' . $e->getMessage();
             error_log('[scores.php] ' . $dbError);
             http_response_code(500);
-            echo json_encode(['ok' => false, 'error' => $dbError, 'source' => 'mysql']);
+            echo json_encode(['ok' => false, 'error' => 'Рейтинг временно недоступен', 'source' => 'mysql']);
             exit;
         }
     }
@@ -794,7 +832,7 @@ if ($method === 'POST') {
     http_response_code(503);
     echo json_encode([
         'ok' => false,
-        'error' => $dbError ?: 'База недоступна',
+        'error' => 'Рейтинг временно недоступен',
         'source' => 'none',
     ]);
     exit;

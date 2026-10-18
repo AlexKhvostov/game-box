@@ -25,7 +25,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyBQ5iCD9OAotliddp-j0Dp-GfbeyqSKTsY',
-    appId: '1:332169968823:android:a485d65569bb1269d4e132',
+    appId: '1:332169968823:android:8307d5aa04c14140d4e132',
     messagingSenderId: '332169968823',
     projectId: 'game-box-b30d4',
     storageBucket: 'game-box-b30d4.firebasestorage.app',

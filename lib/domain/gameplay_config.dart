@@ -8,6 +8,7 @@ class GameplayConfig {
     this.field = const FieldConfig(),
     this.game = const GameConfig(),
     this.audio = const AudioConfig(),
+    this.mobileEnemies = const MobileEnemyPace(),
   });
 
   final EnemiesConfig enemies;
@@ -15,6 +16,7 @@ class GameplayConfig {
   final FieldConfig field;
   final GameConfig game;
   final AudioConfig audio;
+  final MobileEnemyPace mobileEnemies;
 
   double get enemyAreaMultiplier => enemies.areaMultiplier;
   double get playerSize => player.size;
@@ -36,12 +38,16 @@ class GameplayConfig {
   double get speedRampSeconds => game.speedRampSeconds;
   bool get jumpEnabled => game.jumpEnabled;
   double get jumpDurationSec => game.jumpDurationSec;
+  double get jumpCooldownSec => game.jumpCooldownSec;
   double get jumpScale => game.jumpScale;
   bool get helmetEnabled => game.helmetEnabled;
+
   /// Секунды неуязвимости (мигание) после разрушения шлема.
   double get helmetInvulnSec => game.helmetInvulnSec;
+
   /// Секунды неуязвимости в начале раунда.
   double get startInvulnSec => game.startInvulnSec;
+
   /// Верх шкалы скорости в HUD (полоска под полем).
   double get hudSpeedScaleMax => game.hudSpeedScaleMax;
 
@@ -54,6 +60,7 @@ class GameplayConfig {
     required FieldConfig field,
     required GameConfig game,
     AudioConfig audio = const AudioConfig(),
+    MobileEnemyPace mobileEnemies = const MobileEnemyPace(),
   }) {
     return GameplayConfig(
       enemies: enemies,
@@ -61,6 +68,7 @@ class GameplayConfig {
       field: field,
       game: game,
       audio: audio,
+      mobileEnemies: mobileEnemies,
     );
   }
 
@@ -99,23 +107,25 @@ class EnemiesConfig {
   final double speedMax;
   final double accelMin;
   final double accelMax;
+
   /// Мобы отскакивают друг от друга как от стены.
   final bool collideWithEachOther;
+
   /// Медленное вращение тела (°/с). 0 = без вращения.
   final double spinDegPerSec;
 
   Map<String, dynamic> toJson() => {
-        'areaMultiplier': areaMultiplier,
-        'aspects': aspects,
-        'angleMinDeg': angleMinDeg,
-        'angleMaxDeg': angleMaxDeg,
-        'speedMin': speedMin,
-        'speedMax': speedMax,
-        'accelMin': accelMin,
-        'accelMax': accelMax,
-        'collideWithEachOther': collideWithEachOther,
-        'spinDegPerSec': spinDegPerSec,
-      };
+    'areaMultiplier': areaMultiplier,
+    'aspects': aspects,
+    'angleMinDeg': angleMinDeg,
+    'angleMaxDeg': angleMaxDeg,
+    'speedMin': speedMin,
+    'speedMax': speedMax,
+    'accelMin': accelMin,
+    'accelMax': accelMax,
+    'collideWithEachOther': collideWithEachOther,
+    'spinDegPerSec': spinDegPerSec,
+  };
 
   factory EnemiesConfig.fromJson(Map<String, dynamic> json) {
     final aspectsRaw = json['aspects'] ?? json['enemyAspects'];
@@ -124,7 +134,8 @@ class EnemiesConfig {
       aspects = aspectsRaw.map((e) => (e as num).toDouble()).toList();
     }
     return EnemiesConfig(
-      areaMultiplier: (json['areaMultiplier'] as num?)?.toDouble() ??
+      areaMultiplier:
+          (json['areaMultiplier'] as num?)?.toDouble() ??
           (json['enemyAreaMultiplier'] as num?)?.toDouble() ??
           2.0,
       aspects: aspects,
@@ -134,7 +145,8 @@ class EnemiesConfig {
       speedMax: (json['speedMax'] as num?)?.toDouble() ?? 105,
       accelMin: (json['accelMin'] as num?)?.toDouble() ?? 9,
       accelMax: (json['accelMax'] as num?)?.toDouble() ?? 15,
-      collideWithEachOther: json['collideWithEachOther'] as bool? ??
+      collideWithEachOther:
+          json['collideWithEachOther'] as bool? ??
           json['enemiesCollide'] as bool? ??
           false,
       spinDegPerSec: (json['spinDegPerSec'] as num?)?.toDouble() ?? 0,
@@ -144,29 +156,23 @@ class EnemiesConfig {
 
 /// Блок Remote Config: `player`
 class PlayerConfig {
-  const PlayerConfig({
-    this.size = 36,
-    this.showFace = false,
-  });
+  const PlayerConfig({this.size = 36, this.showFace = false});
 
   final double size;
 
   /// A/B: милое аниме-личико на кубе (по умолчанию выкл — просто квадрат).
   final bool showFace;
 
-  Map<String, dynamic> toJson() => {
-        'size': size,
-        'showFace': showFace,
-      };
+  Map<String, dynamic> toJson() => {'size': size, 'showFace': showFace};
 
   factory PlayerConfig.fromJson(Map<String, dynamic> json) {
     return PlayerConfig(
-      size: (json['size'] as num?)?.toDouble() ??
+      size:
+          (json['size'] as num?)?.toDouble() ??
           (json['playerSize'] as num?)?.toDouble() ??
           36,
-      showFace: json['showFace'] as bool? ??
-          json['playerShowFace'] as bool? ??
-          false,
+      showFace:
+          json['showFace'] as bool? ?? json['playerShowFace'] as bool? ?? false,
     );
   }
 }
@@ -193,11 +199,11 @@ class FieldConfig {
   final String? colorHex;
 
   Map<String, dynamic> toJson() => {
-        'borderWidth': borderWidth,
-        'brightness': brightness,
-        'shadowBrightness': shadowBrightness,
-        if (colorHex != null && colorHex!.isNotEmpty) 'color': colorHex,
-      };
+    'borderWidth': borderWidth,
+    'brightness': brightness,
+    'shadowBrightness': shadowBrightness,
+    if (colorHex != null && colorHex!.isNotEmpty) 'color': colorHex,
+  };
 
   factory FieldConfig.fromJson(Map<String, dynamic> json) {
     final rawColor = json['color'] ?? json['colorHex'] ?? json['surfaceColor'];
@@ -207,7 +213,8 @@ class FieldConfig {
     }
     return FieldConfig(
       borderWidth: (json['borderWidth'] as num?)?.toDouble() ?? 3,
-      brightness: (json['brightness'] as num?)?.toDouble() ??
+      brightness:
+          (json['brightness'] as num?)?.toDouble() ??
           (json['fieldBrightness'] as num?)?.toDouble() ??
           1.0,
       shadowBrightness: (json['shadowBrightness'] as num?)?.toDouble() ?? 1.0,
@@ -216,8 +223,8 @@ class FieldConfig {
   }
 
   /// Цвет заливки поля с учётом RC.
-  Color resolveSurfaceColor(Color themeSurface) {
-    final base = parseHexColor(colorHex) ?? themeSurface;
+  Color resolveSurfaceColor(Color themeSurface, {Color? colorOverride}) {
+    final base = colorOverride ?? parseHexColor(colorHex) ?? themeSurface;
     final b = brightness.clamp(0.4, 1.8);
     if (b == 1.0) return base;
     if (b > 1.0) {
@@ -249,6 +256,7 @@ class GameConfig {
     this.speedRampSeconds = 0.5,
     this.jumpEnabled = true,
     this.jumpDurationSec = 0.38,
+    this.jumpCooldownSec = 2,
     this.jumpScale = 1.32,
     this.helmetEnabled = true,
     this.helmetInvulnSec = 0.3,
@@ -280,6 +288,9 @@ class GameConfig {
   /// Длительность прыжка в секундах.
   final double jumpDurationSec;
 
+  /// Минимум две реальные секунды между началами прыжков, как в Mini App.
+  final double jumpCooldownSec;
+
   /// Визуальный масштаб в пике прыжка (хитбокс стены не растёт).
   final double jumpScale;
 
@@ -310,24 +321,25 @@ class GameConfig {
   final bool wallsKillPlayer;
 
   Map<String, dynamic> toJson() => {
-        'startHintEnabled': startHintEnabled,
-        'idleSpeedMultiplier': idleSpeedMultiplier,
-        'idleEnemiesMove': idleEnemiesMove,
-        'speedRampSeconds': speedRampSeconds,
-        'jumpEnabled': jumpEnabled,
-        'jumpDurationSec': jumpDurationSec,
-        'jumpScale': jumpScale,
-        'helmetEnabled': helmetEnabled,
-        'helmetInvulnSec': helmetInvulnSec,
-        'startInvulnSec': startInvulnSec,
-        'heartbeatHaptic': heartbeatHaptic,
-        'timerHaptic': timerHaptic,
-        'timerHapticStyle': timerHapticStyle,
-        'timerHapticStyle5': timerHapticStyle5,
-        'timerHapticStyle10': timerHapticStyle10,
-        'hudSpeedScaleMax': hudSpeedScaleMax,
-        'wallsKillPlayer': wallsKillPlayer,
-      };
+    'startHintEnabled': startHintEnabled,
+    'idleSpeedMultiplier': idleSpeedMultiplier,
+    'idleEnemiesMove': idleEnemiesMove,
+    'speedRampSeconds': speedRampSeconds,
+    'jumpEnabled': jumpEnabled,
+    'jumpDurationSec': jumpDurationSec,
+    'jumpCooldownSec': jumpCooldownSec,
+    'jumpScale': jumpScale,
+    'helmetEnabled': helmetEnabled,
+    'helmetInvulnSec': helmetInvulnSec,
+    'startInvulnSec': startInvulnSec,
+    'heartbeatHaptic': heartbeatHaptic,
+    'timerHaptic': timerHaptic,
+    'timerHapticStyle': timerHapticStyle,
+    'timerHapticStyle5': timerHapticStyle5,
+    'timerHapticStyle10': timerHapticStyle10,
+    'hudSpeedScaleMax': hudSpeedScaleMax,
+    'wallsKillPlayer': wallsKillPlayer,
+  };
 
   factory GameConfig.fromJson(Map<String, dynamic> json) {
     return GameConfig(
@@ -336,10 +348,10 @@ class GameConfig {
           (json['idleSpeedMultiplier'] as num?)?.toDouble() ?? 0.5,
       idleEnemiesMove: json['idleEnemiesMove'] as bool? ?? true,
       speedRampSeconds: (json['speedRampSeconds'] as num?)?.toDouble() ?? 0.5,
-      jumpEnabled: json['jumpEnabled'] as bool? ??
-          json['jumpsEnabled'] as bool? ??
-          true,
+      jumpEnabled:
+          json['jumpEnabled'] as bool? ?? json['jumpsEnabled'] as bool? ?? true,
       jumpDurationSec: (json['jumpDurationSec'] as num?)?.toDouble() ?? 0.38,
+      jumpCooldownSec: (json['jumpCooldownSec'] as num?)?.toDouble() ?? 2,
       jumpScale: (json['jumpScale'] as num?)?.toDouble() ?? 1.32,
       helmetEnabled: json['helmetEnabled'] as bool? ?? true,
       helmetInvulnSec: (json['helmetInvulnSec'] as num?)?.toDouble() ?? 0.3,
@@ -405,18 +417,18 @@ class AudioConfig {
   final double musicVolume;
 
   Map<String, dynamic> toJson() => {
-        'sfxMobWall': sfxMobWall,
-        'sfxMobCollide': sfxMobCollide,
-        'sfxHeroMob': sfxHeroMob,
-        'sfxHeroWall': sfxHeroWall,
-        'sfxNearMiss': sfxNearMiss,
-        'sfxHelmet': sfxHelmet,
-        'sfxJump': sfxJump,
-        'sfxStart': sfxStart,
-        'music': music,
-        'sfxVolume': sfxVolume,
-        'musicVolume': musicVolume,
-      };
+    'sfxMobWall': sfxMobWall,
+    'sfxMobCollide': sfxMobCollide,
+    'sfxHeroMob': sfxHeroMob,
+    'sfxHeroWall': sfxHeroWall,
+    'sfxNearMiss': sfxNearMiss,
+    'sfxHelmet': sfxHelmet,
+    'sfxJump': sfxJump,
+    'sfxStart': sfxStart,
+    'music': music,
+    'sfxVolume': sfxVolume,
+    'musicVolume': musicVolume,
+  };
 
   factory AudioConfig.fromJson(Map<String, dynamic> json) {
     return AudioConfig(
@@ -454,5 +466,44 @@ class AudioConfig {
     }
     if (n == null || n.isNaN || n.isInfinite) return fallback;
     return n.clamp(0.0, 1.0);
+  }
+}
+
+/// Base Android pace in shared hero steps: one step is0.1 of hero body size.
+class MobileEnemyPace {
+  const MobileEnemyPace({
+    this.startSpeedSteps = 34.72,
+    this.accelerationSteps = 4.63,
+    this.speedVariation = 0.05,
+    this.accelerationVariation = 0.08,
+  });
+  final double startSpeedSteps;
+  final double accelerationSteps;
+  final double speedVariation, accelerationVariation;
+  factory MobileEnemyPace.fromJson(Map<String, dynamic> json) {
+    final speed = json['startSpeedSteps'], accel = json['accelerationSteps'];
+    if (speed is! num ||
+        accel is! num ||
+        !speed.isFinite ||
+        !accel.isFinite ||
+        speed < 0.01 ||
+        speed > 250 ||
+        accel < 0 ||
+        accel > 50) {
+      throw const FormatException('Invalid mobile enemy pace');
+    }
+    return MobileEnemyPace(
+      startSpeedSteps: speed.toDouble(),
+      accelerationSteps: accel.toDouble(),
+      speedVariation: _variation(json['speedVariation'], 0.05),
+      accelerationVariation: _variation(json['accelerationVariation'], 0.08),
+    );
+  }
+  static double _variation(Object? value, double fallback) {
+    if (value == null) return fallback;
+    if (value is! num || !value.isFinite || value < 0 || value > 0.5) {
+      throw const FormatException('Invalid mobile enemy variation');
+    }
+    return value.toDouble();
   }
 }

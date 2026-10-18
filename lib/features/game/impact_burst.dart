@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 class ImpactBurst {
   ImpactBurst._({
     required this.origin,
-    required List<_ImpactGlyph> this._glyphs,
+    required this._glyphs,
     required this.flashColor,
   });
 

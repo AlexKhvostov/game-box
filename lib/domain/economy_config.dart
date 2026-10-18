@@ -1,3 +1,5 @@
+import 'android_energy.dart';
+
 /// Действие для заработка кристалов (реклама / соцсеть / и т.д.).
 class EarnAction {
   const EarnAction({
@@ -13,11 +15,11 @@ class EarnAction {
   final int reward;
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'title': title,
-        'subtitle': subtitle,
-        'reward': reward,
-      };
+    'id': id,
+    'title': title,
+    'subtitle': subtitle,
+    'reward': reward,
+  };
 
   factory EarnAction.fromJson(Map<String, dynamic> json) {
     return EarnAction(
@@ -31,26 +33,17 @@ class EarnAction {
 
 /// Пак конвертации кристалов → жизни.
 class LifePackOffer {
-  const LifePackOffer({
-    required this.lives,
-    required this.costTokens,
-  });
+  const LifePackOffer({required this.lives, required this.costTokens});
 
   final int lives;
   final int costTokens;
 
-  Map<String, dynamic> toJson() => {
-        'lives': lives,
-        'costTokens': costTokens,
-      };
+  Map<String, dynamic> toJson() => {'lives': lives, 'costTokens': costTokens};
 
   factory LifePackOffer.fromJson(Map<String, dynamic> json) {
     return LifePackOffer(
       lives: EconomyConfig._asInt(json['lives'], 10),
-      costTokens: EconomyConfig._asInt(
-        json['costTokens'] ?? json['cost'],
-        5,
-      ),
+      costTokens: EconomyConfig._asInt(json['costTokens'] ?? json['cost'], 5),
     );
   }
 }
@@ -58,10 +51,10 @@ class LifePackOffer {
 /// Конфиг экономики. Значения можно обновлять из Firebase Remote Config.
 class EconomyConfig {
   static const List<LifePackOffer> defaultLifePacks = [
-    LifePackOffer(lives: 5, costTokens: 5),
-    LifePackOffer(lives: 15, costTokens: 12),
-    LifePackOffer(lives: 50, costTokens: 30),
-    LifePackOffer(lives: 250, costTokens: 99),
+    LifePackOffer(lives: 1, costTokens: 1),
+    LifePackOffer(lives: 15, costTokens: 10),
+    LifePackOffer(lives: 50, costTokens: 25),
+    LifePackOffer(lives: 100, costTokens: 49),
   ];
 
   /// Id действия «бонус за установку» в earnActions.
@@ -78,27 +71,33 @@ class EconomyConfig {
   };
 
   const EconomyConfig({
+    this.androidEnergyV2 = const AndroidEnergyConfig(),
     this.initialLives = 10,
     this.initialTokens = 40,
     this.installBonusAutoClaim = true,
     this.earnSurviveSeconds = 10,
     this.earnRecordSeconds = 20,
     this.earnRisksInRun = 5,
-    this.lifePackSize = 5,
-    this.lifePackCostTokens = 5,
+    this.lifePackSize = 1,
+    this.lifePackCostTokens = 1,
     this.lifePacks = defaultLifePacks,
-    this.dailyRewardTokens = const [2, 4, 9, 16, 32, 64, 81],
-    this.timedBonusTokens = 22,
+    this.dailyRewardTokens = const [2, 4, 8, 12, 18, 24, 36],
+    this.timedBonusTokens = 4,
     this.timedBonusHours = 1,
     this.watchAdCooldownSec = 60,
+    this.interstitialGraceSec = 210,
+    this.interstitialSessionGraceSec = 180,
+    this.interstitialSessionFreeRounds = 10,
+    this.interstitialCooldownSec = 180,
+    this.interstitialMinLives = 3,
     this.premiumDailyMultiplier = 2.0,
-    this.jumpRentalCost = 20,
+    this.jumpRentalCost = 10,
     this.jumpRentalMinutes = 10,
-    this.jumpRentalHourCost = 60,
+    this.jumpRentalHourCost = 20,
     this.jumpRentalHourMinutes = 60,
-    this.helmetRentalCost = 40,
+    this.helmetRentalCost = 10,
     this.helmetRentalMinutes = 10,
-    this.helmetRentalHourCost = 120,
+    this.helmetRentalHourCost = 20,
     this.helmetRentalHourMinutes = 60,
     this.riskRewardEvery = 5,
     this.riskRewardTokens = 1,
@@ -133,7 +132,7 @@ class EconomyConfig {
         id: 'watch_ad',
         title: 'Watch an ad',
         subtitle: 'Short video',
-        reward: 5,
+        reward: 10,
       ),
       EarnAction(
         id: 'social_post',
@@ -162,6 +161,7 @@ class EconomyConfig {
     ],
   });
 
+  final AndroidEnergyConfig androidEnergyV2;
   final int initialLives;
 
   /// Стартовые кристалы при первой установке (приз; в Earn — install_bonus).
@@ -190,8 +190,14 @@ class EconomyConfig {
   final List<int> dailyRewardTokens;
   final int timedBonusTokens;
   final int timedBonusHours;
+
   /// Кулдаун кнопки «смотреть рекламу» в секундах (0 = без фриза).
   final int watchAdCooldownSec;
+  final int interstitialGraceSec;
+  final int interstitialSessionGraceSec;
+  final int interstitialSessionFreeRounds;
+  final int interstitialCooldownSec;
+  final int interstitialMinLives;
   final double premiumDailyMultiplier;
 
   /// Аренда прыжка (короткая). Вкл/выкл фичи — в `game.jumpEnabled`.
@@ -269,6 +275,7 @@ class EconomyConfig {
   }
 
   EconomyConfig copyWith({
+    AndroidEnergyConfig? androidEnergyV2,
     int? initialLives,
     int? initialTokens,
     bool? installBonusAutoClaim,
@@ -282,6 +289,11 @@ class EconomyConfig {
     int? timedBonusTokens,
     int? timedBonusHours,
     int? watchAdCooldownSec,
+    int? interstitialGraceSec,
+    int? interstitialSessionGraceSec,
+    int? interstitialSessionFreeRounds,
+    int? interstitialCooldownSec,
+    int? interstitialMinLives,
     double? premiumDailyMultiplier,
     int? jumpRentalCost,
     int? jumpRentalMinutes,
@@ -298,6 +310,7 @@ class EconomyConfig {
     List<EarnAction>? earnActions,
   }) {
     return EconomyConfig(
+      androidEnergyV2: androidEnergyV2 ?? this.androidEnergyV2,
       initialLives: initialLives ?? this.initialLives,
       initialTokens: initialTokens ?? this.initialTokens,
       installBonusAutoClaim:
@@ -312,6 +325,14 @@ class EconomyConfig {
       timedBonusTokens: timedBonusTokens ?? this.timedBonusTokens,
       timedBonusHours: timedBonusHours ?? this.timedBonusHours,
       watchAdCooldownSec: watchAdCooldownSec ?? this.watchAdCooldownSec,
+      interstitialGraceSec: interstitialGraceSec ?? this.interstitialGraceSec,
+      interstitialSessionGraceSec:
+          interstitialSessionGraceSec ?? this.interstitialSessionGraceSec,
+      interstitialSessionFreeRounds:
+          interstitialSessionFreeRounds ?? this.interstitialSessionFreeRounds,
+      interstitialCooldownSec:
+          interstitialCooldownSec ?? this.interstitialCooldownSec,
+      interstitialMinLives: interstitialMinLives ?? this.interstitialMinLives,
       premiumDailyMultiplier:
           premiumDailyMultiplier ?? this.premiumDailyMultiplier,
       jumpRentalCost: jumpRentalCost ?? this.jumpRentalCost,
@@ -333,41 +354,47 @@ class EconomyConfig {
   }
 
   Map<String, dynamic> toJson() => {
-        'initialLives': initialLives,
-        'initialTokens': initialTokens,
-        'installBonusAutoClaim': installBonusAutoClaim,
-        'earnSurviveSeconds': earnSurviveSeconds,
-        'earnRecordSeconds': earnRecordSeconds,
-        'earnRisksInRun': earnRisksInRun,
-        'lifePackSize': lifePackSize,
-        'lifePackCostTokens': lifePackCostTokens,
-        'lifePacks': lifePacks.map((e) => e.toJson()).toList(),
-        'dailyRewardTokens': dailyRewardTokens,
-        'timedBonusTokens': timedBonusTokens,
-        'timedBonusHours': timedBonusHours,
-        'watchAdCooldownSec': watchAdCooldownSec,
-        'premiumDailyMultiplier': premiumDailyMultiplier,
-        'jumpRentalCost': jumpRentalCost,
-        'jumpRentalMinutes': jumpRentalMinutes,
-        'jumpRentalHourCost': jumpRentalHourCost,
-        'jumpRentalHourMinutes': jumpRentalHourMinutes,
-        'helmetRentalCost': helmetRentalCost,
-        'helmetRentalMinutes': helmetRentalMinutes,
-        'helmetRentalHourCost': helmetRentalHourCost,
-        'helmetRentalHourMinutes': helmetRentalHourMinutes,
-        'riskRewardEvery': riskRewardEvery,
-        'riskRewardTokens': riskRewardTokens,
-        'runRewardEvery': runRewardEvery,
-        'runRewardTokens': runRewardTokens,
-        'earnActions': earnActions.map((e) => e.toJson()).toList(),
-      };
+    'androidEnergyV2': androidEnergyV2.toJson(),
+    'initialLives': initialLives,
+    'initialTokens': initialTokens,
+    'installBonusAutoClaim': installBonusAutoClaim,
+    'earnSurviveSeconds': earnSurviveSeconds,
+    'earnRecordSeconds': earnRecordSeconds,
+    'earnRisksInRun': earnRisksInRun,
+    'lifePackSize': lifePackSize,
+    'lifePackCostTokens': lifePackCostTokens,
+    'lifePacks': lifePacks.map((e) => e.toJson()).toList(),
+    'dailyRewardTokens': dailyRewardTokens,
+    'timedBonusTokens': timedBonusTokens,
+    'timedBonusHours': timedBonusHours,
+    'watchAdCooldownSec': watchAdCooldownSec,
+    'interstitialGraceSec': interstitialGraceSec,
+    'interstitialSessionGraceSec': interstitialSessionGraceSec,
+    'interstitialSessionFreeRounds': interstitialSessionFreeRounds,
+    'interstitialCooldownSec': interstitialCooldownSec,
+    'interstitialMinLives': interstitialMinLives,
+    'premiumDailyMultiplier': premiumDailyMultiplier,
+    'jumpRentalCost': jumpRentalCost,
+    'jumpRentalMinutes': jumpRentalMinutes,
+    'jumpRentalHourCost': jumpRentalHourCost,
+    'jumpRentalHourMinutes': jumpRentalHourMinutes,
+    'helmetRentalCost': helmetRentalCost,
+    'helmetRentalMinutes': helmetRentalMinutes,
+    'helmetRentalHourCost': helmetRentalHourCost,
+    'helmetRentalHourMinutes': helmetRentalHourMinutes,
+    'riskRewardEvery': riskRewardEvery,
+    'riskRewardTokens': riskRewardTokens,
+    'runRewardEvery': runRewardEvery,
+    'runRewardTokens': runRewardTokens,
+    'earnActions': earnActions.map((e) => e.toJson()).toList(),
+  };
 
   factory EconomyConfig.fromJson(Map<String, dynamic> json) {
     final rewards = json['dailyRewardTokens'];
     final earnRaw = json['earnActions'];
     final packsRaw = json['lifePacks'];
-    final legacySize = _asInt(json['lifePackSize'], 5);
-    final legacyCost = _asInt(json['lifePackCostTokens'], 5);
+    final legacySize = _asInt(json['lifePackSize'], 1);
+    final legacyCost = _asInt(json['lifePackCostTokens'], 1);
 
     // lifePacks из RC — источник истины (без дописки дефолтов из APK).
     // Иначе удалённо нельзя убрать/заменить пак: клиент снова подмешает 10/20/…
@@ -388,6 +415,13 @@ class EconomyConfig {
     if (packs.isEmpty) packs = List.of(defaultLifePacks);
 
     return EconomyConfig(
+      androidEnergyV2: AndroidEnergyConfig.fromJson(
+        Map<String, dynamic>.from(
+          json['androidEnergyV2'] is Map
+              ? json['androidEnergyV2'] as Map
+              : const {},
+        ),
+      ),
       initialLives: _asInt(json['initialLives'], 10),
       initialTokens: _asInt(json['initialTokens'], 40),
       installBonusAutoClaim: _asBool(json['installBonusAutoClaim'], true),
@@ -399,24 +433,35 @@ class EconomyConfig {
       lifePacks: packs,
       dailyRewardTokens: rewards is List
           ? rewards.map((e) => _asInt(e, 0)).where((e) => e > 0).toList()
-          : const [2, 4, 9, 16, 32, 64, 81],
+          : const [2, 4, 8, 12, 18, 24, 36],
       timedBonusTokens: _asInt(
         json['timedBonusTokens'] ?? json['timedBonusToken'],
-        22,
+        4,
       ),
       timedBonusHours: _asInt(json['timedBonusHours'], 1),
       watchAdCooldownSec: _asInt(
         json['watchAdCooldownSec'] ?? json['adCooldownSec'],
         60,
       ),
+      interstitialGraceSec: _asInt(json['interstitialGraceSec'], 210),
+      interstitialSessionGraceSec: _asInt(
+        json['interstitialSessionGraceSec'],
+        180,
+      ),
+      interstitialSessionFreeRounds: _asInt(
+        json['interstitialSessionFreeRounds'],
+        10,
+      ),
+      interstitialCooldownSec: _asInt(json['interstitialCooldownSec'], 180),
+      interstitialMinLives: _asInt(json['interstitialMinLives'], 3),
       premiumDailyMultiplier: _asDouble(json['premiumDailyMultiplier'], 2.0),
-      jumpRentalCost: _asInt(json['jumpRentalCost'], 20),
+      jumpRentalCost: _asInt(json['jumpRentalCost'], 10),
       jumpRentalMinutes: _asInt(json['jumpRentalMinutes'], 10),
-      jumpRentalHourCost: _asInt(json['jumpRentalHourCost'], 60),
+      jumpRentalHourCost: _asInt(json['jumpRentalHourCost'], 20),
       jumpRentalHourMinutes: _asInt(json['jumpRentalHourMinutes'], 60),
-      helmetRentalCost: _asInt(json['helmetRentalCost'], 40),
+      helmetRentalCost: _asInt(json['helmetRentalCost'], 10),
       helmetRentalMinutes: _asInt(json['helmetRentalMinutes'], 10),
-      helmetRentalHourCost: _asInt(json['helmetRentalHourCost'], 120),
+      helmetRentalHourCost: _asInt(json['helmetRentalHourCost'], 20),
       helmetRentalHourMinutes: _asInt(json['helmetRentalHourMinutes'], 60),
       riskRewardEvery: _asInt(json['riskRewardEvery'], 5),
       riskRewardTokens: _asInt(json['riskRewardTokens'], 1),
@@ -425,8 +470,8 @@ class EconomyConfig {
       earnActions: _mergeEarnActions(
         earnRaw is List && earnRaw.isNotEmpty
             ? earnRaw
-                .map((e) => EarnAction.fromJson(e as Map<String, dynamic>))
-                .toList()
+                  .map((e) => EarnAction.fromJson(e as Map<String, dynamic>))
+                  .toList()
             : null,
       ),
     );
@@ -451,9 +496,7 @@ class EconomyConfig {
     final defaults = const EconomyConfig().earnActions;
     if (fromRc == null || fromRc.isEmpty) return List.of(defaults);
 
-    final byId = <String, EarnAction>{
-      for (final a in defaults) a.id: a,
-    };
+    final byId = <String, EarnAction>{for (final a in defaults) a.id: a};
     for (final a in fromRc) {
       byId[a.id] = a;
     }

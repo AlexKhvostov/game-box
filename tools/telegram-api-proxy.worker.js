@@ -3,28 +3,19 @@
  * 1) Прокси HostLand → api.telegram.org  (счета Stars, getMe)
  * 2) Входящий webhook Telegram → Worker  (HostLand из РФ часто ловит Connection timed out)
  *
- * Настройка:
- * 1. Вставить этот файл в Worker, Deploy
- * 2. Settings → Variables → Add secret: BOT_TOKEN = токен @UntouchGameBot
- * 3. Открыть в браузере (подставить токен):
- *    https://untouch-tg-api.lihach-ok.workers.dev/bot<TOKEN>/setWebhook?url=https://untouch-tg-api.lihach-ok.workers.dev/webhook
- * 4. ping.php → webhook.url должен стать ...workers.dev/webhook
+ * Webhook authentication is enforced by PHP. Configure through
+ * tools/deploy_telegram_web.ps1 -Mode webhook-setup after deploying PHP.
+ * No bot credentials are required in this Worker.
  */
 
 const HOSTLAND_WEBHOOK = 'https://untouch.ballaball.xyz/api/telegram_webhook.php';
-const WEBAPP_URL = 'https://untouch.ballaball.xyz/';
-const START_TEXT =
-  'Untouch — кубик, которого нельзя касаться.\n\n' +
-  'Уводите героя от красных. Риски и шаги дают кристаллы. Бейте свой рекорд.\n\n' +
-  'Жмите Играть 👇';
-
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
     if (url.pathname === '/webhook' || url.pathname === '/webhook/') {
       if (request.method === 'GET') {
-        return json({ ok: true, service: 'untouch-webhook' });
+        return json({ ok: true, service: 'untouch-webhook', version: '1.0.26', delivery: 'await-host-authenticated' });
       }
       return handleTelegramWebhook(request, env, ctx);
     }
@@ -41,6 +32,9 @@ export default {
 };
 
 async function handleTelegramWebhook(request, env, ctx) {
+  if (env.WEBHOOK_SECRET && request.headers.get('X-Telegram-Bot-Api-Secret-Token') !== env.WEBHOOK_SECRET) {
+    return new Response('forbidden', { status: 403 });
+  }
   let update = {};
   const raw = await request.text();
   try {
@@ -49,79 +43,24 @@ async function handleTelegramWebhook(request, env, ctx) {
     return new Response('ok');
   }
 
-  const text = String(update.message && update.message.text ? update.message.text : '').trim();
-  const chatId = update.message && update.message.chat ? update.message.chat.id : null;
-  const startMatch = text.match(/^\/start(?:@\w+)?(?:\s+(.*))?$/u);
-
-  if (startMatch && chatId && env.BOT_TOKEN) {
-    const startPayload = startMatch[1] ? String(startMatch[1]).trim() : '';
-    const from = update.message && update.message.from ? update.message.from : {};
-    ctx.waitUntil(sendStart(env.BOT_TOKEN, chatId, startPayload));
-    if (/^r\d{1,20}$/.test(startPayload) && from.id) {
-      ctx.waitUntil(bindReferral(env, String(from.id), startPayload, from));
-    }
-  }
-
-  ctx.waitUntil(forwardHostland(raw, request.headers));
+  // PHP owns all bot side effects and verifies Telegram's secret before writing.
+  // Await every delivery so /start statistics and referrals also retry on errors.
+  try { await forwardHostland(raw, request.headers); }
+  catch { return new Response('retry', { status: 503 }); }
   return new Response('ok');
-}
-
-async function sendStart(token, chatId, startPayload = '') {
-  const playButton = { text: '🎮 Играть', web_app: { url: WEBAPP_URL } };
-  await fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      chat_id: chatId,
-      text: START_TEXT,
-      reply_markup: {
-        inline_keyboard: [[playButton]],
-      },
-    }),
-  });
-}
-
-async function sha256Hex(text) {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
-  return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
-}
-
-async function bindReferral(env, inviteeId, startPayload, from) {
-  const m = /^r(\d{1,20})$/.exec(startPayload);
-  if (!m || !env.BOT_TOKEN) return;
-  const inviterId = m[1];
-  const sig = await sha256Hex(inviteeId + ':' + inviterId + ':' + env.BOT_TOKEN);
-  try {
-    await fetch('https://untouch.ballaball.xyz/api/ref_bind.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        inviteeId,
-        inviterId,
-        user: from || {},
-        sig,
-      }),
-      signal: AbortSignal.timeout(8000),
-    });
-  } catch {
-    // HostLand может не ответить — запись попробует PHP webhook.
-  }
 }
 
 async function forwardHostland(raw, incomingHeaders) {
   const headers = { 'Content-Type': 'application/json' };
   const secret = incomingHeaders.get('X-Telegram-Bot-Api-Secret-Token');
   if (secret) headers['X-Telegram-Bot-Api-Secret-Token'] = secret;
-  try {
-    await fetch(HOSTLAND_WEBHOOK, {
+  const response = await fetch(HOSTLAND_WEBHOOK, {
       method: 'POST',
       headers,
       body: raw,
       signal: AbortSignal.timeout(8000),
-    });
-  } catch {
-    // HostLand может не ответить — /start уже ушёл с Worker.
-  }
+  });
+  if (!response.ok || (await response.text()).trim() !== 'ok') throw new Error('Webhook not acknowledged');
 }
 
 function json(obj) {

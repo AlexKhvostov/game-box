@@ -1,4 +1,7 @@
+import '../../ui/energy_widgets.dart';
+import '../../ui/game_ui.dart';
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -6,14 +9,14 @@ import 'package:provider/provider.dart';
 import '../../data/economy_store.dart';
 import '../../data/scores_store.dart';
 import '../../domain/economy_config.dart';
+import '../../domain/arcade_rules.dart';
 import '../../l10n/app_localizations.dart';
 import '../../l10n/l10n_catalog.dart';
 import '../../ui/crystal_cube_icon.dart';
 import '../../ui/game_toast.dart';
-import '../../ui/info_tip_bubble.dart';
-import '../../ui/resting_cube_icon.dart';
 import '../balance/crystals_sheet.dart';
 import 'share_social_sheet.dart';
+import 'run_summary.dart';
 
 /// Результат: подложка + появление.
 class ResultOverlay extends StatefulWidget {
@@ -25,6 +28,9 @@ class ResultOverlay extends StatefulWidget {
     this.newlyUnlockedEarnIds = const [],
     required this.onOk,
     required this.onShare,
+    this.rewardClaimed = true,
+    this.onClaimReward,
+    this.previousBestTimeMs,
   });
 
   final int timeMs;
@@ -33,6 +39,9 @@ class ResultOverlay extends StatefulWidget {
   final List<String> newlyUnlockedEarnIds;
   final VoidCallback onOk;
   final VoidCallback onShare;
+  final bool rewardClaimed;
+  final Future<bool> Function()? onClaimReward;
+  final int? previousBestTimeMs;
 
   @override
   State<ResultOverlay> createState() => _ResultOverlayState();
@@ -45,77 +54,86 @@ class _ResultOverlayState extends State<ResultOverlay>
   late final Animation<double> _scale;
   late final Animation<Offset> _slide;
   Timer? _crystalFlyTimer;
+  Timer? _entryWorkTimer;
   int _crystalsPending = 0;
+  int _flightsLeft = 0;
   EconomyStore? _economy;
   bool _sharing = false;
-  /// `risk` | `run` | null
-  String? _statTip;
-  final GlobalKey _riskStatKey = GlobalKey();
-  final GlobalKey _runStatKey = GlobalKey();
+
+  bool _claiming = false;
+  late bool _rewardClaimed;
 
   @override
   void initState() {
     super.initState();
+    _rewardClaimed = widget.rewardClaimed;
     _c = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 900),
-    )..forward();
-    _fade = CurvedAnimation(
-      parent: _c,
-      curve: const Interval(0, 0.45, curve: Curves.easeOut),
+      duration: GameUi.instantWindows
+          ? Duration.zero
+          : const Duration(milliseconds: 320),
     );
-    _scale = Tween<double>(begin: 0.9, end: 1).animate(
-      CurvedAnimation(
-        parent: _c,
-        curve: const Interval(0.12, 0.8, curve: Curves.easeOutCubic),
-      ),
-    );
+    _fade = CurvedAnimation(parent: _c, curve: Curves.easeOutCubic);
+    _scale = Tween<double>(
+      begin: 0.98,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _c, curve: Curves.easeOutCubic));
     _slide = Tween<Offset>(
-      begin: const Offset(0, 0.08),
+      begin: const Offset(0, 0.025),
       end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: _c,
-        curve: const Interval(0.15, 1, curve: Curves.easeOutCubic),
-      ),
-    );
+    ).animate(CurvedAnimation(parent: _c, curve: Curves.easeOutCubic));
+    if (GameUi.instantWindows) _c.value = 1;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       _economy = context.read<EconomyStore>();
-      context.read<ScoresStore>().refreshIfStale();
-      _scheduleCrystalFlights();
+      // Network notifications and reward effects must not compete with entry.
+      void afterEntry() {
+        if (!mounted) return;
+        context.read<ScoresStore>().refreshIfStale();
+        if (_rewardClaimed) _scheduleCrystalFlights();
+      }
+
+      if (GameUi.instantWindows) {
+        // Display immediately, still keep network/rewards off its first frame.
+        _entryWorkTimer = Timer(const Duration(milliseconds: 320), afterEntry);
+      } else {
+        _c.forward().then((_) => afterEntry());
+      }
     });
   }
 
-  int _crystalsFromRisk(EconomyStore economy) {
-    final every = economy.config.riskRewardEvery.clamp(1, 999);
-    final reward = economy.config.riskRewardTokens.clamp(0, 999);
-    if (reward <= 0) return 0;
-    return widget.riskCount ~/ every * reward;
-  }
+  int _crystalsFromRisk(EconomyStore economy) => economy.energyEnabled
+      ? widget.riskCount ~/ max(1, economy.config.riskRewardEvery)
+      : ArcadeRules.riskReward(economy.config, widget.riskCount);
 
-  int _crystalsFromRun(EconomyStore economy) {
-    final every = economy.config.runRewardEvery.clamp(1, 999999);
-    final reward = economy.config.runRewardTokens.clamp(0, 999);
-    if (reward <= 0) return 0;
-    return widget.runDistance.round() ~/ every * reward;
-  }
-
+  int _crystalsFromRun(EconomyStore economy) => economy.energyEnabled
+      ? widget.runDistance.round() ~/ max(1, economy.config.runRewardEvery)
+      : ArcadeRules.runReward(economy.config, widget.runDistance.round());
   void _scheduleCrystalFlights() {
     final economy = _economy ?? context.read<EconomyStore>();
     _economy = economy;
+    // Energy receipts are presented once from the confirmed wallet delta.
+    // Keep the old split crystal flights only for the legacy economy.
+    if (economy.energyEnabled) return;
     _crystalsPending = _crystalsFromRisk(economy) + _crystalsFromRun(economy);
+    _flightsLeft = min(3, _crystalsPending);
     if (_crystalsPending <= 0) return;
 
     void fireNext() {
       if (!mounted || _crystalsPending <= 0) return;
-      economy.grantCrystals(1);
-      _crystalsPending--;
+      // Balance was already credited when the round finished.
+      final amount = (_crystalsPending / max(1, _flightsLeft)).ceil();
+      _crystalsPending -= amount;
+      _flightsLeft--;
       final l10n = AppLocalizations.of(context);
       showGameToast(
         context,
-        message: l10n.crystalsPlus(1),
-        flyTo: ToastFlyTarget.crystals,
+        message: economy.energyEnabled
+            ? '+$amount ⚡'
+            : l10n.crystalsPlus(amount),
+        flyTo: economy.energyEnabled
+            ? ToastFlyTarget.energy
+            : ToastFlyTarget.crystals,
       );
       if (_crystalsPending > 0) {
         _crystalFlyTimer = Timer(const Duration(milliseconds: 360), fireNext);
@@ -128,37 +146,29 @@ class _ResultOverlayState extends State<ResultOverlay>
   void _flushPendingCrystals() {
     _crystalFlyTimer?.cancel();
     _crystalFlyTimer = null;
-    final n = _crystalsPending;
     _crystalsPending = 0;
-    if (n <= 0) return;
-    final economy = _economy;
-    if (economy != null) {
-      economy.grantCrystals(n);
-    } else if (mounted) {
-      context.read<EconomyStore>().grantCrystals(n);
-    }
   }
 
   @override
   void dispose() {
+    _entryWorkTimer?.cancel();
     _crystalFlyTimer?.cancel();
-    final n = _crystalsPending;
     _crystalsPending = 0;
-    if (n > 0) {
-      _economy?.grantCrystals(n);
-    }
     _c.dispose();
     super.dispose();
   }
 
   String _formatTime(int ms) => (ms / 1000.0).toStringAsFixed(3);
 
+  bool _closed = false;
   void _onOk() {
+    if (_closed) return;
+    _closed = true;
     _flushPendingCrystals();
     widget.onOk();
   }
 
-  void _onSaveToLeaderboard() {
+  void _onOpenLeaderboard() {
     _flushPendingCrystals();
     widget.onShare();
   }
@@ -172,6 +182,8 @@ class _ResultOverlayState extends State<ResultOverlay>
       await showShareSocialSheet(
         context,
         timeMs: widget.timeMs,
+        riskCount: widget.riskCount,
+        runSteps: widget.runDistance.round(),
         betterPercent: rank.totalCount == 0 ? null : rank.percentile,
       );
     } finally {
@@ -183,13 +195,16 @@ class _ResultOverlayState extends State<ResultOverlay>
     await showCrystalsSheet(context, initialTab: 3);
   }
 
-  void _toggleTip(String tip) {
-    final next = _statTip == tip ? null : tip;
-    setState(() => _statTip = next);
-    if (next != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted && _statTip == next) setState(() {});
-      });
+  Future<void> _claimReward() async {
+    if (_claiming || _rewardClaimed || widget.onClaimReward == null) return;
+    setState(() => _claiming = true);
+    try {
+      final claimed = await widget.onClaimReward!();
+      if (!mounted || !claimed) return;
+      setState(() => _rewardClaimed = true);
+      _scheduleCrystalFlights();
+    } finally {
+      if (mounted) setState(() => _claiming = false);
     }
   }
 
@@ -206,593 +221,377 @@ class _ResultOverlayState extends State<ResultOverlay>
     return out;
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+  String _tr(String ru, String en) =>
+      Localizations.localeOf(context).languageCode == 'ru' ? ru : en;
+
+  Future<void> _showTip(String tip, EconomyStore economy) async {
     final l10n = AppLocalizations.of(context);
-    final accent = theme.colorScheme.primary;
-    final economy = context.watch<EconomyStore>();
-    final rank =
-        context.watch<ScoresStore>().rankFor(widget.timeMs, period: 'day');
-
-    final riskEvery = economy.config.riskRewardEvery.clamp(1, 999);
-    final riskReward = economy.config.riskRewardTokens.clamp(0, 999);
-    final riskEarned =
-        riskReward > 0 ? widget.riskCount ~/ riskEvery * riskReward : 0;
-    final runEvery = economy.config.runRewardEvery.clamp(1, 999999);
-    final runReward = economy.config.runRewardTokens.clamp(0, 999);
-    final runDist = widget.runDistance.round();
-    final runEarned = runReward > 0 ? runDist ~/ runEvery * runReward : 0;
-
-    final rankText = rank.totalCount == 0
-        ? l10n.newScore
-        : l10n.rankToday(rank.percentile);
-
-    final unlocked = _unlockedActions(economy);
-
-    return FadeTransition(
-      opacity: _fade,
-      child: Material(
-        color: Colors.transparent,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.black.withValues(alpha: 0.5),
-                    const Color(0xFF0A1014).withValues(alpha: 0.88),
-                    const Color(0xFF070B0E).withValues(alpha: 0.96),
+    final risk = _crystalsFromRisk(economy);
+    final run = _crystalsFromRun(economy);
+    final reward = tip == 'reward';
+    await showDialog<void>(
+      animationStyle: GameUi.windowAnimationStyle,
+      context: context,
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        child: Container(
+          key: ValueKey('result-$tip-tip'),
+          constraints: const BoxConstraints(maxWidth: 340),
+          padding: const EdgeInsets.all(14),
+          decoration: GameUi.panel(radius: 14),
+          child: SingleChildScrollView(
+            child: DefaultTextStyle(
+              style: const TextStyle(
+                color: GameUi.ink,
+                fontSize: 13,
+                height: 1.4,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    reward
+                        ? _tr('За что награда', 'How you earned it')
+                        : tip == 'risk'
+                        ? _tr('Что такое риск', 'What is risk?')
+                        : _tr('Как считается пробег', 'How distance works'),
+                    style: const TextStyle(
+                      fontSize: 17,
+                      color: GameUi.ink,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    reward
+                        ? economy.energyEnabled
+                              ? _tr(
+                                  'Энергия складывается из риска и пробега этой попытки.',
+                                  'Energy comes from risk and distance in this run.',
+                                )
+                              : _tr(
+                                  'Кристаллы складываются из риска и пробега этой попытки.',
+                                  'Crystals come from risk and distance in this run.',
+                                )
+                        : tip == 'risk'
+                        ? l10n.riskTipHow
+                        : l10n.runTipHow,
+                    style: const TextStyle(
+                      color: GameUi.ink,
+                      fontSize: 13,
+                      height: 1.4,
+                    ),
+                  ),
+                  if (reward) ...[
+                    const SizedBox(height: 10),
+                    _RewardLine(
+                      label: '${l10n.playInfoNear}: ${widget.riskCount}',
+                      amount: risk,
+                    ),
+                    _RewardLine(
+                      label:
+                          '${l10n.playInfoRun}: ${widget.runDistance.round()}',
+                      amount: run,
+                    ),
+                    _RewardLine(
+                      label: _tr('Всего', 'Total'),
+                      amount: risk + run,
+                    ),
                   ],
-                ),
+                  const SizedBox(height: 10),
+                  Text(
+                    economy.energyEnabled
+                        ? _tr(
+                            'За каждые ${max(1, economy.config.riskRewardEvery)} рисков — 1 ⚡. За каждые ${max(1, economy.config.runRewardEvery)} шагов — 1 ⚡.',
+                            'Every ${max(1, economy.config.riskRewardEvery)} risks: 1 ⚡. Every ${max(1, economy.config.runRewardEvery)} steps: 1 ⚡.',
+                          )
+                        : reward
+                        ? '${l10n.riskTipConvert(max(1, economy.config.riskRewardEvery), max(0, economy.config.riskRewardTokens))}\n${l10n.runTipConvert(max(1, economy.config.runRewardEvery), max(0, economy.config.runRewardTokens))}'
+                        : tip == 'risk'
+                        ? l10n.riskTipConvert(
+                            max(1, economy.config.riskRewardEvery),
+                            max(0, economy.config.riskRewardTokens),
+                          )
+                        : l10n.runTipConvert(
+                            max(1, economy.config.runRewardEvery),
+                            max(0, economy.config.runRewardTokens),
+                          ),
+                    style: const TextStyle(
+                      color: GameUi.inkMuted,
+                      fontSize: 12,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  FilledButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    child: Text(_tr('Понятно', 'Got it')),
+                  ),
+                ],
               ),
             ),
-            SafeArea(
-              child: Center(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.only(
-                    top: unlocked.isEmpty ? 12 : 12.0 + unlocked.length * 76,
-                    bottom: 12,
-                  ),
-                  child: SlideTransition(
-                    position: _slide,
-                    child: ScaleTransition(
-                      scale: _scale,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24),
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 400),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                            Container(
-                                width: double.infinity,
-                                padding:
-                                    const EdgeInsets.fromLTRB(20, 18, 20, 18),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(24),
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                    colors: [
-                                      Color.lerp(
-                                        accent,
-                                        const Color(0xFF1A242C),
-                                        0.72,
-                                      )!,
-                                      const Color(0xFF12181E),
-                                      const Color(0xFF0E1419),
-                                    ],
-                                  ),
-                                  border: Border.all(
-                                    color: accent.withValues(alpha: 0.45),
-                                    width: 1.5,
-                                  ),
-                                ),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    // Логотип / имя игры
-                                    DecoratedBox(
-                                      decoration: BoxDecoration(
-                                        borderRadius:
-                                            BorderRadius.circular(999),
-                                        color: const Color(0xFF0C1218)
-                                            .withValues(alpha: 0.72),
-                                        border: Border.all(
-                                          color: const Color(0xFF7EE0FF)
-                                              .withValues(alpha: 0.28),
-                                        ),
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.fromLTRB(
-                                          10,
-                                          6,
-                                          14,
-                                          6,
-                                        ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            const RestingCubeIcon(size: 18),
-                                            const SizedBox(width: 8),
-                                            Text(
-                                              l10n.appTitle,
-                                              style: const TextStyle(
-                                                fontSize: 15,
-                                                fontWeight: FontWeight.w800,
-                                                letterSpacing: 0.6,
-                                                height: 1,
-                                                color: Color(0xFFB8F4FF),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final economy = context.watch<EconomyStore>();
+    final scores = context.watch<ScoresStore>();
+    final earned = _crystalsFromRisk(economy) + _crystalsFromRun(economy);
+    final attempt = scores.latestAttempt;
+    final matchingAttempt = attempt != null && attempt.timeMs == widget.timeMs;
+    final pending = matchingAttempt && scores.isAttemptPending(attempt.id);
+    final practice = matchingAttempt && !attempt.shared && !pending;
+    final saveStatus = matchingAttempt
+        ? attempt.shared
+              ? l10n.scoreAutoSaved
+              : pending
+              ? l10n.scoreSyncPending
+              : l10n.scorePracticeOnly
+        : l10n.scoreAutoSave;
+    final previousBest = widget.previousBestTimeMs ?? economy.bestTimeMs;
+    final isRecord = widget.timeMs > previousBest;
+    final unlocked = _unlockedActions(economy);
+    final seconds = _tr('с', 's');
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) _onOk();
+      },
+      child: FadeTransition(
+        opacity: _fade,
+        child: RepaintBoundary(
+          child: Material(
+            color: GameUi.modalBarrier,
+            child: GestureDetector(
+              key: const ValueKey('result-backdrop'),
+              behavior: HitTestBehavior.opaque,
+              onTap: _onOk,
+              child: SlideTransition(
+                position: _slide,
+                child: ScaleTransition(
+                  scale: _scale,
+                  child: RunSummary(
+                    title: _tr('Результат попытки', 'Run result'),
+                    headline: isRecord
+                        ? _tr('Новый рекорд!', 'New personal best!')
+                        : _tr('Ваш результат', 'Your result'),
+                    time: '${_formatTime(widget.timeMs)} $seconds',
+                    best:
+                        '${isRecord && previousBest > 0 ? _tr('Предыдущий рекорд', 'Previous best') : _tr('Ваш рекорд', 'Your best')}: ${_formatTime(isRecord && previousBest > 0 ? previousBest : max(widget.timeMs, economy.bestTimeMs))} $seconds',
+                    riskLabel: l10n.playInfoNear,
+                    runLabel: _tr('Шаги', 'Steps'),
+                    risks: widget.riskCount,
+                    steps: widget.runDistance.round(),
+                    riskBonus: _crystalsFromRisk(economy),
+                    runBonus: _crystalsFromRun(economy),
+                    credited: _rewardClaimed,
+                    onRisk: () => _showTip('risk', economy),
+                    onRun: () => _showTip('run', economy),
+                    claim: !_rewardClaimed && earned > 0
+                        ? TextButton.icon(
+                            key: const ValueKey('result-claim-reward'),
+                            onPressed: _claiming || widget.onClaimReward == null
+                                ? null
+                                : _claimReward,
+                            icon: _claiming
+                                ? const SizedBox(
+                                    width: 14,
+                                    height: 14,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
                                     ),
-                                    const SizedBox(height: 14),
-                                    Text(
-                                      l10n.newScore.toUpperCase(),
-                                      style: TextStyle(
-                                        letterSpacing: 2.4,
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 11,
-                                        color: Colors.white
-                                            .withValues(alpha: 0.5),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      _formatTime(widget.timeMs),
-                                      style: TextStyle(
-                                        fontSize: 52,
-                                        fontWeight: FontWeight.w900,
-                                        color: accent,
-                                        height: 1,
-                                        letterSpacing: -0.5,
-                                        fontFeatures: const [
-                                          FontFeature.tabularFigures(),
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      l10n.seconds,
-                                      style: TextStyle(
-                                        letterSpacing: 1.6,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white
-                                            .withValues(alpha: 0.6),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 14),
-                                    Text(
-                                      rankText,
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 14,
-                                        height: 1.4,
-                                        color: Colors.white
-                                            .withValues(alpha: 0.85),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 16),
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: _CompactStat(
-                                            key: _riskStatKey,
-                                            label: l10n.playInfoNear,
-                                            value: '${widget.riskCount}',
-                                            accent: const Color(0xFFFFC107),
-                                            selected: _statTip == 'risk',
-                                            onTap: () => _toggleTip('risk'),
-                                            earned: riskEarned > 0
-                                                ? l10n.riskCrystalsEarned(
-                                                    riskEarned)
-                                                : null,
-                                            rateEvery: riskReward > 0
-                                                ? riskEvery
-                                                : null,
-                                            rateReward: riskReward > 0
-                                                ? riskReward
-                                                : null,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          child: _CompactStat(
-                                            key: _runStatKey,
-                                            label: l10n.playInfoRun,
-                                            value: '$runDist',
-                                            accent: const Color(0xFF7EE0FF),
-                                            selected: _statTip == 'run',
-                                            onTap: () => _toggleTip('run'),
-                                            earned: runEarned > 0
-                                                ? l10n.riskCrystalsEarned(
-                                                    runEarned)
-                                                : null,
-                                            rateEvery: runReward > 0
-                                                ? runEvery
-                                                : null,
-                                            rateReward: runReward > 0
-                                                ? runReward
-                                                : null,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
+                                  )
+                                : economy.energyEnabled
+                                ? const Icon(
+                                    Icons.bolt_rounded,
+                                    size: 16,
+                                    color: energyNeon,
+                                  )
+                                : const CrystalCubeIcon(size: 14, glow: false),
+                            label: Text(
+                              _tr(
+                                'Получить бонус +$earned',
+                                'Collect bonus +$earned',
                               ),
-                            const SizedBox(height: 12),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: OutlinedButton.icon(
-                                    onPressed:
-                                        _sharing ? null : _onShareSocial,
-                                    icon: _sharing
-                                        ? const SizedBox(
-                                            width: 16,
-                                            height: 16,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                            ),
-                                          )
-                                        : const Icon(
-                                            Icons.ios_share_rounded,
-                                            size: 18,
-                                          ),
-                                    label: Text(l10n.shareSocial),
-                                    style: OutlinedButton.styleFrom(
-                                      minimumSize: const Size.fromHeight(48),
-                                      foregroundColor: Colors.white,
-                                      side: BorderSide(
-                                        color:
-                                            accent.withValues(alpha: 0.55),
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(14),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: OutlinedButton(
-                                    onPressed: _onSaveToLeaderboard,
-                                    style: OutlinedButton.styleFrom(
-                                      minimumSize: const Size.fromHeight(48),
-                                      foregroundColor: Colors.white,
-                                      side: BorderSide(
-                                        color: Colors.white
-                                            .withValues(alpha: 0.28),
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(14),
-                                      ),
-                                    ),
-                                    child: Text(l10n.share),
-                                  ),
-                                ),
-                              ],
                             ),
-                            const SizedBox(height: 8),
-                            FilledButton(
-                              onPressed: _onOk,
-                              style: FilledButton.styleFrom(
-                                minimumSize: const Size.fromHeight(48),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(14),
+                          )
+                        : null,
+                    unlocked: unlocked.isEmpty
+                        ? null
+                        : TextButton(
+                            onPressed: _openEarn,
+                            child: Text(
+                              '${l10n.earnBonusUnlocked(L10nCatalog.earnTitle(l10n, unlocked.first))}${unlocked.length > 1 ? ' · +${unlocked.length - 1}' : ''}',
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                    status: _ResultSaveStatus(
+                      status: saveStatus,
+                      pending: pending,
+                      practice: practice,
+                    ),
+                    actions: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextButton(
+                                onPressed: _onOpenLeaderboard,
+                                style: TextButton.styleFrom(
+                                  foregroundColor: const Color(0xFFE4F6FF),
+                                ),
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(l10n.leaderboardTitle),
                                 ),
                               ),
-                              child: Text(l10n.ok),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: TextButton.icon(
+                                onPressed: _sharing ? null : _onShareSocial,
+                                style: TextButton.styleFrom(
+                                  foregroundColor: const Color(0xFFE4F6FF),
+                                ),
+                                icon: const Icon(
+                                  Icons.ios_share_rounded,
+                                  size: 15,
+                                ),
+                                label: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(l10n.shareSocial),
+                                ),
+                              ),
                             ),
                           ],
                         ),
-                      ),
-                    ),
-                  ),
-                ),
-                ),
-              ),
-            ),
-            if (unlocked.isNotEmpty)
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                child: SafeArea(
-                  bottom: false,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        for (final action in unlocked) ...[
-                          _EarnUnlockBanner(
-                            title: l10n.earnBonusUnlocked(
-                              L10nCatalog.earnTitle(l10n, action),
-                            ),
-                            subtitle: l10n.earnUnlockedBannerTap,
-                            onTap: _openEarn,
-                          ),
-                          const SizedBox(height: 8),
-                        ],
+                        FilledButton.icon(
+                          key: const ValueKey('result-replay'),
+                          onPressed: _onOk,
+                          style: GameUi.replayStyle(context),
+                          icon: const Icon(Icons.replay_rounded, size: 24),
+                          label: Text(_tr('Ещё раз', 'Play again')),
+                        ),
                       ],
                     ),
                   ),
                 ),
               ),
-            if (_statTip != null)
-              Positioned.fill(
-                child: InfoTipBubble(
-                  anchorKey:
-                      _statTip == 'risk' ? _riskStatKey : _runStatKey,
-                  body: _statTip == 'risk'
-                      ? l10n.riskTipHow
-                      : l10n.runTipHow,
-                  footnote: _statTip == 'risk'
-                      ? l10n.riskTipConvert(
-                          riskEvery,
-                          riskReward > 0 ? riskReward : 1,
-                        )
-                      : l10n.runTipConvert(
-                          runEvery,
-                          runReward > 0 ? runReward : 1,
-                        ),
-                  accent: _statTip == 'risk'
-                      ? const Color(0xFFFFC107)
-                      : const Color(0xFF7EE0FF),
-                  onDismiss: () => setState(() => _statTip = null),
-                ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _RewardLine extends StatelessWidget {
+  const _RewardLine({required this.label, required this.amount});
+  final String label;
+  final int amount;
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(vertical: 5),
+    child: Row(
+      children: [
+        Expanded(
+          child: Text(label, style: const TextStyle(color: GameUi.ink)),
+        ),
+        Text('+$amount', style: const TextStyle(color: GameUi.ink)),
+        const SizedBox(width: 4),
+        context.watch<EconomyStore?>()?.energyEnabled == true
+            ? const Icon(Icons.bolt_rounded, size: 14, color: energyNeon)
+            : const CrystalCubeIcon(size: 14),
+      ],
+    ),
+  );
+}
+
+/// Reserved status area prevents the dialog jumping when sync acknowledges a run.
+class _ResultSaveStatus extends StatelessWidget {
+  const _ResultSaveStatus({
+    required this.status,
+    required this.pending,
+    required this.practice,
+  });
+  final String status;
+  final bool pending, practice;
+  static final _heightCache = <(double, double, TextDirection), double>{};
+  static const style = TextStyle(
+    fontFamily: 'Roboto',
+    color: Color(0xFFC4DEEB),
+    fontSize: 11,
+    height: 1.3,
+  );
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
+      final key = (
+        constraints.maxWidth,
+        MediaQuery.textScalerOf(context).scale(11),
+        Directionality.of(context),
+      );
+      var height = _heightCache[key] ?? 0.0;
+      if (!_heightCache.containsKey(key)) {
+        for (final locale in const [Locale('ru'), Locale('en')]) {
+          final l10n = lookupAppLocalizations(locale);
+          for (final text in [
+            l10n.scoreAutoSaved,
+            l10n.scoreSyncPending,
+            l10n.scorePracticeOnly,
+            l10n.scoreAutoSave,
+          ]) {
+            final painter = TextPainter(
+              text: TextSpan(text: text, style: style),
+              textScaler: MediaQuery.textScalerOf(context),
+              textDirection: Directionality.of(context),
+            )..layout(maxWidth: max(1, constraints.maxWidth - 37));
+            height = max(height, painter.height);
+            painter.dispose();
+          }
+        }
+        if (_heightCache.length >= 8) _heightCache.clear();
+        _heightCache[key] = height;
+      }
+      return Container(
+        constraints: BoxConstraints(minHeight: height + 14),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+        decoration: BoxDecoration(
+          color: pending || practice
+              ? const Color(0x802D5066)
+              : const Color(0x80103738),
+          borderRadius: BorderRadius.circular(9),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              pending
+                  ? Icons.cloud_upload_outlined
+                  : practice
+                  ? Icons.offline_bolt_outlined
+                  : Icons.check_circle_rounded,
+              size: 16,
+              color: const Color(0xFF90EED9),
+            ),
+            const SizedBox(width: 5),
+            Expanded(
+              child: Text(
+                status,
+                key: const ValueKey('result-save-status'),
+                style: style,
               ),
+            ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _EarnUnlockBanner extends StatelessWidget {
-  const _EarnUnlockBanner({
-    required this.title,
-    required this.subtitle,
-    required this.onTap,
-  });
-
-  final String title;
-  final String subtitle;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Ink(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Color(0xFF1B3A2E),
-                Color(0xFF122018),
-                Color(0xFF0E1612),
-              ],
-            ),
-            border: Border.all(
-              color: const Color(0xFF3DDC97).withValues(alpha: 0.7),
-              width: 1.4,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF3DDC97).withValues(alpha: 0.28),
-                blurRadius: 18,
-                offset: const Offset(0, 6),
-              ),
-            ],
-          ),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(14, 12, 12, 12),
-            child: Row(
-              children: [
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: const Color(0xFF3DDC97).withValues(alpha: 0.16),
-                  ),
-                  child: const Icon(
-                    Icons.lock_open_rounded,
-                    color: Color(0xFF3DDC97),
-                    size: 20,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 14,
-                          color: Color(0xFFE8EEF4),
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        subtitle,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 12,
-                          color: Colors.white.withValues(alpha: 0.55),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Icon(
-                  Icons.chevron_right_rounded,
-                  color: Colors.white.withValues(alpha: 0.45),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Компактный стат: лейбл · значение · (+кристалы); курс справа сверху.
-class _CompactStat extends StatelessWidget {
-  const _CompactStat({
-    super.key,
-    required this.label,
-    required this.value,
-    required this.accent,
-    this.earned,
-    this.rateEvery,
-    this.rateReward,
-    this.onTap,
-    this.selected = false,
-  });
-
-  final String label;
-  final String value;
-  final Color accent;
-  final String? earned;
-  final int? rateEvery;
-  final int? rateReward;
-  final VoidCallback? onTap;
-  final bool selected;
-
-  @override
-  Widget build(BuildContext context) {
-    final hasRate =
-        rateEvery != null && rateReward != null && rateReward! > 0;
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Ink(
-          padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            color: Colors.black.withValues(alpha: selected ? 0.32 : 0.22),
-            border: Border.all(
-              color: accent.withValues(alpha: selected ? 0.75 : 0.32),
-              width: selected ? 1.5 : 1,
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      label.toUpperCase(),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 9,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 0.6,
-                        color: Colors.white.withValues(alpha: 0.5),
-                      ),
-                    ),
-                  ),
-                  Icon(
-                    Icons.info_outline_rounded,
-                    size: 12,
-                    color: accent.withValues(alpha: selected ? 0.95 : 0.55),
-                  ),
-                  if (hasRate) ...[
-                    const SizedBox(width: 4),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          '${rateEvery!}=',
-                          style: TextStyle(
-                            fontSize: 9,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white.withValues(alpha: 0.4),
-                            fontFeatures: const [FontFeature.tabularFigures()],
-                          ),
-                        ),
-                        const CrystalCubeIcon(size: 9),
-                        if (rateReward! > 1)
-                          Text(
-                            '$rateReward',
-                            style: TextStyle(
-                              fontSize: 9,
-                              fontWeight: FontWeight.w800,
-                              color: accent.withValues(alpha: 0.85),
-                              fontFeatures: const [
-                                FontFeature.tabularFigures()
-                              ],
-                            ),
-                          ),
-                      ],
-                    ),
-                  ],
-                ],
-              ),
-              const SizedBox(height: 2),
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      value,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w900,
-                        height: 1.1,
-                        color: accent,
-                        fontFeatures: const [FontFeature.tabularFigures()],
-                      ),
-                    ),
-                  ),
-                  if (earned != null) ...[
-                    const CrystalCubeIcon(size: 11),
-                    const SizedBox(width: 3),
-                    Text(
-                      earned!,
-                      style: const TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w800,
-                        color: Color(0xFF7EE0FF),
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+      );
+    },
+  );
 }

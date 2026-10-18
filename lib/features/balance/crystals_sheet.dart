@@ -1,13 +1,15 @@
+import 'energy_sheet.dart';
+import '../../ui/crystal_package_card.dart';
+import '../../ui/crystal_cost_badge.dart';
+import '../../ui/game_ui.dart';
+import '../../app/app_target.dart';
 import 'dart:async';
-import 'dart:math' as math;
-import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../data/app_analytics.dart';
 import '../../data/economy_store.dart';
-import '../../domain/economy_config.dart';
 import '../../domain/gameplay_config.dart';
 import '../../domain/shop_catalog.dart';
 import '../../l10n/app_localizations.dart';
@@ -15,12 +17,19 @@ import '../../l10n/l10n_catalog.dart';
 import '../../ui/crystal_cube_icon.dart';
 import '../../ui/game_sheet.dart';
 import '../../ui/game_toast.dart';
+import '../../ui/watch_rewarded_ad.dart';
+import '../../ui/billing_unavailable.dart';
+import '../../ui/audience_gate.dart';
+import '../../data/ads_service.dart';
+import '../../data/play_billing_service.dart';
+import '../invites/invite_action_card.dart';
 
-Future<void> showCrystalsSheet(
-  BuildContext context, {
-  int initialTab = 0,
-}) {
+Future<void> showCrystalsSheet(BuildContext context, {int initialTab = 0}) {
+  if (context.read<EconomyStore>().energyEnabled) {
+    return showEnergySheet(context, initialTab: initialTab == 3 ? 1 : 0);
+  }
   return showModalBottomSheet<void>(
+    sheetAnimationStyle: GameUi.windowAnimationStyle,
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
@@ -41,7 +50,26 @@ class _CrystalsSheet extends StatefulWidget {
 class _CrystalsSheetState extends State<_CrystalsSheet>
     with SingleTickerProviderStateMixin {
   late final TabController _tabs;
-  Timer? _ticker;
+  late final ValueNotifier<int> _visibleTab;
+  Object? _dailySnapshot;
+  Widget? _dailyContent;
+
+  Widget _dailyPane(EconomyStore economy) {
+    final snapshot = (
+      economy.canClaimDaily,
+      economy.dailyStreak,
+      economy.upcomingStreakDay,
+      economy.hasPremium,
+      economy.config,
+    );
+    if (_dailySnapshot != snapshot) {
+      _dailySnapshot = snapshot;
+      _dailyContent = _DailyPane(economy: economy, format: _fmt);
+    }
+    // Keep the exact subtree between seconds. Only a day/state change needs
+    // to rebuild cards; the countdown has its own small clock below.
+    return _dailyContent!;
+  }
 
   @override
   void initState() {
@@ -51,20 +79,21 @@ class _CrystalsSheetState extends State<_CrystalsSheet>
       vsync: this,
       initialIndex: widget.initialTab.clamp(0, 3),
     );
+    _visibleTab = ValueNotifier(_tabs.index);
     AppAnalytics.openCrystalsTab(_tabs.index);
     _tabs.addListener(() {
       if (_tabs.indexIsChanging) return;
-      AppAnalytics.openCrystalsTab(_tabs.index);
-    });
-    _ticker = Timer.periodic(const Duration(milliseconds: 250), (_) {
-      if (mounted) setState(() {});
+      if (_visibleTab.value != _tabs.index) {
+        _visibleTab.value = _tabs.index;
+        AppAnalytics.openCrystalsTab(_tabs.index);
+      }
     });
   }
 
   @override
   void dispose() {
     _tabs.dispose();
-    _ticker?.cancel();
+    _visibleTab.dispose();
     super.dispose();
   }
 
@@ -84,181 +113,320 @@ class _CrystalsSheetState extends State<_CrystalsSheet>
   @override
   Widget build(BuildContext context) {
     final economy = context.watch<EconomyStore>();
-    final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
 
     return GameSheetChrome(
-      heightFactor: 0.78,
+      glass: GameGlass.none,
+      softShadow: false,
+      backgroundGradient: const LinearGradient(
+        colors: [Color(0xFF0D3047), Color(0xFF0D3047)],
+      ),
+      heightFactor: 0.90,
+      heightLimit:
+          GameUi.shopWindowHeight *
+          (MediaQuery.textScalerOf(context).scale(12) / 12).clamp(1.0, 1.5),
       child: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
-            child: IntrinsicHeight(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Expanded(
-                    flex: 5,
-                    child: GamePanel(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 8,
-                      ),
-                      accent: const Color(0xFF7EE0FF),
-                      child: Row(
-                        children: [
-                          const CrystalCubeIcon(size: 24, glow: true),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  l10n.crystals,
-                                  style: theme.textTheme.bodySmall?.copyWith(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                Text(
-                                  '${economy.tokens}',
-                                  style: const TextStyle(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.w900,
-                                    color: Color(0xFF7EE0FF),
-                                    height: 1.05,
-                                    shadows: [
-                                      Shadow(
-                                        color: Color(0x667EE0FF),
-                                        blurRadius: 8,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+          DecoratedBox(
+            decoration: const GameGlassDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Color(0xFF174761), Color(0xFF0D3047)],
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 6, 12, 4),
+              child: SizedBox(
+                height:
+                    (MediaQuery.textScalerOf(context).scale(28) * 1.1 +
+                            MediaQuery.textScalerOf(context).scale(11) * 1.2 +
+                            14)
+                        .clamp(62.0, 110.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      flex: 6,
+                      child: _ShopBalance(
+                        value: economy.tokens,
+                        label: l10n.crystals,
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 6),
-                  _GiftButton(
-                    canClaim: economy.canClaimTimedBonus,
-                    amount: _giftAmount(economy),
-                    remaining: economy.timedBonusRemaining,
-                    unlockProgress: economy.timedBonusUnlockProgress,
-                    format: _fmt,
-                    readyLabel: l10n.giftReady,
-                    onClaim: () {
-                      final n = economy.claimTimedBonus();
-                      if (n != null) {
-                        AppAnalytics.claimGift(tokens: n);
-                        showGameToast(
-                          context,
-                          message: l10n.giftToast(n),
-                          flyTo: ToastFlyTarget.crystals,
-                          festive: true,
-                        );
-                      }
-                    },
-                  ),
-                  const SizedBox(width: 6),
-                  _PlusHeaderChip(economy: economy),
-                ],
+                    const SizedBox(width: 14),
+                    Expanded(
+                      flex: 5,
+                      child: GameClockBuilder(
+                        running: () => economy.timedBonusRemaining != null,
+                        builder: (_) => _GiftButton(
+                          fillHeader: true,
+                          canClaim: economy.canClaimTimedBonus,
+                          amount: _giftAmount(economy),
+                          remaining: economy.timedBonusRemaining,
+                          unlockProgress: economy.timedBonusUnlockProgress,
+                          format: _fmt,
+                          readyLabel: l10n.giftReady,
+                          onClaim: () async {
+                            if (!await ensureResourceAge(context) ||
+                                !context.mounted) {
+                              return;
+                            }
+                            final n = economy.claimTimedBonus();
+                            if (n != null) {
+                              AppAnalytics.claimGift(tokens: n);
+                              showGameToast(
+                                context,
+                                message: l10n.giftToast(n),
+                                flyTo: ToastFlyTarget.crystals,
+                                festive: true,
+                              );
+                            }
+                          },
+                        ),
+                      ),
+                    ),
+                    if (context.watch<AdsService?>()?.available == true) ...[
+                      const SizedBox(width: 6),
+                      GameClockBuilder(
+                        running: () => economy.watchAdCooldownRemaining != null,
+                        builder: (_) => SizedBox(
+                          width: 48,
+                          child: _RewardedHeaderButton(economy: economy),
+                        ),
+                      ),
+                    ],
+                    IconButton(
+                      tooltip: MaterialLocalizations.of(
+                        context,
+                      ).closeButtonTooltip,
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(
+                        Icons.close_rounded,
+                        size: 20,
+                        color: GameUi.text,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(12, 4, 12, 8),
+            padding: const EdgeInsets.fromLTRB(8, 6, 8, 0),
             child: DecoratedBox(
+              key: const ValueKey('shop-tab-menu'),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(14),
-                color: const Color(0xFF152028),
-                border: Border.all(
-                  color: const Color(0xFF7EE0FF).withValues(alpha: 0.28),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(14),
                 ),
+                gradient: const LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Color(0xFF245D78), Color(0xFF123E58)],
+                ),
+                border: Border.all(color: const Color(0xFF80DFFF), width: 1.5),
               ),
-              child: TabBar(
-                controller: _tabs,
-                indicatorSize: TabBarIndicatorSize.tab,
-                dividerColor: Colors.transparent,
-                indicator: BoxDecoration(
-                  borderRadius: BorderRadius.circular(11),
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF2A4A58), Color(0xFF1E3844)],
+              child: RepaintBoundary(
+                child: TabBar(
+                  controller: _tabs,
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  dividerColor: Colors.transparent,
+                  indicator: GameGlassDecoration(
+                    glass: GameGlass.selected,
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(10),
+                      bottom: Radius.circular(4),
+                    ),
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF348AAB), Color(0xFF225E7D)],
+                    ),
+                    border: Border.all(
+                      color: const Color(0xFFACF3FF),
+                      width: 2,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0x3342D9FF),
+                        offset: Offset(0, 2),
+                      ),
+                    ],
                   ),
-                  border: Border.all(
-                    color: const Color(0xFF7EE0FF).withValues(alpha: 0.55),
+                  indicatorPadding: const EdgeInsets.all(3),
+                  labelColor: GameUi.text,
+                  unselectedLabelColor: const Color(0xFFABD2E4),
+                  labelStyle: const TextStyle(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 12,
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF7EE0FF).withValues(alpha: 0.18),
-                      blurRadius: 10,
+                  unselectedLabelStyle: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 12,
+                  ),
+                  labelPadding: EdgeInsets.zero,
+                  tabs: [
+                    Tab(
+                      key: const ValueKey('shop-tab-0'),
+                      height: GameUi.touchTarget(context),
+                      child: _CrystalsTabLabel(
+                        icon: Icons.calendar_month_rounded,
+                        text: l10n.tabDaily,
+                      ),
+                    ),
+                    Tab(
+                      key: const ValueKey('shop-tab-1'),
+                      height: GameUi.touchTarget(context),
+                      child: _CrystalsTabLabel(
+                        icon: Icons.storefront_rounded,
+                        text: l10n.tabShop,
+                      ),
+                    ),
+                    Tab(
+                      key: const ValueKey('shop-tab-2'),
+                      height: GameUi.touchTarget(context),
+                      child: _CrystalsTabLabel(
+                        icon: Icons.timer_outlined,
+                        text: l10n.tabRent,
+                      ),
+                    ),
+                    Tab(
+                      key: const ValueKey('shop-tab-3'),
+                      height: GameUi.touchTarget(context),
+                      child: _CrystalsTabLabel(
+                        icon: Icons.stars_rounded,
+                        text: l10n.tabEarn,
+                      ),
                     ),
                   ],
                 ),
-                indicatorPadding: const EdgeInsets.all(3),
-                labelColor: const Color(0xFF7EE0FF),
-                unselectedLabelColor: Colors.white60,
-                labelStyle: const TextStyle(
-                  fontWeight: FontWeight.w900,
-                  fontSize: 12,
-                ),
-                unselectedLabelStyle: const TextStyle(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 12,
-                ),
-                labelPadding: EdgeInsets.zero,
-                tabs: [
-                  Tab(
-                    height: 44,
-                    child: _CrystalsTabLabel(
-                      icon: Icons.calendar_month_rounded,
-                      text: l10n.tabDaily,
-                    ),
-                  ),
-                  Tab(
-                    height: 44,
-                    child: _CrystalsTabLabel(
-                      icon: Icons.storefront_rounded,
-                      text: l10n.tabShop,
-                    ),
-                  ),
-                  Tab(
-                    height: 44,
-                    child: _CrystalsTabLabel(
-                      icon: Icons.timer_outlined,
-                      text: l10n.tabRent,
-                    ),
-                  ),
-                  Tab(
-                    height: 44,
-                    child: _CrystalsTabLabel(
-                      icon: Icons.stars_rounded,
-                      text: l10n.tabEarn,
-                    ),
-                  ),
-                ],
               ),
             ),
           ),
           Expanded(
-            child: TabBarView(
-              controller: _tabs,
-              children: [
-                _DailyPane(economy: economy, format: _fmt),
-                _ShopPane(economy: economy),
-                _RentPane(economy: economy),
-                _EarnPane(economy: economy),
-              ],
+            child: Container(
+              key: const ValueKey('shop-tab-content'),
+              margin: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+              decoration: BoxDecoration(
+                color: const Color(0xFF0D3047),
+                borderRadius: const BorderRadius.vertical(
+                  bottom: Radius.circular(12),
+                ),
+                border: Border.all(color: const Color(0xFF5C8AA3)),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: TabBarView(
+                controller: _tabs,
+                children: [
+                  _retainedPane(
+                    0,
+                    GameClockBuilder(
+                      running: () => _tabs.index == 0 && !economy.canClaimDaily,
+                      builder: (_) => _dailyPane(economy),
+                    ),
+                  ),
+                  _retainedPane(1, _ShopPane(economy: economy)),
+                  _retainedPane(2, _RentPane(economy: economy)),
+                  _retainedPane(3, _EarnPane(economy: economy)),
+                ],
+              ),
             ),
           ),
         ],
       ),
     );
   }
+
+  Widget _retainedPane(int index, Widget child) => _RetainedShopPane(
+    key: ValueKey('shop-pane-$index'),
+    child: ValueListenableBuilder<int>(
+      valueListenable: _visibleTab,
+      child: child,
+      builder: (_, visible, child) =>
+          TickerMode(enabled: visible == index, child: child!),
+    ),
+  );
+}
+
+/// Retain visited pages and their scroll positions. Switching tabs must not
+/// rebuild the entire shop or lay out its static cards from scratch each time.
+class _RetainedShopPane extends StatefulWidget {
+  const _RetainedShopPane({super.key, required this.child});
+  final Widget child;
+  @override
+  State<_RetainedShopPane> createState() => _RetainedShopPaneState();
+}
+
+class _RetainedShopPaneState extends State<_RetainedShopPane>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    return widget.child;
+  }
+}
+
+class _ShopBalance extends StatelessWidget {
+  const _ShopBalance({required this.value, required this.label});
+  final int value;
+  final String label;
+  @override
+  Widget build(BuildContext context) => Container(
+    key: const ValueKey('shop-crystal-balance'),
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+    decoration: BoxDecoration(
+      gradient: const LinearGradient(
+        colors: [Color(0xFF226B90), Color(0xFF124564)],
+      ),
+      border: Border.all(color: const Color(0xFF75D3E9)),
+      borderRadius: BorderRadius.circular(10),
+    ),
+    child: Row(
+      children: [
+        const CrystalCubeIcon(size: 30, glow: true),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    label,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: GameUi.muted,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(
+                flex: 2,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    '$value',
+                    style: const TextStyle(
+                      fontSize: 28,
+                      height: 1.1,
+                      fontWeight: FontWeight.w900,
+                      color: GameUi.text,
+                      fontFeatures: [FontFeature.tabularFigures()],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
 }
 
 class _CrystalsTabLabel extends StatelessWidget {
@@ -269,462 +437,33 @@ class _CrystalsTabLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 16),
-        const SizedBox(width: 5),
-        Flexible(
-          child: Text(
-            text,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _GiftButton extends StatefulWidget {
-  const _GiftButton({
-    required this.canClaim,
-    required this.amount,
-    required this.remaining,
-    required this.unlockProgress,
-    required this.format,
-    required this.readyLabel,
-    required this.onClaim,
-  });
-
-  final bool canClaim;
-  final int amount;
-  final Duration? remaining;
-  /// 0..1 — сколько «разморозилось» по часовой стрелке.
-  final double unlockProgress;
-  final String Function(Duration) format;
-  final String readyLabel;
-  final VoidCallback onClaim;
-
-  @override
-  State<_GiftButton> createState() => _GiftButtonState();
-}
-
-class _GiftButtonState extends State<_GiftButton>
-    with TickerProviderStateMixin {
-  late final AnimationController _shake;
-  late final AnimationController _pulse;
-  late final Animation<double> _shakeAnim;
-  late final Animation<double> _pulseAnim;
-
-  @override
-  void initState() {
-    super.initState();
-    _shake = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 420),
-    );
-    _pulse = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 550),
-    );
-    _shakeAnim = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: 0, end: -5), weight: 1),
-      TweenSequenceItem(tween: Tween(begin: -5, end: 5), weight: 2),
-      TweenSequenceItem(tween: Tween(begin: 5, end: -4), weight: 2),
-      TweenSequenceItem(tween: Tween(begin: -4, end: 3), weight: 2),
-      TweenSequenceItem(tween: Tween(begin: 3, end: 0), weight: 1),
-    ]).animate(CurvedAnimation(parent: _shake, curve: Curves.easeOut));
-    _pulseAnim = Tween<double>(begin: 1, end: 1.18).animate(
-      CurvedAnimation(parent: _pulse, curve: Curves.easeInOut),
-    );
-  }
-
-  @override
-  void dispose() {
-    _shake.dispose();
-    _pulse.dispose();
-    super.dispose();
-  }
-
-  Future<void> _onFrozenTap() async {
-    if (_shake.isAnimating || _pulse.isAnimating) return;
-    await _shake.forward(from: 0);
-    _shake.reset();
-    for (var i = 0; i < 4; i++) {
-      if (!mounted) return;
-      await _pulse.forward(from: 0);
-      if (!mounted) return;
-      await _pulse.reverse();
-    }
-  }
-
-  void _onTap() {
-    if (widget.canClaim) {
-      widget.onClaim();
-    } else {
-      _onFrozenTap();
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final canClaim = widget.canClaim;
-    final progress = widget.unlockProgress.clamp(0.0, 1.0);
-
-    return AnimatedBuilder(
-      animation: Listenable.merge([_shake, _pulse]),
-      builder: (context, child) {
-        return Transform.translate(
-          offset: Offset(_shakeAnim.value, 0),
-          child: child,
-        );
-      },
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: _onTap,
-          borderRadius: BorderRadius.circular(16),
-          child: Ink(
-            width: 92,
-            child: SizedBox(
-              height: 78,
-              child: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  // Фон + контент (клип), обруч рисуем сверху без клипа
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        DecoratedBox(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: canClaim
-                                  ? const [
-                                      Color(0xFFFF8A5C),
-                                      Color(0xFFE85D75),
-                                      Color(0xFFC44BFF),
-                                    ]
-                                  : const [
-                                      Color(0xFF1A2834),
-                                      Color(0xFF152230),
-                                      Color(0xFF1C3040),
-                                    ],
-                            ),
-                          ),
-                        ),
-                        if (canClaim)
-                          DecoratedBox(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: const Color(0xFFFFD28A)
-                                    .withValues(alpha: 0.32),
-                                width: 1.0,
-                              ),
-                            ),
-                          ),
-                        // Контент: в кулдауне слегка блюрим, таймер — сверху чёткий
-                        if (canClaim)
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 7,
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const _BonusGiftMark(ready: true),
-                                const SizedBox(height: 3),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const CrystalCubeIcon(
-                                      size: 13,
-                                      glow: true,
-                                    ),
-                                    const SizedBox(width: 3),
-                                    Text(
-                                      '+${widget.amount}',
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w900,
-                                        fontSize: 16,
-                                        height: 1.05,
-                                        color: Color(0xFFFFF6DE),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 1),
-                                Text(
-                                  widget.readyLabel,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w800,
-                                    color: Colors.white70,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
-                        else ...[
-                          ImageFiltered(
-                            imageFilter: ImageFilter.blur(
-                              sigmaX: 2.4,
-                              sigmaY: 2.4,
-                              tileMode: TileMode.decal,
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 7,
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const _BonusGiftMark(ready: false),
-                                  const SizedBox(height: 3),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      const CrystalCubeIcon(
-                                        size: 13,
-                                        glow: false,
-                                      ),
-                                      const SizedBox(width: 3),
-                                      Text(
-                                        '+${widget.amount}',
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.w900,
-                                          fontSize: 16,
-                                          height: 1.05,
-                                          color: Color(0xFFE8F6FF),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 14),
-                                ],
-                              ),
-                            ),
-                          ),
-                          Center(
-                            child: AnimatedBuilder(
-                              animation: _pulse,
-                              builder: (context, _) {
-                                return ScaleTransition(
-                                  scale: _pulseAnim,
-                                  child: Text(
-                                    widget.format(
-                                      widget.remaining ?? Duration.zero,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w900,
-                                      color: Color.lerp(
-                                        const Color(0xFFB8E7FF),
-                                        const Color(0xFFFFFFFF),
-                                        _pulse.value,
-                                      ),
-                                      shadows: const [
-                                        Shadow(
-                                          color: Color(0xCC0A1218),
-                                          blurRadius: 6,
-                                        ),
-                                      ],
-                                      fontFeatures: const [
-                                        FontFeature.tabularFigures(),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                  if (!canClaim)
-                    Positioned.fill(
-                      child: CustomPaint(
-                        painter:
-                            _FrostClockUnlockPainter(progress: progress),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Кулдаун по контуру: широкий непрозрачный обруч, заливка одним цветом.
-class _FrostClockUnlockPainter extends CustomPainter {
-  _FrostClockUnlockPainter({required this.progress});
-
-  final double progress;
-
-  static const _radius = 16.0;
-  static const _stroke = 4.5;
-
-  Path _contourPath(Size size) {
-    // Центр линии у края: половина stroke чуть снаружи, половина внутри —
-    // кромка кнопки полностью закрыта.
-    final inset = _stroke / 2;
-    final rect = Rect.fromLTWH(
-      inset,
-      inset,
-      size.width - inset * 2,
-      size.height - inset * 2,
-    );
-    final rr = math.min(_radius, math.min(rect.width, rect.height) / 2);
-    final left = rect.left;
-    final top = rect.top;
-    final right = rect.right;
-    final bottom = rect.bottom;
-    final r = Radius.circular(rr);
-
-    return Path()
-      ..moveTo(left + rect.width / 2, top)
-      ..lineTo(right - rr, top)
-      ..arcToPoint(Offset(right, top + rr), radius: r)
-      ..lineTo(right, bottom - rr)
-      ..arcToPoint(Offset(right - rr, bottom), radius: r)
-      ..lineTo(left + rr, bottom)
-      ..arcToPoint(Offset(left, bottom - rr), radius: r)
-      ..lineTo(left, top + rr)
-      ..arcToPoint(Offset(left + rr, top), radius: r)
-      ..lineTo(left + rect.width / 2, top);
-  }
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final path = _contourPath(size);
-    final metrics = path.computeMetrics().toList();
-    if (metrics.isEmpty) return;
-    final metric = metrics.first;
-    final total = metric.length;
-    final full = metric.extractPath(0, total);
-
-    // Трек — один сплошной цвет, перекрывает край кнопки
-    canvas.drawPath(
-      full,
-      Paint()
-        ..color = const Color(0xFF243848)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = _stroke
-        ..strokeCap = StrokeCap.butt
-        ..strokeJoin = StrokeJoin.round,
-    );
-
-    final filled = total * progress.clamp(0.0, 1.0);
-    if (filled > 0.5) {
-      final progressPath = metric.extractPath(0, filled);
-      canvas.drawPath(
-        progressPath,
-        Paint()
-          ..color = const Color(0xFF7EE0FF).withValues(alpha: 0.72)
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = _stroke
-          ..strokeCap = StrokeCap.round
-          ..strokeJoin = StrokeJoin.round,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _FrostClockUnlockPainter oldDelegate) =>
-      oldDelegate.progress != progress;
-}
-
-/// Понятный бонус-подарок: коробка + бант + лёгкое свечение.
-class _BonusGiftMark extends StatelessWidget {
-  const _BonusGiftMark({required this.ready});
-
-  final bool ready;
-
-  @override
-  Widget build(BuildContext context) {
-    final lid = ready ? const Color(0xFFFFD54F) : const Color(0xFF7EE0FF);
-    final box = ready ? const Color(0xFFFF8A5C) : const Color(0xFF3A5160);
-    final ribbon = ready ? const Color(0xFFFFF1C1) : const Color(0xFFB8F4FF);
-
-    return SizedBox(
-      width: 28,
-      height: 24,
-      child: Stack(
-        alignment: Alignment.center,
+    final scale = MediaQuery.textScalerOf(context).scale(11) / 11;
+    final ru = Localizations.localeOf(context).languageCode == 'ru';
+    final label = scale > 1.2 && ru
+        ? switch (icon) {
+            Icons.calendar_month_rounded => 'Ежедневно',
+            Icons.storefront_rounded => 'Покупки',
+            Icons.timer_outlined => scale > 1.5 ? 'Бусты' : 'Аренда',
+            _ => 'Действия',
+          }
+        : text;
+    return Tooltip(
+      message: text,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          if (ready)
-            Container(
-              width: 26,
-              height: 26,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: lid.withValues(alpha: 0.22),
-                    blurRadius: 6,
-                  ),
-                ],
+          Icon(icon, size: 16),
+          const SizedBox(height: 2),
+          Flexible(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                label,
+                maxLines: 1,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 12),
               ),
-            ),
-          // Коробка
-          Positioned(
-            bottom: 0,
-            child: Container(
-              width: 20,
-              height: 14,
-              decoration: BoxDecoration(
-                color: box,
-                borderRadius: BorderRadius.circular(3),
-                border: Border.all(color: ribbon.withValues(alpha: 0.55)),
-              ),
-            ),
-          ),
-          // Крышка
-          Positioned(
-            top: 4,
-            child: Container(
-              width: 22,
-              height: 6,
-              decoration: BoxDecoration(
-                color: lid,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
-          // Вертикальная лента
-          Positioned(
-            bottom: 0,
-            child: Container(
-              width: 4,
-              height: 14,
-              color: ribbon.withValues(alpha: 0.9),
-            ),
-          ),
-          // Бант
-          Positioned(
-            top: 0,
-            child: Icon(
-              Icons.loyalty_rounded,
-              size: 12,
-              color: ribbon,
             ),
           ),
         ],
@@ -733,118 +472,334 @@ class _BonusGiftMark extends StatelessWidget {
   }
 }
 
-/// Компактный Boost в шапке кристалов (не баннер снизу).
-class _PlusHeaderChip extends StatelessWidget {
-  const _PlusHeaderChip({required this.economy});
-
-  final EconomyStore economy;
-
+class _GiftButton extends StatelessWidget {
+  const _GiftButton({
+    super.key,
+    this.advertisement = false,
+    this.fillHeader = false,
+    required this.canClaim,
+    required this.amount,
+    required this.remaining,
+    required this.unlockProgress,
+    required this.format,
+    required this.readyLabel,
+    required this.onClaim,
+  });
+  final bool advertisement, canClaim, fillHeader;
+  final int amount;
+  final Duration? remaining;
+  final double unlockProgress;
+  final String Function(Duration) format;
+  final String readyLabel;
+  final Future<void> Function() onClaim;
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    const mint = Color(0xFF3DDC97);
-
-    if (economy.hasPremium) {
-      return Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => showPlusSheet(context),
-          borderRadius: BorderRadius.circular(14),
-          child: Ink(
-            width: 86,
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14),
-              color: mint.withValues(alpha: 0.12),
-              border: Border.all(color: mint.withValues(alpha: 0.5)),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.check_circle_rounded, size: 18, color: mint),
-                const SizedBox(height: 4),
-                Text(
-                  l10n.plusTitle,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w900,
-                    color: mint,
-                  ),
+    final ru = Localizations.localeOf(context).languageCode == 'ru';
+    return SizedBox(
+      height: fillHeader ? null : GameUi.touchTarget(context),
+      child: FilledButton(
+        key: ValueKey(advertisement ? 'shop-ad-gift' : 'shop-gift'),
+        onPressed: canClaim
+            ? advertisement
+                  ? onClaim
+                  : () => runResourceAction(
+                      context,
+                      context.read<EconomyStore>(),
+                      'gift',
+                      () async => await onClaim(),
+                    )
+            : null,
+        style:
+            FilledButton.styleFrom(
+              foregroundColor: GameUi.text,
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+              minimumSize: const Size(48, 48),
+            ).copyWith(
+              foregroundColor: WidgetStateProperty.resolveWith(
+                (states) => states.contains(WidgetState.disabled)
+                    ? GameUi.muted
+                    : advertisement
+                    ? GameUi.text
+                    : GameUi.background,
+              ),
+              backgroundBuilder: (context, states, child) => Container(
+                key: ValueKey(
+                  advertisement
+                      ? 'shop-ad-gift-material'
+                      : 'shop-gift-material',
                 ),
-                Text(
-                  l10n.plusActiveShort,
-                  style: TextStyle(
-                    fontSize: 9,
-                    fontWeight: FontWeight.w700,
-                    color: mint.withValues(alpha: 0.85),
+                decoration: GameGlassDecoration(
+                  glass: states.contains(WidgetState.disabled)
+                      ? GameGlass.none
+                      : GameGlass.none,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: canClaim && !advertisement
+                        ? const Color(0xFFFFEAB1)
+                        : canClaim
+                        ? GameUi.cyan
+                        : const Color(0xFFBDA36D),
+                    width: 1.5,
                   ),
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: states.contains(WidgetState.disabled)
+                        ? const [Color(0xFF245572), Color(0xFF12364F)]
+                        : !advertisement
+                        ? const [
+                            Color(0xFFFFE6A1),
+                            Color(0xFFFFC957),
+                            Color(0xFFFFB847),
+                          ]
+                        : const [
+                            Color(0xFF398FAB),
+                            Color(0xFF276E8E),
+                            Color(0xFF164962),
+                          ],
+                  ),
+                  boxShadow: const [
+                    BoxShadow(color: Color(0xFF04192B), offset: Offset(0, 3)),
+                  ],
                 ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () => showPlusSheet(context),
-        borderRadius: BorderRadius.circular(14),
-        child: Ink(
-          width: 86,
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                mint.withValues(alpha: 0.18),
-                const Color(0xFF1A2830),
-              ],
-            ),
-            border: Border.all(color: mint.withValues(alpha: 0.55)),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                l10n.plusTitle,
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w900,
-                  color: mint,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    if (!advertisement) ...[
+                      Positioned(
+                        right: 6,
+                        top: 4,
+                        child: Icon(
+                          Icons.auto_awesome,
+                          size: 13,
+                          color: canClaim
+                              ? const Color(0xFFFFF7DB)
+                              : const Color(0xFFBDA36D),
+                        ),
+                      ),
+                      Positioned(
+                        left: 5,
+                        bottom: 5,
+                        child: Icon(
+                          Icons.star_rounded,
+                          size: 10,
+                          color: canClaim
+                              ? const Color(0xFFAE6D22)
+                              : const Color(0xFFBDA36D),
+                        ),
+                      ),
+                    ],
+                    Center(child: child),
+                  ],
                 ),
               ),
-              const SizedBox(height: 2),
-              Text(
-                l10n.plusNoAdsShort,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 9,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFFB8F4D8),
-                  height: 1.15,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Row(
+            ),
+        child: fillHeader
+            ? Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const CrystalCubeIcon(size: 11, glow: false),
-                  const SizedBox(width: 3),
-                  Text(
-                    l10n.plusCrystalsDoubleShort,
-                    style: const TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w900,
-                      color: Color(0xFF7EE0FF),
-                      height: 1,
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.card_giftcard_rounded,
+                        size: 21,
+                        color: canClaim
+                            ? const Color(0xFF87520C)
+                            : const Color(0xFFEAD398),
+                      ),
+                      const SizedBox(width: 5),
+                      Flexible(
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            ru ? 'БОНУС' : 'BONUS',
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        canClaim
+                            ? '+$amount'
+                            : remaining == null
+                            ? '—'
+                            : format(remaining!),
+                        style: TextStyle(
+                          fontSize: canClaim ? 24 : 15,
+                          height: 1,
+                          fontWeight: FontWeight.w900,
+                          fontFeatures: const [FontFeature.tabularFigures()],
+                        ),
+                      ),
                     ),
                   ),
                 ],
+              )
+            : advertisement
+            ? Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.ondemand_video, size: 18),
+                  const SizedBox(height: 2),
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        canClaim
+                            ? '+$amount'
+                            : remaining == null
+                            ? '—'
+                            : format(remaining!),
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              )
+            : Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    advertisement
+                        ? Icons.ondemand_video
+                        : Icons.card_giftcard_rounded,
+                    size: 16,
+                    color: canClaim ? GameUi.yellow : GameUi.muted,
+                  ),
+                  const SizedBox(width: 5),
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        canClaim
+                            ? '+$amount · ${ru ? 'Бонус' : 'Bonus'}'
+                            : remaining == null
+                            ? '—'
+                            : format(remaining!),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+      ),
+    );
+  }
+}
+
+class _RewardedHeaderButton extends StatelessWidget {
+  const _RewardedHeaderButton({required this.economy});
+  final EconomyStore economy;
+  @override
+  Widget build(BuildContext context) {
+    final ads = context.watch<AdsService>();
+    final remaining = economy.watchAdCooldownRemaining;
+    final total = economy.config.watchAdCooldownSec;
+    final reward =
+        economy.config.earnActions
+            .where((a) => a.id == 'watch_ad')
+            .firstOrNull
+            ?.reward ??
+        5;
+    final ru = Localizations.localeOf(context).languageCode == 'ru';
+    return _GiftButton(
+      key: const ValueKey('shop-header-watch-ad'),
+      advertisement: true,
+      canClaim: economy.canClaimWatchAd && !ads.busy,
+      amount: reward,
+      remaining: remaining,
+      unlockProgress: remaining == null || total <= 0
+          ? 1
+          : 1 - remaining.inMilliseconds / (total * 1000),
+      format: (d) => ads.busy
+          ? '…'
+          : '${d.inMinutes}:${(d.inSeconds % 60).toString().padLeft(2, '0')}',
+      readyLabel: ru ? 'За рекламу' : 'Watch ad',
+      onClaim: () => watchRewardedAd(context),
+    );
+  }
+}
+
+class _DailyPlusCard extends StatelessWidget {
+  const _DailyPlusCard({required this.economy});
+  final EconomyStore economy;
+  @override
+  Widget build(BuildContext context) {
+    final ru = Localizations.localeOf(context).languageCode == 'ru';
+    final multiplier = _premiumMultLabel(economy);
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        key: const ValueKey('daily-plus-card'),
+        borderRadius: BorderRadius.circular(14),
+        onTap: () => showPlusSheet(context),
+        child: GamePanel(
+          gradient: GameUi.coolPanelGradient,
+          accent: const Color(0xFF724A07),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  const GameArtwork(GameArt.plus, size: 24),
+                  const SizedBox(width: 7),
+                  Expanded(
+                    child: Text(
+                      ru ? 'Подписка Plus' : 'Plus subscription',
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w900,
+                        color: Color(0xFF724A07),
+                      ),
+                    ),
+                  ),
+                  if (economy.hasPremium)
+                    const Icon(
+                      Icons.check_circle_rounded,
+                      size: 18,
+                      color: Color(0xFF00644C),
+                    ),
+                  Tooltip(
+                    message: economy.hasPremium
+                        ? (ru ? 'Управлять' : 'Manage')
+                        : (ru ? 'Подробнее' : 'Details'),
+                    child: const Icon(
+                      Icons.chevron_right_rounded,
+                      size: 24,
+                      color: Color(0xFF724A07),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Text(
+                ru
+                    ? 'Ежедневные награды ×$multiplier. Без рекламы в игре.'
+                    : 'Daily rewards ×$multiplier. No in-game ads.',
+                style: const TextStyle(
+                  fontSize: 11,
+                  height: 1.2,
+                  color: GameUi.inkMuted,
+                ),
               ),
             ],
           ),
@@ -857,6 +812,7 @@ class _PlusHeaderChip extends StatelessWidget {
 Future<void> showPlusSheet(BuildContext context) {
   AppAnalytics.tapPlus();
   return showModalBottomSheet<void>(
+    sheetAnimationStyle: GameUi.windowAnimationStyle,
     context: context,
     backgroundColor: Colors.transparent,
     isScrollControlled: true,
@@ -880,61 +836,39 @@ class _PlusSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
     final economy = context.watch<EconomyStore>();
     final active = economy.hasPremium;
-    final next = economy.premiumNextChargeAt ??
+    final billing = context.watch<PlayBillingService?>();
+    final price =
+        context.watch<PlayBillingService?>()?.price('plus_weekly') ?? '—';
+    final next =
+        economy.premiumNextChargeAt ??
         DateTime.now().add(const Duration(days: 7));
-    const mint = Color(0xFF3DDC97);
+    const mint = Color(0xFF00644C);
 
     return GameSheetChrome(
-      heightFactor: active ? 0.52 : 0.58,
+      heightFactor: 0.90,
+      fitContent: true,
+      glass: GameGlass.none,
+      backgroundGradient: GameUi.navySheetGradient,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(18, 8, 18, 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        padding: const EdgeInsets.fromLTRB(12, 6, 12, 12),
+        child: ListView(
+          shrinkWrap: true,
           children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.workspace_premium_rounded,
-                  color: theme.colorScheme.primary,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    active ? l10n.plusManageTitle : l10n.plusOfferTitle,
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                ),
-                if (active)
-                  const Icon(
-                    Icons.check_circle_rounded,
-                    color: mint,
-                  ),
-              ],
+            GameSheetHeader(
+              title: active ? l10n.plusManageTitle : l10n.plusOfferTitle,
+              leading: Icon(
+                Icons.workspace_premium_rounded,
+                color: GameUi.yellow,
+              ),
+              trailing: active
+                  ? const Icon(Icons.check_circle_rounded, color: GameUi.mint)
+                  : null,
             ),
             const SizedBox(height: 8),
-            Text(
-              l10n.plusTitle,
-              style: const TextStyle(
-                fontWeight: FontWeight.w800,
-                fontSize: 15,
-                color: mint,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              active ? l10n.plusManageSubtitle : l10n.plusOfferSubtitle,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: Colors.white70,
-                height: 1.35,
-              ),
-            ),
-            const SizedBox(height: 14),
             GamePanel(
+              gradient: GameUi.coolPanelGradient,
               accent: mint,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -943,7 +877,7 @@ class _PlusSheet extends StatelessWidget {
                     icon: Icons.videocam_off_outlined,
                     text: l10n.plusManageBenefitAds,
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 6),
                   _PlusBenefitRow(
                     icon: Icons.auto_awesome_rounded,
                     text: l10n.plusManageBenefitDaily,
@@ -956,7 +890,7 @@ class _PlusSheet extends StatelessWidget {
                           '×2',
                           style: TextStyle(
                             fontWeight: FontWeight.w900,
-                            color: Color(0xFF7EE0FF),
+                            color: Color(0xFF065781),
                           ),
                         ),
                       ],
@@ -967,11 +901,14 @@ class _PlusSheet extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             GamePanel(
+              gradient: GameUi.coolPanelGradient,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    l10n.plusManagePrice(ShopCatalog.subscribePrice),
+                    Localizations.localeOf(context).languageCode == 'ru'
+                        ? '$price / неделю · автопродление'
+                        : '$price / week · auto-renewing',
                     style: const TextStyle(
                       fontWeight: FontWeight.w700,
                       fontSize: 14,
@@ -980,58 +917,71 @@ class _PlusSheet extends StatelessWidget {
                   if (active) ...[
                     const SizedBox(height: 6),
                     Text(
-                      l10n.plusManageNextCharge(_fmtDate(next)),
+                      Localizations.localeOf(context).languageCode == 'ru'
+                          ? 'Доступ до ${_fmtDate(next)}'
+                          : 'Access until ${_fmtDate(next)}',
                       style: const TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 13,
-                        color: Colors.white70,
+                        color: GameUi.inkMuted,
                       ),
                     ),
                   ],
                 ],
               ),
             ),
-            const Spacer(),
+            const SizedBox(height: 10),
+            Text(
+              Localizations.localeOf(context).languageCode == 'ru'
+                  ? 'Продлевается еженедельно в Google Play. Отмена в любой момент; доступ — до конца оплаченного периода.'
+                  : 'Renews weekly in Google Play. Cancel anytime; access remains until the paid period ends.',
+              style: const TextStyle(
+                color: GameUi.muted,
+                fontSize: 11,
+                height: 1.2,
+              ),
+            ),
+            const SizedBox(height: 12),
             if (active)
               OutlinedButton(
-                onPressed: () {
-                  economy.cancelPremium();
-                  AppAnalytics.plusCancel();
-                  Navigator.pop(context);
-                  showGameToast(
-                    context,
-                    message: l10n.plusCancelledToast,
-                    accent: Colors.white54,
-                  );
-                },
+                onPressed: () => manageGoogleSubscription(context),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.white54,
-                  side: BorderSide(color: Colors.white.withValues(alpha: 0.25)),
-                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  foregroundColor: GameUi.ink,
+                  side: BorderSide.none,
+                  padding: const EdgeInsets.symmetric(vertical: 7),
                 ),
-                child: Text(l10n.plusCancel),
+                child: Text(
+                  Localizations.localeOf(context).languageCode == 'ru'
+                      ? 'Управлять в Google Play'
+                      : 'Manage in Google Play',
+                ),
               )
             else
               FilledButton(
-                onPressed: () {
-                  economy.activatePremiumPreview();
-                  AppAnalytics.plusActivate();
-                  Navigator.pop(context);
-                  showGameToast(
-                    context,
-                    message: l10n.plusToast,
-                    accent: mint,
-                  );
-                },
+                onPressed: () => buyGoogleProduct(context, 'plus_weekly'),
                 style: FilledButton.styleFrom(
-                  backgroundColor: mint,
-                  foregroundColor: const Color(0xFF0E1419),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  backgroundColor: Colors.transparent,
+                  foregroundColor: GameUi.ink,
+                  padding: const EdgeInsets.symmetric(vertical: 7),
                 ),
                 child: Text(
-                  l10n.plusSubscribe(ShopCatalog.subscribePrice),
+                  l10n.plusSubscribe(price),
                   style: const TextStyle(fontWeight: FontWeight.w900),
                 ),
+              ),
+            TextButton(
+              onPressed: () => restoreGooglePurchases(context),
+              style: TextButton.styleFrom(foregroundColor: GameUi.cyan),
+              child: Text(
+                Localizations.localeOf(context).languageCode == 'ru'
+                    ? 'Восстановить покупки'
+                    : 'Restore purchases',
+              ),
+            ),
+            if (billing != null && (billing.busy || billing.error != null))
+              const GamePanel(
+                gradient: GameUi.coolPanelGradient,
+                child: GoogleBillingStatus(),
               ),
           ],
         ),
@@ -1056,7 +1006,7 @@ class _PlusBenefitRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 18, color: const Color(0xFF3DDC97)),
+        Icon(icon, size: 18, color: const Color(0xFF00644C)),
         const SizedBox(width: 8),
         Expanded(
           child: Text(
@@ -1064,14 +1014,11 @@ class _PlusBenefitRow extends StatelessWidget {
             style: const TextStyle(
               fontWeight: FontWeight.w600,
               fontSize: 13,
-              height: 1.3,
+              height: 1.2,
             ),
           ),
         ),
-        if (trailing != null) ...[
-          const SizedBox(width: 8),
-          trailing!,
-        ],
+        if (trailing != null) ...[const SizedBox(width: 8), trailing!],
       ],
     );
   }
@@ -1095,72 +1042,196 @@ class _DailyPane extends StatelessWidget {
     final premium = economy.hasPremium;
     final multLabel = _premiumMultLabel(economy);
 
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(14, 8, 14, 8),
+    return Column(
       children: [
-        Text(
-          claimedToday
-              ? l10n.dailyStreakActive(economy.dailyStreak)
-              : l10n.dailyStreakHint,
-          style: const TextStyle(
-            color: Colors.white70,
-            fontWeight: FontWeight.w600,
-            fontSize: 12.5,
+        Padding(
+          padding: const EdgeInsets.fromLTRB(14, 8, 14, 4),
+          child: RepaintBoundary(child: _DailyPlusCard(economy: economy)),
+        ),
+        Expanded(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final rowHeight = _dailyRowHeight(
+                context,
+                constraints.maxWidth - 44,
+                MediaQuery.textScalerOf(context).scale(12) > 16,
+                premium,
+                multLabel,
+              );
+              return ListView(
+                key: const ValueKey('daily-days-scroll'),
+                padding: const EdgeInsets.fromLTRB(22, 4, 22, 8),
+                children: [
+                  Text(
+                    claimedToday
+                        ? l10n.dailyStreakActive(economy.dailyStreak)
+                        : l10n.dailyStreakHint,
+                    style: const TextStyle(
+                      color: GameUi.muted,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12.5,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  ...List.generate(rewards.length, (i) {
+                    final day = i + 1;
+                    final base = economy.config.dailyTokensForStreak(
+                      i,
+                      premium: false,
+                    );
+                    final amount = economy.config.dailyTokensForStreak(
+                      i,
+                      premium: premium,
+                    );
+                    final isClaimed = day <= claimedCount;
+                    final isToday = !claimedToday && day == upcomingDay;
+                    final isWaiting =
+                        claimedToday &&
+                        day ==
+                            (economy.dailyStreak + 1).clamp(1, rewards.length);
+                    final isLocked = !isClaimed && !isToday && !isWaiting;
+
+                    return _DailyTimelineRow(
+                      day: day,
+                      height: rowHeight,
+                      base: base,
+                      amount: amount,
+                      hasPremium: premium,
+                      multLabel: multLabel,
+                      isFirst: i == 0,
+                      isLast: i == rewards.length - 1,
+                      isClaimed: isClaimed,
+                      isToday: isToday,
+                      isWaiting: isWaiting,
+                      isLocked: isLocked,
+                      countdown: isWaiting
+                          ? format(economy.untilMidnight)
+                          : null,
+                      onClaim: isToday
+                          ? () async {
+                              if (!await ensureResourceAge(context) ||
+                                  !context.mounted) {
+                                return;
+                              }
+                              final n = economy.claimDaily();
+                              if (n != null) {
+                                AppAnalytics.claimDaily(tokens: n);
+                                showGameToast(
+                                  context,
+                                  message: l10n.dailyToast(n),
+                                  accent: const Color(0xFF00644C),
+                                  flyTo: ToastFlyTarget.crystals,
+                                );
+                              }
+                            }
+                          : null,
+                    );
+                  }),
+                ],
+              );
+            },
           ),
         ),
-        const SizedBox(height: 10),
-        ...List.generate(rewards.length, (i) {
-          final day = i + 1;
-          final base = economy.config.dailyTokensForStreak(i, premium: false);
-          final amount = economy.config.dailyTokensForStreak(
-            i,
-            premium: premium,
-          );
-          final isClaimed = day <= claimedCount;
-          final isToday = !claimedToday && day == upcomingDay;
-          final isWaiting = claimedToday &&
-              day == (economy.dailyStreak + 1).clamp(1, rewards.length);
-          final isLocked = !isClaimed && !isToday && !isWaiting;
-
-          return _DailyTimelineRow(
-            day: day,
-            base: base,
-            amount: amount,
-            hasPremium: premium,
-            multLabel: multLabel,
-            isFirst: i == 0,
-            isLast: i == rewards.length - 1,
-            isClaimed: isClaimed,
-            isToday: isToday,
-            isWaiting: isWaiting,
-            isLocked: isLocked,
-            countdown: isWaiting ? format(economy.untilMidnight) : null,
-            onClaim: isToday
-                ? () {
-                    final n = economy.claimDaily();
-                    if (n != null) {
-                      AppAnalytics.claimDaily(tokens: n);
-                      showGameToast(
-                        context,
-                        message: l10n.dailyToast(n),
-                        accent: const Color(0xFF3DDC97),
-                        flyTo: ToastFlyTarget.crystals,
-                      );
-                    }
-                  }
-                : null,
-          );
-        }),
       ],
     );
   }
 }
 
-enum _DayStatus { claimed, today, waiting, locked }
+// Measure the largest labels across all states, so every day shares one
+// height while respecting wrapped Plus hints and the owner's text size.
+String _formatDailyCountdown(Duration d) =>
+    '${d.inHours.toString().padLeft(2, '0')}:'
+    '${d.inMinutes.remainder(60).toString().padLeft(2, '0')}:'
+    '${d.inSeconds.remainder(60).toString().padLeft(2, '0')}';
+
+double _dailyRowHeight(
+  BuildContext context,
+  double width,
+  bool largeText,
+  bool hasPremium,
+  String multLabel,
+) {
+  final l10n = AppLocalizations.of(context);
+  final ru = Localizations.localeOf(context).languageCode == 'ru';
+  final economy = context.read<EconomyStore>();
+  final innerWidth = width - 19;
+  double textHeight(
+    String text,
+    double fontSize,
+    FontWeight weight,
+    double maxWidth,
+  ) {
+    final painter = TextPainter(
+      text: TextSpan(
+        text: text,
+        style: DefaultTextStyle.of(
+          context,
+        ).style.merge(TextStyle(fontSize: fontSize, fontWeight: weight)),
+      ),
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+    )..layout(maxWidth: maxWidth.clamp(1, double.infinity));
+    final height = painter.height;
+    painter.dispose();
+    return height;
+  }
+
+  final rewardWidth = largeText ? innerWidth - 8 : innerWidth - 180;
+  var hintHeight = 0.0;
+  var dayHeight = 20.0;
+  var amountHeight = 18.0;
+  for (var i = 0; i < economy.config.dailyRewardTokens.length; i++) {
+    final base = economy.config.dailyTokensForStreak(i, premium: false);
+    final hint = hasPremium
+        ? l10n.premiumTimesBase(base, multLabel)
+        : l10n.premiumTimesLocked(multLabel);
+    final measuredHint = textHeight(hint, 10, FontWeight.w700, rewardWidth);
+    if (measuredHint > hintHeight) hintHeight = measuredHint;
+    final measuredDay = textHeight(
+      ru ? 'День ${i + 1}' : 'Day ${i + 1}',
+      12,
+      FontWeight.w800,
+      largeText ? innerWidth - 25 : 69,
+    );
+    if (measuredDay > dayHeight) dayHeight = measuredDay;
+    final measuredAmount = textHeight(
+      '+$base',
+      16,
+      FontWeight.w900,
+      double.infinity,
+    );
+    if (measuredAmount > amountHeight) amountHeight = measuredAmount;
+  }
+  var statusHeight = 48.0;
+  for (final label in [
+    l10n.claimed,
+    ru ? 'Завтра' : 'Next',
+    ru ? 'Закрыто' : 'Locked',
+  ]) {
+    final measured =
+        textHeight(
+          label,
+          10.5,
+          FontWeight.w800,
+          largeText ? innerWidth - 30 : 64,
+        ) +
+        14;
+    if (measured > statusHeight) statusHeight = measured;
+  }
+  final rewardHeight = amountHeight + hintHeight + 4;
+  if (largeText) return dayHeight + rewardHeight + statusHeight + 15;
+  final contentHeight = [
+    dayHeight,
+    rewardHeight,
+    statusHeight,
+  ].reduce((a, b) => a > b ? a : b);
+  return contentHeight + 6;
+}
 
 class _DailyTimelineRow extends StatelessWidget {
   const _DailyTimelineRow({
     required this.day,
+    required this.height,
     required this.base,
     required this.amount,
     required this.hasPremium,
@@ -1176,6 +1247,7 @@ class _DailyTimelineRow extends StatelessWidget {
   });
 
   final int day;
+  final double height;
   final int base;
   final int amount;
   final bool hasPremium;
@@ -1187,578 +1259,337 @@ class _DailyTimelineRow extends StatelessWidget {
   final bool isWaiting;
   final bool isLocked;
   final String? countdown;
-  final VoidCallback? onClaim;
-
-  _DayStatus get _status {
-    if (isClaimed) return _DayStatus.claimed;
-    if (isToday) return _DayStatus.today;
-    if (isWaiting) return _DayStatus.waiting;
-    return _DayStatus.locked;
-  }
+  final Future<void> Function()? onClaim;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final status = _status;
-    final nodeColor = switch (status) {
-      _DayStatus.claimed => const Color(0xFF3DDC97),
-      _DayStatus.today => const Color(0xFF3DDC97),
-      _DayStatus.waiting => const Color(0xFF7EE0FF),
-      _DayStatus.locked => Colors.white24,
-    };
-
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          SizedBox(
-            width: 26,
-            child: Column(
-              children: [
-                Expanded(
-                  child: Container(
-                    width: 2,
-                    color: isFirst
-                        ? Colors.transparent
-                        : (isClaimed || isToday || isWaiting
-                            ? nodeColor.withValues(alpha: 0.5)
-                            : Colors.white12),
-                  ),
+    final ru = Localizations.localeOf(context).languageCode == 'ru';
+    final waiting = isWaiting;
+    final foreground = waiting
+        ? const Color(0xFF103E5C)
+        : isClaimed
+        ? const Color(0xFF174C3D)
+        : isLocked
+        ? const Color(0xFF173C54)
+        : const Color(0xFF00644C);
+    final statusLabel = waiting
+        ? countdown!
+        : isClaimed
+        ? l10n.claimed
+        : isLocked
+        ? (ru ? 'Закрыто' : 'Locked')
+        : l10n.claim;
+    final statusIcon = waiting
+        ? Icons.schedule_rounded
+        : isClaimed
+        ? Icons.check_circle_rounded
+        : Icons.lock_outline_rounded;
+    final status = isToday
+        ? FilledButton(
+            key: ValueKey('daily-claim-$day'),
+            onPressed: () => runResourceAction(
+              context,
+              context.read<EconomyStore>(),
+              'daily',
+              () async => await onClaim?.call(),
+            ),
+            style: FilledButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+            ).copyWith(backgroundBuilder: GameUi.replayLayer),
+            child: Text(l10n.claim, style: const TextStyle(fontSize: 12)),
+          )
+        : Tooltip(
+            message: isLocked
+                ? (ru
+                      ? 'Откроется после дня ${day - 1}'
+                      : 'Unlocks after day ${day - 1}')
+                : waiting
+                ? (ru ? 'До следующей награды' : 'Time until next reward')
+                : statusLabel,
+            child: Container(
+              key: ValueKey('daily-status-$day'),
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 6),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                color: waiting
+                    ? const Color(0xFFBAD7E7)
+                    : isClaimed
+                    ? const Color(0xFFB4DECD)
+                    : const Color(0xFFB4CBD9),
+                border: Border.all(
+                  color: waiting
+                      ? const Color(0xFF77A6BF)
+                      : isClaimed
+                      ? const Color(0xFF6AAB91)
+                      : const Color(0xFF8EAABD),
                 ),
-                Container(
-                  width: 18,
-                  height: 18,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: status == _DayStatus.claimed
-                        ? nodeColor
-                        : const Color(0xFF0E1419),
-                    border: Border.all(color: nodeColor, width: 2.4),
-                    boxShadow: isToday || isClaimed
-                        ? [
-                            BoxShadow(
-                              color: nodeColor.withValues(alpha: 0.35),
-                              blurRadius: 8,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(statusIcon, size: 14, color: foreground),
+                  const SizedBox(width: 4),
+                  Flexible(
+                    child: waiting
+                        ? FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: GameClockBuilder(
+                              running: () =>
+                                  !context.read<EconomyStore>().canClaimDaily,
+                              builder: (_) => Text(
+                                _formatDailyCountdown(
+                                  context.read<EconomyStore>().untilMidnight,
+                                ),
+                                key: ValueKey('daily-next-countdown-$day'),
+                                maxLines: 1,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w900,
+                                  color: Color(0xFF103E5C),
+                                  fontFeatures: [FontFeature.tabularFigures()],
+                                ),
+                              ),
                             ),
-                          ]
-                        : null,
-                  ),
-                  child: status == _DayStatus.claimed
-                      ? const Icon(
-                          Icons.check,
-                          size: 11,
-                          color: Color(0xFF0E1419),
-                        )
-                      : Center(
-                          child: Text(
-                            '$day',
+                          )
+                        : Text(
+                            statusLabel,
                             style: TextStyle(
-                              fontSize: 9,
-                              fontWeight: FontWeight.w900,
-                              color: isLocked ? Colors.white38 : Colors.white70,
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w800,
+                              color: foreground,
                             ),
                           ),
-                        ),
-                ),
-                Expanded(
-                  child: Container(
-                    width: 2,
-                    color: isLast
-                        ? Colors.transparent
-                        : (isClaimed
-                            ? const Color(0xFF3DDC97).withValues(alpha: 0.5)
-                            : Colors.white12),
+                  ),
+                ],
+              ),
+            ),
+          );
+    final reward = Container(
+      key: ValueKey('daily-reward-$day'),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CrystalCubeIcon(size: 18, glow: false, onLightBackground: true),
+                const SizedBox(width: 4),
+                Text(
+                  '+$amount',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w900,
+                    color: foreground,
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: onClaim,
-                  borderRadius: BorderRadius.circular(14),
-                  child: Ink(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 10,
-                    ),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(14),
-                      color: isToday
-                          ? const Color(0xFF3DDC97).withValues(alpha: 0.12)
-                          : const Color(0xFF151C22),
-                      border: Border.all(
-                        color: isToday
-                            ? const Color(0xFF3DDC97)
-                            : isWaiting
-                                ? const Color(0xFF7EE0FF)
-                                    .withValues(alpha: 0.45)
-                                : Colors.white10,
-                        width: isToday ? 1.4 : 1,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          width: 46,
-                          child: Text(
-                            '${l10n.periodDay} $day',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w800,
-                              fontSize: 12,
-                              color: isLocked ? Colors.white38 : Colors.white70,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: Center(
-                            child: _CrystalRewardBadge(
-                              amount: amount,
-                              base: base,
-                              hasPremium: hasPremium,
-                              multLabel: multLabel,
-                              emphasized: isToday || !isLocked,
-                              showPlusHint: true,
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 86,
-                          child: Align(
-                            alignment: Alignment.centerRight,
-                            child: _DayActionChip(
-                              status: status,
-                              countdown: countdown,
-                              claimLabel: l10n.claim,
-                              claimedLabel: l10n.claimed,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+          Text(
+            hasPremium
+                ? l10n.premiumTimesBase(base, multLabel)
+                : l10n.premiumTimesLocked(multLabel),
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              color: waiting
+                  ? const Color(0xFF334F60)
+                  : isLocked
+                  ? const Color(0xFF173C54)
+                  : const Color(0xFF77500A),
+            ),
+          ),
+        ],
+      ),
+    );
+    final dayLabel = Row(
+      children: [
+        Container(
+          width: 20,
+          height: 20,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: isClaimed
+                ? const Color(0xFF00644C)
+                : waiting
+                ? const Color(0xFFB4D3E4)
+                : isLocked
+                ? const Color(0xFFA6C2D3)
+                : const Color(0xFFB0EAD1),
+            border: Border.all(
+              color: waiting
+                  ? const Color(0xFF77A6BF)
+                  : isClaimed || isToday
+                  ? const Color(0xFF168566)
+                  : const Color(0xFF819EB3),
+            ),
+          ),
+          child: isClaimed
+              ? const Icon(Icons.check_rounded, size: 14, color: GameUi.text)
+              : day == 7
+              ? const Icon(
+                  Icons.auto_awesome_rounded,
+                  size: 14,
+                  color: Color(0xFF86580C),
+                )
+              : isLocked
+              ? Icon(Icons.lock_outline_rounded, size: 12, color: foreground)
+              : Text(
+                  '$day',
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w900,
+                    color: foreground,
                   ),
                 ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _CrystalRewardBadge extends StatelessWidget {
-  const _CrystalRewardBadge({
-    required this.amount,
-    this.base,
-    this.hasPremium = false,
-    this.multLabel,
-    this.emphasized = true,
-    this.showPlusHint = false,
-  });
-
-  final int amount;
-  final int? base;
-  final bool hasPremium;
-  final String? multLabel;
-  final bool emphasized;
-  /// Только для Daily: формула ×2 / подсказка Boost.
-  final bool showPlusHint;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final baseAmount = base ?? amount;
-    final label = multLabel ?? '2';
-    final showActiveDouble =
-        showPlusHint && hasPremium && amount != baseAmount;
-    final showLockedHint = showPlusHint && !hasPremium;
-    const cyan = Color(0xFF7EE0FF);
-    const mint = Color(0xFF3DDC97);
-    final border = showActiveDouble
-        ? mint.withValues(alpha: 0.55)
-        : cyan.withValues(alpha: emphasized ? 0.55 : 0.3);
-    final glow = (showActiveDouble ? mint : cyan)
-        .withValues(alpha: showActiveDouble ? 0.28 : 0.2);
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: showActiveDouble
-              ? [
-                  mint.withValues(alpha: 0.16),
-                  const Color(0xFF0E1A16).withValues(alpha: 0.9),
-                ]
-              : [
-                  cyan.withValues(alpha: 0.2),
-                  const Color(0xFF3DDC97).withValues(alpha: 0.14),
-                ],
         ),
-        border: Border.all(color: border),
-        boxShadow: [
-          BoxShadow(color: glow, blurRadius: showActiveDouble ? 12 : 10),
-        ],
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          CrystalCubeIcon(size: 14, glow: emphasized || showActiveDouble),
-          const SizedBox(width: 4),
-          Text(
-            '+$amount',
+        const SizedBox(width: 5),
+        Expanded(
+          child: Text(
+            ru ? 'День $day' : 'Day $day',
             style: TextStyle(
-              fontWeight: FontWeight.w900,
-              fontSize: 15,
-              color: showActiveDouble ? mint : const Color(0xFFB8F4FF),
-              letterSpacing: 0.2,
-              shadows: showActiveDouble
-                  ? const [
-                      Shadow(
-                        color: Color(0x88000000),
-                        blurRadius: 4,
-                        offset: Offset(0, 1),
-                      ),
-                    ]
-                  : [
-                      Shadow(
-                        color: cyan.withValues(alpha: 0.55),
-                        blurRadius: 8,
-                      ),
-                    ],
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+              color: foreground,
             ),
           ),
-          if (showActiveDouble) ...[
-            const SizedBox(width: 6),
-            Text(
-              l10n.premiumTimesBase(baseAmount, label),
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w800,
-                color: cyan.withValues(alpha: 0.95),
-                height: 1,
-              ),
-            ),
-          ] else if (showLockedHint) ...[
-            const SizedBox(width: 6),
-            Text(
-              l10n.premiumTimesLocked(label),
-              style: const TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w800,
-                color: mint,
-                height: 1,
-                letterSpacing: 0.15,
-              ),
-            ),
+        ),
+      ],
+    );
+    final largeText = MediaQuery.textScalerOf(context).scale(12) > 16;
+    return Semantics(
+      label:
+          '${ru ? 'День' : 'Day'} $day, ${waiting ? (ru ? 'Следующая награда' : 'Next reward') : statusLabel}',
+      child: Container(
+        key: ValueKey('daily-row-$day'),
+        margin: const EdgeInsets.only(bottom: 4),
+        height: height,
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
+        decoration: GameGlassDecoration(
+          glass: isLocked || isClaimed ? GameGlass.none : GameGlass.card,
+          borderRadius: BorderRadius.circular(12),
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: waiting
+                ? const [Color(0xFF98D3EB), Color(0xFF75B8D7)]
+                : isToday
+                ? const [Color(0xFF9BDEC9), Color(0xFF85CEB7)]
+                : isClaimed
+                ? const [Color(0xFF92C9BC), Color(0xFF7FBCAE)]
+                : const [Color(0xFF88B7CE), Color(0xFF7DACCA)],
+          ),
+          border: Border.all(
+            color: day == 7 && !isClaimed
+                ? const Color(0xFFDDB868)
+                : waiting
+                ? const Color(0xFF77A6BF)
+                : isToday
+                ? const Color(0xFF168566)
+                : isClaimed
+                ? const Color(0xFF7BAF99)
+                : const Color(0xFF8EAABD),
+            width: isToday || waiting ? 1.5 : 1,
+          ),
+          boxShadow: const [
+            BoxShadow(color: Color(0x66236497), offset: Offset(0, 2)),
           ],
-        ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (largeText) ...[
+              dayLabel,
+              const SizedBox(height: 2),
+              Align(child: reward),
+              const SizedBox(height: 2),
+              Align(alignment: Alignment.centerRight, child: status),
+            ] else
+              Row(
+                children: [
+                  SizedBox(width: 86, child: dayLabel),
+                  Expanded(child: Center(child: reward)),
+                  SizedBox(width: 86, child: status),
+                ],
+              ),
+          ],
+        ),
       ),
     );
-  }
-}
-
-class _DayActionChip extends StatelessWidget {
-  const _DayActionChip({
-    required this.status,
-    required this.claimLabel,
-    required this.claimedLabel,
-    this.countdown,
-  });
-
-  final _DayStatus status;
-  final String claimLabel;
-  final String claimedLabel;
-  final String? countdown;
-
-  @override
-  Widget build(BuildContext context) {
-    switch (status) {
-      case _DayStatus.claimed:
-        return Text(
-          claimedLabel,
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            color: Color(0xFF3DDC97),
-            fontWeight: FontWeight.w700,
-            fontSize: 12,
-          ),
-        );
-      case _DayStatus.today:
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            gradient: const LinearGradient(
-              colors: [Color(0xFF3DDC97), Color(0xFF1FA876)],
-            ),
-          ),
-          child: Text(
-            claimLabel,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w900,
-              color: Color(0xFF0E1419),
-            ),
-          ),
-        );
-      case _DayStatus.waiting:
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: const Color(0xFF1A2830),
-            border: Border.all(
-              color: const Color(0xFF7EE0FF).withValues(alpha: 0.35),
-            ),
-          ),
-          child: Text(
-            countdown ?? '',
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: Color(0xFF7EE0FF),
-              fontWeight: FontWeight.w800,
-              fontSize: 11,
-              fontFeatures: [FontFeature.tabularFigures()],
-            ),
-          ),
-        );
-      case _DayStatus.locked:
-        return const SizedBox.shrink();
-    }
   }
 }
 
 class _ShopPane extends StatelessWidget {
   const _ShopPane({required this.economy});
-
   final EconomyStore economy;
-
-  EarnAction? get _adOffer {
-    for (final a in economy.config.earnActions) {
-      if (a.id == 'watch_ad') return a;
-    }
-    return const EarnAction(
-      id: 'watch_ad',
-      title: 'Watch an ad',
-      subtitle: 'Short video',
-      reward: 5,
-    );
-  }
-
-  static String _formatCooldown(Duration d) {
-    final total = d.inSeconds.clamp(0, 24 * 3600);
-    final m = total ~/ 60;
-    final s = total % 60;
-    return '$m:${s.toString().padLeft(2, '0')}';
-  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final ad = _adOffer!;
-    final cooldown = economy.watchAdCooldownRemaining;
-    final frozen = cooldown != null;
-    final cooldownLabel = frozen
-        ? _formatCooldown(cooldown)
-        : l10n.shopFree;
-
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 10, 16, 8),
-      children: [
-        // Бесплатно за рекламу — многоразово, с кулдауном из RC
-        Material(
-          color: Colors.transparent,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(14),
-            onTap: frozen
-                ? null
-                : () {
-                    final n =
-                        economy.claimWatchAd(fallbackReward: ad.reward);
-                    if (n == null) return;
-                    showGameToast(
-                      context,
-                      message: l10n.crystalsPlus(n),
-                      flyTo: ToastFlyTarget.crystals,
-                    );
-                  },
-            child: Opacity(
-              opacity: frozen ? 0.55 : 1,
-              child: GamePanel(
-                margin: const EdgeInsets.only(bottom: 10),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                accent: const Color(0xFF7EE0FF),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        color:
-                            const Color(0xFF7EE0FF).withValues(alpha: 0.15),
-                      ),
-                      child: Icon(
-                        frozen
-                            ? Icons.timer_outlined
-                            : Icons.play_circle_outline_rounded,
-                        color: const Color(0xFF7EE0FF),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
+    final ru = Localizations.localeOf(context).languageCode == 'ru';
+    final billing = context.watch<PlayBillingService?>();
+    return LayoutBuilder(
+      builder: (context, viewport) => ListView(
+        padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+        children: [
+          if (billing != null && (billing.busy || billing.error != null))
+            const GamePanel(
+              gradient: GameUi.coolPanelGradient,
+              child: GoogleBillingStatus(),
+            ),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final width = (constraints.maxWidth - 10) / 2;
+              return Wrap(
+                spacing: 10,
+                runSpacing: 8,
+                children: [
+                  for (var i = 0; i < ShopCatalog.packs.length; i++)
                     SizedBox(
-                      width: 96,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            l10n.shopWatchAd,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w800,
-                              fontSize: 13,
-                            ),
-                          ),
-                          Text(
-                            l10n.shopWatchAdSub,
-                            style: const TextStyle(
-                              color: Colors.white54,
-                              fontSize: 11,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: Center(
-                        child: _CrystalRewardBadge(amount: ad.reward),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 72,
-                      child: Align(
-                        alignment: Alignment.centerRight,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: frozen
-                                ? Colors.white.withValues(alpha: 0.08)
-                                : const Color(0xFF3DDC97)
-                                    .withValues(alpha: 0.25),
-                            border: Border.all(
-                              color: frozen
-                                  ? Colors.white24
-                                  : const Color(0xFF3DDC97)
-                                      .withValues(alpha: 0.55),
-                            ),
-                          ),
-                          child: Text(
-                            cooldownLabel,
-                            style: TextStyle(
-                              fontWeight: FontWeight.w900,
-                              fontSize: 12,
-                              letterSpacing: frozen ? 0.2 : 0.6,
-                              color: frozen
-                                  ? Colors.white70
-                                  : const Color(0xFF3DDC97),
-                              fontFeatures: const [
-                                FontFeature.tabularFigures(),
-                              ],
-                            ),
-                          ),
+                      width: width,
+                      child: CrystalPackageCard(
+                        compact: viewport.maxHeight < 300,
+                        key: ValueKey(
+                          'crystal-package-${ShopCatalog.packs[i].id}',
                         ),
+                        offer: ShopCatalog.packs[i],
+                        tier: i,
+                        title: L10nCatalog.packTitle(
+                          l10n,
+                          ShopCatalog.packs[i].id,
+                        ),
+                        price:
+                            billing?.price(ShopCatalog.packs[i].id) ??
+                            (PlayBillingService.enabled
+                                ? '—'
+                                : ShopCatalog.packs[i].priceLabel),
+                        caption: PlayBillingService.enabled
+                            ? 'Google Play'
+                            : (ru ? 'Покупки скоро' : 'Coming soon'),
+                        onTap: () =>
+                            buyGoogleProduct(context, ShopCatalog.packs[i].id),
                       ),
                     ),
-                  ],
-                ),
-              ),
+                ],
+              );
+            },
+          ),
+          TextButton(
+            onPressed: () => restoreGooglePurchases(context),
+            child: Text(
+              ru ? 'Восстановить покупки' : 'Restore purchases',
+              style: const TextStyle(color: GameUi.muted),
             ),
           ),
-        ),
-        ...ShopCatalog.packs.map((offer) {
-          final packBadge = L10nCatalog.packBadge(l10n, offer.badgeKey);
-          return Material(
-            color: Colors.transparent,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(14),
-              onTap: () {
-                final n = economy.grantCrystals(offer.crystals);
-                showGameToast(
-                  context,
-                  message: l10n.crystalsPlus(n),
-                  flyTo: ToastFlyTarget.crystals,
-                );
-              },
-              child: GamePanel(
-                margin: const EdgeInsets.only(bottom: 6),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                accent: const Color(0xFF7EE0FF),
-                child: Row(
-                  children: [
-                    const CrystalCubeIcon(size: 28),
-                    const SizedBox(width: 8),
-                    SizedBox(
-                      width: 96,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            L10nCatalog.packTitle(l10n, offer.id),
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w800,
-                              fontSize: 13,
-                            ),
-                          ),
-                          if (packBadge != null)
-                            Text(
-                              packBadge,
-                              style: const TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w800,
-                                color: Color(0xFF3DDC97),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: Center(
-                        child: _CrystalRewardBadge(amount: offer.crystals),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 72,
-                      child: Text(
-                        offer.priceLabel,
-                        textAlign: TextAlign.end,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 15,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        }),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -1801,43 +1632,47 @@ class _RentPaneState extends State<_RentPane> {
     super.dispose();
   }
 
-  void _rentJump(BuildContext context, {required bool hour}) {
-    final l10n = AppLocalizations.of(context);
-    if (!economy.canRentJump(hour: hour)) {
-      showGameToast(context, message: l10n.rentNotEnough);
-      return;
-    }
-    final extending = economy.hasJumpRental;
-    if (!economy.rentJump(hour: hour)) return;
-    showGameToast(
-      context,
-      message: extending
-          ? l10n.rentActive(_formatCooldown(economy.jumpRentalRemaining!))
-          : l10n.rentJumpTitle,
-      accent: const Color(0xFF3DDC97),
-      icon: const Icon(
-        Icons.keyboard_double_arrow_up_rounded,
-        color: Color(0xFF3DDC97),
-      ),
-    );
+  Future<void> _rentJump(BuildContext context, {required bool hour}) async {
+    await runResourceAction(context, economy, 'rentJump', () async {
+      final l10n = AppLocalizations.of(context);
+      if (!economy.canRentJump(hour: hour)) {
+        showGameToast(context, message: l10n.rentNotEnough);
+        return;
+      }
+      final extending = economy.hasJumpRental;
+      if (!economy.rentJump(hour: hour)) return;
+      showGameToast(
+        context,
+        message: extending
+            ? l10n.rentActive(_formatCooldown(economy.jumpRentalRemaining!))
+            : l10n.rentJumpTitle,
+        accent: const Color(0xFF00644C),
+        icon: const Icon(
+          Icons.keyboard_double_arrow_up_rounded,
+          color: Color(0xFF00644C),
+        ),
+      );
+    });
   }
 
-  void _rentHelmet(BuildContext context, {required bool hour}) {
-    final l10n = AppLocalizations.of(context);
-    if (!economy.canRentHelmet(hour: hour)) {
-      showGameToast(context, message: l10n.rentNotEnough);
-      return;
-    }
-    final extending = economy.hasHelmetRental;
-    if (!economy.rentHelmet(hour: hour)) return;
-    showGameToast(
-      context,
-      message: extending
-          ? l10n.rentActive(_formatCooldown(economy.helmetRentalRemaining!))
-          : l10n.rentHelmetTitle,
-      accent: const Color(0xFF7EE0FF),
-      icon: const Icon(Icons.shield_outlined, color: Color(0xFF7EE0FF)),
-    );
+  Future<void> _rentHelmet(BuildContext context, {required bool hour}) async {
+    await runResourceAction(context, economy, 'rentHelmet', () async {
+      final l10n = AppLocalizations.of(context);
+      if (!economy.canRentHelmet(hour: hour)) {
+        showGameToast(context, message: l10n.rentNotEnough);
+        return;
+      }
+      final extending = economy.hasHelmetRental;
+      if (!economy.rentHelmet(hour: hour)) return;
+      showGameToast(
+        context,
+        message: extending
+            ? l10n.rentActive(_formatCooldown(economy.helmetRentalRemaining!))
+            : l10n.rentHelmetTitle,
+        accent: const Color(0xFF065781),
+        icon: const Icon(Icons.shield_outlined, color: Color(0xFF065781)),
+      );
+    });
   }
 
   @override
@@ -1857,7 +1692,7 @@ class _RentPaneState extends State<_RentPane> {
           child: Text(
             l10n.rentInactive,
             style: const TextStyle(
-              color: Colors.white54,
+              color: GameUi.inkMuted,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -1865,55 +1700,69 @@ class _RentPaneState extends State<_RentPane> {
       );
     }
 
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 10, 16, 8),
-      children: [
-        if (helmetEnabled)
-          _RentalFeatureCard(
-            icon: Icons.shield_outlined,
-            accent: const Color(0xFF7EE0FF),
-            title: l10n.rentHelmetTitle,
-            description: l10n.rentHelmetSub,
-            activeLabel: helmetLeft != null
-                ? l10n.rentActive(_formatCooldown(helmetLeft))
-                : null,
-            shortMinutes: cfg.helmetRentalMinutes,
-            shortCost: cfg.helmetRentalCost,
-            shortEnabled: economy.canRentHelmet(),
-            onShort: () => _rentHelmet(context, hour: false),
-            longMinutes: cfg.helmetRentalHourMinutes,
-            longCost: cfg.helmetRentalHourCost,
-            longListPrice: cfg.helmetRentalHourListPrice,
-            longDiscountPercent: cfg.helmetRentalHourDiscountPercent,
-            longEnabled: economy.canRentHelmet(hour: true),
-            onLong: () => _rentHelmet(context, hour: true),
-            actionLabel:
-                helmetLeft != null ? l10n.rentExtend : l10n.rentBuy,
+    final cards = <Widget>[
+      if (helmetEnabled)
+        _RentalFeatureCard(
+          icon: Icons.shield_outlined,
+          accent: const Color(0xFF065781),
+          title: l10n.rentHelmetTitle,
+          description: l10n.rentHelmetSub,
+          activeLabel: helmetLeft != null
+              ? l10n.rentActive(_formatCooldown(helmetLeft))
+              : null,
+          shortMinutes: cfg.helmetRentalMinutes,
+          shortCost: cfg.helmetRentalCost,
+          shortEnabled: economy.canRentHelmet(),
+          onShort: () => _rentHelmet(context, hour: false),
+          longMinutes: cfg.helmetRentalHourMinutes,
+          longCost: cfg.helmetRentalHourCost,
+          longListPrice: cfg.helmetRentalHourListPrice,
+          longDiscountPercent: cfg.helmetRentalHourDiscountPercent,
+          longEnabled: economy.canRentHelmet(hour: true),
+          onLong: () => _rentHelmet(context, hour: true),
+          actionLabel: helmetLeft != null ? l10n.rentExtend : l10n.rentBuy,
+        ),
+      if (jumpEnabled)
+        _RentalFeatureCard(
+          icon: Icons.keyboard_double_arrow_up_rounded,
+          accent: const Color(0xFF00644C),
+          title: l10n.rentJumpTitle,
+          description: l10n.rentJumpSub,
+          activeLabel: jumpLeft != null
+              ? l10n.rentActive(_formatCooldown(jumpLeft))
+              : null,
+          shortMinutes: cfg.jumpRentalMinutes,
+          shortCost: cfg.jumpRentalCost,
+          shortEnabled: economy.canRentJump(),
+          onShort: () => _rentJump(context, hour: false),
+          longMinutes: cfg.jumpRentalHourMinutes,
+          longCost: cfg.jumpRentalHourCost,
+          longListPrice: cfg.jumpRentalHourListPrice,
+          longDiscountPercent: cfg.jumpRentalHourDiscountPercent,
+          longEnabled: economy.canRentJump(hour: true),
+          onLong: () => _rentJump(context, hour: true),
+          actionLabel: jumpLeft != null ? l10n.rentExtend : l10n.rentBuy,
+        ),
+    ].reversed.toList();
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final twoColumns =
+            constraints.maxWidth >= 304 &&
+            MediaQuery.textScalerOf(context).scale(12) <= 16;
+        final width =
+            (constraints.maxWidth - 24 - (twoColumns ? 8 : 0)) /
+            (twoColumns ? 2 : 1);
+        return SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(12, 6, 12, 8),
+          child: Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final card in cards) SizedBox(width: width, child: card),
+            ],
           ),
-        if (jumpEnabled && helmetEnabled) const SizedBox(height: 10),
-        if (jumpEnabled)
-          _RentalFeatureCard(
-            icon: Icons.keyboard_double_arrow_up_rounded,
-            accent: const Color(0xFF3DDC97),
-            title: l10n.rentJumpTitle,
-            description: l10n.rentJumpSub,
-            activeLabel: jumpLeft != null
-                ? l10n.rentActive(_formatCooldown(jumpLeft))
-                : null,
-            shortMinutes: cfg.jumpRentalMinutes,
-            shortCost: cfg.jumpRentalCost,
-            shortEnabled: economy.canRentJump(),
-            onShort: () => _rentJump(context, hour: false),
-            longMinutes: cfg.jumpRentalHourMinutes,
-            longCost: cfg.jumpRentalHourCost,
-            longListPrice: cfg.jumpRentalHourListPrice,
-            longDiscountPercent: cfg.jumpRentalHourDiscountPercent,
-            longEnabled: economy.canRentJump(hour: true),
-            onLong: () => _rentJump(context, hour: true),
-            actionLabel:
-                jumpLeft != null ? l10n.rentExtend : l10n.rentBuy,
-          ),
-      ],
+        );
+      },
     );
   }
 }
@@ -1958,90 +1807,80 @@ class _RentalFeatureCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return GamePanel(
-      padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
-      accent: accent,
+    final helmet = icon == Icons.shield_outlined;
+    final lightAccent = accent;
+    return Container(
+      key: ValueKey(helmet ? 'rental-helmet-card' : 'rental-jump-card'),
+      padding: const EdgeInsets.all(10),
+      decoration: GameGlassDecoration(
+        glass: GameGlass.none,
+        borderRadius: BorderRadius.circular(GameUi.radius),
+        gradient: GameUi.coolPanelGradient,
+        border: Border.all(color: lightAccent, width: 1.5),
+        boxShadow: const [
+          BoxShadow(color: Color(0x88236497), offset: Offset(0, 3)),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
             children: [
-              Container(
-                width: 40,
-                height: 40,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: accent.withValues(alpha: 0.16),
-                ),
-                child: Icon(icon, color: accent, size: 22),
-              ),
-              const SizedBox(width: 10),
+              GameArtwork(helmet ? GameArt.helmet : GameArt.jump, size: 28),
+              const SizedBox(width: 6),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 16,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      description,
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.62),
-                        fontSize: 12,
-                        height: 1.25,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    color: lightAccent,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 13,
+                  ),
                 ),
               ),
             ],
           ),
+          const SizedBox(height: 6),
+          Text(
+            description,
+            style: const TextStyle(
+              color: GameUi.ink,
+              fontSize: 11,
+              height: 1.25,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
           if (activeLabel != null) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             Text(
               activeLabel!,
               style: TextStyle(
-                color: accent,
-                fontSize: 12,
+                color: lightAccent,
+                fontSize: 11,
                 fontWeight: FontWeight.w800,
                 fontFeatures: const [FontFeature.tabularFigures()],
               ),
             ),
           ],
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: _RentalDurationButton(
-                  accent: accent,
-                  minutesLabel: l10n.rentMinsLabel(shortMinutes),
-                  cost: shortCost,
-                  actionLabel: actionLabel,
-                  enabled: shortEnabled,
-                  onTap: onShort,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _RentalDurationButton(
-                  accent: accent,
-                  minutesLabel: l10n.rentMinsLabel(longMinutes),
-                  cost: longCost,
-                  listPrice: longListPrice,
-                  discountPercent: longDiscountPercent,
-                  actionLabel: actionLabel,
-                  enabled: longEnabled,
-                  onTap: onLong,
-                ),
-              ),
-            ],
+          const SizedBox(height: 10),
+          _RentalDurationButton(
+            accent: accent,
+            minutesLabel: l10n.rentMinsLabel(shortMinutes),
+            cost: shortCost,
+            actionLabel: actionLabel,
+            enabled: shortEnabled,
+            onTap: onShort,
+          ),
+          const SizedBox(height: 8),
+          _RentalDurationButton(
+            accent: accent,
+            minutesLabel: l10n.rentMinsLabel(longMinutes),
+            cost: longCost,
+            listPrice: longListPrice,
+            discountPercent: longDiscountPercent,
+            actionLabel: actionLabel,
+            enabled: longEnabled,
+            onTap: onLong,
           ),
         ],
       ),
@@ -2073,94 +1912,103 @@ class _RentalDurationButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final ru = Localizations.localeOf(context).languageCode == 'ru';
     final showDiscount =
         discountPercent != null && discountPercent! > 0 && listPrice != null;
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Opacity(
-          opacity: enabled ? 1 : 0.55,
+    final foreground = enabled ? GameUi.text : const Color(0xFFA4B2BE);
+    return Semantics(
+      button: true,
+      enabled: enabled,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          key: ValueKey('rental-offer-$minutesLabel-$cost'),
+          onTap: enabled ? onTap : null,
+          borderRadius: BorderRadius.circular(GameUi.radius),
           child: Ink(
-            padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              color: accent.withValues(alpha: 0.10),
-              border: Border.all(color: accent.withValues(alpha: 0.35)),
+              borderRadius: BorderRadius.circular(GameUi.radius),
+              gradient: enabled
+                  ? GameUi.deepPanelGradient
+                  : const LinearGradient(
+                      colors: [Color(0xFF3B4B5A), Color(0xFF293947)],
+                    ),
+              border: Border.all(
+                color: enabled ? GameUi.cyan : const Color(0xFF677887),
+                width: enabled ? 1.5 : 1,
+              ),
             ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
                       child: Text(
                         minutesLabel,
                         style: TextStyle(
-                          color: accent,
+                          color: foreground,
                           fontWeight: FontWeight.w900,
                           fontSize: 13,
                         ),
                       ),
                     ),
-                    if (showDiscount)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 5,
-                          vertical: 1,
-                        ),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(6),
-                          color: accent.withValues(alpha: 0.22),
-                        ),
-                        child: Text(
-                          l10n.rentDiscountBadge(discountPercent!),
-                          style: TextStyle(
-                            color: accent,
-                            fontSize: 9,
-                            fontWeight: FontWeight.w900,
-                          ),
-                        ),
-                      ),
+                    const SizedBox(width: 4),
+                    CrystalCostBadge(amount: cost, available: enabled),
                   ],
                 ),
+                if (showDiscount) ...[
+                  const SizedBox(height: 5),
+                  Wrap(
+                    spacing: 5,
+                    children: [
+                      Text(
+                        '$listPrice',
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: foreground,
+                          decoration: TextDecoration.lineThrough,
+                        ),
+                      ),
+                      Text(
+                        l10n.rentDiscountBadge(discountPercent!),
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                          color: enabled ? GameUi.yellow : foreground,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    if (showDiscount) ...[
-                      Text(
-                        '${listPrice!}',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 11,
-                          color: Colors.white38,
-                          decoration: TextDecoration.lineThrough,
-                          decorationColor: Colors.white38,
-                        ),
-                      ),
-                      const SizedBox(width: 5),
-                    ],
-                    Text(
-                      '$cost',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 16,
-                      ),
+                    Icon(
+                      enabled
+                          ? Icons.check_circle_outline_rounded
+                          : Icons.lock_outline_rounded,
+                      size: 14,
+                      color: enabled ? GameUi.mint : foreground,
                     ),
                     const SizedBox(width: 4),
-                    const CrystalCubeIcon(size: 14),
+                    Expanded(
+                      child: Text(
+                        enabled
+                            ? actionLabel
+                            : ru
+                            ? 'Не хватает'
+                            : 'Not enough',
+                        style: TextStyle(
+                          color: enabled ? GameUi.mint : foreground,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
                   ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  actionLabel,
-                  style: TextStyle(
-                    color: accent,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
-                  ),
                 ),
               ],
             ),
@@ -2170,7 +2018,6 @@ class _RentalDurationButton extends StatelessWidget {
     );
   }
 }
-
 
 String _premiumMultLabel(EconomyStore economy) {
   final mult = economy.config.premiumDailyMultiplier;
@@ -2185,25 +2032,35 @@ class _EarnPane extends StatelessWidget {
   final EconomyStore economy;
 
   static const _shopOnlyIds = {'watch_ad'};
+  static const _telegramIds = {
+    'enable_notifications',
+    'invite_friend',
+    'social_post',
+    'rate_app',
+  };
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final actions = economy.config.earnActions
-        .where((a) => !_shopOnlyIds.contains(a.id))
+        .where(
+          (a) =>
+              !_shopOnlyIds.contains(a.id) &&
+              (!AppTargetConfig.isMobile || !_telegramIds.contains(a.id)),
+        )
         .toList();
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 10, 16, 8),
+      padding: const EdgeInsets.fromLTRB(12, 6, 12, 8),
       children: [
         Text(
           l10n.earnPreviewHint,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Colors.white54,
-                fontSize: 11,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: GameUi.muted, fontSize: 11),
         ),
         const SizedBox(height: 8),
+        const InviteActionCard(),
         ...actions.map((a) {
           final done = economy.isEarnClaimed(a.id);
           final unlocked = economy.isEarnUnlocked(a.id);
@@ -2214,25 +2071,37 @@ class _EarnPane extends StatelessWidget {
               borderRadius: BorderRadius.circular(14),
               onTap: done || locked
                   ? null
-                  : () {
-                      final n = economy.claimEarnAction(a.id);
-                      if (n != null) {
-                        showGameToast(
-                          context,
-                          message: l10n.crystalsPlus(n),
-                          flyTo: ToastFlyTarget.crystals,
-                        );
-                      }
-                    },
+                  : () => runResourceAction(
+                      context,
+                      economy,
+                      'earn-${a.id}',
+                      () async {
+                        if (!await ensureResourceAge(context) ||
+                            !context.mounted) {
+                          return;
+                        }
+                        final n = economy.claimEarnAction(a.id);
+                        if (n != null) {
+                          showGameToast(
+                            context,
+                            message: l10n.crystalsPlus(n),
+                            flyTo: ToastFlyTarget.crystals,
+                          );
+                        }
+                      },
+                    ),
               child: Opacity(
                 opacity: locked ? 0.55 : 1,
                 child: GamePanel(
+                  gradient: GameUi.coolPanelGradient,
                   margin: const EdgeInsets.only(bottom: 6),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
                   accent: done
-                      ? const Color(0xFF3DDC97)
-                      : (unlocked && !done ? const Color(0xFFFFC857) : null),
+                      ? const Color(0xFF00644C)
+                      : (unlocked && !done ? const Color(0xFF724A07) : null),
                   child: Row(
                     children: [
                       Expanded(
@@ -2251,7 +2120,7 @@ class _EarnPane extends StatelessWidget {
                                   ? l10n.earnBonusLocked
                                   : L10nCatalog.earnSubtitle(l10n, a),
                               style: const TextStyle(
-                                color: Colors.white54,
+                                color: GameUi.inkMuted,
                                 fontSize: 11,
                               ),
                             ),
@@ -2261,13 +2130,13 @@ class _EarnPane extends StatelessWidget {
                       if (done)
                         const Icon(
                           Icons.check_circle,
-                          color: Color(0xFF3DDC97),
+                          color: Color(0xFF00644C),
                           size: 20,
                         )
                       else if (locked)
                         const Icon(
                           Icons.lock_outline,
-                          color: Colors.white38,
+                          color: GameUi.inkMuted,
                           size: 20,
                         )
                       else
@@ -2282,4 +2151,27 @@ class _EarnPane extends StatelessWidget {
       ],
     );
   }
+}
+
+class _CrystalRewardBadge extends StatelessWidget {
+  const _CrystalRewardBadge({required this.amount});
+  final int amount;
+  @override
+  Widget build(BuildContext context) => Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      const CrystalCubeIcon(size: 16, glow: false),
+      const SizedBox(width: 4),
+      Flexible(
+        child: Text(
+          '+$amount',
+          style: const TextStyle(
+            fontWeight: FontWeight.w800,
+            fontSize: 13,
+            color: GameUi.ink,
+          ),
+        ),
+      ),
+    ],
+  );
 }

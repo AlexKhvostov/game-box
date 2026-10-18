@@ -1,0 +1,34 @@
+{
+  "contractVersion": 2,
+  "migration": [
+    {"lives": 0, "crystals": 0, "energy": 0, "charge": 20},
+    {"lives": 7, "crystals": 13, "energy": 33, "charge": 20},
+    {"lives": 100, "crystals": 999, "energy": 2098, "charge": 20}
+  ],
+  "newPlayer": {"energy": 20, "charge": 20, "afterClaim": 40},
+  "charge": [
+    {"elapsedMs": -1, "units": 0},
+    {"elapsedMs": 0, "units": 0},
+    {"elapsedMs": 2159999, "units": 0},
+    {"elapsedMs": 2160000, "units": 1},
+    {"elapsedMs": 12960000, "units": 6},
+    {"elapsedMs": 43199999, "units": 19},
+    {"elapsedMs": 43200000, "units": 20},
+    {"elapsedMs": 43200001, "units": 20},
+    {"elapsedMs": 172800000, "units": 20}
+  ],
+  "attempts": [
+    {"helmet": false, "jump": false, "cost": 1},
+    {"helmet": true, "jump": false, "cost": 2},
+    {"helmet": false, "jump": true, "cost": 2},
+    {"helmet": true, "jump": true, "cost": 3}
+  ],
+  "upgrade": {"fromSlots": 1, "fromCharge": 20, "toSlots": 5, "chargeImmediately": 20, "capacity": 100},
+  "expiry": {"freeUnits": 6, "paidUnits": [2, 2, 2, 2], "walletCredit": 8, "freeChargeRemaining": 6},
+  "packages": [
+    {"sku": "energy_100_v1", "energy": 100, "usd": 2, "discount": 0},
+    {"sku": "energy_250_v1", "energy": 250, "usd": 4, "discount": 20},
+    {"sku": "energy_500_v1", "energy": 500, "usd": 6, "discount": 40},
+    {"sku": "energy_1000_v1", "energy": 1000, "usd": 9, "discount": 55}
+  ]
+}

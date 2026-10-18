@@ -1,0 +1,75 @@
+/* Native ProfileScreen/GameSheetHeader; Telegram identity and actions stay intact. */
+#sheet-panel.sheet-profile,
+html[data-theme="light"] #sheet-panel.sheet-profile { background: linear-gradient(#123E58, #082E4C, #061B2D); min-height: 0; max-height: var(--sheet-max-height); }
+#sheet-panel.sheet-profile.keyboard-open { height: var(--sheet-max-height) !important; max-height: var(--sheet-max-height) !important; min-height: 0; }
+#sheet-panel.sheet-profile > .sheet-body { padding: 0; overflow: hidden; min-height: 0; }
+#sheet-panel.sheet-profile .neon-profile { height: 100%; min-height: 0; padding: 0 12px; color: #F0FBFF; }
+#sheet-panel.sheet-profile .profile-header { padding: 6px 0; gap: 6px; border: 0; min-width: 0; }
+#sheet-panel.sheet-profile .profile-title-wrap { min-width: 0; flex: 1; gap: 8px; }
+#sheet-panel.sheet-profile .profile-title-icon { display: grid; place-items: center; flex: 0 0 68px; width: 68px; height: 68px; color: #79F1F5; }
+#sheet-panel.sheet-profile .profile-header-cube { width: 68px; height: 68px; display: block; object-fit: contain; }
+#sheet-panel.sheet-profile .profile-header-person { display: none; }
+#sheet-panel.sheet-profile .profile-header h2 { flex: 1; min-width: 0; padding: 7px 10px; background: linear-gradient(#367F9F, #155976 20%, #082E4C); border: 1px solid #B9F0FF; border-radius: 8px; color: #F0FBFF; font-size: 18px; line-height: 1.25; font-weight: 800; text-transform: uppercase; overflow-wrap: anywhere; }
+#sheet-panel.sheet-profile .profile-close-btn { align-self: center; }
+#sheet-panel.sheet-profile .profile-close-btn svg { display: block; flex: 0 0 22px; }
+#sheet-panel.sheet-profile .profile-person-header .profile-title-icon { flex-basis: 30px; width: 30px; height: 30px; }
+#sheet-panel.sheet-profile .profile-person-header .profile-header-cube { display: none; }
+#sheet-panel.sheet-profile .profile-person-header .profile-header-person { display: block; width: 30px; height: 30px; }
+#sheet-panel.sheet-profile .profile-scroll-area { min-height: 0; padding: 0 0 8px; margin-bottom: var(--tg-pad-bottom, 0px); gap: 9px; }
+#sheet-panel.sheet-profile .profile-scroll-area::-webkit-scrollbar { width: 5px; }
+#sheet-panel.sheet-profile .profile-scroll-area::-webkit-scrollbar-track { background: transparent; }
+#sheet-panel.sheet-profile .profile-scroll-area::-webkit-scrollbar-thumb { background: #376984; border-radius: 5px; }
+#sheet-panel.sheet-profile .profile-card { flex: 0 0 auto; min-width: 0; padding: 8px 10px; background: linear-gradient(135deg, #153F58, #0D2A40); border: 1px solid #376984; border-radius: 12px; box-shadow: none; color: #F0FBFF; }
+#sheet-panel.sheet-profile .profile-avatar-row { gap: 10px; margin-bottom: 4px; }
+#sheet-panel.sheet-profile .profile-account-status { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; color: #F0FBFF; font-size: 12px; line-height: 1.25; font-weight: 800; }
+#sheet-panel.sheet-profile .profile-account-status.is-connected { color: #43ECC0; }
+#sheet-panel.sheet-profile .profile-account-status svg { flex: 0 0 18px; width: 18px; height: 18px; }
+#sheet-panel.sheet-profile .profile-account-status > span { min-width: 0; overflow-wrap: anywhere; }
+#sheet-panel.sheet-profile .profile-avatar-wrap { width: 40px; height: 40px; border: 1px solid #376984; background: #10364E; box-shadow: none; }
+#sheet-panel.sheet-profile .profile-fullname { color: #F0FBFF; font-size: 13px; line-height: 1.25; white-space: normal; overflow-wrap: anywhere; overflow: visible; text-overflow: clip; }
+#sheet-panel.sheet-profile .profile-tg-username { max-width: 100%; font-size: 11px; line-height: 1.25; color: #79F1F5; white-space: normal; flex-wrap: wrap; overflow-wrap: anywhere; }
+#sheet-panel.sheet-profile .profile-no-tg { font-size: 11px; line-height: 1.25; color: #A9CBE4; }
+#sheet-panel.sheet-profile .profile-account-card .profile-privacy-toggle { min-height: 48px; padding: 6px 0; margin-top: 0; background: none; border: 0; border-radius: 0; gap: 8px; }
+#sheet-panel.sheet-profile .profile-account-card .profile-toggle-box { border: 1.5px solid #A9CBE4; border-radius: 3px; background: none; box-shadow: none; }
+#sheet-panel.sheet-profile .profile-account-card .profile-privacy-toggle input:checked + .profile-toggle-box { background: #43ECC0; border-color: #43ECC0; box-shadow: none; }
+#sheet-panel.sheet-profile .profile-account-card .profile-toggle-box svg { color: #061B2D; }
+#sheet-panel.sheet-profile .profile-account-card .profile-toggle-label { min-width: 0; font-size: 11px; line-height: 1.25; color: #F0FBFF; overflow-wrap: anywhere; }
+#sheet-panel.sheet-profile .profile-hint { color: #A9CBE4; font-size: 11px; line-height: 1.35; font-weight: 400; overflow-wrap: anywhere; }
+#sheet-panel.sheet-profile .profile-field-title { display: block; color: #F0FBFF; font-size: 12px; line-height: 1.25; font-weight: 700; margin-bottom: 4px; text-transform: none; letter-spacing: 0; }
+#sheet-panel.sheet-profile .profile-input-wrap { flex: 1; margin: 0; min-width: 0; }
+#sheet-panel.sheet-profile .profile-nick-input { width: 100%; min-width: 0; min-height: 48px; height: var(--profile-nick-field-height, 48px); padding: 10px; border: 1px solid #B9F0FF; border-radius: 12px; background: #061B2D; color: #F0FBFF; font-size: 16px; line-height: 1.25; font-weight: 600; box-shadow: none; }
+#sheet-panel.sheet-profile .profile-nick-input:focus { outline: 2px solid #43ECC0; outline-offset: -2px; border-color: #43ECC0; box-shadow: none; }
+#sheet-panel.sheet-profile .profile-nick-input.is-invalid { border-color: #B95771; }
+#sheet-panel.sheet-profile .profile-nick-input.is-invalid:focus { outline-color: #B95771; }
+#sheet-panel.sheet-profile .profile-nick-input::placeholder { color: #A9CBE4; opacity: 1; }
+#sheet-panel.sheet-profile .profile-stats-card { display: block; }
+#sheet-panel.sheet-profile .profile-stats-card .profile-stats-title { margin-bottom: 8px; color: #F0FBFF; font-size: 12px; line-height: 1.25; font-weight: 800; text-transform: none; letter-spacing: 0; }
+#sheet-panel.sheet-profile .profile-stats-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+#sheet-panel.sheet-profile .profile-stat-box { min-width: 0; min-height: 0; padding: 0; align-items: flex-start; text-align: left; background: none; border: 0; border-radius: 0; }
+#sheet-panel.sheet-profile .profile-stat-lbl { max-width: 100%; margin: 0 0 3px; color: #A9CBE4; font-size: 11px; line-height: 1.25; font-weight: 400; overflow-wrap: anywhere; }
+#sheet-panel.sheet-profile .profile-stat-val { max-width: 100%; min-width: 0; color: #F0FBFF; font-size: 13px; line-height: 1.25; font-weight: 800; overflow-wrap: anywhere; }
+#sheet-panel.sheet-profile .profile-large-text .profile-stats-grid { grid-template-columns: 1fr; }
+#sheet-panel.sheet-profile .profile-large-text .profile-avatar-row { flex-direction: column; align-items: stretch; }
+#sheet-panel.sheet-profile .profile-large-text .profile-avatar-wrap { align-self: flex-start; }
+#sheet-panel.sheet-profile .profile-nick-heading { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 4px 8px; margin-bottom: 4px; }
+#sheet-panel.sheet-profile .profile-nick-heading .profile-field-title { margin: 0; }
+#sheet-panel.sheet-profile .profile-nick-limit { color: #A9CBE4; font-size: 11px; line-height: 1.25; }
+#sheet-panel.sheet-profile .profile-nick-row { display: flex; align-items: flex-start; gap: 8px; min-width: 0; }
+#sheet-panel.sheet-profile .profile-nick-save-btn { flex: 0 0 96px; width: 96px; min-width: 48px; min-height: 48px; height: var(--profile-nick-field-height, 48px); display: grid; place-items: center; padding: 6px; background: #43ECC0; color: #082E4C; border: 1px solid #8FFAE0; border-radius: 9px; font-family: inherit; font-size: 12px; line-height: 1.25; font-weight: 800; box-shadow: none; cursor: pointer; }
+#sheet-panel.sheet-profile .profile-nick-save-btn:disabled { background: #163A50; color: #A9CBE4; border-color: #376984; opacity: 1; cursor: default; }
+#sheet-panel.sheet-profile .profile-nick-save-btn:focus-visible { outline: 2px solid #79F1F5; outline-offset: -2px; }
+#sheet-panel.sheet-profile .profile-nick-save-label { white-space: nowrap; }
+#sheet-panel.sheet-profile .profile-nick-save-icon,
+#sheet-panel.sheet-profile .profile-nick-save-wait { display: none; }
+#sheet-panel.sheet-profile .profile-nick-large .profile-nick-save-btn { flex-basis: 48px; width: 48px; }
+#sheet-panel.sheet-profile .profile-nick-large .profile-nick-save-label { display: none; }
+#sheet-panel.sheet-profile .profile-nick-large .profile-nick-save-icon { display: block; }
+#sheet-panel.sheet-profile .profile-nick-large .profile-nick-save-btn.is-saving .profile-nick-save-icon { display: none; }
+#sheet-panel.sheet-profile .profile-nick-large .profile-nick-save-btn.is-saving .profile-nick-save-wait { display: block; }
+#sheet-panel.sheet-profile .profile-nick-error,
+#sheet-panel.sheet-profile .profile-privacy-error { color: #FF6B7A; font-size: 11px; line-height: 1.2; padding: 2px 0; overflow-wrap: anywhere; }
+#sheet-panel.sheet-profile .profile-nick-error { font-size: calc(var(--profile-nick-field-height, 48px) * 11 / 48); }
+#sheet-panel.sheet-profile .profile-nickname-card .profile-stats-grid { margin-top: 6px; }
+#sheet-panel.sheet-profile .profile-compact .profile-header { padding-top: 4px; padding-bottom: 4px; }
+#sheet-panel.sheet-profile .profile-compact .profile-scroll-area { gap: 3px; padding-bottom: 4px; }
+#sheet-panel.sheet-profile .profile-compact .profile-card { padding-top: 2px; padding-bottom: 2px; }

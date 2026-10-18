@@ -1,0 +1,19 @@
+{
+  "functions": [{"source":"functions","codebase":"untouch-android","runtime":"nodejs22"}],
+  "firestore": [{"database":"android-v1","location":"europe-west1","rules":"firestore.rules","indexes":"firestore.indexes.json"}],
+  "hosting": {
+    "site":"untouch-android-game-box-b30d4",
+    "public":"hosting",
+    "ignore":["firebase.json","**/node_modules/**"],
+    "rewrites":[{"source":"/a/**","destination":"/invite.html"}],
+    "headers":[{"source":"/.well-known/assetlinks.json","headers":[{"key":"Content-Type","value":"application/json"},{"key":"Cache-Control","value":"public, max-age=3600"}]}]
+  },
+  "emulators": {
+    "auth":{"host":"127.0.0.1","port":9099},
+    "firestore":{"host":"127.0.0.1","port":8088},
+    "functions":{"host":"127.0.0.1","port":5001},
+    "hosting":{"host":"127.0.0.1","port":5080},
+    "ui":{"enabled":false},
+    "singleProjectMode":true
+  }
+}

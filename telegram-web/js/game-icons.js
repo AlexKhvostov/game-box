@@ -1,4 +1,4 @@
-/** Иконки из lib/ui — RestingCubeIcon, CrystalCubeIcon, Material (как во Flutter). */
+﻿/** Иконки из lib/ui — RestingCubeIcon, CrystalCubeIcon, Material (как во Flutter). */
 
 const ICONS = 'icons';
 
@@ -36,3 +36,11 @@ export const TAB_ICON_SVG = {
   rent: `<svg class="tab-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 5v5.25l3.15 1.85-.9 1.54L11 13V7h2z"/></svg>`,
   earn: `<svg class="tab-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l2.39 7.26H22l-6.19 4.5 2.36 7.24L12 16.77 5.83 21l2.36-7.24L2 9.26h7.61L12 2z"/></svg>`,
 };
+
+// One decorative artwork component; values and actions stay in each window.
+const UI_ART = new Set(['player-avatar','hero-ready','hero-resting','hero-focused','hero-delighted','crystals','helmet','jump','plus','reward']);
+export function uiArtwork(kind, size = 64, cls = '') {
+  if (!UI_ART.has(kind)) throw new Error('Unknown runtime illustration');
+  return `<img class="ui-art ${cls}" src="assets/branding/ui/${kind}-v1.png" width="${size}" height="${size}" alt="">`;
+}
+

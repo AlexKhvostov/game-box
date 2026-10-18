@@ -1,0 +1,22 @@
+/* Keep everyday controls readable on desktop and on the mobile layout. */
+.nav-item{font-size:13px}.workspace{font-size:13px}.workspace small{font-size:11px}
+.breadcrumb,.connection{font-size:12px}.page-heading h1{font-size:30px}
+.page-heading p{font-size:13px}.summary-label{font-size:9px}.config-summary small{font-size:11px}
+.search input,.sections button{font-size:12px}.changed-filter{font-size:11px}
+.secondary,.primary,.text-button{font-size:12px}.field-copy label{font-size:14px}
+.field-copy p{font-size:11px}.field-copy code{font-size:9px}.value-control input{font-size:14px}
+.section-heading p{font-size:12px}.notice{font-size:12px}.bottom-bar>div:first-child{font-size:12px}
+.bottom-bar small{font-size:10px}.login-card p{font-size:13px}.login-card>small{font-size:11px}
+@media(max-width:1200px){.nav-item{font-size:12px}.secondary,.primary,.text-button{font-size:11px}.field-copy label{font-size:13px}}
+@media(max-width:640px){.nav-item{font-size:12px}.breadcrumb,.connection{font-size:9px}.page-heading h1{font-size:25px}.notice{font-size:11px}.secondary,.primary{font-size:11px}.actions button{font-size:10px}.actions .text-button{font-size:9px}.field-copy label{font-size:13px}.field-copy p{font-size:10px}.field-copy code{font-size:8px}.bottom-bar>div:first-child{font-size:11px}}
+@media(max-width:640px){
+  .sidebar nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+  .nav-item{min-width:0;flex-direction:column;text-align:center;gap:6px;padding:10px 5px;font-size:11px;line-height:1.35}
+  .nav-item span{min-width:0;overflow-wrap:anywhere}
+  .nav-item svg{width:18px;height:18px}
+  .actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+  .actions button{min-width:0;width:100%;white-space:normal;justify-content:center}
+  .actions #preview{grid-column:1/-1;grid-row:1}
+  .actions #discard{grid-column:1;grid-row:2}
+  .actions #save{grid-column:2;grid-row:2}
+}

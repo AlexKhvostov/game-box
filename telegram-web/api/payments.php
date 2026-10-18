@@ -52,8 +52,7 @@ try {
             payments_fail(503, 'Bot token not configured');
         }
 
-        $nonce = bin2hex(function_exists('random_bytes') ? random_bytes(4) : openssl_random_pseudo_bytes(4));
-        $payload = $auth['userId'] . ':' . $product['id'] . ':' . $nonce;
+        $payload = tg_create_order($pdo, $auth['userId'], $product);
         $body = [
             'title' => $product['title'],
             'description' => $product['description'],

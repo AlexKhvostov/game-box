@@ -1,8 +1,15 @@
-# Prevent stale caching of Telegram Mini App assets
+# Entry points revalidate; versioned modules and stable media can be reused.
 <IfModule mod_headers.c>
-  Header set Cache-Control "no-cache, no-store, must-revalidate"
-  Header set Pragma "no-cache"
-  Header set Expires 0
+  Header set Cache-Control "no-cache, must-revalidate"
+  <FilesMatch "\.(js|css|svg|png|jpe?g|webp|mp3|wav|ogg|woff2?)$">
+    Header set Cache-Control "public, max-age=86400"
+  </FilesMatch>
+  <FilesMatch "\.php$">
+    Header set Cache-Control "no-store"
+  </FilesMatch>
+  <Files "config.php">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </Files>
 </IfModule>
 
 <IfModule mod_rewrite.c>

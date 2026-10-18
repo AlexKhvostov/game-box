@@ -21,16 +21,26 @@ void showGameToast(
   entry = OverlayEntry(
     builder: (ctx) => _GameToastHost(
       message: message,
-      icon: icon ??
-          (flyTo == ToastFlyTarget.lives
+      icon:
+          icon ??
+          (flyTo == ToastFlyTarget.energy
+              ? const Icon(
+                  Icons.bolt_rounded,
+                  color: Color(0xFFFFEE73),
+                  size: 28,
+                )
+              : flyTo == ToastFlyTarget.lives
               ? const Icon(
                   Icons.favorite_rounded,
                   color: Color(0xFFFF5A5F),
                   size: 26,
                 )
               : const CrystalCubeIcon(size: 28)),
-      accent: accent ??
-          (flyTo == ToastFlyTarget.lives
+      accent:
+          accent ??
+          (flyTo == ToastFlyTarget.energy
+              ? const Color(0xFFFFEE73)
+              : flyTo == ToastFlyTarget.lives
               ? const Color(0xFF3DDC97)
               : const Color(0xFF7EE0FF)),
       flyTo: flyTo,
@@ -83,10 +93,13 @@ class _GameToastHostState extends State<_GameToastHost>
       if (!mounted) return;
       final size = MediaQuery.sizeOf(context);
       final start = Offset(size.width / 2, size.height * 0.30);
+      final anchor = HudFlyTargets.centerOf(widget.flyTo);
+      final overlayBox =
+          Overlay.of(context).context.findRenderObject() as RenderBox;
       final end = widget.flyTo == ToastFlyTarget.none
           ? Offset(size.width / 2, size.height * 0.14)
-          : (HudFlyTargets.centerOf(widget.flyTo) ??
-              HudFlyTargets.fallbackOf(widget.flyTo, size));
+          : ((anchor == null ? null : overlayBox.globalToLocal(anchor)) ??
+                HudFlyTargets.fallbackOf(widget.flyTo, size));
       setState(() {
         _start = start;
         _end = end;
@@ -109,7 +122,15 @@ class _GameToastHostState extends State<_GameToastHost>
     return IgnorePointer(
       child: AnimatedBuilder(
         animation: _c,
-        builder: (context, _) {
+        child: RepaintBoundary(
+          child: _ToastCard(
+            message: widget.message,
+            icon: widget.icon,
+            accent: widget.accent,
+            festive: widget.festive,
+          ),
+        ),
+        builder: (context, card) {
           final t = _c.value;
           // 0..0.22 — яркое появление; дальше полёт к цели
           final appear = (t / 0.22).clamp(0.0, 1.0);
@@ -145,12 +166,7 @@ class _GameToastHostState extends State<_GameToastHost>
                     opacity: opacity,
                     child: Transform.scale(
                       scale: scale.clamp(0.12, 1.2),
-                      child: _ToastCard(
-                        message: widget.message,
-                        icon: widget.icon,
-                        accent: widget.accent,
-                        festive: widget.festive,
-                      ),
+                      child: card,
                     ),
                   ),
                 ),
@@ -229,12 +245,7 @@ class _ToastCard extends StatelessWidget {
                   fontSize: festive ? 17 : 15,
                   color: const Color(0xFFE8EEF4),
                   shadows: festive
-                      ? const [
-                          Shadow(
-                            color: Color(0x88FFD54F),
-                            blurRadius: 8,
-                          ),
-                        ]
+                      ? const [Shadow(color: Color(0x88FFD54F), blurRadius: 8)]
                       : null,
                 ),
               ),
@@ -268,8 +279,9 @@ class _FestiveBurstPainter extends CustomPainter {
       final dist = 28 + burst * (70 + rnd.nextDouble() * 50);
       final p = origin + Offset(math.cos(ang) * dist, math.sin(ang) * dist);
       final paint = Paint()
-        ..color = (i.isEven ? accent : const Color(0xFFFFD54F))
-            .withValues(alpha: 0.85 * fade)
+        ..color = (i.isEven ? accent : const Color(0xFFFFD54F)).withValues(
+          alpha: 0.85 * fade,
+        )
         ..style = PaintingStyle.fill;
       canvas.drawCircle(p, 2.2 + (1 - burst) * 2.5, paint);
     }
@@ -277,8 +289,7 @@ class _FestiveBurstPainter extends CustomPainter {
     canvas.drawCircle(
       origin,
       18 + burst * 40,
-      Paint()
-        ..color = const Color(0xFFFFD54F).withValues(alpha: 0.16 * fade),
+      Paint()..color = const Color(0xFFFFD54F).withValues(alpha: 0.16 * fade),
     );
   }
 
