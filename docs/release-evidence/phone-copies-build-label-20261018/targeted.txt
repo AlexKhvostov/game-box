@@ -1,0 +1,24 @@
+00:00 +0: loading D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart
+00:00 +0: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: obsolete unaccepted protocol row is retained diagnostically without blocking updated client
+00:00 +1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: active or completed pending run blocks identity switch until confirmed
+00:00 +2: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: real cached wallet and two process restarts never subtract queued costs twice
+00:00 +3: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: ScoresStore keeps every offline attempt visible and marks both shared after restart
+00:00 +4: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: known Supabase owner restores offline from secure credentials without HTTP
+00:00 +5: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: last offline attempt costs 1, zero survives restart and replay
+00:00 +6: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: last offline attempt costs 2, zero survives restart and replay
+00:00 +7: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: last offline attempt costs 3, zero survives restart and replay
+00:00 +8: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: server-empty balance replaces a stale offline balance before releasing a refused cost
+00:00 +9: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:00 +10: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:00 +11: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:00 +12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:00 +13: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:00 +14: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:00 +15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:01 +16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: offline costs, all results and frozen boosts survive restart and sync exactly once
+00:01 +17: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: lost start and finish acknowledgements replay one ID without a second debit
+00:01 +18: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: server refusal never grants a score or reward, and owner changes cannot send old rows
+00:01 +19: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: pending local history recovers a result if the process died between two writes
+00:01 +20: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: touch keeps visible enemies and enters playing while HTTP is unresolved: idleMove=false
+00:02 +21: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: touch keeps visible enemies and enters playing while HTTP is unresolved: idleMove=true
+00:02 +22: All tests passed!

@@ -1,0 +1,9 @@
+{
+  "androidApiVersion": 15,
+  "status": "ACTIVE",
+  "deployedReplayMatchesLocal": true,
+  "replaySha256": "9a6d8f86cac08b7fcbaf9f88b92492c6580aa274baafda93654abefbc4fa75f1",
+  "unauthenticatedProfileStatus": 401,
+  "schemaAuthAndRlsChanges": false,
+  "remoteConfigChanged": false
+}

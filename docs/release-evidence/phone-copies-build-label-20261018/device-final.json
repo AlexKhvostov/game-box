@@ -1,0 +1,12 @@
+{
+  "gamePackages": [
+    "com.best4u.untouch"
+  ],
+  "gameCopyCount": 1,
+  "versionCode": 179,
+  "labelVerifiedInAndroidSettings": "Untouch 179",
+  "oldQaPackagesRemoved": true,
+  "temporaryQa179Removed": true,
+  "mainStopped": true,
+  "usbStayAwake": "2"
+}

@@ -1,0 +1,17 @@
+{
+  "isolatedPhysicalProfile": true,
+  "instantRoundBranch": true,
+  "sameWorldAcrossFirstTouch": true,
+  "displacements": [
+    48.912898568860946,
+    20.173252427466533,
+    35.48020572307642,
+    21.197584833776066
+  ],
+  "observedIntervalSeconds": 1.4840000000258442,
+  "motionWithinSpeedBound": true,
+  "errors": [],
+  "realCloudRequests": 0,
+  "realOwnerGamesStarted": 0,
+  "mainVersionDuringProbe": 178
+}

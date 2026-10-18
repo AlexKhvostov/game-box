@@ -1,0 +1,4 @@
+Analyzing 3 items...
+
+   info - Use the null-aware marker '?' rather than a null check via an 'if'. Try using '?' - test\android_replay_proof_test.dart:103:15 - use_null_aware_elements
+   info - Parameter 'instantEconomy' could be a super parameter. Trying converting 'instantEconomy' to a super parameter - tools\simple_energy_probe.dart:425:3 - use_super_parameters

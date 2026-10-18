@@ -1,0 +1,11 @@
+{
+  "android/app/build.gradle.kts": "1b23c72234c052710076b27442ff7326b19d46cebed5a89e2e5923617a138081",
+  "tools/build_phone_apk.ps1": "ddea04befb6a7536e9ddea92be95bcca1a26f90bc768b997f6eff99d5b9ec8b1",
+  "lib/features/game/game_home_screen.dart": "54878a8c97acaa93073a419c44dda6973055226f3cfd2fe56f6897873065f46e",
+  "lib/features/game/game_world.dart": "6d6fdb4661aedea4399a6683e529ea1602bfed27bba1fd74c99584d9184bd9d2",
+  "lib/data/instant_round_journal.dart": "c8d71795e444443e2ca3095e4766c0fce2c681876818a39ab1357ae7a1b96ed1",
+  "lib/data/scores_store.dart": "9ee0e4510f4ecf4bbf076ca769e7bf548a711df138e2de3d3ebc84a112db6257",
+  "tools/replay/session.dart": "d3f0e5d3c51af277977d0600b4f4bcc27f130a31f09e5185057613bec240147b",
+  "tools/simple_energy_probe.dart": "a16ee43959f9441e732422efcccced397587d5f0d400bdf4cee7f1c7e0e9487e",
+  "pubspec.yaml": "ebef0b6e2fd196777ab4eca26ee72600c7413a54bb02cac249c746630e47e6a7"
+}

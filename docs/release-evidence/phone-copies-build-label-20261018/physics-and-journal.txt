@@ -1,0 +1,27 @@
+00:00 +0: loading D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_replay_proof_test.dart
+00:00 +0: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_replay_proof_test.dart: real Dart physics emits completed proofs for server cross-runtime verification
+00:00 +1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_replay_proof_test.dart: pending proof survives storage, ACK drops bulky proof but retains metrics
+00:00 +2: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_world_test.dart: enlarged player and every enemy preserve shape, area ratio and collision bounds
+00:00 +3: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_world_test.dart: drowsy enemies start from their visible pose without snapping home
+00:00 +4: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_world_test.dart: replay restores visible pose but cannot replace seeded speed or geometry
+00:00 +5: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_world_test.dart: jump matches Mini App cooldown and resets between rounds
+00:00 +6: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_world_test.dart: distance counts only movement inside nonlethal walls
+00:00 +7: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_world_test.dart: enemies move on idle tick
+00:00 +8: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_world_test.dart: enemies move on play tick
+00:05 +9: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: obsolete unaccepted protocol row is retained diagnostically without blocking updated client
+00:05 +10: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: active or completed pending run blocks identity switch until confirmed
+00:05 +11: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: real cached wallet and two process restarts never subtract queued costs twice
+00:05 +12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: ScoresStore keeps every offline attempt visible and marks both shared after restart
+00:05 +13: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: known Supabase owner restores offline from secure credentials without HTTP
+00:05 +14: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: last offline attempt costs 1, zero survives restart and replay
+00:05 +15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: last offline attempt costs 2, zero survives restart and replay
+00:05 +16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: last offline attempt costs 3, zero survives restart and replay
+00:05 +17: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: server-empty balance replaces a stale offline balance before releasing a refused cost
+00:05 +18: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:06 +19: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: offline costs, all results and frozen boosts survive restart and sync exactly once
+00:06 +20: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: lost start and finish acknowledgements replay one ID without a second debit
+00:06 +21: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: server refusal never grants a score or reward, and owner changes cannot send old rows
+00:06 +22: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: pending local history recovers a result if the process died between two writes
+00:06 +23: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: touch keeps visible enemies and enters playing while HTTP is unresolved: idleMove=false
+00:07 +24: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: touch keeps visible enemies and enters playing while HTTP is unresolved: idleMove=true
+00:07 +25: All tests passed!
