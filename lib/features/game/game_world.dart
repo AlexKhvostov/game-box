@@ -146,6 +146,30 @@ class EnemyBody {
   /// Пересечение с осью-выровненным прямоугольником (игрок / препятствие).
   bool overlapsAabb(Rect other) => mtvOutOfAabb(other) != null;
 
+  /// First overlap while [other] moves by [delta], using the four SAT axes.
+  /// A clear endpoint alone cannot rule out crossing a thin/rotated enemy.
+  double? sweptAabb(Rect other, Offset delta) {
+    var enter = 0.0;
+    var exit = 1.0;
+    for (final axis in [const Offset(1, 0), const Offset(0, 1), axisX, axisY]) {
+      final (lo, hi) = project(axis);
+      final center = other.center.dx * axis.dx + other.center.dy * axis.dy;
+      final extent =
+          other.width / 2 * axis.dx.abs() + other.height / 2 * axis.dy.abs();
+      final velocity = delta.dx * axis.dx + delta.dy * axis.dy;
+      if (velocity.abs() < 1e-12) {
+        if (center + extent <= lo || center - extent >= hi) return null;
+        continue;
+      }
+      final a = (lo - center - extent) / velocity;
+      final b = (hi - center + extent) / velocity;
+      enter = max(enter, min(a, b));
+      exit = min(exit, max(a, b));
+      if (enter >= exit) return null;
+    }
+    return exit <= 0 ? null : enter;
+  }
+
   /// MTV: сдвиг центра, чтобы выйти из [other] (null = нет пересечения).
   Offset? mtvOutOfAabb(Rect other) {
     final axes = <Offset>[const Offset(1, 0), const Offset(0, 1), axisX, axisY];
@@ -442,6 +466,7 @@ class GameWorld {
     double dt,
     double secondsAlive, {
     double speedMult = 1.0,
+    bool checkPlayerHits = true,
   }) {
     final safeDt = dt.clamp(0.0, 0.05);
     final mult = speedMult.clamp(0.0, 2.0);
@@ -454,9 +479,28 @@ class GameWorld {
           ? const Offset(1, 1)
           : Offset(e.vel.dx / dist, e.vel.dy / dist);
       e.vel = dir * speed;
-      e.pos += e.vel * safeDt;
-      if (e.isSpinning) e.orientDeg += e.spinDegPerSec * safeDt;
-      if (_bounce(e)) wall++;
+      // Translation uses a continuous test; rotating bodies also need samples
+      // of their orientation. Ordinary frames still take only one step.
+      final parts = max(1, (e.spinDegPerSec.abs() * safeDt / 5).ceil());
+      for (var part = 0; part < parts; part++) {
+        final delta = e.vel * (safeDt / parts);
+        if (e.isSpinning) e.orientDeg += e.spinDegPerSec * safeDt / parts;
+        final hit = checkPlayerHits && !isJumping
+            ? e.sweptAabb(
+                Rect.fromLTWH(player.dx, player.dy, playerSize, playerSize),
+                -delta,
+              )
+            : null;
+        e.pos +=
+            delta *
+            (hit == null
+                ? 1
+                : hit == 0
+                ? 0
+                : min(1.0, hit + 1e-7));
+        if (_bounce(e)) wall++;
+        if (hit != null) break;
+      }
     }
     final enemy = config.enemiesCollide ? _resolveEnemyCollisions() : 0;
     tickNearMiss(safeDt);
@@ -475,20 +519,43 @@ class GameWorld {
     return sum / enemies.length;
   }
 
-  void movePlayerBy(Offset delta) {
+  void movePlayerBy(Offset delta, {bool checkEnemies = true}) {
     if (!delta.dx.isFinite ||
         !delta.dy.isFinite ||
         (delta.dx == 0 && delta.dy == 0)) {
       return;
     }
     final previous = player;
-    player += delta;
-    if (!wallsKillPlayer) clampPlayerToField();
+    var target = player + delta;
+    if (!wallsKillPlayer) {
+      target = Offset(
+        target.dx.clamp(
+          wallInset,
+          max(wallInset, field.width - wallInset - playerSize),
+        ),
+        target.dy.clamp(
+          wallInset,
+          max(wallInset, field.height - wallInset - playerSize),
+        ),
+      );
+    }
+    final movement = target - previous;
+    final pr = Rect.fromLTWH(player.dx, player.dy, playerSize, playerSize);
+    var fraction = 1.0;
+    if (checkEnemies && !isJumping) {
+      for (final enemy in enemies) {
+        final hit = enemy.sweptAabb(pr, movement);
+        if (hit != null) fraction = min(fraction, hit == 0 ? 0 : hit + 1e-7);
+      }
+    }
+    player = previous + movement * min(1.0, fraction);
     final moved = (player - previous).distance;
     if (moved == 0) return;
     playerDistance += moved;
     if (isJumping) {
-      _evaluateJumpOver();
+      for (var i = 0; i < enemies.length; i++) {
+        if (enemies[i].sweptAabb(pr, movement) != null) _countJumpOver(i);
+      }
     } else {
       _evaluateNearMiss();
     }
@@ -510,14 +577,15 @@ class GameWorld {
     for (var i = 0; i < enemies.length; i++) {
       if (_jumpOverCounted.contains(i)) continue;
       if (!pr.overlaps(enemies[i].rect)) continue;
-      _jumpOverCounted.add(i);
-      nearMissCount++;
-      final mid = Offset(
-        (pr.center.dx + enemies[i].rect.center.dx) / 2,
-        (pr.center.dy + enemies[i].rect.center.dy) / 2,
-      );
-      nearMissFx.add(NearMissFx(origin: mid));
+      _countJumpOver(i);
     }
+  }
+
+  void _countJumpOver(int i) {
+    if (!_jumpOverCounted.add(i)) return;
+    nearMissCount++;
+    final center = player + Offset(playerSize / 2, playerSize / 2);
+    nearMissFx.add(NearMissFx(origin: (center + enemies[i].rect.center) / 2));
   }
 
   void _evaluateNearMiss() {

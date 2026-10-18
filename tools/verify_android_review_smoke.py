@@ -58,6 +58,12 @@ def main():
         save('08-reward-awaiting-ack',s)
         req('retry');s=wait(lambda s:s['attempts'][0]['shared']and any('получено'in text for text in s['texts']),seconds=10)
         save('09-reward-confirmed',s)
+        s=cold();tap_field(s);wait(lambda s:s['phase']=='playing');time.sleep(.6)
+        s=req('collision-fixture');l,t,r,b=s['field'];scale=(r-l)/380
+        run('shell','input','swipe',round(l+70*scale),round(t+140*scale),round(l+320*scale),round(t+140*scale),20)
+        s=wait(lambda s:s['phase']=='result',seconds=5)
+        assert s['player'][0]<150,s
+        save('10-fast-swipe-collision',s)
         (args.out/'verification.json').write_text(json.dumps({'scenarios':records,'allPassed':True,'cloudCalls':0,'package':package},ensure_ascii=False,indent=2),encoding='utf-8')
         print(json.dumps({'passed':len(records),'cloudCalls':0,'errors':[]},ensure_ascii=False))
     finally:

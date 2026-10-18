@@ -363,6 +363,7 @@ class _GameHomeScreenState extends State<GameHomeScreen>
           dt,
           _elapsedPreciseMs / 1000.0,
           speedMult: speedMult,
+          checkPlayerHits: !_isInvulnerable,
         );
         if (bounces.wall > 0) GameSfx.mobWall();
         if (bounces.enemy > 0) GameSfx.mobCollide();
@@ -636,6 +637,7 @@ class _GameHomeScreenState extends State<GameHomeScreen>
     // Convert field display units to the fixed Telegram simulation units.
     _world!.movePlayerBy(
       delta * (GameViewport.referenceFieldSide / _visualFieldSide),
+      checkEnemies: !_isInvulnerable,
     );
     if (_world!.playerHitsBorder()) {
       if (!_world!.wallsKillPlayer) {

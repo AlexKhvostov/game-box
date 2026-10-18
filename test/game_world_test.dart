@@ -22,6 +22,7 @@ void main() {
           closeTo(config.enemyAreaMultiplier, 1e-9),
         );
       }
+      world.enemies.clear(); // This assertion isolates the field clamp.
       world.movePlayerBy(const Offset(10000, 10000));
       expect(world.player.dx, closeTo(333.8, 1e-9));
       expect(world.player.dy, closeTo(333.8, 1e-9));
@@ -90,6 +91,7 @@ void main() {
       config: const GameplayConfig(game: GameConfig(wallsKillPlayer: false)),
       field: const Size(300, 300),
     )..resetLayout();
+    world.enemies.clear();
     final before = world.player;
     world.movePlayerBy(const Offset(10000, 10000));
     expect(

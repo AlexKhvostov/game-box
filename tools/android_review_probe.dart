@@ -23,6 +23,8 @@ import 'package:game_box/data/scores_store.dart';
 import 'package:game_box/app/mobile_gameplay_tuning.dart';
 import 'package:game_box/features/game/arcade_hud.dart';
 import 'package:game_box/features/result/result_screen.dart';
+import 'package:game_box/features/game/game_field_painter.dart';
+import 'package:game_box/features/game/game_world.dart';
 
 class MemoryVault implements AccountVault {
   String? value;
@@ -68,6 +70,20 @@ final commands = <String>[];
 int version = 0;
 bool offline = false;
 String? failure;
+GameWorld? visibleWorld() {
+  GameWorld? world;
+  void visit(Element e) {
+    final w = e.widget;
+    if (w is CustomPaint && w.painter is GameFieldPainter) {
+      world = (w.painter! as GameFieldPainter).world;
+    }
+    e.visitChildElements(visit);
+  }
+
+  visit(rootKey.currentContext! as Element);
+  return world;
+}
+
 const owner = 'supabase:12345678-1234-4234-8234-123456789abc';
 Map<String, dynamic> profile() => {
   'id': owner,
@@ -187,6 +203,8 @@ Map<String, dynamic> state() {
     'commands': commands,
     'texts': texts,
     'errors': errors,
+    if (visibleWorld() case final world?)
+      'player': [world.player.dx, world.player.dy, world.playerSize],
     if (field != null)
       'field': [
         field!.left * dpr,
@@ -285,6 +303,26 @@ Future<void> main() async {
   final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 8898);
   await for (final request in server) {
     try {
+      if (request.uri.path == '/collision-fixture') {
+        final world = visibleWorld()!;
+        world.player = const Offset(50, 120);
+        world.enemies
+          ..clear()
+          ..add(
+            EnemyBody(
+              pos: const Offset(170, 100),
+              vel: Offset.zero,
+              w: 8,
+              h: 100,
+              aspect: .08,
+              angleDeg: 0,
+              quadrantN: 0,
+              fieldQuadrant: 0,
+              initialSpeed: 0,
+              acceleration: 0,
+            ),
+          );
+      }
       if (request.uri.path == '/result-fixture') {
         offline = true;
         failure = null;
