@@ -1,0 +1,50 @@
+[
+  {
+    "file": "assets/branding/ui/lives-room-v1.png",
+    "bytes": 1568160
+  },
+  {
+    "file": "assets/branding/ui/profile-player-cube-v1.png",
+    "bytes": 1172551
+  },
+  {
+    "file": "assets/branding/ui/lives-resting-sofa-v1.png",
+    "bytes": 954432
+  },
+  {
+    "file": "assets/branding/account/fire-v1.png",
+    "bytes": 934809
+  },
+  {
+    "file": "assets/branding/account/trophy-v1.png",
+    "bytes": 860282
+  },
+  {
+    "file": "assets/branding/ui/hero-resting-v1.png",
+    "bytes": 962689
+  },
+  {
+    "file": "assets/branding/ui/hero-focused-v1.png",
+    "bytes": 879687
+  },
+  {
+    "file": "assets/branding/ui/hero-delighted-v1.png",
+    "bytes": 867190
+  },
+  {
+    "file": "assets/branding/ui/hero-finished-v1.png",
+    "bytes": 1051630
+  },
+  {
+    "file": "assets/branding/ui/reward-v1.png",
+    "bytes": 853176
+  },
+  {
+    "file": "assets/sfx/wall_hit.wav",
+    "bytes": 6218
+  },
+  {
+    "file": "assets/sfx/wall_tick.wav",
+    "bytes": 4894
+  }
+]

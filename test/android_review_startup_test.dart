@@ -54,6 +54,13 @@ void main() {
         ),
         '{broken',
       );
+      SharedPreferences.setMockInitialValues({
+        AndroidFirebaseConfig.cacheKey: 23,
+      });
+      final wrongType = await AndroidFirebaseConfig.load(
+        remoteLoader: (_) async => throw StateError('offline'),
+      );
+      expect(wrongType.source, 'firebase-bundled');
     },
   );
 }

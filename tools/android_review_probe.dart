@@ -24,6 +24,7 @@ import 'package:game_box/features/game/arcade_hud.dart';
 import 'package:game_box/features/result/result_screen.dart';
 import 'package:game_box/features/game/game_field_painter.dart';
 import 'package:game_box/features/game/game_world.dart';
+import 'package:game_box/features/balance/simple_energy_sheet.dart';
 
 class MemoryVault implements AccountVault {
   String? value;
@@ -313,6 +314,23 @@ Future<void> main() async {
   final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 8898);
   await for (final request in server) {
     try {
+      if (request.uri.path == '/energy-fixture') {
+        BuildContext? screen;
+        void find(Element e) {
+          if (e.widget is Scaffold) screen ??= e;
+          e.visitChildElements(find);
+        }
+
+        find(rootKey.currentContext! as Element);
+        final page = request.uri.queryParameters['page'] == 'feedback'
+            ? EnergyPage.feedback
+            : EnergyPage.subscription;
+        final context = screen!;
+        if (context.mounted) {
+          unawaited(showSimpleEnergyWindow(context, page: page));
+        }
+        await Future<void>.delayed(const Duration(milliseconds: 300));
+      }
       if (request.uri.path == '/collision-fixture') {
         final world = visibleWorld()!;
         world.player = const Offset(50, 120);

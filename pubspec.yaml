@@ -79,15 +79,38 @@ flutter:
   assets:
     - assets/config/published-gameplay.json
     - assets/config/android-firebase.json
-    - assets/branding/ui/
+    - assets/branding/ui/ability-distance.png
+    - assets/branding/ui/ability-helmet.png
+    - assets/branding/ui/ability-jump.png
+    - assets/branding/ui/ability-risk.png
+    - assets/branding/ui/crystals-v1.png
+    - assets/branding/ui/energy-reward-core.svg
+    - assets/branding/ui/helmet-v1.png
+    - assets/branding/ui/hero-ready-v1.png
+    - assets/branding/ui/hero-start-crouched-v1.png
+    - assets/branding/ui/hud-player-portrait-v1.png
+    - assets/branding/ui/jump-v1.png
+    - assets/branding/ui/lives-resting-sofa-v2.png
+    - assets/branding/ui/lives-room-v2.png
+    - assets/branding/ui/player-avatar-v1.png
+    - assets/branding/ui/plus-v1.png
+    - assets/branding/ui/result-scene-v1.png
+    - assets/branding/ui/run-scene-v1.png
+    - assets/branding/ui/simple-energy-art-SOURCE.md
+    - assets/branding/ui/simple-energy-helmet.png
+    - assets/branding/ui/simple-energy-jump.png
     - assets/branding/ranking/
-    - assets/branding/account/
+    - assets/branding/account/cloud-v1.png
+    - assets/branding/account/eye.svg
+    - assets/branding/account/help.svg
+    - assets/branding/account/music.svg
+    - assets/branding/account/progress-player.png
+    - assets/branding/account/sound.svg
+    - assets/branding/account/user.svg
     - assets/branding/app_icon.png
     - assets/branding/ad_tv_watch.png
     - assets/branding/ad_tv_sad.png
     - assets/floors/floors_story_tower.png
-    - assets/sfx/wall_tick.wav
-    - assets/sfx/wall_hit.wav
     - assets/sfx/mob_wall.wav
     - assets/sfx/mob_collide.wav
     - assets/sfx/hero_mob.wav

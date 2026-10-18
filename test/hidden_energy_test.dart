@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:game_box/data/economy_store.dart';
@@ -177,8 +176,9 @@ void main() {
       final account = MobileAccount(
         vault: MemoryVault(),
         client: MockClient((request) async {
-          if ((jsonDecode(request.body) as Map)['action'] == 'wallet_operation')
+          if ((jsonDecode(request.body) as Map)['action'] == 'wallet_operation') {
             posts++;
+          }
           return reply(fixture.simpleWallet(), 1);
         }),
       );

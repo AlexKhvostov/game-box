@@ -25,7 +25,6 @@ import 'package:game_box/features/leaderboard/player_result_sheet.dart';
 import 'package:game_box/features/profile/profile_screen.dart';
 import 'package:game_box/l10n/app_localizations.dart';
 import 'package:game_box/ui/audience_gate.dart';
-import 'package:game_box/ui/game_sheet.dart';
 import 'package:game_box/ui/game_ui.dart';
 
 class _Scores extends ScoresStore {

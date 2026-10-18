@@ -410,20 +410,7 @@ class _GameClockBuilderState extends State<GameClockBuilder> {
   }
 }
 
-enum GameArt {
-  avatar,
-  ready,
-  resting,
-  focused,
-  crouched,
-  delighted,
-  finished,
-  crystals,
-  helmet,
-  jump,
-  plus,
-  reward,
-}
+enum GameArt { avatar, ready, crouched, crystals, helmet, jump, plus }
 
 /// The same approved illustration, with a semantic size, in every window.
 class GameArtwork extends StatelessWidget {
@@ -433,16 +420,11 @@ class GameArtwork extends StatelessWidget {
   static const _files = {
     GameArt.avatar: 'player-avatar',
     GameArt.ready: 'hero-ready',
-    GameArt.resting: 'hero-resting',
-    GameArt.focused: 'hero-focused',
     GameArt.crouched: 'hero-start-crouched',
-    GameArt.delighted: 'hero-delighted',
-    GameArt.finished: 'hero-finished',
     GameArt.crystals: 'crystals',
     GameArt.helmet: 'helmet',
     GameArt.jump: 'jump',
     GameArt.plus: 'plus',
-    GameArt.reward: 'reward',
   };
   @override
   Widget build(BuildContext context) => Image.asset(

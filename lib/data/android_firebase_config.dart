@@ -111,8 +111,8 @@ abstract final class AndroidFirebaseConfig {
     }
     final prefs = await SharedPreferences.getInstance();
     var local = fallback;
-    final cached = prefs.getString(cacheKey);
-    if (cached != null) {
+    final cached = prefs.get(cacheKey);
+    if (cached is String) {
       try {
         local = parse(cached, 'firebase-cache');
       } catch (_) {}
@@ -138,7 +138,7 @@ abstract final class AndroidFirebaseConfig {
       const Duration(seconds: 8),
     );
     final rc = FirebaseRemoteConfig.instance;
-    final forceFetch = prefs.getBool(forceFetchKey) == true;
+    final forceFetch = prefs.get(forceFetchKey) == true;
     await rc.setConfigSettings(
       RemoteConfigSettings(
         fetchTimeout: const Duration(seconds: 5),
@@ -155,8 +155,11 @@ abstract final class AndroidFirebaseConfig {
     } catch (_) {}
     final value = rc.getValue(key);
     final raw = value.asString();
+    final cached = prefs.get(cacheKey);
     return value.source == ValueSource.valueRemote
         ? raw
-        : prefs.getString(cacheKey) ?? raw;
+        : cached is String
+        ? cached
+        : raw;
   }
 }

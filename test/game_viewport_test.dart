@@ -101,7 +101,7 @@ void main() {
           .first;
       expect(
         tester.getRect(face).height,
-        closeTo(48 * GameViewport.scaleFor(width), .01),
+        closeTo(50 * GameViewport.scaleFor(width), .01),
       );
       await tester.pumpWidget(const SizedBox());
     }

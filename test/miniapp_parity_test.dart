@@ -73,13 +73,16 @@ void main() {
         bool? result;
         switch (a[0]) {
           case 'move':
-            world.movePlayerBy(Offset(n(1), n(2)));
+            // Historical Telegram fixture records endpoint-only movement.
+            // Android continuous contacts intentionally differ after F08;
+            // android_review_collision_test covers that behavior separately.
+            world.movePlayerBy(Offset(n(1), n(2)), checkEnemies: false);
           case 'jump':
             result = world.tryJump(nowMs: n(1));
           case 'jumpTick':
             world.tickJump(n(1));
           case 'play':
-            world.tickPlay(n(1), n(2), speedMult: n(3));
+            world.tickPlay(n(1), n(2), speedMult: n(3), checkPlayerHits: false);
         }
         final e = c['expected'][i];
         void near(num actual, num expected) =>

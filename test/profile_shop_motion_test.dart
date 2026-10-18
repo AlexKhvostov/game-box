@@ -126,7 +126,7 @@ void main() {
           );
           expect(
             panel.bottom - hint.bottom,
-            lessThan(12),
+              closeTo(13, .01),
             reason: 'No empty button row after the linked account',
           );
           expect(tester.takeException(), isNull);

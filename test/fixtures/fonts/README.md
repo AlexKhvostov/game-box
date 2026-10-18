@@ -1,0 +1,3 @@
+Roboto Regular/Bold are the same Apache2 font files used in the Android172 review baseline (their metadata says Copyright2011 Google Inc., Apache License2.0). Retained as test fixtures so layout tests do not depend on a temporary directory or a network download. They are not added to the application asset bundle. See LICENSE.txt.
+
+Run `powershell -File tools/test_android.ps1` from the project; for another SDK pass `-FlutterRoot <path>`. The runner sets the font variables for the test process and restores prior values afterwards. MaterialIcons comes from that Flutter SDK. Existing device/capture-only skips remain intentional.

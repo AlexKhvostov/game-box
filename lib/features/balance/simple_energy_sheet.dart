@@ -18,7 +18,7 @@ import '../../ui/game_ui.dart';
 import '../../ui/neon_chrome.dart';
 export '../../ui/neon_chrome.dart' show NeonGlass;
 import '../../ui/watch_rewarded_ad.dart';
-import 'energy_sheet.dart'
+import 'energy_services.dart'
     show EnergyBillingStatus, buySimpleEnergy, EnergyFeedbackForm;
 
 const _cyan = Color(0xFF54E9FF);

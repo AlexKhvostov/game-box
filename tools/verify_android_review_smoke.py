@@ -64,6 +64,10 @@ def main():
         s=wait(lambda s:s['phase']=='result',seconds=5)
         assert s['player'][0]<150,s
         save('10-fast-swipe-collision',s)
+        s=cold();req('energy-fixture?page=feedback');s=wait(lambda s:any('Сначала познакомьтесь'in t for t in s['texts']))
+        save('11-feedback-shared-services',s)
+        s=cold();req('energy-fixture');s=wait(lambda s:sum('/ 7 дней'in t for t in s['texts'])==2 and any('Google Play'in t for t in s['texts']))
+        save('12-subscription-shared-services',s)
         (args.out/'verification.json').write_text(json.dumps({'scenarios':records,'allPassed':True,'cloudCalls':0,'package':package},ensure_ascii=False,indent=2),encoding='utf-8')
         print(json.dumps({'passed':len(records),'cloudCalls':0,'errors':[]},ensure_ascii=False))
     finally:

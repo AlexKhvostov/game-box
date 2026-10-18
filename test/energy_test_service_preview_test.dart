@@ -11,7 +11,7 @@ import 'package:game_box/data/mobile_account.dart';
 import 'package:game_box/data/play_billing_service.dart';
 import 'package:game_box/domain/android_energy.dart';
 import 'package:game_box/domain/energy_test_catalog.dart';
-import 'package:game_box/features/balance/energy_sheet.dart';
+import 'package:game_box/features/balance/legacy_energy_sheet.dart';
 import 'package:game_box/l10n/app_localizations.dart';
 
 class _Account extends MobileAccount {
