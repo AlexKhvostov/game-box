@@ -102,6 +102,7 @@ class AndroidEnergyConfig {
     this.helmetExtraCost = 1,
     this.jumpExtraCost = 1,
     this.watchAdCooldownSec = 120,
+    this.watchAdDailyLimit = 20,
     this.rewards = const {
       'achievement': 10,
       'ad': 20,
@@ -130,7 +131,8 @@ class AndroidEnergyConfig {
       baseAttemptCost,
       helmetExtraCost,
       jumpExtraCost,
-      watchAdCooldownSec;
+      watchAdCooldownSec,
+      watchAdDailyLimit;
   final double chargeHours;
   final Map<String, int> rewards;
   final List<EnergyPackage> packages;
@@ -141,6 +143,9 @@ class AndroidEnergyConfig {
   factory AndroidEnergyConfig.fromJson(Map<String, dynamic> json) {
     const fallback = AndroidEnergyConfig();
     final rawRewards = json['rewards'];
+    final bonus = json['simpleBonus'] is Map
+        ? json['simpleBonus'] as Map
+        : const {};
     return AndroidEnergyConfig(
       enabled: json['enabled'] == true,
       revision: '${json['revision'] ?? fallback.revision}',
@@ -156,9 +161,13 @@ class AndroidEnergyConfig {
       helmetExtraCost: _integer(json['helmetExtraCost'], 1).clamp(0, 1000),
       jumpExtraCost: _integer(json['jumpExtraCost'], 1).clamp(0, 1000),
       watchAdCooldownSec: _integer(
-        json['watchAdCooldownSec'],
+        bonus['videoCooldownSec'] ?? json['watchAdCooldownSec'],
         120,
       ).clamp(0, 86400),
+      watchAdDailyLimit: _integer(
+        bonus['videoDailyLimit'] ?? json['watchAdDailyLimit'],
+        20,
+      ).clamp(1, 1000),
       rewards: {
         for (final entry in fallback.rewards.entries)
           entry.key: _integer(
@@ -260,6 +269,7 @@ class AndroidEnergyConfig {
     'helmetExtraCost': helmetExtraCost,
     'jumpExtraCost': jumpExtraCost,
     'watchAdCooldownSec': watchAdCooldownSec,
+    'watchAdDailyLimit': watchAdDailyLimit,
     'rewards': rewards,
     'packages': packages.map((e) => e.toJson()).toList(),
     'subscriptions': subscriptions.map((e) => e.toJson()).toList(),

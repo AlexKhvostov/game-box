@@ -473,11 +473,25 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
               ? _tr(context, 'Загрузка…', 'Loading…')
               : context.watch<AdsService?>() == null
               ? _tr(context, 'Недоступно', 'Unavailable')
+              : e.watchAdDailyLimitReached
+              ? _tr(context, 'До завтра', 'Tomorrow')
               : e.watchAdCooldownRemaining == null
               ? _tr(context, 'Смотреть', 'Watch')
               : bonusTime(e.watchAdCooldownRemaining!),
-          () => _watchVideo(e),
+          e.canClaimWatchAd && !_busy && !e.energyBusy
+              ? () => _watchVideo(e)
+              : null,
           'video',
+        ),
+        _text(
+          _tr(
+            context,
+            'Сегодня: ${e.watchAdsToday} из ${e.watchAdDailyLimit}',
+            'Today: ${e.watchAdsToday} of ${e.watchAdDailyLimit}',
+          ),
+          size: 11,
+          color: _muted,
+          align: TextAlign.right,
         ),
         _line(),
         _rewardRow(
@@ -533,7 +547,7 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
     String title,
     int reward,
     String action,
-    VoidCallback tap,
+    VoidCallback? tap,
     String id,
   ) => Row(
     children: [
@@ -804,6 +818,8 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
         child: _text(
           _busy
               ? _tr(context, 'Проверяем…', 'Checking…')
+              : e.watchAdDailyLimitReached
+              ? _tr(context, 'Лимит на сегодня', 'Daily limit reached')
               : e.watchAdCooldownRemaining != null
               ? bonusTime(e.watchAdCooldownRemaining!)
               : _tr(context, 'Смотреть рекламу', 'Watch ad'),

@@ -7,6 +7,7 @@ import {recordRankings} from '../record-ranking.mjs';
 import {plausibleAndroidResult} from '../android-constraints.mjs';
 import {ApiError} from './policy.mjs';
 import {androidRoundProof} from '../android-replay.mjs';
+import {rewardedQuota} from '../rewarded-quota.mjs';
 const clone = v => structuredClone(v);
 const owner = uid => `supabase:${uid}`;
 const canonical = v => Array.isArray(v) ? v.map(canonical) : v && typeof v === 'object' ? Object.fromEntries(Object.keys(v).sort().map(k => [k, canonical(v[k])])) : v;
@@ -34,6 +35,8 @@ function publicProfile(p, policy, identity, now) {
   wallet.simpleBonus = {...wallet.simpleBonus, policy:b, tier, reward:tier === 5 ? b.tier5Reward : tier === 2 ? b.tier2Reward : b.reward};
   config.initialEnergy=b.initialEnergy; config.rewards.ad=b.videoReward; config.rewards.invite=b.inviterReward;
   config.watchAdCooldownSec=b.videoCooldownSec;
+  config.watchAdDailyLimit=b.videoDailyLimit??20;
+  wallet.adQuota=rewardedQuota(p,b,now);
   wallet.energyConfig=config; wallet.energyGoogleReady=identity.googleLinked;
   wallet.nickname=p.nickname;wallet.feedbackMinimumSpend=100;wallet.feedbackSpentEnergy=Math.max(0,wallet.feedbackSpentEnergy ?? 0);
   return {id:owner(p.uid),nickname:p.nickname,googleLinked:identity.googleLinked,
@@ -270,12 +273,14 @@ function createEngine({db, getPolicy = async () => defaults, verifyPlay, googleL
       requireThat(Object.keys(args).length===1,'operation_invalid',400);
       const sessionRef=playerRef(p.uid).collection('adSessions').doc(sessionId);
       const saved=await tx.get(sessionRef), session=saved.exists ? saved.data() : null;
+      const quota=rewardedQuota(p,b,stamp);
       if(kind==='rewarded_ad_start') {
         if(session) {
           requireThat(!session.claimedAt && stamp<session.expiresAt,'ad_session_expired');
           return {adSession:{sessionId,expiresAt:session.expiresAt,amount:session.amount}};
         }
         requireThat(b.videoReward>0,'ad_unavailable');
+        requireThat(quota.remaining>0,'ad_daily_limit');
         requireThat(!w.lastAdAt || stamp-w.lastAdAt>=b.videoCooldownSec*1000,'ad_not_ready');
         const value={createdAt:stamp,expiresAt:stamp+86400000,amount:b.videoReward,revision:policy.revision,claimedAt:null};
         put(sessionRef,value);
@@ -284,8 +289,10 @@ function createEngine({db, getPolicy = async () => defaults, verifyPlay, googleL
       requireThat(session,'ad_session_invalid');
       requireThat(!session.claimedAt,'ad_session_claimed');
       requireThat(stamp<session.expiresAt,'ad_session_expired');
+      requireThat(quota.remaining>0,'ad_daily_limit');
       requireThat(!w.lastAdAt || stamp-w.lastAdAt>=b.videoCooldownSec*1000,'ad_not_ready');
       w.energy+=session.amount;w.lastAdAt=stamp;
+      p.adRewardsDaily={day:quota.day,count:quota.used+1};
       put(sessionRef,{...session,claimedAt:stamp,operationId:opId});
       return {adReward:{sessionId,operationId:opId,amount:session.amount}};
     }

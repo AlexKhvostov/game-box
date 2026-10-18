@@ -39,7 +39,8 @@ const labels={
   'economy.androidEnergyV2.simpleBonus.initialEnergy':'Энергия нового игрока','economy.androidEnergyV2.simpleBonus.reward':'Обычный бонус',
   'economy.androidEnergyV2.simpleBonus.periodSec':'Интервал получения бонуса','economy.androidEnergyV2.simpleBonus.tier2Reward':'Бонус с подпиской ×2',
   'economy.androidEnergyV2.simpleBonus.tier5Reward':'Бонус с подпиской ×5','economy.androidEnergyV2.simpleBonus.videoReward':'Награда за просмотр рекламы',
-  'economy.androidEnergyV2.simpleBonus.videoCooldownSec':'Пауза между рекламными наградами','economy.androidEnergyV2.simpleBonus.inviterReward':'Вам за приглашение друга',
+  'economy.androidEnergyV2.simpleBonus.videoCooldownSec':'Откат рекламы за вознаграждение',
+  'economy.androidEnergyV2.simpleBonus.videoDailyLimit':'Рекламных наград за сутки','economy.androidEnergyV2.simpleBonus.inviterReward':'Вам за приглашение друга',
   'economy.runRewardEvery':'Пройденное расстояние для награды','economy.riskRewardEvery':'Опасных сближений для награды',
   'economy.earnSurviveSeconds':'Время для достижения «Выжить»','economy.earnRecordSeconds':'Время для достижения «Рекорд»',
   'economy.earnRisksInRun':'Сближений для достижения','economy.interstitialSessionGraceSec':'Пауза рекламы после запуска',
@@ -62,7 +63,7 @@ const rules={
   'game.hudSpeedScaleMax':[1,4000,1],'audio.musicVolume':[0,1,0.05],'audio.sfxVolume':[0,1,0.05],
   'economy.androidEnergyV2.chargeHours':[1,12,1,'ч'],'economy.androidEnergyV2.baseAttemptCost':[1,1000,1,'энергии'],
   'economy.androidEnergyV2.helmetExtraCost':[0,1000,1,'энергии'],'economy.androidEnergyV2.jumpExtraCost':[0,1000,1,'энергии'],
-  'economy.androidEnergyV2.simpleBonus.periodSec':[1,2592000,1,'с'],'economy.androidEnergyV2.simpleBonus.videoCooldownSec':[0,86400,1,'с'],
+  'economy.androidEnergyV2.simpleBonus.periodSec':[1,2592000,1,'с'],'economy.androidEnergyV2.simpleBonus.videoCooldownSec':[1,86400,1,'с'],'economy.androidEnergyV2.simpleBonus.videoDailyLimit':[1,1000,1,'раз'],
   'economy.interstitialSessionFreeRounds':[10,1000,1],'economy.interstitialSessionGraceSec':[180,86400,1,'с'],
   'economy.interstitialGraceSec':[0,86400,1,'с'],'economy.interstitialCooldownSec':[0,86400,1,'с'],'economy.interstitialMinLives':[0,99,1]
 };
@@ -88,6 +89,8 @@ function meta(path,value){
   if(path==='economy.androidEnergyV2.simpleBonus.initialEnergy')help='Начисляется один раз новым аккаунтам. Балансы существующих игроков не меняются.';
   if(path==='economy.androidEnergyV2.rewards.feedback')help='Однократная награда за внутреннее сообщение об опыте игры после траты 100 энергии. Оценка необязательна; от её значения награда не зависит. Не является отзывом Google Play.';
   if(path==='economy.androidEnergyV2.rewards.invite')help='Эту энергию получает новый игрок, пришедший по приглашению: после 5 завершённых игр и подключения Google у обоих. Сумма в игре «Пригласить друга» — другая награда, пригласившему.';
+  if(path==='economy.androidEnergyV2.simpleBonus.videoCooldownSec')help='Минимальная пауза после успешного начисления рекламной награды. Проверяется по серверному времени.';
+  if(path==='economy.androidEnergyV2.simpleBonus.videoDailyLimit')help='Максимум успешных рекламных наград на аккаунт за календарные сутки. Сброс в 00:00 по Минску (UTC+3). Ошибка и раннее закрытие не расходуют лимит.';
   if(path==='economy.androidEnergyV2.simpleBonus.inviterReward')help='Эту энергию получает тот, кто пригласил друга: после 5 завершённых игр друга и подключения Google у обоих. Именно эта сумма показана в игре в пункте «Пригласить друга».';
   if(path==='economy.androidEnergyV2.chargeHours')help='Серверная политика зарядки, часы. Содержимое купленных товаров не переопределяется.';
   if(readOnly)help=derived.has(path)?'Вычисляется из основного поля выше.':'Справочное значение: в текущей Android-версии не редактируется этой формой.';

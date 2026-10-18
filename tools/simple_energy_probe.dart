@@ -185,6 +185,11 @@ class Fixture {
     );
     wallet = {
       'energyVersion': 2,
+      'adQuota': {
+        'used': int.tryParse(query['adUsed'] ?? '0') ?? 0,
+        'limit': 20,
+        'resetAt': DateTime.now().millisecondsSinceEpoch + 86400000,
+      },
       'energy': int.tryParse(query['balance'] ?? '') ?? 50,
       'energyConfig': config.toJson(),
       'bestTimeMs': bestTime,
@@ -328,6 +333,8 @@ class Fixture {
           case 'watch_ad':
             wallet['energy'] += 40;
             wallet['lastAdAt'] = now;
+            (wallet['adQuota'] as Map)['used'] =
+                ((wallet['adQuota'] as Map)['used'] as int) + 1;
           case 'energy_claim':
             var amount = 0;
             for (final row in wallet['batteries'] as List) {
@@ -835,6 +842,9 @@ class ProbeState extends State<ProbeApp> {
               'realSDK': const bool.fromEnvironment('PROBE_YANDEX'),
               'rewardedEnabled': audience.rewardedAdsEnabled,
               'interstitialEnabled': audience.adsEnabled,
+              'used': economy.watchAdsToday,
+              'dailyLimit': economy.watchAdDailyLimit,
+              'canClaim': economy.canClaimWatchAd,
             },
             'rewardSource': rewardSource,
             'scrolls': scrolls,

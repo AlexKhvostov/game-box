@@ -184,6 +184,10 @@
     "value": 61
   },
   {
+    "path": "economy.androidEnergyV2.simpleBonus.videoDailyLimit",
+    "value": 21
+  },
+  {
     "path": "economy.runRewardEvery",
     "value": 1000
   },
@@ -227,8 +231,20 @@
     "path": "mobileEnemies.accelerationVariation",
     "value": 0.09
   },
-  {"path":"ranking.average.windowSize","value":30},
-  {"path":"ranking.average.previousWeightPercent","value":85},
-  {"path":"ranking.average.minAttempts","value":10},
-  {"path":"ranking.average.minDurationMs","value":1500}
+  {
+    "path": "ranking.average.windowSize",
+    "value": 30
+  },
+  {
+    "path": "ranking.average.previousWeightPercent",
+    "value": 85
+  },
+  {
+    "path": "ranking.average.minAttempts",
+    "value": 10
+  },
+  {
+    "path": "ranking.average.minDurationMs",
+    "value": 1500
+  }
 ]

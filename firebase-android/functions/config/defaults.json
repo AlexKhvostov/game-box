@@ -137,7 +137,8 @@
           "tier5Reward": 150,
           "videoReward": 40,
           "videoCooldownSec": 120,
-          "inviterReward": 60
+          "inviterReward": 60,
+          "videoDailyLimit": 20
         }
       },
       "runRewardEvery": 999,
@@ -162,5 +163,5 @@
       "accelerationVariation": 0.08
     }
   },
-  "revision": "14f4e82932a195779a5438cd685f60bd11ad39ec6a028dac2f5a37f78a2321c8"
+  "revision": "a4f8a49f69ba6d165451917c78b222d0191566a5eddf67ce5e485b067b6880a4"
 }

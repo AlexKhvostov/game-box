@@ -162,6 +162,7 @@ class MobileWalletBridge {
     'daily_not_ready',
     'timed_not_ready',
     'ad_not_ready',
+    'ad_daily_limit',
     'insufficient_crystals',
     'bonus_already_claimed',
     'bonus_locked',

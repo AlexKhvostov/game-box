@@ -11,7 +11,7 @@ if(input.ok !== true || !input.config?.economy?.androidEnergyV2) throw new Error
 const c=structuredClone(input.config),e=c.economy.androidEnergyV2;
 e.enabled=true;e.revision='firebase-energy-v1';e.initialEnergy=50;e.chargeHours=8;e.watchAdCooldownSec=120;
 e.rewards.feedback=50;e.rewards.ad=40; // Invitee keeps the existing20; inviter receives simpleBonus.inviterReward60.
-e.simpleBonus={enabled:true,version:1,initialEnergy:50,reward:30,periodSec:28800,tier2Reward:60,tier5Reward:150,videoReward:40,videoCooldownSec:120,inviterReward:60};
+e.simpleBonus={enabled:true,version:1,initialEnergy:50,reward:30,periodSec:28800,tier2Reward:60,tier5Reward:150,videoReward:40,videoCooldownSec:120,videoDailyLimit:20,inviterReward:60};
 e.packages=e.packages.map(p=>({id:p.id ?? p.productId,energy:p.energy ?? p.amount}));
 e.subscriptions=e.subscriptions.map(s=>({id:s.id ?? s.productId,batteryCount:s.batteryCount,basePlanId:'weekly',capacity:20,chargeHours:8,periodDays:7}));
 delete e.chargePolicy;

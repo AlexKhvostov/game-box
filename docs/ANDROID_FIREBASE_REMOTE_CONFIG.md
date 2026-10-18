@@ -1,6 +1,6 @@
 # Реестр Android Remote Config
 
-Сгенерировано из текущего Android snapshot; 120 листовых значений. Команда: `node tools/document_android_firebase_config.mjs`.
+Сгенерировано из текущего Android snapshot; 121 листовых значений. Команда: `node tools/document_android_firebase_config.mjs`.
 
 Единственный публикуемый ключ — `android_config_v1`, JSON. Типы/критические диапазоны проверяет сервер; клиент проверяет hash/структуру/пределы и использует отдельный cache/default. Изменения применяются при новом запуске; активный раунд/покупка/бонус сохраняет выданные условия. Запрещены условия аудитории для экономики.
 
@@ -31,7 +31,7 @@
 | `field.borderWidth` | number | `3` | FieldConfig → GameFieldPainter/GameWorld | border0…24; brightness0…2; side100…2000; corner0…200; hexcolor |
 | `field.brightness` | number | `1` | FieldConfig → GameFieldPainter/GameWorld | border0…24; brightness0…2; side100…2000; corner0…200; hexcolor |
 | `field.shadowBrightness` | number | `1` | FieldConfig → GameFieldPainter/GameWorld | border0…24; brightness0…2; side100…2000; corner0…200; hexcolor |
-| `field.colorHex` | string | `"#2b2b2b"` | FieldConfig → GameFieldPainter/GameWorld | border0…24; brightness0…2; side100…2000; corner0…200; hexcolor |
+| `field.colorHex` | string | `"#08253B"` | FieldConfig → GameFieldPainter/GameWorld | border0…24; brightness0…2; side100…2000; corner0…200; hexcolor |
 | `field.cornerRadius` | number | `18` | FieldConfig → GameFieldPainter/GameWorld | border0…24; brightness0…2; side100…2000; corner0…200; hexcolor |
 | `field.maxSide` | number | `380` | FieldConfig → GameFieldPainter/GameWorld | border0…24; brightness0…2; side100…2000; corner0…200; hexcolor |
 | `game.startHintEnabled` | boolean | `true` | GameConfig → GameHomeScreen/GameWorld/ArcadeHud | boolean; jumpCooldown2…60; duration0.05…5; scale1…3; invuln0…30; styles enum |
@@ -75,7 +75,7 @@
 | `economy.androidEnergyV2.rewards.ad` | number | `40` | AndroidEnergyConfig/EconomyStore + server engine | attempt1…1000; extras0…1000; reward0…100000; сервер проверяет |
 | `economy.androidEnergyV2.rewards.google` | number | `10` | AndroidEnergyConfig/EconomyStore + server engine | attempt1…1000; extras0…1000; reward0…100000; сервер проверяет |
 | `economy.androidEnergyV2.rewards.age` | number | `10` | AndroidEnergyConfig/EconomyStore + server engine | attempt1…1000; extras0…1000; reward0…100000; сервер проверяет |
-| `economy.androidEnergyV2.rewards.feedback` | number | `20` | AndroidEnergyConfig/EconomyStore + server engine | attempt1…1000; extras0…1000; reward0…100000; сервер проверяет |
+| `economy.androidEnergyV2.rewards.feedback` | number | `50` | AndroidEnergyConfig/EconomyStore + server engine | attempt1…1000; extras0…1000; reward0…100000; сервер проверяет |
 | `economy.androidEnergyV2.rewards.invite` | number | `20` | AndroidEnergyConfig/EconomyStore + server engine | attempt1…1000; extras0…1000; reward0…100000; сервер проверяет |
 | `economy.androidEnergyV2.packages.0.id` | string | `"energy_100_v1"` | AndroidEnergyConfig/PlayBillingService + server product() | Список активных SKU; содержимоеSKU неизменяемо; цены только Play |
 | `economy.androidEnergyV2.packages.0.energy` | number | `100` | AndroidEnergyConfig/PlayBillingService + server product() | Список активных SKU; содержимоеSKU неизменяемо; цены только Play |
@@ -108,6 +108,7 @@
 | `economy.androidEnergyV2.simpleBonus.videoReward` | number | `40` | SimpleEnergyBonus + server walletOperation/publicProfile | целые0…100000; period1…2592000с; cooldown0…86400с; серверная версия |
 | `economy.androidEnergyV2.simpleBonus.videoCooldownSec` | number | `120` | SimpleEnergyBonus + server walletOperation/publicProfile | целые0…100000; period1…2592000с; cooldown0…86400с; серверная версия |
 | `economy.androidEnergyV2.simpleBonus.inviterReward` | number | `60` | SimpleEnergyBonus + server walletOperation/publicProfile | целые0…100000; period1…2592000с; cooldown0…86400с; серверная версия |
+| `economy.androidEnergyV2.simpleBonus.videoDailyLimit` | number | `20` | SimpleEnergyBonus + server walletOperation/publicProfile | целые0…100000; period1…2592000с; cooldown0…86400с; серверная версия |
 | `economy.runRewardEvery` | number | `999` | ArcadeRules/EconomyStore + server round snapshot | целые1…1000000; замораживаются на старте раунда |
 | `economy.riskRewardEvery` | number | `8` | ArcadeRules/EconomyStore + server round snapshot | целые1…1000000; замораживаются на старте раунда |
 | `economy.earnSurviveSeconds` | number | `10` | ArcadeRules/EconomyStore + server round snapshot | целые1…1000000; замораживаются на старте раунда |

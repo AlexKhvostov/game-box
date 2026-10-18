@@ -51,6 +51,14 @@ abstract final class AndroidFirebaseConfig {
       }
     }
     final period = bonus['periodSec'];
+    final daily = bonus['videoDailyLimit'];
+    if (daily != null && (daily is! int || daily < 1 || daily > 1000)) {
+      throw const FormatException('Invalid daily ad limit');
+    }
+    final cooldown = bonus['videoCooldownSec'];
+    if (cooldown is! int || cooldown < 1 || cooldown > 86400) {
+      throw const FormatException('Invalid ad cooldown');
+    }
     if (period is! int || period < 1 || period > 2592000) {
       throw const FormatException('Invalid bonus duration');
     }

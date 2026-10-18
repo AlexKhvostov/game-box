@@ -1102,10 +1102,23 @@ class EconomyStore extends ChangeNotifier {
   }
 
   bool get canClaimWatchAd {
+    if (watchAdDailyLimitReached) return false;
     final ready = _watchAdReadyAt;
     if (ready == null) return true;
     return !_watchAdNow.isBefore(ready);
   }
+
+  int get watchAdDailyLimit => energyConfig.watchAdDailyLimit;
+  int get watchAdsToday {
+    final quota = _energyWallet?['adQuota'];
+    if (!energyEnabled || quota is! Map) return 0;
+    final reset = (quota['resetAt'] as num?)?.toInt();
+    if (reset != null && energyNow.millisecondsSinceEpoch >= reset) return 0;
+    return ((quota['used'] as num?)?.toInt() ?? 0).clamp(0, 100000);
+  }
+
+  bool get watchAdDailyLimitReached =>
+      energyEnabled && watchAdsToday >= watchAdDailyLimit;
 
   Duration? get watchAdCooldownRemaining {
     final ready = _watchAdReadyAt;

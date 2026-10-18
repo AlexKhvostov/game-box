@@ -22,9 +22,10 @@ function validatePolicy(snapshot) {
     else requireThat(v === null || typeof v === 'string' || typeof v === 'boolean', 'policy_invalid', 503);
   }
   walk(c);
-  function types(candidate, original) {
+  function types(candidate, original, path='') {
+    if(candidate===undefined && path==='economy.androidEnergyV2.simpleBonus.videoDailyLimit')return;
     requireThat(candidate !== undefined && typeof candidate === typeof original && Array.isArray(candidate) === Array.isArray(original),'policy_invalid',503);
-    if(original && typeof original === 'object' && !Array.isArray(original)) for(const [key,value] of Object.entries(original)) types(candidate[key],value);
+    if(original && typeof original === 'object' && !Array.isArray(original)) for(const [key,value] of Object.entries(original)) types(candidate[key],value,path?`${path}.${key}`:key);
   }
   types(c,defaults.config);
   const range=(v,min,max) => requireThat(typeof v === 'number' && Number.isFinite(v) && v >= min && v <= max,'policy_invalid',503);
@@ -40,7 +41,8 @@ function validatePolicy(snapshot) {
   const e = c.economy.androidEnergyV2, b = e?.simpleBonus;
   requireThat(e?.enabled === true && b?.enabled === true, 'policy_invalid', 503);
   for (const k of ['initialEnergy','reward','tier2Reward','tier5Reward','videoReward','inviterReward']) integer(b[k], 0, 100000, 'policy_invalid');
-  integer(b.periodSec, 1, 2592000, 'policy_invalid'); integer(b.videoCooldownSec, 0, 86400, 'policy_invalid');
+  integer(b.periodSec, 1, 2592000, 'policy_invalid'); integer(b.videoCooldownSec, 1, 86400, 'policy_invalid');
+  if(b.videoDailyLimit!=null)integer(b.videoDailyLimit,1,1000,'policy_invalid');
   integer(e.baseAttemptCost, 1, 1000, 'policy_invalid');
   for (const k of ['helmetExtraCost','jumpExtraCost']) integer(e[k], 0, 1000, 'policy_invalid');
   for (const k of ['achievement','google','age','feedback']) integer(e.rewards[k], 0, 100000, 'policy_invalid');
