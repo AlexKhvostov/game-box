@@ -1,0 +1,1 @@
+{"functions":[{"function":"android-api","status":401,"error":"unauthorized"},{"function":"play-reconcile","status":401,"error":"unauthorized"},{"function":"remote-config-admin","status":401,"error":"unauthorized"},{"function":"support-admin","status":401,"error":"unauthorized"}],"allProtected":true}

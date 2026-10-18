@@ -1,0 +1,3 @@
+(node:36284) ExperimentalWarning: Importing JSON modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"productionDatabase":true,"runtimeRole":true,"fullPhysicsProof":true,"tamperRejected":true,"finishIdempotent":true,"counterAndRankingMatched":true,"unverifiedAdRejected":true,"allCanaryWritesRolledBack":true,"authUserCreated":false,"realPlayerMutations":0}

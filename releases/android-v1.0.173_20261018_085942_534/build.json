@@ -1,0 +1,39 @@
+{
+  "buildId": "android-v1.0.173_20261018_085942_534",
+  "versionName": "1.0.173",
+  "versionCode": 174,
+  "package": "com.best4u.untouch",
+  "target": "mobile-arcade",
+  "sha256": "207f680e2df4a4934e0fb2e1f462582c501f9b71b8c0118cf1cf7c542b2f9654",
+  "configRevision": "14f4e82932a195779a5438cd685f60bd11ad39ec6a028dac2f5a37f78a2321c8",
+  "adMode": "yandex-demo-adult-session-opt-in-internal-only",
+  "signing": "private-release-key",
+  "audiencePolicy": "game-and-autoscore-all-ages-ads18plus-session-opt-in",
+  "advertisingIdPermission": false,
+  "googleIdentityConfigured": true,
+  "googlePlayBilling": true,
+  "published": false,
+  "deviceTested": true,
+  "testTools": false,
+  "walletMode": "server-profile",
+  "backend": "supabase-android-v1",
+  "supabaseProject": "exinizzxqtjnysgibide",
+  "firebaseProject": "game-box-b30d4",
+  "remoteConfigKey": "android_config_v1",
+  "cloudDeploymentVerified": true,
+  "gameplayDebug": false,
+  "testServicePreview": false,
+  "productionRelease": false,
+  "limitations": [
+    "Google Play publication not performed",
+    "No real payment or provider-signed rewarded-ad confirmation tested"
+  ],
+  "rewardedAdsAvailable": false,
+  "acceptance": {
+    "mainInstalledFrom": 172,
+    "mainReadOnlyHomeAccount": true,
+    "isolatedReleaseScenariosPassed": 12,
+    "realPaymentsTested": false,
+    "realRewardedAdsTested": false
+  }
+}
