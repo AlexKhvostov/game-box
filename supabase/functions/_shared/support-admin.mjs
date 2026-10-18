@@ -1,4 +1,5 @@
 import {hash,requireThat,ApiError} from './core/policy.mjs';
+import {moderationAdmin} from './moderation-admin.mjs';
 const uuid=value=>typeof value==='string'&&/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/.test(value);
 export const supportReasons={compensation:'Компенсация по обращению',correction:'Исправление баланса',testing:'Проверка игры'};
 export function createSupportAdmin({db,auth,now=Date.now}){
@@ -18,6 +19,7 @@ export function createSupportAdmin({db,auth,now=Date.now}){
   async function player(uid,connection=db){const result=await connection.query("select key,body,updated_at from untouch.documents where path=$1",[`players/${uid}`]);requireThat(result.rows[0],'player_not_found',404);return result.rows[0];}
   return async function execute(actor,body){
     await admin(actor);
+    if(['moderation_list','moderation_resolve'].includes(body.action))return moderationAdmin({db,transaction,actor,body,stamp:now()});
     if(body.action==='feedback_list'){
       const search=(body.search??''),offset=body.offset??0,rating=body.rating??null;
       requireThat(typeof search==='string'&&search.length<=160,'search_invalid',400);
@@ -100,6 +102,10 @@ export function createSupportAdmin({db,auth,now=Date.now}){
       // store tokens and links to the removed user; no automatic Play refund.
       await connection.query("update untouch.documents set body=jsonb_build_object('deleted',true,'revoked',true,'acknowledged',true),updated_at=now() where parent='purchases' and body->>'uid'=$1",[userId]);
       await connection.query("delete from untouch.documents where path=$1 or parent=$1||'/operations' or parent=$1||'/quotes' or (parent<>'purchases' and (body->>'uid'=$2 or body->>'inviteeUid'=$2 or (parent='invitations' and body->>'inviterUid'=$2)))",[`players/${userId}`,userId]);
+      await connection.query("delete from untouch.documents where parent='publicReports' and (body->>'reporterUid'=$1 or body->>'targetUid'=$1)",[userId]);
+      await connection.query(`update untouch.documents p set body=jsonb_set(p.body,'{hiddenPlayers}',
+        coalesce((select jsonb_agg(v) from jsonb_array_elements(p.body->'hiddenPlayers') v where v<>to_jsonb($1::text)),'[]'::jsonb)),updated_at=now()
+        where p.parent='players' and p.body->'hiddenPlayers' ? $1`,[userId]);
       await connection.query("update untouch.documents set body=jsonb_set(jsonb_set(body,'{inviterUid}','\"deleted\"'),'{inviterCode}','\"XXXXXXXXXXXX\"'),updated_at=now() where parent='players' and body->>'inviterUid'=$1",[userId]);
       await connection.query("update untouch.support_actions set status='completed',completed_at=now() where id=$1",[requestId]);
     });return{ok:true,deleted:true};

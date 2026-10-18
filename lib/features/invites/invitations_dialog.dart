@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../../ui/public_name_controls.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -687,7 +688,11 @@ class _PaidRow extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                row.nickname ?? removedLabel,
+                publicPlayerName(
+                  context,
+                  row.userId,
+                  row.nickname ?? removedLabel,
+                ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
@@ -716,6 +721,11 @@ class _PaidRow extends StatelessWidget {
             fontSize: 15,
             fontWeight: FontWeight.w900,
           ),
+        ),
+        PublicNameActions(
+          uid: row.userId,
+          name: row.nickname ?? removedLabel,
+          compact: true,
         ),
       ],
     ),

@@ -1,0 +1,56 @@
+{
+  "project": "exinizzxqtjnysgibide",
+  "migration": "20261018175715_android_public_name_moderation",
+  "functions": [
+    {
+      "slug": "android-api",
+      "version": 16,
+      "status": "ACTIVE",
+      "verify_jwt": false,
+      "ownBodyAuth": true,
+      "localModules": [
+        {
+          "name": "functions/_shared/core/engine.mjs",
+          "matches": true
+        },
+        {
+          "name": "functions/_shared/average-ranking.mjs",
+          "matches": true
+        },
+        {
+          "name": "functions/_shared/record-ranking.mjs",
+          "matches": true
+        },
+        {
+          "name": "functions/_shared/public-content.mjs",
+          "matches": true
+        }
+      ]
+    },
+    {
+      "slug": "support-admin",
+      "version": 7,
+      "status": "ACTIVE",
+      "verify_jwt": false,
+      "ownBodyAuth": true,
+      "localModules": [
+        {
+          "name": "functions/_shared/support-admin.mjs",
+          "matches": true
+        },
+        {
+          "name": "functions/_shared/moderation-admin.mjs",
+          "matches": true
+        }
+      ]
+    }
+  ],
+  "cleanup": {
+    "supportActions": 0,
+    "authAudit": 0,
+    "publicReports": 0
+  },
+  "cronUTC": "20 0 * * *",
+  "newBrowserRuntimeExecuteGrants": false,
+  "paidServicesAdded": false
+}

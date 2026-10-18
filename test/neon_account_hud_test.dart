@@ -170,7 +170,7 @@ void main() {
       owner: owner.id,
     );
     final nickname = find.byKey(const ValueKey('profile-nickname-input'));
-    await tester.enterText(nickname, 'NNNN');
+    await tester.enterText(nickname, 'N');
     await tester.pumpAndSettle();
     expect(
       tester
@@ -185,9 +185,9 @@ void main() {
       'account-invalid-name',
       find.byKey(profile.boundary),
     );
-    await tester.enterText(nickname, List.filled(40, 'N').join());
+    await tester.enterText(nickname, List.filled(24, 'N').join());
     await tester.pumpAndSettle();
-    expect(tester.widget<TextField>(nickname).controller!.text.length, 40);
+    expect(tester.widget<TextField>(nickname).controller!.text.length, 24);
     expect(
       tester
           .widget<FilledButton>(
@@ -198,7 +198,7 @@ void main() {
     );
     await saveFrame(
       tester,
-      'account-long-name40',
+      'account-long-name24',
       find.byKey(profile.boundary),
     );
     await tester.enterText(nickname, owner.nickname!);

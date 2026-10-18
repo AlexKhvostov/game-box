@@ -8,6 +8,7 @@ import '../../domain/score_entry.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/game_sheet.dart';
 import '../../ui/game_ui.dart';
+import '../../ui/public_name_controls.dart';
 
 abstract final class LeaderboardLayout {
   static bool narrow(BuildContext context) =>
@@ -355,6 +356,8 @@ class LeaderboardRankRow extends StatelessWidget {
       place: place,
       title: ghost
           ? (ghostLabel ?? entry.displayName)
+          : context.watch<MobileAccount?>()?.isPlayerHidden(entry.uid) == true
+          ? publicPlayerName(context, entry.uid, entry.displayName)
           : entry.accountName == null
           ? entry.displayName
           : '${entry.displayName} · ${entry.accountName}',

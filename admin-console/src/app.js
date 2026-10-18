@@ -6,6 +6,7 @@ import './readability.css';
 import './users.css';
 import {mountUsers} from './users.js';
 import {mountFeedback} from './feedback.js';
+import {mountModeration} from './moderation.js';
 import './feedback.css';
 
 const $=selector=>document.querySelector(selector);
@@ -34,7 +35,7 @@ async function task(callback){if(state.busy)return;if(document.querySelector('[a
 function shell(){
   $('#app').innerHTML=`<aside class="sidebar"><a class="brand" href="/" aria-label="Untouch — главная"><span class="brand-mark"><i></i><i></i></span><span>UNTOUCH<small>ПАНЕЛЬ УПРАВЛЕНИЯ</small></span></a>
     <div class="workspace"><span class="platform">A</span><span>Untouch Android<small>Рабочее пространство</small></span><span class="online-dot"></span></div>
-    <p class="nav-caption">УПРАВЛЕНИЕ ИГРОЙ</p><nav aria-label="Главное меню"><button class="nav-item active" data-tab="config">${icon('settings')}<span>Параметры <br>Remote Config</span></button><button class="nav-item" data-tab="users">${icon('lock')}<span>Пользователи</span></button><button class="nav-item" data-tab="feedback">${icon('feedback')}<span>Отзывы</span></button><button class="nav-item" data-tab="history">${icon('history')}<span>История публикаций</span></button></nav>
+    <p class="nav-caption">УПРАВЛЕНИЕ ИГРОЙ</p><nav aria-label="Главное меню"><button class="nav-item active" data-tab="config">${icon('settings')}<span>Параметры <br>Remote Config</span></button><button class="nav-item" data-tab="users">${icon('lock')}<span>Пользователи</span></button><button class="nav-item" data-tab="feedback">${icon('feedback')}<span>Отзывы</span></button><button class="nav-item" data-tab="moderation">${icon('feedback')}<span>Жалобы на имена</span></button><button class="nav-item" data-tab="history">${icon('history')}<span>История публикаций</span></button></nav>
     <div class="sidebar-note">${icon('lock')}<div>Настройки под контролем<small>Сначала черновик.<br>Потом — публикация.</small></div></div>
     <div id="account" class="account"></div></aside><div class="main"><header class="topbar"><div class="breadcrumb">Untouch <span>/</span> Android <span>/</span> <strong id="crumb">Remote Config</strong></div><div id="connection" class="connection"></div></header><main id="content"></main></div>`;
   document.querySelectorAll('[data-tab]').forEach(button=>button.onclick=()=>switchTab(button.dataset.tab));
@@ -46,10 +47,11 @@ function renderAccount(){
   $('#connection').innerHTML=`<span class="status-dot ${signed?'green':''}"></span>${localPreview?'Локальный просмотр':signed?'Защищённое подключение':'Вход администратора'}`;
 }
 function render(){
-  renderAccount();document.querySelectorAll('[data-tab]').forEach(button=>button.classList.toggle('active',button.dataset.tab===state.tab));$('#crumb').textContent=state.tab==='config'?'Remote Config':state.tab==='users'?'Пользователи':state.tab==='feedback'?'Отзывы':'История';
+  renderAccount();document.querySelectorAll('[data-tab]').forEach(button=>button.classList.toggle('active',button.dataset.tab===state.tab));$('#crumb').textContent=state.tab==='config'?'Remote Config':state.tab==='users'?'Пользователи':state.tab==='feedback'?'Отзывы':state.tab==='moderation'?'Жалобы на имена':'История';
   if(!['live','preview'].includes(state.mode)){renderLogin();return;}
   if(state.tab==='users'){const initialUserId=state.selectedUser;state.selectedUser=null;mountUsers({container:$('#content'),request:(action,args)=>api(action,args,'support-admin'),preview:localPreview,toast,initialUserId});return;}
   if(state.tab==='feedback'){mountFeedback({container:$('#content'),request:(action,args)=>api(action,args,'support-admin'),preview:localPreview,toast,openUser:userId=>{state.selectedUser=userId;state.tab='users';render();}});return;}
+  if(state.tab==='moderation'){mountModeration({container:$('#content'),request:(action,args)=>api(action,args,'support-admin'),preview:localPreview,toast,openUser:userId=>{state.selectedUser=userId;state.tab='users';render();}});return;}
   if(state.tab==='history'){renderHistory();return;}
   if(!localPreview&&!state.remoteLoaded){$('#content').innerHTML=`<div class="page-heading"><div><div class="eyebrow">НАСТРОЙКИ ANDROID</div><h1>Параметры Remote Config</h1></div></div><div class="notice error">${escape(state.error??'Подключение настроек ещё выполняется.')}</div><button id="retry-config" class="secondary">Повторить подключение</button>`;$('#retry-config').onclick=()=>task(loadLive);return;}
   const changes=delta();

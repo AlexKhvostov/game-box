@@ -1,0 +1,9 @@
+{
+  "indexMatches": true,
+  "asset": "/assets/index-IXjiR7nv.js",
+  "assetMatches": true,
+  "sha256": "c9d49328ac9be120592d2b9186b7e35cfe745330d21784b2a1c263415f2bb733",
+  "publicGuardScreenshot": "admin-public-guard.png",
+  "adminHttpEndToEnd": false,
+  "adminIntegration": "existing-role operator against live database, role-denial HTTP also verified"
+}

@@ -19,6 +19,7 @@ import '../../ui/neon_chrome.dart';
 export '../../ui/neon_chrome.dart' show NeonGlass;
 import '../../ui/watch_rewarded_ad.dart';
 import '../../ui/rewarded_ad_disclosure.dart';
+import '../../ui/public_name_controls.dart';
 import 'energy_services.dart'
     show EnergyBillingStatus, buySimpleEnergy, EnergyFeedbackForm;
 
@@ -1003,6 +1004,7 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
                 _friendRow(
                   row.nickname,
                   EnergyText(row.energyEquivalent, prefix: '+', size: 21),
+                  uid: row.userId,
                 ),
               for (final row in pending)
                 _friendRow(
@@ -1012,6 +1014,7 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
                     size: 12,
                     color: _muted,
                   ),
+                  uid: row['userId'] as String?,
                 ),
               if (valid &&
                   (state.nextCursor != null || state.pendingNextCursor != null))
@@ -1033,7 +1036,7 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
     );
   }
 
-  Widget _friendRow(String? name, Widget value) => Container(
+  Widget _friendRow(String? name, Widget value, {String? uid}) => Container(
     margin: const EdgeInsets.only(bottom: 5),
     padding: const EdgeInsets.all(9),
     decoration: BoxDecoration(
@@ -1046,9 +1049,17 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
         const Icon(Icons.account_circle, color: Color(0xFF7EB4DF), size: 29),
         const SizedBox(width: 8),
         Expanded(
-          child: _text(name ?? _tr(context, 'Игрок', 'Player'), size: 13),
+          child: _text(
+            publicPlayerName(
+              context,
+              uid,
+              name ?? _tr(context, 'Игрок', 'Player'),
+            ),
+            size: 13,
+          ),
         ),
         value,
+        PublicNameActions(uid: uid, name: name ?? '', compact: true),
       ],
     ),
   );

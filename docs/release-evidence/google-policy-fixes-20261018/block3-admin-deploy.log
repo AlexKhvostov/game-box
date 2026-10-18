@@ -1,0 +1,20 @@
+(node:3212) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+=== Deploying to 'game-box-b30d4'...
+
+i  deploying hosting
+i  hosting[untouch-admin-game-box-b30d4]: beginning deploy...
+i  hosting[untouch-admin-game-box-b30d4]: found 4 files in dist
+i  hosting: uploading new files [0/2] (0%)
+i  hosting: upload complete
++  hosting[untouch-admin-game-box-b30d4]: file upload complete
+i  hosting[untouch-admin-game-box-b30d4]: finalizing version...
++  hosting[untouch-admin-game-box-b30d4]: version finalized
+i  hosting[untouch-admin-game-box-b30d4]: releasing new version...
++  hosting[untouch-admin-game-box-b30d4]: release complete
+
++  Deploy complete!
+
+Project Console: https://console.firebase.google.com/project/game-box-b30d4/overview
+Hosting URL: https://untouch-admin-game-box-b30d4.web.app

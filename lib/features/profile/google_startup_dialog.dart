@@ -184,8 +184,8 @@ class _GoogleStartupDialogState extends State<GoogleStartupDialog> {
                       const SizedBox(height: 10),
                       Text(
                         ru
-                            ? 'Для нового профиля возьмём ник из части почты до @. Ник можно изменить.'
-                            : 'For a new profile, your nickname comes from the part of your email before @. You can change it.',
+                            ? 'Ник можно изменить в профиле. Имя Google скрыто от других игроков по умолчанию.'
+                            : 'You can change your nickname in Profile. Your Google name is hidden from other players by default.',
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           color: GameUi.muted,

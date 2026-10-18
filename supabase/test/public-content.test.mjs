@@ -1,0 +1,73 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {testDatabase} from './database.mjs';
+import {PostgresStore} from '../functions/_shared/postgres-store.mjs';
+import {createEngine} from '../functions/_shared/core/engine.mjs';
+import {createSupportAdmin} from '../functions/_shared/support-admin.mjs';
+import {hash} from '../functions/_shared/core/policy.mjs';
+
+test('public names: explicit rules, owner-only hiding, reports, moderation and deletion preserve gameplay',async()=>{
+  const local=await testDatabase();
+  try{
+    const db=new PostgresStore(local.pool),stamp=Date.UTC(2026,9,18,17,30);
+    const actor='10000000-0000-4000-8000-000000000001',a='20000000-0000-4000-8000-000000000002',b='30000000-0000-4000-8000-000000000003',c='40000000-0000-4000-8000-000000000004';
+    const identities=new Map([actor,a,b,c].map(id=>[id,{id,identities:[]}]));
+    for(const id of identities.keys())await local.pg.query('insert into auth.users(id) values($1)',[id]);
+    await local.pg.query('insert into untouch.admin_users(id) values($1)',[actor]);
+    const auth={getUserById:async id=>({data:{user:identities.get(id)},error:identities.has(id)?null:{status:404}}),deleteUser:async id=>{identities.delete(id);await local.pg.query('delete from auth.users where id=$1',[id]);return{error:null};}};
+    const engine=createEngine({db,now:()=>stamp}),admin=createSupportAdmin({db:local.pool,auth,now:()=>stamp});
+    const call=(uid,action,args={})=>engine.execute(uid,{action,...args});
+    const rejects=(promise,code)=>assert.rejects(promise,e=>e.code===code);
+    for(const uid of [a,b,c])await call(uid,'guest');
+    const before=(await call(b,'profile')).profile;
+    await rejects(call(b,'rename',{nickname:'Public name',communityRulesVersion:1}),'community_rules_required');
+    await rejects(call(b,'public_rules_accept',{version:99}),'community_rules_invalid');
+    await call(b,'public_rules_accept',{version:1});
+    await call(b,'rename',{nickname:'Public name',communityRulesVersion:1});
+    await rejects(call(b,'rename',{nickname:'fuck',communityRulesVersion:1}),'nickname_prohibited');
+    await rejects(call(b,'rename',{nickname:'<script>',communityRulesVersion:1}),'nickname_invalid');
+    for(let i=0;i<20;i++)await db.collection('scores').doc(hash(`moderation-score-${i}`)).set({uid:b,platform:'android',timeMs:5000+i,createdAt:stamp-i*1000,attemptAt:stamp-i*1000,runDistance:0,riskCount:0,hadJump:false,hadHelmet:false});
+    await db.collection('invitations').doc(b).set({inviterUid:a,inviteeUid:b,boundAt:stamp-1000,rewardedAt:stamp,amount:60,nickname:'Stale historical name'});
+
+    const plain=await call(a,'scores',{period:'all'}),place=plain.scores.find(r=>r.userId===`supabase:${b}`).place;
+    assert.equal(plain.scores[0].playerName,'Public name');
+    const report={target:`supabase:${b}`,reason:'offensive_name'};
+    assert.equal((await call(a,'public_name_report',report)).replayed,false);
+    assert.equal((await call(a,'public_name_report',report)).replayed,true);
+    await rejects(call(a,'public_name_report',{...report,target:`supabase:${a}`}),'public_target_invalid');
+    await rejects(call(a,'public_name_report',{...report,reason:'arbitrary text'}),'report_reason_invalid');
+    assert.equal((await call(a,'profile')).profile.hiddenPlayers.length,0);
+    await call(a,'public_name_hide',{target:`supabase:${b}`,hide:true});
+    assert.deepEqual((await call(a,'profile')).profile.hiddenPlayers,[b]);
+    assert.deepEqual((await call(c,'profile')).profile.hiddenPlayers,[]);
+    const hidden=await call(a,'scores',{period:'all'});
+    assert.equal(hidden.scores.length,plain.scores.length);
+    assert.equal(hidden.scores[0].place,place);assert.equal(hidden.scores[0].timeMs,plain.scores[0].timeMs);
+    assert.equal(hidden.scores[0].playerName,'Скрытое имя');
+    assert.equal((await call(c,'scores',{period:'all'})).scores[0].playerName,'Public name');
+    assert.equal((await call(a,'scores',{period:'average'})).rows[0].playerName,'Скрытое имя');
+    assert.equal((await call(a,'invites_list')).invites.paidRows[0].nickname,'Скрытое имя');
+
+    await rejects(admin(c,{action:'moderation_list'}),'admin_required');
+    const pending=await admin(actor,{action:'moderation_list'});assert.equal(pending.reports.length,1);
+    const item=pending.reports[0];
+    const decision={action:'moderation_resolve',reportId:item.id,expectedFingerprint:item.fingerprint,decision:'hide',requestId:'50000000-0000-4000-8000-000000000005'};
+    await admin(actor,decision);assert.equal((await admin(actor,decision)).replayed,true);
+    const moderated=await call(c,'scores',{period:'all'});assert.equal(moderated.scores[0].playerName,'Игрок');assert.equal(moderated.scores[0].place,place);
+    assert.equal((await call(c,'scores',{period:'average'})).rows[0].playerName,'Игрок');
+    await call(a,'public_names_reset');
+    assert.equal((await call(a,'invites_list')).invites.paidRows[0].nickname,'Игрок');
+    await admin(actor,{...decision,decision:'restore',requestId:'60000000-0000-4000-8000-000000000006'});
+    assert.equal((await call(c,'scores',{period:'all'})).scores[0].playerName,'Public name');
+    await call(b,'rename',{nickname:'A new name',communityRulesVersion:1});
+    await rejects(admin(actor,{...decision,requestId:'70000000-0000-4000-8000-000000000007'}),'public_name_changed');
+    const after=(await call(b,'profile')).profile;
+    assert.equal(after.wallet.energy,before.wallet.energy);assert.equal(after.wallet.gamesStarted,before.wallet.gamesStarted);
+    assert.equal((await call(a,'invites_list')).invites.paidRows[0].nickname,'A new name');
+    await call(a,'public_name_hide',{target:`supabase:${b}`,hide:true});
+    const detail=await admin(actor,{action:'delete_preview',userId:b});
+    await admin(actor,{action:'delete_user',userId:b,expectedVersion:detail.user.version,requestId:'80000000-0000-4000-8000-000000000008',confirmation:b,acceptSubscriptionNotice:true});
+    assert.deepEqual((await call(a,'profile')).profile.hiddenPlayers,[]);
+    assert.equal((await local.pg.query("select count(*)::int as n from untouch.documents where parent='publicReports' and (body->>'targetUid'=$1 or body->>'reporterUid'=$1)",[b])).rows[0].n,0);
+  }finally{await local.close();}
+});

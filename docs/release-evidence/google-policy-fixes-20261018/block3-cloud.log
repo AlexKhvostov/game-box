@@ -1,0 +1,4 @@
+(node:43628) ExperimentalWarning: Importing JSON modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"stage":"cloud_public_names","ok":true,"realEdgeActions":true,"explicitRules":true,"duplicateReport":true,"ownHiddenOnly":true,"rankAndScorePreserved":true,"adminHttpDenied":true,"adminOperatorIntegration":true,"moderationRestore":true,"gameWalletUnchanged":true,"scoreFixtureOwnDisposable":true}
+{"ok":true,"created":2,"deleted":2,"realPlayersTouched":0,"realPayments":0}

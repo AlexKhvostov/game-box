@@ -17,6 +17,9 @@ import 'package:game_box/l10n/app_localizations.dart';
 import 'package:game_box/ui/profile_support.dart';
 
 class ProfileTestAccount extends MobileAccount {
+  ProfileTestAccount() {
+    communityRulesVersion = 1;
+  } // Returning player fixture.
   int renames = 0;
   int restores = 0;
   Completer<void>? pendingRestore;
@@ -472,7 +475,10 @@ void main() {
           expect(calls.last.arguments, {'page': page, 'language': language});
           expect(tester.getRect(button).height, greaterThanOrEqualTo(48));
         }
-        expect(find.byKey(const ValueKey('profile-help-content')), findsOneWidget);
+        expect(
+          find.byKey(const ValueKey('profile-help-content')),
+          findsOneWidget,
+        );
         expect(find.byType(Dialog), findsWidgets);
         expect(tester.takeException(), isNull);
       },
@@ -522,7 +528,7 @@ void main() {
       await mountProfile(tester, size: const Size(390, 844));
       final input = find.byKey(const ValueKey('profile-nickname-input'));
       final save = find.byKey(const ValueKey('profile-nickname-save'));
-      await tester.enterText(input, 'Mint');
+      await tester.enterText(input, 'M');
       await tester.pumpAndSettle();
       expect(tester.widget<FilledButton>(save).onPressed, isNull);
       await tester.enterText(input, 'TakenName');

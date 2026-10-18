@@ -5,9 +5,10 @@ import '../../l10n/app_localizations.dart';
 import '../../ui/neon_chrome.dart';
 import 'ranking_art.dart';
 import '../../ui/game_ui.dart';
+import '../../ui/public_name_controls.dart';
 import 'leaderboard_widgets.dart';
 
-/// Local inspection of the selected record; no account lookup or social action.
+/// Inspect a public record and manage the visibility of its public name.
 Future<void> showPlayerResultSheet(
   BuildContext context, {
   required ScoreEntry entry,
@@ -17,6 +18,9 @@ Future<void> showPlayerResultSheet(
 }) => showDialog<void>(
   animationStyle: GameUi.windowAnimationStyle,
   context: context,
+  // Android age startup owns an outer navigator above the account providers.
+  // Keep the result and its report controls in the game's navigator.
+  useRootNavigator: false,
   builder: (_) => PlayerResultSheet(
     entry: entry,
     place: place,
@@ -271,7 +275,11 @@ class _PlayerResultSheetState extends State<PlayerResultSheet> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    entry.displayName,
+                                    publicPlayerName(
+                                      context,
+                                      entry.uid,
+                                      entry.displayName,
+                                    ),
                                     style: const TextStyle(
                                       fontSize: 17,
                                       height: 1.2,
@@ -436,6 +444,8 @@ class _PlayerResultSheetState extends State<PlayerResultSheet> {
                   ),
                 ),
                 const SizedBox(height: 12),
+                if (!widget.own)
+                  PublicNameActions(uid: entry.uid, name: entry.displayName),
                 OutlinedButton(
                   key: const ValueKey('player-close'),
                   style: OutlinedButton.styleFrom(

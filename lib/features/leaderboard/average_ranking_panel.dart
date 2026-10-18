@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../data/scores_store.dart';
+import '../../ui/public_name_controls.dart';
 import '../../domain/average_ranking.dart';
 import '../../ui/game_ui.dart';
 import 'leaderboard_tone.dart';
@@ -391,71 +392,86 @@ class _AverageRow extends StatelessWidget {
         fontWeight: FontWeight.w700,
       ),
     );
-    return Semantics(
-      label: ru
-          ? 'Место $place. ${row.playerName}. Среднее ${averageSeconds(row.averageMs)} с. Всего попыток ${row.totalAttempts ?? "—"}.'
-          : 'Place $place. ${row.playerName}. Average ${averageSeconds(row.averageMs)} s. Total attempts ${row.totalAttempts ?? "—"}.',
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 3),
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
-        constraints: const BoxConstraints(minHeight: 49),
-        decoration: BoxDecoration(
-          color: own ? const Color(0xFF03454D) : null,
-          borderRadius: BorderRadius.circular(6),
-          border: own
-              ? Border.all(color: const Color(0xFF71FFF0))
-              : const Border(bottom: BorderSide(color: Color(0xFF174456))),
-        ),
-        child: Row(
-          children: [
-            SizedBox(
-              width: 32,
-              child: place != null && place <= 3
-                  ? RankingArt('medal-$place', width: 28, height: 32)
-                  : Text(
-                      '$place',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: own
-                            ? const Color(0xFFADFFF1)
-                            : const Color(0xFFA9D8EE),
+    return GestureDetector(
+      onTap: own
+          ? null
+          : () => showPublicNameActions(
+              context,
+              uid: row.userId,
+              name: row.playerName,
+            ),
+      child: Semantics(
+        button: !own && row.userId != null,
+        hint: own
+            ? null
+            : (ru
+                  ? 'Нажмите, чтобы пожаловаться или скрыть имя'
+                  : 'Tap to report or hide this name'),
+        label: ru
+            ? 'Место $place. ${publicPlayerName(context, row.userId, row.playerName)}. Среднее ${averageSeconds(row.averageMs)} с. Всего попыток ${row.totalAttempts ?? "—"}.'
+            : 'Place $place. ${publicPlayerName(context, row.userId, row.playerName)}. Average ${averageSeconds(row.averageMs)} s. Total attempts ${row.totalAttempts ?? "—"}.',
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 3),
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+          constraints: const BoxConstraints(minHeight: 49),
+          decoration: BoxDecoration(
+            color: own ? const Color(0xFF03454D) : null,
+            borderRadius: BorderRadius.circular(6),
+            border: own
+                ? Border.all(color: const Color(0xFF71FFF0))
+                : const Border(bottom: BorderSide(color: Color(0xFF174456))),
+          ),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 32,
+                child: place != null && place <= 3
+                    ? RankingArt('medal-$place', width: 28, height: 32)
+                    : Text(
+                        '$place',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: own
+                              ? const Color(0xFFADFFF1)
+                              : const Color(0xFFA9D8EE),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      publicPlayerName(context, row.userId, row.playerName),
+                      maxLines: large ? 2 : 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Color(0xFFF2F8FF),
                         fontSize: 12,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
-            ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    row.playerName,
-                    maxLines: large ? 2 : 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: Color(0xFFF2F8FF),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  if (large) ...[
-                    value,
-                    Text(
-                      '${ru ? "Попыток" : "Attempts"}: ${row.totalAttempts ?? "—"}',
-                      style: const TextStyle(
-                        color: Color(0xFFE4F3FF),
-                        fontSize: 11,
+                    if (large) ...[
+                      value,
+                      Text(
+                        '${ru ? "Попыток" : "Attempts"}: ${row.totalAttempts ?? "—"}',
+                        style: const TextStyle(
+                          color: Color(0xFFE4F3FF),
+                          fontSize: 11,
+                        ),
                       ),
-                    ),
+                    ],
                   ],
-                ],
+                ),
               ),
-            ),
-            if (!large) ...[
-              SizedBox(width: 82, child: value),
-              SizedBox(width: 52, child: count),
+              if (!large) ...[
+                SizedBox(width: 82, child: value),
+                SizedBox(width: 52, child: count),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

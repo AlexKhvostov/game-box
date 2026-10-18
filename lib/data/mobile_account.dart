@@ -58,6 +58,11 @@ class MobileAccount extends ChangeNotifier {
   String? googleName;
   String? googleEmail;
   bool hideGoogleAccount = true;
+  int communityRulesVersion = 0;
+  bool publicNameRestricted = false;
+  Set<String> hiddenPlayers = {};
+  bool isPlayerHidden(String? uid) =>
+      uid != null && hiddenPlayers.contains(uid);
   bool busy = false;
   GoogleConnectionStage? googleStage;
   String? error;
@@ -104,6 +109,12 @@ class MobileAccount extends ChangeNotifier {
       id = owner;
       _secret = saved['secret'] as String;
       _installation = saved['installation'] as String;
+      communityRulesVersion =
+          (saved['communityRulesVersion'] as num?)?.toInt() ?? 0;
+      hiddenPlayers = ((saved['hiddenPlayers'] as List?) ?? const [])
+          .whereType<String>()
+          .where(validOwner)
+          .toSet();
       // This identifies local history only. The transport independently verifies
       // the current Supabase session before sending any owner-bound command.
     } catch (_) {
@@ -205,7 +216,10 @@ class MobileAccount extends ChangeNotifier {
 
   Future<void> setGooglePrivacy(bool hide) async {
     if (busy) throw const MobileApiError('profile_unavailable');
-    await walletOperation(operationId(), 'google_privacy', {'hide': hide});
+    await walletOperation(operationId(), 'google_privacy', {
+      'hide': hide,
+      if (!hide) 'communityRulesVersion': 1,
+    });
   }
 
   Future<void> refreshGoogleDetails(NativeGoogleIdentity google) async {
@@ -472,6 +486,14 @@ class MobileAccount extends ChangeNotifier {
     googleName = googleLinked ? profile['googleName'] as String? : null;
     googleEmail = googleLinked ? profile['googleEmail'] as String? : null;
     hideGoogleAccount = profile['hideGoogleAccount'] != false;
+    communityRulesVersion =
+        (profile['communityRulesVersion'] as num?)?.toInt() ?? 0;
+    publicNameRestricted = profile['publicNameRestricted'] == true;
+    hiddenPlayers = ((profile['hiddenPlayers'] as List?) ?? const [])
+        .whereType<String>()
+        .map((v) => v.startsWith('supabase:') ? v : 'supabase:$v')
+        .where(validOwner)
+        .toSet();
     _profileRevision++;
   }
 
@@ -493,6 +515,14 @@ class MobileAccount extends ChangeNotifier {
         final credentials = jsonDecode(raw) as Map;
         _secret = credentials['secret'] as String;
         _installation = credentials['installation'] as String;
+        if (validOwner(credentials['owner'] as String? ?? '')) {
+          communityRulesVersion =
+              (credentials['communityRulesVersion'] as num?)?.toInt() ?? 0;
+          hiddenPlayers = ((credentials['hiddenPlayers'] as List?) ?? const [])
+              .whereType<String>()
+              .where(validOwner)
+              .toSet();
+        }
         if (credentials['pendingRoundStart'] is Map) {
           _pendingRoundStart = Map<String, dynamic>.from(
             credentials['pendingRoundStart'] as Map,
@@ -528,7 +558,13 @@ class MobileAccount extends ChangeNotifier {
     busy = true;
     notifyListeners();
     try {
-      _apply(await request({'action': 'rename', 'nickname': name.trim()}));
+      _apply(
+        await request({
+          'action': 'rename',
+          'nickname': name.trim(),
+          'communityRulesVersion': 1,
+        }),
+      );
       error = null;
     } finally {
       busy = false;
@@ -536,11 +572,50 @@ class MobileAccount extends ChangeNotifier {
     }
   }
 
+  Future<void> _publicAction(Map<String, dynamic> command) async {
+    if (!ready || busy || googleStage != null) {
+      throw const MobileApiError('profile_unavailable');
+    }
+    final owner = id;
+    busy = true;
+    notifyListeners();
+    try {
+      final result = await request(command);
+      if (id != owner || (result['profile'] as Map?)?['id'] != owner) {
+        throw const MobileApiError('profile_changed');
+      }
+      _apply(result);
+      error = null;
+      await _saveCredentials();
+    } finally {
+      busy = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> acceptCommunityRules() =>
+      _publicAction({'action': 'public_rules_accept', 'version': 1});
+  Future<void> reportPublicName(String target, String reason) => _publicAction({
+    'action': 'public_name_report',
+    'target': target,
+    'reason': reason,
+  });
+  Future<void> hidePublicName(String target, bool hide) => _publicAction({
+    'action': 'public_name_hide',
+    'target': target,
+    'hide': hide,
+  });
+  Future<void> resetHiddenNames() =>
+      _publicAction({'action': 'public_names_reset'});
+
   Future<void> _saveCredentials() => _vault.write(
     jsonEncode({
       'installation': _installation,
       'secret': _secret,
       'owner': ?id,
+      if (communityRulesVersion > 0)
+        'communityRulesVersion': communityRulesVersion,
+      if (hiddenPlayers.isNotEmpty) 'hiddenPlayers': hiddenPlayers.toList(),
       if (_pendingRoundStart != null) 'pendingRoundStart': _pendingRoundStart,
     }),
   );

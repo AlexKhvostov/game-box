@@ -15,6 +15,7 @@ import '../../data/scores_store.dart';
 import '../../data/google_identity.dart';
 import '../../ui/neon_chrome.dart';
 import '../../ui/profile_support.dart';
+import '../../ui/public_name_controls.dart';
 import '../invites/inviter_section.dart';
 import '../leaderboard/leaderboard_sheet.dart';
 
@@ -253,12 +254,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (_privacySaving) return;
     setState(() => _privacySaving = true);
     try {
+      if (!hide && !await ensureCommunityRules(context, account)) return;
       await account.setGooglePrivacy(hide);
       if (mounted) setState(() => _googleMessage = null);
-    } catch (_) {
+    } catch (error) {
       if (mounted) {
         setState(
-          () => _googleMessage = ru
+          () => _googleMessage =
+              error is MobileApiError && error.code == 'nickname_prohibited'
+              ? (ru
+                    ? 'Имя Google содержит запрещённое слово. Оставьте его скрытым или измените имя в Google.'
+                    : 'Your Google name contains a prohibited word. Keep it hidden or change it in Google.')
+              : ru
               ? 'Не удалось сохранить. Проверьте сеть и повторите.'
               : 'Could not save. Check your connection and retry.',
         );
@@ -731,6 +738,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ],
                 ),
               ),
+              const HiddenNamesSetting(),
               if (audience != null) ...[
                 const SizedBox(height: 6),
                 const _ProfilePanel(
@@ -1112,8 +1120,8 @@ class _NicknameEditorState extends State<_NicknameEditor> {
 
   String? _validation() {
     final name = _controller.text.trim();
-    if (name.runes.length < 5 || name.runes.length > 40) {
-      return widget.ru ? 'От 5 до 40 символов' : 'Use 5–40 characters';
+    if (name.runes.length < 2 || name.runes.length > 24) {
+      return widget.ru ? 'От 2 до 24 символов' : 'Use 2–24 characters';
     }
     if (RegExp(r'[<>\x00-\x1F\x7F]').hasMatch(name)) {
       return widget.ru
@@ -1136,6 +1144,8 @@ class _NicknameEditorState extends State<_NicknameEditor> {
       _error = null;
     });
     try {
+      if (!await ensureCommunityRules(context, widget.account)) return;
+      if (!mounted) return;
       await widget.account.rename(_controller.text.trim());
       if (!mounted) return;
       _controller.text = widget.account.nickname ?? '';
@@ -1143,7 +1153,10 @@ class _NicknameEditorState extends State<_NicknameEditor> {
     } catch (e) {
       if (!mounted) return;
       final code = e is MobileApiError ? e.code : '';
-      _rejected = code == 'nickname_taken' || code == 'nickname_invalid';
+      _rejected =
+          code == 'nickname_taken' ||
+          code == 'nickname_invalid' ||
+          code == 'nickname_prohibited';
       _error = switch (code) {
         'nickname_taken' =>
           widget.ru
@@ -1151,8 +1164,12 @@ class _NicknameEditorState extends State<_NicknameEditor> {
               : 'Nickname taken. Choose another.',
         'nickname_invalid' =>
           widget.ru
-              ? 'От 5 до 40 символов без служебных символов и < >'
-              : 'Use 5–40 characters without control characters or < >',
+              ? 'От 2 до 24 символов без служебных символов и < >'
+              : 'Use 2–24 characters without control characters or < >',
+        'nickname_prohibited' =>
+          widget.ru
+              ? 'Выберите имя без оскорблений и запрещённых слов.'
+              : 'Choose a name without offensive or prohibited words.',
         _ =>
           widget.ru
               ? 'Не удалось сохранить. Попробуйте ещё раз.'
@@ -1186,12 +1203,20 @@ class _NicknameEditorState extends State<_NicknameEditor> {
               ),
             ),
             Text(
-              widget.ru ? '5–40 символов' : '5–40 characters',
+              widget.ru ? '2–24 символа' : '2–24 characters',
               style: const TextStyle(fontSize: 9, color: GameUi.muted),
             ),
           ],
         ),
         const SizedBox(height: 4),
+        if (widget.account.publicNameRestricted)
+          Text(
+            widget.ru
+                ? 'Публичное имя скрыто модератором. Сохраните новый ник по правилам; игра и баланс доступны.'
+                : 'Your public name was hidden by a moderator. Save a new name that follows the rules; gameplay and your balance remain available.',
+            key: const ValueKey('public-name-restricted'),
+            style: const TextStyle(fontSize: 11, color: GameUi.muted),
+          ),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1203,7 +1228,7 @@ class _NicknameEditorState extends State<_NicknameEditor> {
                   controller: _controller,
                   enabled: widget.account.ready && !_saving,
                   textInputAction: TextInputAction.done,
-                  maxLength: 40,
+                  maxLength: 24,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,

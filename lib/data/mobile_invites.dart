@@ -9,6 +9,7 @@ import 'mobile_account.dart';
 class InvitePaidRow {
   InvitePaidRow.fromJson(Map<String, dynamic> data)
     : id = data['id'] as String,
+      userId = data['userId'] as String?,
       nickname = data['nickname'] as String?,
       rewardedAt = (data['rewardedAt'] as num).toInt(),
       amount = (data['amount'] as num).toInt(),
@@ -33,6 +34,7 @@ class InvitePaidRow {
     }
   }
   final String id;
+  final String? userId;
   final String? nickname;
   final int rewardedAt, amount, energyEquivalent, originalAmount;
   final String currency, originalCurrency;

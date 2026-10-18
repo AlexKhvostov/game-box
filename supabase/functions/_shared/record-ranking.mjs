@@ -28,8 +28,8 @@ export async function recordRankings({db,uid,stamp,period='allPeriods'}) {
       from best
     )
     select period,jsonb_agg(jsonb_build_object(
-      'id',key,'userId','supabase:'||(body->>'uid'),'playerName',profile->>'nickname',
-      'googleName',case when (profile->>'googleLinked')::boolean and not (profile->>'hideGoogleAccount')::boolean
+      'id',key,'userId','supabase:'||(body->>'uid'),'playerName',case when coalesce((profile->>'publicNameRestricted')::boolean,false) then 'Игрок' else profile->>'nickname' end,
+      'googleName',case when not coalesce((profile->>'publicNameRestricted')::boolean,false) and (profile->>'googleLinked')::boolean and not (profile->>'hideGoogleAccount')::boolean
         then profile->>'publicGoogleName' else null end,
       'timeMs',body->'timeMs','createdAt',body->'createdAt','runDistance',body->'runDistance',
       'riskCount',body->'riskCount','hadJump',body->'hadJump','hadHelmet',body->'hadHelmet','place',place

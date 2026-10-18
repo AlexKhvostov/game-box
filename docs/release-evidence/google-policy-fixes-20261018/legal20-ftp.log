@@ -1,0 +1,9 @@
+Connected with verified FTPS; remote root: /www
+Backing up files before upload...
+Backed up / checked 4/4
+Retrying verified FTPS transfer: privacy/index.html; range 0-16383; attempt 2/3; curl exit 56
+Retrying verified FTPS transfer: privacy/index.html; range 16384-22391; attempt 2/3; curl exit 28
+Uploaded and verified 4/4
+Changed files uploaded and verified: 3; unchanged: 1
+Deployment complete. Backup: D:\_P_R_O_J_E_C_T\game\square\Untouch\releases\legal-v1.0.20_20261018_175940_523998\predeploy-20261018_175951_915785
+HTTPS legal pages and build verified: legal-v1.0.20_20261018_175940_523998

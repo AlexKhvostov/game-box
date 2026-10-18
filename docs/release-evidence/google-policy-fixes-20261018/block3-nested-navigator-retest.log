@@ -1,0 +1,31 @@
+00:00 +0: loading D:/_P_R_O_J_E_C_T/game/square/Untouch/test/public_name_controls_test.dart
+00:00 +0: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/public_name_controls_test.dart: first rename requires explicit rules; cancel keeps name and acceptance is reused
+00:01 +1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/public_name_controls_test.dart: first rename requires explicit rules; cancel keeps name and acceptance is reused
+00:02 +2: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_account_hud_test.dart: approved account width320.0 text1.0 linkedfalse
+00:02 +3: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_account_hud_test.dart: approved account width320.0 text1.0 linkedfalse
+00:02 +4: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_account_hud_test.dart: approved account width320.0 text1.0 linkedfalse
+00:03 +5: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_account_hud_test.dart: approved account width320.0 text1.0 linkedfalse
+00:03 +6: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_player_result_test.dart: native result 320.0 text1.0 none-long passive values and four tips
+00:03 +7: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_account_hud_test.dart: approved account width320.0 text1.0 linkedtrue
+00:03 +8: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_account_hud_test.dart: approved account width320.0 text1.0 linkedtrue
+00:03 +9: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_account_hud_test.dart: approved account width320.0 text1.0 linkedtrue
+00:03 +10: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_player_result_test.dart: native result 320.0 text2.0 both passive values and four tips
+00:03 +11: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_account_hud_test.dart: approved account width320.0 text2.0 linkedfalse
+00:04 +12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_player_result_test.dart: native result 320.0 text2.0 one passive values and four tips
+00:04 +13: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_account_hud_test.dart: approved account width320.0 text2.0 linkedtrue
+00:04 +14: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_player_result_test.dart: native result 320.0 text2.0 none-long passive values and four tips
+00:04 +15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_account_hud_test.dart: approved account width360.0 text1.0 linkedfalse
+00:04 +16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_player_result_test.dart: native result 390.0 text1.0 both passive values and four tips
+00:04 +17: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_account_hud_test.dart: approved account width360.0 text1.0 linkedtrue
+00:04 +18: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_player_result_test.dart: native result 390.0 text1.0 one passive values and four tips
+00:05 +19: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_account_hud_test.dart: approved account width360.0 text2.0 linkedfalse
+00:05 +20: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_player_result_test.dart: native result 390.0 text1.0 none-long passive values and four tips
+00:05 +21: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_account_hud_test.dart: approved account width360.0 text2.0 linkedtrue
+00:05 +22: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_player_result_test.dart: native result 390.0 text2.0 both passive values and four tips
+00:05 +23: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_account_hud_test.dart: account child windows preserve actions and complete copy
+00:06 +24: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_account_hud_test.dart: account child windows preserve actions and complete copy
+00:06 +25: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_player_result_test.dart: native result 390.0 text2.0 none-long passive values and four tips
+00:06 +26: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_account_hud_test.dart: new HUD keeps long values and three actions stable at320/360 and text200
+00:06 +27: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_account_hud_test.dart: HUD uses shared clock, claim acknowledgement, reset, resume and unknown cache
+00:06 +28: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_account_hud_test.dart: (tearDownAll)
+00:06 +28: All tests passed!

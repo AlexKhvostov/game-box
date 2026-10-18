@@ -1,0 +1,25 @@
+{
+  "candidateVersion": "1.0.183+184",
+  "qaBuild": 185,
+  "files": {
+    "admin-console/src/app.js": "3b20877a650d20c99708546d3310c17f7a38096757669807f7dc50c6548597f9",
+    "admin-console/src/moderation.js": "5f14300871ff5fbf78c8f942286c3f5b88f1d1663c41b14ebdf17388f23d2552",
+    "lib/data/mobile_account.dart": "7a9f70d56aad165929672ecc5fddb2921044455e0193dff92e310a0b4490bb49",
+    "lib/data/mobile_invites.dart": "600735c0450c39021807dace0667637e201722886647416b1f7beed784b8e4e0",
+    "lib/features/balance/simple_energy_sheet.dart": "60d0dbbe8047e3733dec3937bb59edfc171be9583f263b65a21626e1c59d33cf",
+    "lib/features/invites/invitations_dialog.dart": "5fccec433e19228c34e7a17f66ba7601e45ea2a4827e56bb62fba6b7afd67d8a",
+    "lib/features/leaderboard/average_ranking_panel.dart": "8b1beb107208b2eeff1d4d9426365ada204532dfc806c4c788e7a0ba6f378fb8",
+    "lib/features/leaderboard/leaderboard_widgets.dart": "f1876483c0642aa9f5bcfc6d12e368f23864c90a5dea2d36f48746d36fd13120",
+    "lib/features/leaderboard/player_result_sheet.dart": "11d00a09b30cfc1daca48ba52046aa1c9c3398a1210970c095bc4aa6b0c9424f",
+    "lib/features/profile/google_startup_dialog.dart": "40c1d09514964c2c46732927ce9a56ffd7f54fe20b07acbfce49e9ab8f4a5c11",
+    "lib/features/profile/profile_screen.dart": "794f89576cae67baf1bf5384f434d52faf8324627731d9376da38f9ba3d64610",
+    "lib/ui/public_name_controls.dart": "c8a50df940121d53a82093c231e0f93ceabdb2eb79130c13fdba17a89d802aff",
+    "pubspec.yaml": "0dc4bb9b28f176248d212449ab9fdf4c2125b168bed3070b6c85ae6bebfff539",
+    "supabase/functions/_shared/average-ranking.mjs": "dd1265d2e115c223a24268e67c8e5dbfbc9ef15e05325ed927c3e8170f8184f2",
+    "supabase/functions/_shared/core/engine.mjs": "6793f7a4fdcf649d664144037ef56f3337e78cc727dc254dcfd8c383272736dd",
+    "supabase/functions/_shared/moderation-admin.mjs": "725e584652fc6b5370667fd9fa36f10d3453ebcde1eaa849d700d8f9ee91f216",
+    "supabase/functions/_shared/public-content.mjs": "593fb4e8241e49ec0571909929af85fd49614dfb0bb5c18cb8bd7fe2ba5a545e",
+    "supabase/functions/_shared/record-ranking.mjs": "5d7b856757862439055937f694c05790934c10d7910d14a4eeab2e32875c2243",
+    "supabase/functions/_shared/support-admin.mjs": "57bbc7aa3466506ee77acc6d6ac6ea58e884e59e0f8e9805976ea35680c87f8d"
+  }
+}

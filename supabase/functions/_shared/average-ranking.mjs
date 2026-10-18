@@ -11,7 +11,8 @@ export async function averageRanking({db,config,uid,stamp}){
         (attempts-untouch.attempt_count_through(uid,$1::integer))::integer as eligible_count
       from untouch.attempt_counts where node=65536
     ), ordered as (
-      select p.key as uid,s.time_ms,s.played_at,s.age,t.eligible_count,p.body->>'nickname' as nickname
+      select p.key as uid,s.time_ms,s.played_at,s.age,t.eligible_count,
+        case when coalesce((p.body->>'publicNameRestricted')::boolean,false) then 'Игрок' else p.body->>'nickname' end as nickname
       from untouch.documents p join totals t on t.uid=p.key
       cross join lateral (
         select (recent.body->>'timeMs')::numeric as time_ms,

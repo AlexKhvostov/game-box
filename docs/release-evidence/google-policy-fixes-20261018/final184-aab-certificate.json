@@ -1,0 +1,17 @@
+{
+  "versionCode": 184,
+  "sameUploadCertificateAs179": true,
+  "certificateSha256": "D1:E6:C2:45:77:DE:48:70:86:09:38:C0:AC:F5:C8:4F:03:9F:2A:74:0D:AA:0C:02:A3:33:42:B2:3B:9E:CD:DE",
+  "baseline": "releases\\android-v1.0.178_20261018_145453_184\\Untouch-1.0.178+179.aab",
+  "sha256": "b278623ca5f15fc4290c9b518fcbcb6ec731ee4841f5d87586647839e79a1ef6",
+  "playLabelMetadata": "untouch",
+  "applicationManifestAttributes": {
+    "allowBackup": "false",
+    "appComponentFactory": "androidx.core.app.CoreComponentFactory",
+    "extractNativeLibs": "false",
+    "icon": "@mipmap/ic_launcher",
+    "label": "@string/app_name",
+    "name": "android.app.Application",
+    "roundIcon": "@mipmap/ic_launcher"
+  }
+}

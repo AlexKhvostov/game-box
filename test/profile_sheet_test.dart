@@ -66,9 +66,9 @@ void main() {
     expect(saveRect.left, greaterThan(inputRect.right));
     expect(saveRect.top, inputRect.top);
     await tester.tap(input);
-    await tester.enterText(input, 'abcd');
+    await tester.enterText(input, 'a');
     await tester.pumpAndSettle();
-    expect(find.text('Use 5–40 characters'), findsOneWidget);
+    expect(find.text('Use 2–24 characters'), findsOneWidget);
     // Validation is below the input; a compact sheet may grow to show it.
     expect(tester.getRect(input).size, inputRect.size);
     expect(tester.getRect(save).size, saveRect.size);
@@ -133,6 +133,9 @@ void main() {
 }
 
 class _ProfileAccount extends MobileAccount {
+  _ProfileAccount() {
+    communityRulesVersion = 1; // Returning player; first acceptance tested separately.
+  }
   int renameCalls = 0;
   @override
   Future<void> rename(String name) async {

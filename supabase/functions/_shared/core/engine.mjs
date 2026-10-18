@@ -8,6 +8,7 @@ import {plausibleAndroidResult} from '../android-constraints.mjs';
 import {ApiError} from './policy.mjs';
 import {androidRoundProof} from '../android-replay.mjs';
 import {rewardedQuota} from '../rewarded-quota.mjs';
+import {publicNickname,requirePublicWords,requireCommunityRules,publicContentAction,maskViewerNames} from '../public-content.mjs';
 const clone = v => structuredClone(v);
 const owner = uid => `supabase:${uid}`;
 const canonical = v => Array.isArray(v) ? v.map(canonical) : v && typeof v === 'object' ? Object.fromEntries(Object.keys(v).sort().map(k => [k, canonical(v[k])])) : v;
@@ -41,7 +42,8 @@ function publicProfile(p, policy, identity, now) {
   wallet.nickname=p.nickname;wallet.feedbackMinimumSpend=100;wallet.feedbackSpentEnergy=Math.max(0,wallet.feedbackSpentEnergy ?? 0);
   return {id:owner(p.uid),nickname:p.nickname,googleLinked:identity.googleLinked,
     googleName:identity.googleLinked ? identity.name ?? null : null, googleEmail:identity.googleLinked ? identity.email ?? null : null,
-    hideGoogleAccount:p.hideGoogleAccount, wallet, walletVersion:p.version, serverNow:now, timezoneOffset:180};
+    hideGoogleAccount:p.hideGoogleAccount, communityRulesVersion:p.communityRulesVersion??0,
+    hiddenPlayers:p.hiddenPlayers??[],publicNameRestricted:p.publicNameRestricted===true,wallet, walletVersion:p.version, serverNow:now, timezoneOffset:180};
 }
 function createEngine({db, getPolicy = async () => defaults, verifyPlay, googleLinkedForUid, roundProof=androidRoundProof, now = Date.now}) {
   const playerRef = uid => db.collection('players').doc(uid);
@@ -54,11 +56,11 @@ function createEngine({db, getPolicy = async () => defaults, verifyPlay, googleL
     const stamp = now();
     if (input.action === 'scores') {
       // Rate-limit once per board request, including a single all-period fetch.
-      await execute(uid,{action:'profile'},identity);
-      if(input.period === 'average') return averageRanking({db,config:policy.config,uid,stamp});
+      const viewer=await execute(uid,{action:'profile'},identity);
+      if(input.period === 'average') return maskViewerNames(await averageRanking({db,config:policy.config,uid,stamp}),viewer.profile.hiddenPlayers);
       const records=await recordRankings({db,uid,stamp,period:input.period});
       if(input.period === 'allPeriods') records.average=await averageRanking({db,config:policy.config,uid,stamp});
-      return records;
+      return maskViewerNames(records,viewer.profile.hiddenPlayers);
     }
     // External Play verification occurs outside the retryable Firestore transaction.
     let verified;
@@ -113,12 +115,18 @@ function createEngine({db, getPolicy = async () => defaults, verifyPlay, googleL
         // Auth SDK owns link/restore/unlink. The HTTP server trusts only Admin
         // getUser(), not an identity flag or raw Google token sent by the client.
         if (['google_link','google_restore'].includes(action)) requireThat(identity.googleLinked,'google_not_linked');
+      } else if (['public_rules_accept','public_name_report','public_name_hide','public_names_reset'].includes(action)) {
+        response=await publicContentAction({db,tx,p,input,stamp,put});
       } else if (action === 'rename') {
-        const name=typeof input.nickname === 'string' ? input.nickname.trim().normalize('NFC') : '';
-        requireThat([...name].length >= 2 && [...name].length <= 24 && !/[\p{C}<>]/u.test(name), 'nickname_invalid',400);
+        // Updated clients identify their rules contract. Keep already-installed
+        // legacy clients usable during the Play rollout; never invent acceptance
+        // for them. They remain subject to the same name filter and moderation.
+        if(input.communityRulesVersion!=null){requireThat(input.communityRulesVersion===1,'community_rules_invalid',400);requireCommunityRules(p);}
+        const name=publicNickname(input.nickname);
         const nr=db.collection('names').doc(hash(name.toLocaleLowerCase('ru'))), taken=await tx.get(nr);
         requireThat(!taken.exists || taken.data().uid === uid, 'nickname_taken');
         if (p.nameKey && p.nameKey !== nr.id) writes.push([db.collection('names').doc(p.nameKey), null]);
+        if(name!==p.nickname&&p.publicNameRestricted){p.publicNameRestricted=false;p.publicNameRestrictionId=null;p.hideGoogleAccount=true;p.publicGoogleName=null;}
         put(nr,{uid}); p.nameKey=nr.id;p.nickname=name;
       } else if (action === 'wallet_operation') {
         const opId=nonce(input.operationId), args=input.args ?? {}, kind=input.kind;
@@ -230,7 +238,7 @@ function createEngine({db, getPolicy = async () => defaults, verifyPlay, googleL
         result.profile=publicProfile(current.data(),policy,identity,stamp);
         if(result._invitePlayer) result._invitePlayer=current.data();
       }
-      if (result._invitePlayer) {result.invites=await inviteState(result._invitePlayer,identity,policy,input);delete result._invitePlayer;}
+      if (result._invitePlayer) {result.invites=maskViewerNames(await inviteState(result._invitePlayer,identity,policy,input),result._invitePlayer.hiddenPlayers);delete result._invitePlayer;}
       return result;
     });
   }
@@ -247,7 +255,10 @@ function createEngine({db, getPolicy = async () => defaults, verifyPlay, googleL
       w.energy+=amount;w.simpleBonus={contract:3,nextAt:stamp+b.periodSec*1000,durationMs:b.periodSec*1000,lastClaimAt:stamp};
       return {bonusClaim:{kind,operationId:opId,amount,tier,claimedAt:stamp}};
     }
-    if (kind === 'google_privacy') {requireThat(typeof args.hide === 'boolean','operation_invalid',400);p.hideGoogleAccount=args.hide;return {};}
+    if (kind === 'google_privacy') {requireThat(typeof args.hide === 'boolean','operation_invalid',400);
+      if(!args.hide)requirePublicWords(identity.name??p.publicGoogleName);
+      if(!args.hide&&args.communityRulesVersion!=null){requireThat(args.communityRulesVersion===1,'community_rules_invalid',400);requireCommunityRules(p);}
+      p.hideGoogleAccount=args.hide;return {};}
     if (kind === 'energy_age_completed') {empty();w.energyAgeCompleted=true;return {};}
     if (kind === 'energy_reward') {requireThat(['google','age'].includes(args.id),'legacy_operation_disabled');
       const id=args.id, claim=['survive_10s','record_20s','risks_5'].includes(id) ? id : `energy_${id}`;
@@ -362,8 +373,9 @@ function createEngine({db, getPolicy = async () => defaults, verifyPlay, googleL
     const page=rows.docs.slice(0,50);
     const invitees=page.length ? await db.getAll(...page.map(d => playerRef(d.id))) : [];
     for (let i=0;i<page.length;i++) { const doc=page[i],r=doc.data(),member=invitees[i].data();const id=BigInt('0x'+hash(doc.id).slice(0,14)).toString();
-      if (r.rewardedAt) paid.push({id,nickname:r.nickname ?? null,rewardedAt:r.rewardedAt,amount:r.amount,currency:'energy',energyEquivalent:r.amount});
-      else pending.push({id,nickname:member?.nickname ?? null,games:Math.min(5,member?.completedGames ?? 0),googleLinked:member?.googleLinked === true,bonusStatus:(member?.completedGames ?? 0) < 5 ? 'waiting_games' : 'waiting_google'});
+      const nickname=member?.publicNameRestricted?'Игрок':member?.nickname??null;
+      if (r.rewardedAt) paid.push({id,userId:owner(doc.id),nickname,rewardedAt:r.rewardedAt,amount:r.amount,currency:'energy',energyEquivalent:r.amount});
+      else pending.push({id,userId:owner(doc.id),nickname,games:Math.min(5,member?.completedGames ?? 0),googleLinked:member?.googleLinked === true,bonusStatus:(member?.completedGames ?? 0) < 5 ? 'waiting_games' : 'waiting_google'});
     }
     return {profileId:owner(p.uid),ownCode:p.ownShortCode,inviteUrl:`https://untouch.fun/a/${p.ownShortCode}`,inviterAssigned:!!p.inviterUid,
       inviterCode:p.inviterCode,googleLinked:identity.googleLinked,completedGames:Math.min(5,p.completedGames),
