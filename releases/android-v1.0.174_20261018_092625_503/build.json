@@ -48,5 +48,6 @@
     "backendPassed": 92,
     "realPaymentsTested": false,
     "realRewardedAdsTested": false
-  }
+  },
+  "sourceCommit": "8af3b0b"
 }

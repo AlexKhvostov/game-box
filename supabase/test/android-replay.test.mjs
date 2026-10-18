@@ -15,8 +15,10 @@ test('compiled verifier is current for actual Dart physics/config/PRNG and verif
  const manifest=JSON.parse(fs.readFileSync(new URL('../functions/_shared/android-replay.generated.json',import.meta.url)));
  for(const [file,expected]of Object.entries(manifest)){
   const path=file==='generatedSha256'?'supabase/functions/_shared/android-replay.generated.mjs':file;
-  const bytes=fs.readFileSync(new URL('../../'+path,import.meta.url));
-  assert.equal(crypto.createHash('sha256').update(bytes).digest('hex'),expected,path);
+  const source=fs.readFileSync(new URL('../../'+path,import.meta.url),'utf8');
+  const digest=value=>crypto.createHash('sha256').update(value.replaceAll('\r\n','\n')).digest('hex');
+  assert.equal(digest(source),expected,path);
+  assert.equal(digest(source.replaceAll('\r\n','\n').replaceAll('\n','\r\n')),expected,`${path}/CRLF checkout`);
  }
 });
 test('256 completed real Flutter/Dart runs match compiled server physics across frame rates/loadouts',()=>{

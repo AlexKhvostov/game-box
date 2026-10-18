@@ -32,6 +32,9 @@ license_file=Path(args.dart).resolve().parents[1]/'LICENSE'
 target.write_text('/* Dart SDK runtime license:\n'+license_file.read_text(encoding='utf-8')+'\n*/\n'+target.read_text(encoding='utf-8'),encoding='utf-8')
 # Dart VM and JS Random intentionally differ; the explicit PRNG is shared.
 files=['lib/features/game/game_world.dart','lib/domain/gameplay_config.dart','lib/domain/replay_random.dart','lib/app/mobile_gameplay_tuning.dart','lib/domain/arcade_rules.dart',*[f'tools/replay/{n}.dart'for n in ['geometry','session','main']]]
-manifest={name:hashlib.sha256((root/name).read_bytes()).hexdigest()for name in files}
-manifest['generatedSha256']=hashlib.sha256(target.read_bytes()).hexdigest()
+def source_hash(file):
+    # Git may check text out as CRLF on Windows; code identity ignores EOLs.
+    return hashlib.sha256(file.read_bytes().replace(b'\r\n',b'\n')).hexdigest()
+manifest={name:source_hash(root/name)for name in files}
+manifest['generatedSha256']=source_hash(target)
 (target.with_suffix('.json')).write_text(json.dumps(manifest,indent=2)+'\n',encoding='utf-8')
