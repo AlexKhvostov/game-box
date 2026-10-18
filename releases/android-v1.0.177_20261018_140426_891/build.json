@@ -40,5 +40,6 @@
     "dailyLimit": 20,
     "timezone": "UTC+3"
   },
-  "evidence": "docs/release-evidence/yandex-mvp-live-20261018/README.md"
+  "evidence": "docs/release-evidence/yandex-mvp-live-20261018/README.md",
+  "sourceCommit": "0a25e9bff758656c4a1fdd45dc09c1b1ed17f407"
 }
