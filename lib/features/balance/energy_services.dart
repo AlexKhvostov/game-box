@@ -314,6 +314,9 @@ class _FeedbackContentState extends State<EnergyFeedbackForm> {
           ),
           const SizedBox(height: 16),
           LinearProgressIndicator(
+            key: const ValueKey("energy-feedback-progress"),
+            color: GameUi.mint,
+            backgroundColor: GameUi.muted.withValues(alpha: .16),
             value:
                 (e.feedbackSpentEnergy /
                         e.feedbackMinimumSpend.clamp(1, 1000000))

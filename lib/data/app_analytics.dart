@@ -1,44 +1,13 @@
-import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:flutter/foundation.dart';
-
-import 'firebase_bootstrap.dart';
-
-/// Firebase Analytics: события MVP из docs/ANALYTICS_AND_ADMIN.md.
-///
-/// Имена короткие (лимит GA: 40 символов). Ошибки глотаем — игра не падает.
+// Optional event facade. Current Android installs no analytics sink.
 class AppAnalytics {
   AppAnalytics._();
 
-  static FirebaseAnalytics? _fa;
-  static bool _enabled = false;
-
-  static Future<void> init() async {
-    if (!FirebaseBootstrap.ready) {
-      _enabled = false;
-      return;
-    }
+  static Future<void> Function(String, Map<String, Object>?)? sink;
+  static Future<void> log(String name, {Map<String, Object>? params}) async {
     try {
-      _fa = FirebaseAnalytics.instance;
-      _enabled = true;
-      final uid = FirebaseBootstrap.uid;
-      if (uid != null && uid.isNotEmpty) {
-        await _fa!.setUserId(id: uid);
-      }
-    } catch (e) {
-      debugPrint('AppAnalytics.init: $e');
-      _enabled = false;
-    }
-  }
-
-  static Future<void> log(
-    String name, {
-    Map<String, Object>? params,
-  }) async {
-    if (!_enabled || _fa == null) return;
-    try {
-      await _fa!.logEvent(name: name, parameters: params);
-    } catch (e) {
-      debugPrint('AppAnalytics.log($name): $e');
+      await sink?.call(name, params);
+    } catch (_) {
+      /* Optional telemetry cannot break gameplay. */
     }
   }
 
@@ -51,12 +20,14 @@ class AppAnalytics {
     required int timeMs,
     int riskCount = 0,
     int runDistance = 0,
-  }) =>
-      log('game_finish', params: {
-        'time_ms': timeMs,
-        'risk_count': riskCount,
-        'run_distance': runDistance,
-      });
+  }) => log(
+    'game_finish',
+    params: {
+      'time_ms': timeMs,
+      'risk_count': riskCount,
+      'run_distance': runDistance,
+    },
+  );
 
   static Future<void> tapLives() => log('tap_lives');
 
@@ -72,21 +43,14 @@ class AppAnalytics {
 
   static Future<void> openEarn() => log('open_earn');
 
-  static Future<void> claimDaily({int? tokens}) => log(
-        'claim_daily',
-        params: tokens == null ? null : {'tokens': tokens},
-      );
+  static Future<void> claimDaily({int? tokens}) =>
+      log('claim_daily', params: tokens == null ? null : {'tokens': tokens});
 
-  static Future<void> claimGift({int? tokens}) => log(
-        'claim_gift',
-        params: tokens == null ? null : {'tokens': tokens},
-      );
+  static Future<void> claimGift({int? tokens}) =>
+      log('claim_gift', params: tokens == null ? null : {'tokens': tokens});
 
   static Future<void> buyLifePack({required int lives, required int cost}) =>
-      log('buy_life_pack', params: {
-        'lives': lives,
-        'cost': cost,
-      });
+      log('buy_life_pack', params: {'lives': lives, 'cost': cost});
 
   static Future<void> tapPlus() => log('tap_plus');
 

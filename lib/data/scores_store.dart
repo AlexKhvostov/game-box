@@ -1,13 +1,12 @@
 import 'dart:convert';
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../domain/score_entry.dart';
 import '../domain/average_ranking.dart';
-import 'firebase_bootstrap.dart';
+import 'legacy_scores_source.dart';
 import 'mobile_account.dart';
 import 'economy_store.dart';
 import 'instant_round_journal.dart';
@@ -17,6 +16,7 @@ import 'package:http/http.dart' as http;
 class ScoresStore extends ChangeNotifier {
   ScoresStore({
     this.account,
+    this.legacySource,
     http.Client? client,
     this.storagePrefix = '',
     EconomyStore? instantEconomy,
@@ -95,6 +95,7 @@ class ScoresStore extends ChangeNotifier {
   }
 
   final MobileAccount? account;
+  final LegacyScoresSource? legacySource;
   bool get supportsAverage =>
       account?.storagePrefix.startsWith('supabase_android_') ?? false;
   AverageRanking? averageRanking;
@@ -261,7 +262,6 @@ class ScoresStore extends ChangeNotifier {
   String get _kAttempts => account == null
       ? '${storagePrefix}local_attempts_v1'
       : '${storagePrefix}mobile_attempts_v1_${account!.id ?? 'pending'}';
-  static const _collection = 'scores';
   static const _maxTimeMs = 60 * 60 * 1000; // 1 час — античит-потолок
   static const _maxAttempts = 200;
 
@@ -438,7 +438,7 @@ class ScoresStore extends ChangeNotifier {
       return;
     }
 
-    if (!FirebaseBootstrap.ready) {
+    if (!(legacySource?.ready ?? false)) {
       online = false;
       loading = false;
       _changed();
@@ -448,7 +448,7 @@ class ScoresStore extends ChangeNotifier {
     Object? lastError;
     for (var attempt = 0; attempt < 3; attempt++) {
       try {
-        final remote = await _fetchRemoteMerged();
+        final remote = await legacySource!.load();
         _scores
           ..clear()
           ..addAll(remote);
@@ -460,84 +460,15 @@ class ScoresStore extends ChangeNotifier {
         return;
       } catch (e, st) {
         lastError = e;
-        debugPrint(
-          'Firestore leaderboard load attempt ${attempt + 1}: $e\n$st',
-        );
+        debugPrint('Legacy leaderboard load attempt ${attempt + 1}: $e\n$st');
         await Future<void>.delayed(Duration(milliseconds: 350 * (attempt + 1)));
       }
     }
 
-    debugPrint('Firestore leaderboard load gave up: $lastError');
+    debugPrint('Legacy leaderboard load gave up: $lastError');
     online = false;
     loading = false;
     _changed();
-  }
-
-  /// Top по времени + свежие записи за ~31 день (для вкладок day/week/month).
-  Future<List<ScoreEntry>> _fetchRemoteMerged() async {
-    final byId = <String, ScoreEntry>{};
-
-    Future<void> take(QuerySnapshot<Map<String, dynamic>> snap) async {
-      for (final doc in snap.docs) {
-        byId[doc.id] = _fromDoc(doc);
-      }
-    }
-
-    // 1) All-time top
-    try {
-      final snap = await FirebaseFirestore.instance
-          .collection(_collection)
-          .where('fair', isEqualTo: true)
-          .orderBy('timeMs', descending: true)
-          .limit(150)
-          .get();
-      await take(snap);
-    } catch (e) {
-      debugPrint('fair+timeMs query failed, fallback: $e');
-      final snap = await FirebaseFirestore.instance
-          .collection(_collection)
-          .orderBy('timeMs', descending: true)
-          .limit(150)
-          .get();
-      await take(snap);
-    }
-
-    // 2) Recent window — иначе Day/Week пустые, если свежие не в all-time top
-    final since = DateTime.now().toUtc().subtract(const Duration(days: 31));
-    try {
-      final snap = await FirebaseFirestore.instance
-          .collection(_collection)
-          .where('fair', isEqualTo: true)
-          .where('createdAt', isGreaterThanOrEqualTo: Timestamp.fromDate(since))
-          .orderBy('createdAt', descending: true)
-          .limit(300)
-          .get();
-      await take(snap);
-    } catch (e) {
-      debugPrint('fair+createdAt recent query failed, fallback: $e');
-      try {
-        final snap = await FirebaseFirestore.instance
-            .collection(_collection)
-            .where(
-              'createdAt',
-              isGreaterThanOrEqualTo: Timestamp.fromDate(since),
-            )
-            .orderBy('createdAt', descending: true)
-            .limit(300)
-            .get();
-        await take(snap);
-      } catch (e2) {
-        debugPrint('createdAt recent query failed: $e2');
-        // Не валим весь load — all-time уже может быть
-        if (byId.isEmpty) rethrow;
-      }
-    }
-
-    if (byId.isEmpty) {
-      // Пустая коллекция — нормально для нового проекта.
-      return const [];
-    }
-    return byId.values.toList();
   }
 
   Future<void> _loadLocal() async {
@@ -875,35 +806,6 @@ class ScoresStore extends ChangeNotifier {
     await _persistAttempts();
   }
 
-  ScoreEntry _fromDoc(QueryDocumentSnapshot<Map<String, dynamic>> doc) {
-    final data = doc.data();
-    final created = data['createdAt'];
-    DateTime createdAt;
-    if (created is Timestamp) {
-      createdAt = created.toDate();
-    } else {
-      createdAt = DateTime.tryParse('$created') ?? DateTime.now();
-    }
-    return ScoreEntry(
-      id: doc.id,
-      displayName: (data['displayName'] as String?) ?? 'Player',
-      timeMs: (data['timeMs'] as num?)?.toInt() ?? 0,
-      createdAt: createdAt,
-      countryCode: (data['countryCode'] as String?)?.toUpperCase() ?? '--',
-      uid: data['uid'] as String?,
-      riskCount:
-          (data['riskCount'] as num?)?.toInt() ??
-          (data['nearMissCount'] as num?)?.toInt() ??
-          0,
-      runDistance:
-          (data['runDistance'] as num?)?.toInt() ??
-          (data['playerDistance'] as num?)?.toInt() ??
-          0,
-      hadJump: data['hadJump'] as bool? ?? false,
-      hadHelmet: data['hadHelmet'] as bool? ?? false,
-    );
-  }
-
   RankInfo rankFor(int timeMs, {String period = 'all'}) {
     final list = scoresForNamedPeriod(period);
     final total = list.length;
@@ -959,7 +861,7 @@ class ScoresStore extends ChangeNotifier {
     final cc = (countryCode ?? '--').toUpperCase();
     final risk = riskCount.clamp(0, 99999);
     final run = runDistance.clamp(0, 9999999);
-    final myUid = FirebaseBootstrap.uid;
+    final myUid = legacySource?.uid;
     final entry = ScoreEntry(
       id: DateTime.now().microsecondsSinceEpoch.toString(),
       displayName: displayName,
@@ -973,34 +875,9 @@ class ScoresStore extends ChangeNotifier {
       hadHelmet: hadHelmet,
     );
 
-    if (FirebaseBootstrap.ready && myUid != null) {
+    if ((legacySource?.ready ?? false) && myUid != null) {
       try {
-        final ref = await FirebaseFirestore.instance
-            .collection(_collection)
-            .add({
-              'uid': myUid,
-              'displayName': displayName,
-              'timeMs': safeTime,
-              'countryCode': cc,
-              'riskCount': risk,
-              'runDistance': run,
-              'hadJump': hadJump,
-              'hadHelmet': hadHelmet,
-              'fair': true,
-              'createdAt': FieldValue.serverTimestamp(),
-            });
-        final onlineEntry = ScoreEntry(
-          id: ref.id,
-          displayName: displayName,
-          timeMs: safeTime,
-          createdAt: DateTime.now(),
-          countryCode: cc,
-          uid: myUid,
-          riskCount: risk,
-          runDistance: run,
-          hadJump: hadJump,
-          hadHelmet: hadHelmet,
-        );
+        final onlineEntry = await legacySource!.save(entry);
         // Временно добавим себя, пока ждём полный refresh
         if (!_scores.any((s) => s.id == onlineEntry.id)) {
           _scores.add(onlineEntry);
@@ -1012,7 +889,7 @@ class ScoresStore extends ChangeNotifier {
         await load();
         return rankFor(safeTime);
       } catch (e, st) {
-        debugPrint('Firestore save failed: $e\n$st');
+        debugPrint('Legacy score save failed: $e\n$st');
       }
     }
 

@@ -9,7 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:game_box/app/mobile_gameplay_tuning.dart';
 import 'package:game_box/app/theme.dart';
 import 'package:game_box/data/android_firebase_config.dart';
-import 'package:game_box/data/firebase_mobile_client.dart';
+import '../legacy/flutter/lib/data/firebase_mobile_client.dart';
 import 'package:game_box/data/audience_policy.dart';
 import 'package:game_box/data/economy_store.dart';
 import 'package:game_box/data/mobile_account.dart';

@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'hero_face.dart';
+import 'package:game_box/ui/hero_face.dart';
 
 /// Отдыхающий кубик-игрок: устал и дремлет (плашка «нет жизней»).
 class RestingCubeIcon extends StatelessWidget {

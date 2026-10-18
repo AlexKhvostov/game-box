@@ -1,0 +1,2 @@
+# Блок7 — полная изоляция legacy
+18.10.2026 11:43 Europe/Minsk. Flutter978PASS/16SKIP/0FAIL, analyze активного и legacy кода чистый. Сервер84PASS. Profile APK/Huawei12PASS,0errors,0cloudCalls; кадр11 осмотрен,0/100 имеет пустую заливку. Оба пакета остановлены. Rootlockfile не содержит FirebaseAuth/Firestore/Analytics/CupertinoIcons; Core/RemoteConfig сохранены. Исходники сохранены в legacy/flutter, старый генератор в legacy/supabase-generation; файлы не удалены безвозвратно. Проверка asset exclusions12/10115718bytesPASS.

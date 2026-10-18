@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:game_box/ui/bonus_celebration.dart';
+import '../legacy/flutter/fixtures/ui/bonus_celebration.dart';
 import 'simple_energy_test.dart' as fixture;
 
 const burst = ValueKey('bonus-confirmed-celebration');

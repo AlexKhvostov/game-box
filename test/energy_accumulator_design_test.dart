@@ -10,7 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:game_box/app/theme.dart';
 import 'package:game_box/data/economy_store.dart';
-import 'package:game_box/features/balance/legacy_energy_sheet.dart';
+import '../legacy/flutter/fixtures/features/balance/legacy_energy_sheet.dart';
 import 'package:game_box/l10n/app_localizations.dart';
 
 void main() {

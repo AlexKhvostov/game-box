@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../data/economy_store.dart';
-import '../../ui/crystal_cube_icon.dart';
+import 'package:game_box/data/economy_store.dart';
+import 'package:game_box/ui/crystal_cube_icon.dart';
 
 /// Шапка: жизни, кристалы, рекорд.
 class GameStatusBar extends StatelessWidget {

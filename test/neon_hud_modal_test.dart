@@ -1,6 +1,6 @@
 import 'package:game_box/features/result/share_social_sheet.dart';
 import 'package:game_box/features/result/share_score_sheet.dart';
-import 'package:game_box/features/game/widgets/freeze_sheet.dart';
+import '../legacy/flutter/fixtures/features/game/widgets/freeze_sheet.dart';
 import 'package:game_box/features/floors/floors_levels_sheet.dart';
 import 'package:game_box/features/floors/floors_progress.dart';
 import 'package:game_box/ui/billing_unavailable.dart';

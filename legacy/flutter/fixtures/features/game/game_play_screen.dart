@@ -5,11 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 
-import '../../domain/gameplay_config.dart';
-import '../../app/app_target.dart';
+import 'package:game_box/domain/gameplay_config.dart';
+import 'package:game_box/app/app_target.dart';
 import '../../ui/game_status_bar.dart';
-import 'game_field_painter.dart';
-import 'game_world.dart';
+import 'package:game_box/features/game/game_field_painter.dart';
+import 'package:game_box/features/game/game_world.dart';
 
 class GamePlayScreen extends StatefulWidget {
   const GamePlayScreen({

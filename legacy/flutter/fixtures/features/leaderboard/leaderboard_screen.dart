@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'leaderboard_sheet.dart';
+import 'package:game_box/features/leaderboard/leaderboard_sheet.dart';
 
 /// Standalone host reuses the same ranking as the game menu.
 class LeaderboardScreen extends StatelessWidget {

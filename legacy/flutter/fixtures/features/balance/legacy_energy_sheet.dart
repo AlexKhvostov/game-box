@@ -1,28 +1,28 @@
 // Historical UI: kept for legacy targets and regression tests. Android uses energy_sheet.dart.
 import 'dart:math' as math;
-import 'energy_services.dart';
-export 'energy_services.dart' show EnergyBillingStatus, EnergyFeedbackForm;
+import 'package:game_box/features/balance/energy_services.dart';
+export 'package:game_box/features/balance/energy_services.dart' show EnergyBillingStatus, EnergyFeedbackForm;
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:intl/intl.dart';
-import '../../data/economy_store.dart';
-import '../../data/mobile_account.dart';
-import '../../data/mobile_invites.dart';
-import '../../data/play_billing_service.dart';
-import '../../data/audience_policy.dart';
-import '../../data/google_identity.dart';
-import '../../data/ads_service.dart';
-import '../../ui/game_ui.dart';
-import '../../ui/game_sheet.dart';
-import '../../ui/energy_widgets.dart';
-import '../../ui/audience_gate.dart';
-import '../../ui/watch_rewarded_ad.dart';
-import '../../ui/billing_unavailable.dart';
-import '../../ui/test_service_preview.dart';
-import '../profile/google_startup_dialog.dart';
+import 'package:game_box/data/economy_store.dart';
+import 'package:game_box/data/mobile_account.dart';
+import 'package:game_box/data/mobile_invites.dart';
+import 'package:game_box/data/play_billing_service.dart';
+import 'package:game_box/data/audience_policy.dart';
+import 'package:game_box/data/google_identity.dart';
+import 'package:game_box/data/ads_service.dart';
+import 'package:game_box/ui/game_ui.dart';
+import 'package:game_box/ui/game_sheet.dart';
+import 'package:game_box/ui/energy_widgets.dart';
+import 'package:game_box/ui/audience_gate.dart';
+import 'package:game_box/ui/watch_rewarded_ad.dart';
+import 'package:game_box/ui/billing_unavailable.dart';
+import 'package:game_box/ui/test_service_preview.dart';
+import 'package:game_box/features/profile/google_startup_dialog.dart';
 
 String _tr(BuildContext c, String ru, String en) =>
     Localizations.localeOf(c).languageCode == 'ru' ? ru : en;

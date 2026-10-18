@@ -1,13 +1,13 @@
-import 'energy_sheet.dart';
+import 'package:game_box/features/balance/energy_sheet.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../data/economy_store.dart';
-import '../../domain/shop_catalog.dart';
-import '../../ui/crystal_cube_icon.dart';
-import '../../ui/game_toast.dart';
+import 'package:game_box/data/economy_store.dart';
+import 'package:game_box/domain/shop_catalog.dart';
+import 'package:game_box/ui/crystal_cube_icon.dart';
+import 'package:game_box/ui/game_toast.dart';
 
 class BalanceScreen extends StatefulWidget {
   const BalanceScreen({super.key});

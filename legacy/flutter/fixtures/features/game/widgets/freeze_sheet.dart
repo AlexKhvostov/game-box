@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../data/economy_store.dart';
+import 'package:game_box/data/economy_store.dart';
 
 Future<void> showFreezeSheet(BuildContext context) {
   return showModalBottomSheet<void>(

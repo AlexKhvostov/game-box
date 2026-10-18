@@ -11,7 +11,7 @@ import 'package:game_box/data/scores_store.dart';
 import 'package:game_box/domain/score_entry.dart';
 import 'package:game_box/features/leaderboard/leaderboard_panel.dart';
 import 'package:game_box/features/leaderboard/leaderboard_sheet.dart';
-import 'package:game_box/features/leaderboard/leaderboard_screen.dart';
+import '../legacy/flutter/fixtures/features/leaderboard/leaderboard_screen.dart';
 import 'package:game_box/features/leaderboard/leaderboard_widgets.dart';
 import 'package:game_box/features/leaderboard/player_result_sheet.dart';
 import 'package:game_box/features/leaderboard/ranking_art.dart';

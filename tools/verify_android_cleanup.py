@@ -19,4 +19,8 @@ while pending:
         if ':'not in uri:pending.append((source.parent/uri).resolve())
 assert (root/'lib/features/balance/legacy_energy_sheet.dart').resolve()not in seen
 assert (root/'lib/features/balance/energy_services.dart').resolve()in seen
+for name in ['firebase_auth','cloud_firestore','firebase_analytics','cupertino_icons']:
+    assert name not in (root/'pubspec.lock').read_text(encoding='utf-8'),name
+for file in ['lib/data/firebase_bootstrap.dart','lib/data/firestore_scores_source.dart','fixtures/features/balance/legacy_energy_sheet.dart']:
+    assert (root/'legacy/flutter'/file).is_file(),file
 print(json.dumps({'assetsExcluded':len(excluded),'uncompressedBytesExcluded':sum(x['bytes']for x in excluded),'allSourceAssetsRetained':True,'legacyEnergyUnreachableFromMain':True,'activeEnergyServicesReachable':True}))

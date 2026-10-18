@@ -10,13 +10,11 @@ import 'app/android_audience_startup.dart';
 import 'app/app_target.dart';
 import 'app/mobile_gameplay_tuning.dart';
 import 'app/test_tools.dart';
-import 'data/app_analytics.dart';
 import 'data/economy_store.dart';
 import 'data/ads_service.dart';
 import 'data/audience_policy.dart';
 import 'data/yandex_ads_driver.dart';
 import 'data/player_preferences.dart';
-import 'data/firebase_bootstrap.dart';
 import 'data/supabase_mobile_client.dart';
 import 'data/android_firebase_config.dart';
 import 'data/shared_config_loader.dart';
@@ -75,18 +73,6 @@ Future<void> main() async {
 }
 
 Future<Widget> _createGame(AudiencePolicy audience) async {
-  // The old Firestore board is separate from Mini App. Keep it out of the
-  // Android port until AP4 connects the shared account/ranking API.
-  const legacyFirebase = bool.fromEnvironment('LEGACY_FIREBASE_SCORES');
-  final firebaseOk =
-      legacyFirebase &&
-      (kIsWeb || defaultTargetPlatform != TargetPlatform.android) &&
-      await FirebaseBootstrap.init();
-  if (firebaseOk) {
-    await AppAnalytics.init();
-    await AppAnalytics.appOpen();
-  }
-
   final useSupabase =
       !kIsWeb &&
       AppTargetConfig.isMobile &&

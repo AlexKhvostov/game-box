@@ -5,7 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../firebase_options.dart';
+import 'package:game_box/firebase_options.dart';
 
 /// Only the Firebase identity is sent to Cloud Functions. Legacy installation
 /// secrets remain local and cannot authorize any Firebase operation.
