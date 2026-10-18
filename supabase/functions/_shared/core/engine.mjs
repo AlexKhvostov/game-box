@@ -124,7 +124,7 @@ function createEngine({db, getPolicy = async () => defaults, verifyPlay, googleL
         if (old.exists) {
           requireThat(old.data().fingerprint === fingerprint,'operation_conflict'); response=old.data().response;
         } else {
-          response=walletOperation(p,kind,args,opId,policy,identity,stamp,put);
+          response=await walletOperation(tx,p,kind,args,opId,policy,identity,stamp,put);
           put(opRef,{fingerprint,response,createdAt:stamp,policyRevision:policy.revision});
         }
       } else if (['round_start','round_activate','round_cancel','round_finish'].includes(action)) {
@@ -231,7 +231,7 @@ function createEngine({db, getPolicy = async () => defaults, verifyPlay, googleL
       return result;
     });
   }
-  function walletOperation(p,kind,args,opId,policy,identity,stamp,put) {
+  async function walletOperation(tx,p,kind,args,opId,policy,identity,stamp,put) {
     const w=p.wallet,e=policy.config.economy.androidEnergyV2,b=e.simpleBonus;
     const empty=() => requireThat(Object.keys(args).length === 0,'operation_invalid',400);
     if (kind === 'energy_hidden_tap') {empty();w.energy+=20;return {energyGrant:{kind,operationId:opId,amount:20}};}
@@ -262,10 +262,32 @@ function createEngine({db, getPolicy = async () => defaults, verifyPlay, googleL
       put(db.collection('feedback').doc(hash(`${p.uid}:${opId}`)),{uid:p.uid,comment,rating:args.rating ?? null,createdAt:stamp,revision:policy.revision});
       w.energy+=e.rewards.feedback;w.claimed.push('energy_feedback');return {};
     }
-    if (kind === 'watch_ad') {
-      // No provider-signed server receipt is configured for Yandex. A client
-      // callback (including a demo SDK callback) never authorizes real energy.
-      requireThat(false,'ad_verification_unavailable',503);
+    if (kind === 'rewarded_ad_start' || kind === 'watch_ad') {
+      // Yandex supports onRewarded, not signed server callbacks. This session
+      // binds a single claim to its owner/quoted reward; it is not proof of view.
+      requireThat(typeof args.sessionId === 'string','ad_session_required',400);
+      const sessionId=nonce(args.sessionId);
+      requireThat(Object.keys(args).length===1,'operation_invalid',400);
+      const sessionRef=playerRef(p.uid).collection('adSessions').doc(sessionId);
+      const saved=await tx.get(sessionRef), session=saved.exists ? saved.data() : null;
+      if(kind==='rewarded_ad_start') {
+        if(session) {
+          requireThat(!session.claimedAt && stamp<session.expiresAt,'ad_session_expired');
+          return {adSession:{sessionId,expiresAt:session.expiresAt,amount:session.amount}};
+        }
+        requireThat(b.videoReward>0,'ad_unavailable');
+        requireThat(!w.lastAdAt || stamp-w.lastAdAt>=b.videoCooldownSec*1000,'ad_not_ready');
+        const value={createdAt:stamp,expiresAt:stamp+86400000,amount:b.videoReward,revision:policy.revision,claimedAt:null};
+        put(sessionRef,value);
+        return {adSession:{sessionId,expiresAt:value.expiresAt,amount:value.amount}};
+      }
+      requireThat(session,'ad_session_invalid');
+      requireThat(!session.claimedAt,'ad_session_claimed');
+      requireThat(stamp<session.expiresAt,'ad_session_expired');
+      requireThat(!w.lastAdAt || stamp-w.lastAdAt>=b.videoCooldownSec*1000,'ad_not_ready');
+      w.energy+=session.amount;w.lastAdAt=stamp;
+      put(sessionRef,{...session,claimedAt:stamp,operationId:opId});
+      return {adReward:{sessionId,operationId:opId,amount:session.amount}};
     }
     requireThat(false,'legacy_operation_disabled');
   }

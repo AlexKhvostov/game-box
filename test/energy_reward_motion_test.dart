@@ -18,8 +18,6 @@ class PermittedRewardAudience extends AudiencePolicy {
 // Animation/ACK fixture only: no real provider receipt or SDK is exercised.
 class VerifiedFixtureAds extends AdsService {
   VerifiedFixtureAds(super.driver, {required super.audience});
-  @override
-  bool get rewardVerificationAvailable => true;
 }
 
 class ControlledRewardDriver implements AdsDriver {
@@ -92,6 +90,7 @@ void main() {
         final ack = Completer<void>();
         var grants = 0;
         e.sendEnergyOperation = (kind, args) async {
+          if (kind == 'rewarded_ad_start') return;
           expect(kind, 'watch_ad');
           grants++;
           await ack.future;
@@ -217,7 +216,8 @@ void main() {
         e.dispose();
       });
       var claims = 0;
-      e.sendEnergyOperation = (_, _) async {
+      e.sendEnergyOperation = (kind, _) async {
+        if (kind == 'rewarded_ad_start') return;
         claims++;
       };
       final job = ads.watchAndClaim(e);
@@ -245,11 +245,14 @@ void main() {
       a.dispose();
       e.dispose();
     });
-    e.sendEnergyOperation = (_, _) => e.applyServerWallet(
-      {...fixture.simpleWallet(balance: 90), 'lastAdAt': fixture.stamp},
-      serverNow: fixture.stamp,
-      owner: 'android:1',
-    );
+    e.sendEnergyOperation = (kind, _) async {
+      if (kind == 'rewarded_ad_start') return;
+      await e.applyServerWallet(
+        {...fixture.simpleWallet(balance: 90), 'lastAdAt': fixture.stamp},
+        serverNow: fixture.stamp,
+        owner: 'android:1',
+      );
+    };
     await t.pumpWidget(
       MultiProvider(
         providers: [
@@ -286,11 +289,14 @@ void main() {
         a.dispose();
         e.dispose();
       });
-      e.sendEnergyOperation = (_, _) => e.applyServerWallet(
-        {...fixture.simpleWallet(balance: 87), 'lastAdAt': fixture.stamp},
-        serverNow: fixture.stamp,
-        owner: 'android:1',
-      );
+      e.sendEnergyOperation = (kind, _) async {
+        if (kind == 'rewarded_ad_start') return;
+        await e.applyServerWallet(
+          {...fixture.simpleWallet(balance: 87), 'lastAdAt': fixture.stamp},
+          serverNow: fixture.stamp,
+          owner: 'android:1',
+        );
+      };
       final job = ads.watchAndClaim(e);
       d.result.complete(AdOutcome.rewarded);
       final result = await job;

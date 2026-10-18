@@ -58,13 +58,35 @@ test('pending paid entitlement blocks bonus until Google reconciliation',async (
   const p=await call(uid,'profile');assert.equal(p.profile.wallet.energySubscription.awaitingReconciliation,true);
   await rejects(op(uid,'energy_bonus_claim'),'subscription_verification_pending');
 });
-test('video callback cannot grant energy without provider-signed server confirmation',async () => {
-  const uid=unique('video');await call(uid,'guest');
-  await rejects(op(uid,'watch_ad'),'ad_verification_unavailable');
-  stamp+=120000;await rejects(op(uid,'watch_ad'),'ad_verification_unavailable');
-  await rejects(op(uid,'watch_ad',{energy:999999}),'ad_verification_unavailable');
+test('video needs an owner-bound session; one reward and server cooldown',async () => {
+  const uid=unique('ad');await call(uid,'guest');
+  await rejects(op(uid,'watch_ad'),'ad_session_required');
+  const sessionId=id();
+  await rejects(op(uid,'watch_ad',{sessionId}),'ad_session_invalid');
+  const started=await op(uid,'rewarded_ad_start',{sessionId});
+  assert.equal(started.profile.wallet.energy,50);assert.equal(started.adSession.amount,40);
+  const other=unique('other');await call(other,'guest');
+  await rejects(op(other,'watch_ad',{sessionId}),'ad_session_invalid');
+  await rejects(op(uid,'watch_ad',{sessionId,energy:999999}),'operation_invalid');
+  const operationId=id();
+  assert.equal((await op(uid,'watch_ad',{sessionId},operationId)).profile.wallet.energy,90);
+  assert.equal((await op(uid,'watch_ad',{sessionId},operationId)).profile.wallet.energy,90);
+  await rejects(op(uid,'watch_ad',{sessionId}),'ad_session_claimed');
+  await rejects(op(uid,'rewarded_ad_start',{sessionId:id()}),'ad_not_ready');
+  stamp+=120000;
+  const next=id();await op(uid,'rewarded_ad_start',{sessionId:next});await op(uid,'watch_ad',{sessionId:next});
+  assert.equal((await call(uid,'profile')).profile.wallet.energy,130);
+  assert.equal((await call(other,'profile')).profile.wallet.energy,50);
+});
+test('uncompleted/expired sessions never credit; parallel claims credit once',async()=>{
+  const uid=unique('ads'),sessionId=id();await call(uid,'guest');
+  await op(uid,'rewarded_ad_start',{sessionId});
   assert.equal((await call(uid,'profile')).profile.wallet.energy,50);
-  assert.equal((await call(unique('other'),'guest')).profile.wallet.energy,50);
+  stamp+=86400000;await rejects(op(uid,'watch_ad',{sessionId}),'ad_session_expired');
+  const next=id();await op(uid,'rewarded_ad_start',{sessionId:next});
+  const results=await Promise.allSettled([op(uid,'watch_ad',{sessionId:next}),op(uid,'watch_ad',{sessionId:next})]);
+  assert.equal(results.filter(r=>r.status==='fulfilled').length,1);
+  assert.equal((await call(uid,'profile')).profile.wallet.energy,90);
 });
 
 test('retired achievements cannot be claimed; age/google compatibility rewards remain once-only',async () => {

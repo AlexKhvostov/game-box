@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/foundation.dart';
 
 import 'economy_store.dart';
@@ -12,18 +13,14 @@ abstract interface class AdsDriver {
   Future<bool> showInterstitial({required bool Function() canShow});
 }
 
-/// One fullscreen ad at a time. Reward ads need a provider-signed server receipt.
+/// One fullscreen ad at a time. Yandex onRewarded consumes one server session.
 class AdsService extends ChangeNotifier {
   AdsService(this.driver, {required this.audience}) {
     audience.addListener(_policyChanged);
   }
   final AdsDriver driver;
   final AudiencePolicy audience;
-  // The current Yandex integration has no configured signed server receipts.
-  // Keep the driver for interstitial/demo tests, but never promise real energy.
-  bool get rewardVerificationAvailable => false;
-  bool get available =>
-      rewardVerificationAvailable && audience.rewardedAdsEnabled;
+  bool get available => audience.rewardedAdsEnabled;
   AdFailure? lastFailure;
   void _policyChanged() => notifyListeners();
   @override
@@ -50,6 +47,24 @@ class AdsService extends ChangeNotifier {
     var confirming = false;
     try {
       final rewardOwner = economy.energyOwner;
+      String? sessionId;
+      if (economy.energyEnabled) {
+        // Persist/confirm authorization before loading an ad. A failed start
+        // must never make a player watch a video that cannot be credited.
+        final random = Random.secure();
+        sessionId = List.generate(
+          32,
+          (_) => random.nextInt(256).toRadixString(16).padLeft(2, '0'),
+        ).join();
+        confirming = true;
+        await economy.performEnergyOperation('rewarded_ad_start', {
+          'sessionId': sessionId,
+        });
+        confirming = false;
+        if (!allowed() || economy.energyOwner != rewardOwner) {
+          return (outcome: AdOutcome.dismissed, reward: 0);
+        }
+      }
       final outcome = await driver.showRewarded(canShow: allowed);
       if (outcome == AdOutcome.unavailable) lastFailure = AdFailure.request;
       var reward = 0;
@@ -62,7 +77,9 @@ class AdsService extends ChangeNotifier {
           }
           final beforeClaim = economy.confirmedEnergy;
           confirming = true;
-          await economy.claimEnergyReward('watch_ad');
+          await economy.performEnergyOperation('watch_ad', {
+            'sessionId': sessionId!,
+          });
           if (economy.energyOwner == rewardOwner) {
             reward = (economy.confirmedEnergy - beforeClaim).clamp(
               0,

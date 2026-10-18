@@ -183,7 +183,7 @@ void main() {
   );
 
   test(
-    'Yandex without signed receipts never loads a rewarded ad or promises energy',
+    'Denied server session never loads a rewarded ad or promises energy',
     () async {
       final account = MobileAccount(
         vault: MemoryVault(),
@@ -225,7 +225,7 @@ void main() {
             kinds.add(body['kind'] as String);
             if (body['kind'] == 'watch_ad') {
               return http.Response(
-                '{"ok":false,"error":"ad_verification_unavailable"}',
+                '{"ok":false,"error":"ad_session_required"}',
                 503,
               );
             }
@@ -246,7 +246,7 @@ void main() {
           isA<MobileApiError>().having(
             (e) => e.code,
             'code',
-            'ad_verification_unavailable',
+            'ad_session_required',
           ),
         ),
       );

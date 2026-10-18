@@ -169,6 +169,7 @@ void main() {
         );
         var claims = 0;
         e.sendEnergyOperation = (kind, args) async {
+          if (kind == 'rewarded_ad_start') return;
           claims++;
           expect(kind, 'watch_ad');
           await e.applyServerWallet(

@@ -323,6 +323,8 @@ class Fixture {
             }
             wallet['energy'] += bonus['reward'];
             bonus['nextAt'] = now + 28800000;
+          case 'rewarded_ad_start':
+            break; // Synthetic server authorization; real SDK still runs.
           case 'watch_ad':
             wallet['energy'] += 40;
             wallet['lastAdAt'] = now;
@@ -692,9 +694,11 @@ class ProbeState extends State<ProbeApp> {
               case 'subscription':
                 unawaited(showEnergySubscriptionSheet(context));
               case 'feedback':
-                unawaited(showEnergyFeedbackSheet(context));
+                unawaited(
+                  showSimpleEnergyWindow(context, page: EnergyPage.feedback),
+                );
               case 'achievements':
-                unawaited(showEnergyAchievementsSheet(context));
+                throw UnsupportedError('Achievements UI was retired');
             }
           }
           await Future<void>.delayed(const Duration(milliseconds: 850));

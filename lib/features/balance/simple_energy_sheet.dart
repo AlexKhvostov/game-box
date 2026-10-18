@@ -471,8 +471,7 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
           e.energyConfig.reward('watch_ad'),
           context.watch<AdsService?>()?.busy == true
               ? _tr(context, 'Загрузка…', 'Loading…')
-              : context.watch<AdsService?>()?.rewardVerificationAvailable !=
-                    true
+              : context.watch<AdsService?>() == null
               ? _tr(context, 'Недоступно', 'Unavailable')
               : e.watchAdCooldownRemaining == null
               ? _tr(context, 'Смотреть', 'Watch')
@@ -787,12 +786,8 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
       _text(
         _tr(
           context,
-          context.watch<AdsService?>()?.rewardVerificationAvailable == true
-              ? 'Дождитесь награды и закройте рекламу.'
-              : 'Видео за энергию временно недоступно.',
-          context.watch<AdsService?>()?.rewardVerificationAvailable == true
-              ? 'Finish the video to receive energy.'
-              : 'Rewarded video is temporarily unavailable.',
+          'Дождитесь награды и закройте рекламу.',
+          'Finish the video to receive energy.',
         ),
         size: 15,
         align: TextAlign.center,
@@ -803,10 +798,7 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
         height: 52,
         primary: true,
         onTap:
-            !_busy &&
-                e.canClaimWatchAd &&
-                context.watch<AdsService?>()?.rewardVerificationAvailable ==
-                    true
+            !_busy && e.canClaimWatchAd && context.watch<AdsService?>() != null
             ? () => _watchVideo(e)
             : null,
         child: _text(
