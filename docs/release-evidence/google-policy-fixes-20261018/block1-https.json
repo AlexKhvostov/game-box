@@ -1,0 +1,30 @@
+[
+  {
+    "url": "https://untouch.fun/privacy/?policy=20261018",
+    "status": 200,
+    "sha256": "0d37f0d6efe5a58b8d2e446143b9b1a4b732193c61138ec07440058d30549594",
+    "matches": true,
+    "bytes": 18710
+  },
+  {
+    "url": "https://untouch.fun/delete-account/?policy=20261018",
+    "status": 200,
+    "sha256": "3b4a2e0e1f5b297edfbdf72ba3dabb07c1c711bee3f45960456bfebd857465db",
+    "matches": true,
+    "bytes": 7511
+  },
+  {
+    "url": "https://untouch-android-game-box-b30d4.web.app/privacy/?policy=20261018",
+    "status": 200,
+    "sha256": "0d37f0d6efe5a58b8d2e446143b9b1a4b732193c61138ec07440058d30549594",
+    "matches": true,
+    "bytes": 18710
+  },
+  {
+    "url": "https://untouch-android-game-box-b30d4.web.app/delete-account/?policy=20261018",
+    "status": 200,
+    "sha256": "3b4a2e0e1f5b297edfbdf72ba3dabb07c1c711bee3f45960456bfebd857465db",
+    "matches": true,
+    "bytes": 7511
+  }
+]

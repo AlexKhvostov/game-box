@@ -1,0 +1,28 @@
+{
+  "flutter": {
+    "passed": 10,
+    "failed": 0,
+    "log": "block1-flutter.log"
+  },
+  "server": {
+    "passed": 8,
+    "failed": 0,
+    "log": "block1-server.log"
+  },
+  "publicPages": 4,
+  "matchingHashes": 4,
+  "retention": {
+    "supabasePlan": "free",
+    "apiDatabaseLogsDays": 1,
+    "authDatabaseAuditDays": 30,
+    "completedSupportDays": 90,
+    "cron": "20 0 * * *",
+    "deletedExistingRows": 0,
+    "publicExecution": false
+  },
+  "deployment": {
+    "legal": "1.0.19",
+    "firebaseHosting": true,
+    "ftpsBackupVerified": true
+  }
+}
