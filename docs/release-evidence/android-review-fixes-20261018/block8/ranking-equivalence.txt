@@ -1,0 +1,2 @@
+{"kind":"record","players":200,"scores":10000,"equivalent":true,"baselineMs":214.5550000000003,"currentMs":20.066899999999805,"environment":"local PGlite, same indexes, not production"}
+{"kind":"average","players":200,"scores":10000,"equivalent":true,"baselineMs":108.3810999999996,"currentMs":50.91559999999936,"environment":"local PGlite, same indexes, not production"}

@@ -7,9 +7,9 @@ export async function averageRanking({db,config,uid,stamp}){
   const rules=averageRules(config);
   const result=await db.pool.query(`
     with totals as (
-      select body->>'uid' as uid,count(*)::integer as total_count,
-        count(*) filter(where (body->>'timeMs')::numeric > $1)::integer as eligible_count
-      from untouch.documents where parent='scores' and body->>'platform'='android' group by body->>'uid'
+      select uid,attempts::integer as total_count,
+        (attempts-untouch.attempt_count_through(uid,$1::integer))::integer as eligible_count
+      from untouch.attempt_counts where node=65536
     ), ordered as (
       select p.key as uid,s.time_ms,s.played_at,s.age,t.eligible_count,p.body->>'nickname' as nickname
       from untouch.documents p join totals t on t.uid=p.key
