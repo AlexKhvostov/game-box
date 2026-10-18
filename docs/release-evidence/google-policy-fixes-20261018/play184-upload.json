@@ -1,0 +1,39 @@
+{
+  "updatedLocal": "2026-10-18 21:59 Europe/Minsk",
+  "package": "com.best4u.untouch",
+  "versionCode": 184,
+  "versionName": "1.0.183",
+  "aabSha256": "b278623ca5f15fc4290c9b518fcbcb6ec731ee4841f5d87586647839e79a1ef6",
+  "track": "Alpha",
+  "trackId": "4700706526707048937",
+  "releaseId": 11,
+  "uploaded": true,
+  "bundleProcessed": true,
+  "releaseSaved": true,
+  "preReviewChecksPassed": true,
+  "storeTitleEn": "untouch",
+  "storeTitleRu": "untouch",
+  "fullDescriptionsVersionAndDateVerified": true,
+  "shortDescriptionsPreserved": true,
+  "releaseNotesLanguages": [
+    "en-US",
+    "ru-RU"
+  ],
+  "submissionRegistered": false,
+  "published": false,
+  "pendingChangeCount": 6,
+  "latestKnownSubmission": 10,
+  "latestKnownSubmissionPublished": "2026-10-18 19:42",
+  "supportMessageSent": false,
+  "newRolesOrPermissions": false,
+  "gitPush": false,
+  "phone": {
+    "mainVersion": 179,
+    "installedThroughGooglePlay": true,
+    "working": true,
+    "dataPreserved": true,
+    "direct184AttemptBlockedByGoogleSourceProtection": true,
+    "protectionDisabled": false
+  },
+  "nextStep": "Manual final-send check requested; verify submission history before claiming submitted."
+}

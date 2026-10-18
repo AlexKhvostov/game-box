@@ -1,0 +1,208 @@
+Browser tab: 1941752232, Title: "Сведения о выпуске | untouch", URL: "https://play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/tracks/4700706526707048937/releases/11/details".
+1 AXWebArea Сведения о выпуске | untouch, URL: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/tracks/4700706526707048937/releases/11/details
+	2 container
+		3 text Загрузка Google Play Console
+		4 container
+			5 container
+				6 link Description: Логотип Google Play Console, Value: play.google.com/console/u/0/developers/7352115345592950495/app-list
+				7 button Непрочитанные уведомления Открыть центр уведомлений
+					8 text Непрочитанные уведомления
+				9 button untouch
+					10 text untouch
+				11 button Сменить аккаунт разработчика
+					12 image Сменить аккаунт разработчика
+			13 container
+				14 link Description: Все приложения, Value: play.google.com/console/u/0/developers/7352115345592950495/app-list
+				15 content list
+					16 container Панель управления
+						17 button Панель управления
+							18 text Панель управления
+					19 container Статистика
+						20 button Статистика
+							21 text Статистика
+					22 container Обзор публикации
+						23 button Обзор публикации
+							24 text Обзор публикации
+					25 container Защищено Google Play
+						26 button Защищено Google Play
+							27 text Защищено Google Play
+					28 container (expanded) Description: Тестирование и выпуск, Secondary Actions: Collapse
+						29 button Тестирование и выпуск
+							30 text Тестирование и выпуск
+						31 content list
+							32 container
+								33 container Последние выпуски и наборы
+									34 button Последние выпуски и наборы
+								35 container Рабочая версия
+									36 button Рабочая версия
+								37 container Ранний доступ
+									38 button Ранний доступ
+								39 container (expanded) Description: Тестирование, Secondary Actions: Collapse
+									40 button Тестирование
+									41 content list
+										42 container
+											43 container Открытое тестирование
+												44 button Открытое тестирование
+											45 container Закрытое тестирование
+												46 button Закрытое тестирование
+											47 container Внутреннее тестирование
+												48 button Внутреннее тестирование
+											49 container (collapsed) Description: Отчет о тестировании, Secondary Actions: Expand
+												50 button Отчет о тестировании
+											51 container Внутренний доступ к приложениям
+												52 button Внутренний доступ к приложениям
+								53 container Предварительная регистрация
+									54 button Предварительная регистрация
+								55 container Целостность приложения
+									56 button Целостность приложения
+								57 container Расширенные настройки
+									58 button Расширенные настройки
+					59 container (collapsed) Description: Мониторинг и улучшение, Secondary Actions: Expand
+						60 button Мониторинг и улучшение
+							61 text Мониторинг и улучшение
+					62 container (collapsed) Description: Привлечение пользователей, Secondary Actions: Expand
+						63 button Привлечение пользователей
+							64 text Привлечение пользователей
+					65 container (collapsed) Description: Монетизация с Google Play, Secondary Actions: Expand
+						66 button Монетизация с Google Play
+							67 text Монетизация с Google Play
+			68 container main-content
+				69 container
+					70 link Description: Вернуться на страницу "Закрытое тестирование - Alpha", Value: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/tracks/4700706526707048937?tab=releases
+					71 heading 184 - 1.0.183 - 18.10.2026, Value: 1
+						72 text 184 - 1.0.183 - 18.10.2026
+					73 pop up button (collapsed) Description: Инструменты восстановления, Secondary Actions: Expand
+						74 text Инструменты восстановления
+					75 heading Данные о выпуске, Value: 2
+						76 text Данные о выпуске
+					77 button Удаление версии
+						78 text Удаление версии
+					79 text Ещё не отправлено на проверку.
+					80 link Перейти на страницу "Обзор публикации"
+						81 text Перейти на страницу "Обзор публикации"
+					82 heading Доставка выпуска, Value: 2
+						83 text Доставка выпуска
+					84 container
+						85 button (collapsed) Размер новых установок, Secondary Actions: Expand
+						86 text 32.5 МБ
+					87 container
+						88 button (collapsed) Время скачивания, Secondary Actions: Expand
+						89 text 18 сек.
+					90 container
+						91 button (collapsed) Размер обновления, Secondary Actions: Expand
+						92 text 5.09 МБ
+					93 container
+						94 button (collapsed) Количество установок этого выпуска в процентах, Secondary Actions: Expand
+						95 text 0,00 %
+					96 link Description: Открыть отчет о размере приложения, Value: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/vitals/app-size
+					97 heading Наборы App Bundle, Value: 2
+						98 text Наборы App Bundle
+					99 heading Новые наборы App Bundle, Value: 3
+						100 text Новые наборы App Bundle
+					101 table Объекты
+						102 row Тип файла Версия Уровни API Целевой SDK Атрибуты компоновки экрана ABI Обязательные функции
+							103 cell Тип файла
+								104 text Тип файла
+							105 cell Версия
+								106 text Версия
+							107 cell Уровни API
+								108 text Уровни API
+							109 cell Целевой SDK
+								110 text Целевой SDK
+							111 cell Атрибуты компоновки экрана
+								112 text Атрибуты компоновки экрана
+							113 cell ABI
+								114 text ABI
+							115 cell Обязательные функции
+								116 text Обязательные функции
+							117 cell
+							118 cell
+						119 row App bundle К объекту app bundle прикреплены следующие файлы: файл сопоставления ReTrace и нативные отладочные символы Расширенный режим 184 (1.0.183) 24+ 36 4 3 1 Управление объектами Показать подробные сведения для "Набор App Bundle 184 (1.0.183)"
+							120 cell
+								121 text App bundle
+								122 container К объекту app bundle прикреплены следующие файлы: файл сопоставления ReTrace и нативные отладочные символы
+								123 button (collapsed) Расширенный режим, Secondary Actions: Expand
+									124 text Расширенный режим
+							125 cell
+								126 text 184 (1.0.183)
+							127 cell
+								128 text 24+
+							129 cell
+								130 text 36
+							131 cell
+								132 text 4
+							133 cell
+								134 text 3
+							135 cell
+								136 text 1
+							137 cell
+								138 pop up button (collapsed) Description: Управление объектами, ID: a17811CB5-812A-43E3-B4D1-8232BF590F62--0, Secondary Actions: Expand
+							139 cell
+								140 button Показать подробные сведения для "Набор App Bundle 184 (1.0.183)"
+					141 heading Сохраненные наборы App Bundle, Value: 3
+						142 text Сохраненные наборы App Bundle
+					143 text Нет сохраненных наборов App Bundle.
+					144 heading Отключенные наборы App Bundle, Value: 3
+						145 text Отключенные наборы App Bundle
+					146 table Объекты
+						147 row Тип файла Версия Уровни API Целевой SDK Атрибуты компоновки экрана ABI Обязательные функции
+							148 cell Тип файла
+								149 text Тип файла
+							150 cell Версия
+								151 text Версия
+							152 cell Уровни API
+								153 text Уровни API
+							154 cell Целевой SDK
+								155 text Целевой SDK
+							156 cell Атрибуты компоновки экрана
+								157 text Атрибуты компоновки экрана
+							158 cell ABI
+								159 text ABI
+							160 cell Обязательные функции
+								161 text Обязательные функции
+							162 cell
+						163 row App bundle К объекту app bundle прикреплены следующие файлы: файл сопоставления ReTrace и нативные отладочные символы Расширенный режим 179 (1.0.178) 24+ 36 4 3 1 Показать подробные сведения для "Набор App Bundle 179 (1.0.178)"
+							164 cell
+								165 text App bundle
+								166 container К объекту app bundle прикреплены следующие файлы: файл сопоставления ReTrace и нативные отладочные символы
+								167 button (collapsed) Расширенный режим, Secondary Actions: Expand
+									168 text Расширенный режим
+							169 cell
+								170 text 179 (1.0.178)
+							171 cell
+								172 text 24+
+							173 cell
+								174 text 36
+							175 cell
+								176 text 4
+							177 cell
+								178 text 3
+							179 cell
+								180 text 1
+							181 cell
+								182 button Показать подробные сведения для "Набор App Bundle 179 (1.0.178)"
+					183 heading Примечания к выпуску, Value: 2
+						184 text Примечания к выпуску
+					185 button Изменить сведения о выпуске
+						186 text Изменить сведения о выпуске
+					187 text Язык по умолчанию: en-US
+					188 text Version 1.0.183 (184). Updated October 18, 2026.
+Rewarded ads now launch from a separate instruction screen. Fixed delayed rewards after long ads. Added first-launch age selection, optional Google connection, public-name rules, reporting and hiding.
+					189 text Примечания к выпуску предоставлены на 2 языках из 2
+					190 button (collapsed) Description: Показать все, Secondary Actions: Expand
+						191 text Показать все
+				192 link Description: Информация об обновлениях, Value: play.google.com/console/about/whats-new/
+				193 link Description: Панель мониторинга, Value: status.play.google.com/
+				194 link Description: Справка, Value: play.google.com/console/u/0/developers/7352115345592950495/help-and-support?app=4976408092958094737
+				195 text © Google, 2026
+				196 link Description: Конфиденциальность, Value: google.com/policies/privacy/
+				197 link Description: Соглашение о распространении ПО, Value: play.google.com/about/developer-distribution-agreement.html
+				198 link Description: Условия использования, Value: play.google.com/about/console/terms-of-service/
+	199 container
+		200 button logo icon
+			201 image logo icon
+			202 image
+		203 container
+			204 button
+
+The focused UI element is 1 AXWebArea Сведения о выпуске | untouch, URL: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/tracks/4700706526707048937/releases/11/details

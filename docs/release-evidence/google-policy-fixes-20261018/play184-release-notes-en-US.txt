@@ -1,0 +1,2 @@
+Version 1.0.183 (184). Updated October 18, 2026.
+Rewarded ads now launch from a separate instruction screen. Fixed delayed rewards after long ads. Added first-launch age selection, optional Google connection, public-name rules, reporting and hiding.

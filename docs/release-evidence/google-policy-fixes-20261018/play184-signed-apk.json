@@ -1,0 +1,13 @@
+{
+  "source": "Google Play Console: signed universal APK for bundle184",
+  "versionCode": 184,
+  "versionName": "1.0.183",
+  "applicationLabel": "untouch",
+  "sameCertificateAsInstalledPlay179": true,
+  "certificateSha256": "a1282130e301ebabb44f8804f4a6f69ae98d3de9e464f56a034c9da0f1f0d701",
+  "dartBinaryMatchesUploadedAab184": true,
+  "zipCrc": true,
+  "sha256": "7f3e7992dbcd27d28cf5b5bf57c42d834b1c7e2b130b5b06477fc1c3fdd5da4a",
+  "bytes": 87096348,
+  "installed": false
+}
