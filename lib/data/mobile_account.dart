@@ -22,8 +22,9 @@ class SecureAccountVault implements AccountVault {
 }
 
 class MobileApiError implements Exception {
-  const MobileApiError(this.code);
+  const MobileApiError(this.code, {this.retryAfterMs});
   final String code;
+  final int? retryAfterMs;
 }
 
 enum GoogleConnectionStage { preparing, choosingAccount, verifying }
@@ -419,7 +420,13 @@ class MobileAccount extends ChangeNotifier {
       throw const MobileApiError('service_unavailable');
     }
     if (response.statusCode != 200 || data['ok'] != true) {
-      throw MobileApiError(data['error'] as String? ?? 'service_unavailable');
+      final retry = data['retryAfterMs'];
+      throw MobileApiError(
+        data['error'] as String? ?? 'service_unavailable',
+        retryAfterMs: retry is int && retry > 0 && retry <= 3600000
+            ? retry
+            : null,
+      );
     }
     return data;
   }

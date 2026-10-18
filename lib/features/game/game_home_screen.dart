@@ -20,6 +20,7 @@ import 'arcade_hud.dart';
 import '../../data/scores_store.dart';
 import '../../domain/gameplay_config.dart';
 import '../../domain/arcade_rules.dart';
+import '../../domain/round_delivery.dart';
 import '../../l10n/app_localizations.dart';
 import '../../telegram/telegram_bridge.dart';
 import '../../ui/game_sfx.dart';
@@ -778,6 +779,20 @@ class _GameHomeScreenState extends State<GameHomeScreen>
     }
     final scores = context.read<ScoresStore>();
     final gameplay = context.read<GameplayConfig>();
+    if (scores.rulesUpdateRequired) {
+      _clearPointers();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            RoundDelivery.message(
+              'rules_changed',
+              ru: Localizations.localeOf(context).languageCode == 'ru',
+            ),
+          ),
+        ),
+      );
+      return;
+    }
     final energyRun = economy.energyEnabled;
     final waitingReceipt =
         energyRun && _waitingEnergyRound?['owner'] == scores.account?.id

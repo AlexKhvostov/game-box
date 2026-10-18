@@ -1,5 +1,6 @@
 import defaults from './core/defaults.json' with {type:'json'};
 import {averageDefaults,averageRules} from './average-config.mjs';
+import {androidGeometryIssues} from './android-constraints.mjs';
 export const RC_KEY='android_config_v1';
 export const sections=[
   ['ranking','Рейтинг «Среднее»','История попыток, веса и допуск в рейтинг'],
@@ -53,7 +54,7 @@ const rules={
   'mobileEnemies.startSpeedSteps':[0.01,250,0.01,'шаг/с'],'mobileEnemies.accelerationSteps':[0,50,0.01,'шаг/с²'],
   'mobileEnemies.speedVariation':[0,0.5,0.01],'mobileEnemies.accelerationVariation':[0,0.5,0.01],
   'enemies.areaMultiplier':[0.2,20,0.1],'enemies.angleMinDeg':[0,180,1,'°'],'enemies.angleMaxDeg':[0,180,1,'°'],
-  'enemies.spinDegPerSec':[-720,720,1,'°/с'],'player.size':[4,200,1,'px'],
+  'enemies.spinDegPerSec':[-720,720,1,'°/с'],'player.size':[10,79,1,'px'],
   'field.borderWidth':[0,24,0.5,'px'],'field.brightness':[0.4,1.8,0.05],'field.shadowBrightness':[0.4,2.5,0.05],
   'field.cornerRadius':[0,200,1,'px'],'field.maxSide':[100,2000,1,'px'],
   'game.idleSpeedMultiplier':[0.05,1,0.05],'game.jumpDurationSec':[0.12,5,0.01,'с'],'game.jumpScale':[1.05,1.8,0.01],
@@ -122,6 +123,7 @@ export function applyChanges(snapshot,patches){
   }
   if(config.enemies.angleMaxDeg<config.enemies.angleMinDeg)errors.push({path:'enemies.angleMaxDeg',error:'Максимальный угол должен быть не меньше минимального'});
   try{averageRules(config);}catch{errors.push({path:'ranking.average',error:'Недопустимые параметры среднего'});}
+  errors.push(...androidGeometryIssues(config));
   if(errors.length)throw new ConfigInputError('config_invalid',errors);
   const energy=config.economy.androidEnergyV2,bonus=energy.simpleBonus;
   energy.initialEnergy=bonus.initialEnergy;energy.rewards.ad=bonus.videoReward;energy.watchAdCooldownSec=bonus.videoCooldownSec;

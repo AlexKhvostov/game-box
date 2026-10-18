@@ -38,6 +38,7 @@ for(const name of ['policy','engine','play']) {
     'return rows.filter(row=>profiles.has(row.uid) && !profiles.get(row.uid).supportDisabled).map(row=>{const p=profiles.get(row.uid);');
   if(name==='engine')source=patchCurrentGame(source);
   if(name==='engine')source=patchInviteShortCodes(source);
+  if(name==='policy') source="import {androidGeometryIssues} from '../android-constraints.mjs';\n"+source.replace('  return snapshot;',"  requireThat(androidGeometryIssues(c).length === 0,'policy_geometry_invalid',503);\n  return snapshot;");
   if(name==='play') source=source.replace('function createPlayVerifier({request} = {})','function createPlayVerifier({request,credentials} = {})').replace("new GoogleAuth({scopes:","new GoogleAuth({credentials,scopes:");
   if(/require\(|module\.exports/.test(source)) throw Error(`Unconverted CommonJS in ${name}`);
   fs.writeFileSync(path.join(out,`${name}.mjs`),header+source);

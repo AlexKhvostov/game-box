@@ -10,6 +10,7 @@ import '../../data/economy_store.dart';
 import '../../data/scores_store.dart';
 import '../../domain/economy_config.dart';
 import '../../domain/arcade_rules.dart';
+import '../../domain/round_delivery.dart';
 import '../../l10n/app_localizations.dart';
 import '../../l10n/l10n_catalog.dart';
 import '../../ui/crystal_cube_icon.dart';
@@ -350,6 +351,11 @@ class _ResultOverlayState extends State<ResultOverlay>
     final saveStatus = matchingAttempt
         ? attempt.shared
               ? l10n.scoreAutoSaved
+              : attempt.deliveryError != null
+              ? RoundDelivery.message(
+                  attempt.deliveryError!,
+                  ru: Localizations.localeOf(context).languageCode == 'ru',
+                )
               : pending
               ? l10n.scoreSyncPending
               : l10n.scorePracticeOnly

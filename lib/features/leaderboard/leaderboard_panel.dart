@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 
 import '../../data/scores_store.dart';
 import '../../domain/score_entry.dart';
+import '../../domain/round_delivery.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/game_ui.dart';
 import '../result/share_score_sheet.dart';
@@ -854,6 +855,8 @@ class MyAttemptRow extends StatelessWidget {
     final name = attempt.displayName?.trim();
     final title = attempt.shared
         ? (name?.isNotEmpty == true ? name! : l10n.attemptShared)
+        : attempt.deliveryError != null
+        ? (ru ? 'Не принят сервером' : 'Not accepted')
         : pending
         ? (ru ? 'Ожидает сети' : 'Waiting for network')
         : l10n.attemptLocal;
@@ -863,6 +866,8 @@ class MyAttemptRow extends StatelessWidget {
       date: scoreDateLabel(attempt.createdAt),
       detail: attempt.shared
           ? l10n.attemptShared
+          : attempt.deliveryError != null
+          ? RoundDelivery.message(attempt.deliveryError!, ru: ru)
           : automatic
           ? pending
                 ? (ru ? 'Отправится автоматически' : 'Will sync automatically')

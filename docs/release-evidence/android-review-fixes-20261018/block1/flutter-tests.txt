@@ -1,0 +1,43 @@
+00:00 +0: loading D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_review_integrity_test.dart
+00:00 +0: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_review_integrity_test.dart: a rejected result remains in history with reason and old rules block further starts across restart
+00:00 +1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_review_integrity_test.dart: permanent finish failure archives once and later valid results still publish
+00:00 +2: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_review_integrity_test.dart: Android rejects unplayable config before activation; valid rotating geometry always passes field guard
+00:00 +3: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: unfinished play blocks identity switch; completed offline queue permits sign-in recovery
+00:00 +4: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: real cached wallet and two process restarts never subtract queued costs twice
+00:00 +5: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: ScoresStore keeps every offline attempt visible and marks both shared after restart
+00:00 +6: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: known Supabase owner restores offline from secure credentials without HTTP
+00:00 +7: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: last offline attempt costs 1, zero survives restart and replay
+00:00 +8: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: last offline attempt costs 2, zero survives restart and replay
+00:00 +9: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: last offline attempt costs 3, zero survives restart and replay
+00:00 +10: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: server-empty balance replaces a stale offline balance before releasing a refused cost
+00:00 +11: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: offline costs, all results and frozen boosts survive restart and sync exactly once
+00:02 +13: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_start_guard_test.dart: geometry is rechecked after waiting for start confirmation
+00:02 +14: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_start_guard_test.dart: geometry is rechecked after waiting for start confirmation
+00:02 +15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_start_guard_test.dart: geometry is rechecked after waiting for start confirmation
+00:02 +16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_start_guard_test.dart: geometry is rechecked after waiting for start confirmation
+00:02 +17: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_start_guard_test.dart: geometry is rechecked after waiting for start confirmation
+Arcade start blocked: enemy_count
+00:03 +18: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_start_guard_test.dart: proportions pass across devices/densities/random layouts
+00:03 +19: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_start_guard_test.dart: 3 percent corridor blocks distortion; empty/tiny/offscreen enemies block
+00:03 +20: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_start_guard_test.dart: wrong world/reference scale, tiny hero, nonfinite values fail closed
+00:03 +21: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_start_guard_test.dart: missing blocks before server, life debit and timer; repair allows retry
+00:03 +22: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_start_guard_test.dart: missing blocks before server, life debit and timer; repair allows retry
+00:03 +23: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_start_guard_test.dart: missing blocks before server, life debit and timer; repair allows retry
+00:03 +24: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_start_guard_test.dart: missing blocks before server, life debit and timer; repair allows retry
+00:03 +25: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_start_guard_test.dart: missing blocks before server, life debit and timer; repair allows retry
+00:03 +26: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_start_guard_test.dart: missing blocks before server, life debit and timer; repair allows retry
+00:03 +27: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_start_guard_test.dart: missing blocks before server, life debit and timer; repair allows retry
+Arcade start blocked: enemy_count
+00:03 +28: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_start_guard_test.dart: tiny blocks before server, life debit and timer; repair allows retry
+Arcade start blocked: enemy_scale
+00:03 +29: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_start_guard_test.dart: offscreen blocks before server, life debit and timer; repair allows retry
+Arcade start blocked: enemy_invisible
+00:04 +30: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_supabase_transition_test.dart: replaying an owned run cannot create a replacement anonymous account
+00:04 +31: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_supabase_transition_test.dart: queued run cannot cross the current Supabase session owner
+00:04 +32: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_supabase_transition_test.dart: Supabase owner namespace is strict and default server policy equals Remote Config asset
+00:04 +33: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_supabase_transition_test.dart: transport uses Supabase bearer, strips legacy credentials and never calls SQL/Firebase endpoints
+00:04 +34: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_supabase_transition_test.dart: Google unlink prepares verified email through server and keeps the same owner
+00:04 +35: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_supabase_transition_test.dart: simultaneous startup requests create one anonymous session and policy conflict forces RC fetch
+00:04 +36: All tests passed!
+EXIT_CODE=0

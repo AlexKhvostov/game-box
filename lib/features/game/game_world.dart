@@ -643,6 +643,9 @@ class GameWorld {
       spinDegPerSec: spin,
       orientDeg: spin.abs() > 0.01 ? _rng.nextDouble() * 360 : 0,
     );
+    // A rotated spawn uses a larger envelope than its unrotated dimensions.
+    // Resolve it before recording home so preflight sees the actual visible body.
+    if (body.isSpinning) _nudgeInside(body);
     body.homePos = body.pos;
     body.homeVel = body.vel;
     body.idlePhase = _rng.nextDouble() * pi * 2;

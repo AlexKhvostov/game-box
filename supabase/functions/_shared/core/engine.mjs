@@ -5,6 +5,8 @@ import crypto from 'node:crypto';
 import {defaults, validatePolicy, product, hash, requireThat, integer, nonce} from './policy.mjs';
 import {averageRanking} from '../average-ranking.mjs';
 import {recordRankings} from '../record-ranking.mjs';
+import {plausibleAndroidResult} from '../android-constraints.mjs';
+import {ApiError} from './policy.mjs';
 const clone = v => structuredClone(v);
 const owner = uid => `supabase:${uid}`;
 const canonical = v => Array.isArray(v) ? v.map(canonical) : v && typeof v === 'object' ? Object.fromEntries(Object.keys(v).sort().map(k => [k, canonical(v[k])])) : v;
@@ -291,7 +293,8 @@ function createEngine({db, getPolicy = async () => defaults, verifyPlay, googleL
     if (r.finishedAt) {requireThat(r.resultHash === resultHash,'operation_conflict');return r.result;}
     requireThat(r.activatedAt != null,'round_not_activated');
     integer(result.timeMs,1,3600000,'result_invalid');integer(result.runDistance,0,10000000,'result_invalid');integer(result.riskCount,0,10000,'result_invalid');
-    requireThat(result.timeMs <= stamp-r.activatedAt+1200,'result_time_invalid');
+    if(result.timeMs > stamp-r.activatedAt+1200) {const error=new ApiError('result_time_invalid');error.retryAfterMs=result.timeMs-(stamp-r.activatedAt+1200);throw error;}
+    requireThat(plausibleAndroidResult(result),'result_metrics_invalid');
     requireThat(result.hadHelmet === r.hadHelmet && result.hadJump === r.hadJump,'result_boost_invalid');
     const e=r.policy.config.economy;
     const reward=Math.floor(result.runDistance/e.runRewardEvery)+Math.floor(result.riskCount/e.riskRewardEvery);

@@ -4,7 +4,7 @@ export function patchCurrentGame(source) {
     if(!source.includes(before))throw Error('Current game patch source changed: '+before.slice(0,65));
     source=source.replace(before,after);
   };
-  replace('const clone =', "import {averageRanking} from '../average-ranking.mjs';\nimport {recordRankings} from '../record-ranking.mjs';\nconst clone =");
+  replace('const clone =', "import {averageRanking} from '../average-ranking.mjs';\nimport {recordRankings} from '../record-ranking.mjs';\nimport {plausibleAndroidResult} from '../android-constraints.mjs';\nimport {ApiError} from './policy.mjs';\nconst clone =");
   const oldScores=/      if\(input.period === 'allPeriods'\) \{[\s\S]*?const result=await scores\(input,stamp\);result.scores=await publicRows\(result.scores\);return result;/;
   if(!oldScores.test(source))throw Error('Ranking handler source changed');
   source=source.replace(oldScores,`      if(input.period === 'average') return averageRanking({db,config:policy.config,uid,stamp});
@@ -12,6 +12,8 @@ export function patchCurrentGame(source) {
       if(input.period === 'allPeriods') records.average=await averageRanking({db,config:policy.config,uid,stamp});
       return records;`);
   replace('playerName:p.nickname,createdAt:stamp}', 'playerName:p.nickname,createdAt:stamp,attemptAt:r.startedAt}');
+  replace("requireThat(result.timeMs <= stamp-r.activatedAt+1200,'result_time_invalid');",
+    "if(result.timeMs > stamp-r.activatedAt+1200) {const error=new ApiError('result_time_invalid');error.retryAfterMs=result.timeMs-(stamp-r.activatedAt+1200);throw error;}\n    requireThat(plausibleAndroidResult(result),'result_metrics_invalid');");
   replace('energy:policy.config.economy.androidEnergyV2.simpleBonus.initialEnergy,batteries:[]',
     'feedbackSpentEnergy:0,energy:policy.config.economy.androidEnergyV2.simpleBonus.initialEnergy,batteries:[]');
   replace('wallet.nickname=p.nickname;',

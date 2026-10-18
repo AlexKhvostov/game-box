@@ -37,6 +37,15 @@ class ScoresStore extends ChangeNotifier {
           final a = _attempts.where((a) => a.id == id).firstOrNull;
           return a == null ? null : _attemptResult(a);
         },
+        rejected: (owner, id, code) async {
+          if (_disposed || account!.id != owner) return;
+          final index = _attempts.indexWhere((a) => a.id == id);
+          if (index >= 0) {
+            _attempts[index] = _attempts[index].copyWith(deliveryError: code);
+            await _persistAttempts();
+          }
+          _changed();
+        },
         published: (owner, id) async {
           if (_disposed || account!.id != owner) return;
           final index = _attempts.indexWhere((a) => a.id == id);
@@ -125,6 +134,8 @@ class ScoresStore extends ChangeNotifier {
   final http.Client _client;
   InstantRoundJournal? _instant;
   bool get instantRoundsEnabled => _instant != null;
+  bool get rulesUpdateRequired => _instant?.rulesUpdateRequired ?? false;
+  String? get roundDeliveryError => _instant?.lastError;
   String? beginInstantRound({
     required bool helmet,
     required bool jump,

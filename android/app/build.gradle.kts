@@ -37,7 +37,11 @@ android {
         applicationId = if (System.getenv("UNTOUCH_UI_PROBE") == "true") {
             // Separate acceptance package preserves an older probe installed
             // under another signature/user. Never uninstall it to capture UI.
-            if (System.getenv("UNTOUCH_PROBE_FLAVOR") == "simple-energy") "com.best4u.untouch.uiprobe.simpleenergy" else "com.best4u.untouch.uiprobe"
+            when (System.getenv("UNTOUCH_PROBE_FLAVOR")) {
+                "simple-energy" -> "com.best4u.untouch.uiprobe.simpleenergy"
+                "review" -> "com.best4u.untouch.uiprobe.review"
+                else -> "com.best4u.untouch.uiprobe"
+            }
         } else "com.best4u.untouch"
         resValue("string", "app_name", if (System.getenv("UNTOUCH_UI_PROBE") == "true") "Untouch · Энергия" else "Untouch")
         // Optional local UI probe: isolated storage and no production API calls.

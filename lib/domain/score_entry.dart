@@ -97,6 +97,7 @@ class LocalAttempt {
     this.runDistance = 0,
     this.hadJump = false,
     this.hadHelmet = false,
+    this.deliveryError,
   });
 
   final String id;
@@ -110,6 +111,7 @@ class LocalAttempt {
   final int runDistance;
   final bool hadJump;
   final bool hadHelmet;
+  final String? deliveryError;
 
   double get timeSec => timeMs / 1000.0;
   int get score => ArcadeRules.score(timeMs, runDistance, riskCount);
@@ -121,6 +123,7 @@ class LocalAttempt {
     int? runDistance,
     bool? hadJump,
     bool? hadHelmet,
+    String? deliveryError,
   }) {
     return LocalAttempt(
       id: id,
@@ -132,6 +135,7 @@ class LocalAttempt {
       runDistance: runDistance ?? this.runDistance,
       hadJump: hadJump ?? this.hadJump,
       hadHelmet: hadHelmet ?? this.hadHelmet,
+      deliveryError: deliveryError ?? this.deliveryError,
     );
   }
 
@@ -145,6 +149,7 @@ class LocalAttempt {
     'runDistance': runDistance,
     'hadJump': hadJump,
     'hadHelmet': hadHelmet,
+    if (deliveryError != null) 'deliveryError': deliveryError,
   };
 
   factory LocalAttempt.fromJson(Map<String, dynamic> json) {
@@ -166,6 +171,7 @@ class LocalAttempt {
           0,
       hadJump: json['hadJump'] as bool? ?? false,
       hadHelmet: json['hadHelmet'] as bool? ?? false,
+      deliveryError: json['deliveryError'] as String?,
     );
   }
 }

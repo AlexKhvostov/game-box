@@ -1,0 +1,289 @@
+{
+  "scenarios": [
+    {
+      "scenario": "01-home",
+      "phase": "idle",
+      "energy": 50,
+      "rulesUpdateRequired": false,
+      "attempts": [],
+      "commands": [
+        "guest"
+      ],
+      "texts": [
+        "Untouch",
+        "Попытка: 1 ⚡ · коснитесь поля",
+        "50",
+        "—",
+        "Топ дня",
+        "0.000",
+        "Мой рекорд",
+        "Выкл.",
+        "00:00.000",
+        "Риск 0 · Пробег 0",
+        "Выкл."
+      ],
+      "errors": [],
+      "field": [
+        41.94174757281553,
+        374.5922330097087,
+        1038.0582524271845,
+        1370.7087378640776
+      ]
+    },
+    {
+      "scenario": "02-playing",
+      "phase": "playing",
+      "energy": 49,
+      "rulesUpdateRequired": false,
+      "attempts": [],
+      "commands": [
+        "guest",
+        "round_start",
+        "round_activate"
+      ],
+      "texts": [
+        "49",
+        "—",
+        "Топ дня",
+        "0.000",
+        "Мой рекорд",
+        "Выкл.",
+        "00:00.166",
+        "Риск 0 · Пробег 0",
+        "Выкл."
+      ],
+      "errors": [],
+      "field": [
+        41.94174757281553,
+        374.5922330097087,
+        1038.0582524271845,
+        1370.7087378640776
+      ]
+    },
+    {
+      "scenario": "03-result-confirmed",
+      "phase": "result",
+      "energy": 49,
+      "rulesUpdateRequired": false,
+      "attempts": [
+        {
+          "shared": true,
+          "pending": false,
+          "error": null,
+          "timeMs": 615
+        }
+      ],
+      "commands": [
+        "guest",
+        "round_start",
+        "round_activate",
+        "round_finish",
+        "scores"
+      ],
+      "texts": [
+        "49",
+        "0.615",
+        "Топ дня",
+        "0.615",
+        "Мой рекорд",
+        "Выкл.",
+        "00:00.615",
+        "Риск 0 · Пробег 0",
+        "Выкл.",
+        "Результат попытки",
+        "Новый рекорд!",
+        "0.615 с",
+        "Ваш рекорд: 0.615 с",
+        "Риск",
+        "0",
+        "Шаги",
+        "0",
+        "Сохранено в общем рейтинге",
+        "Рейтинг",
+        "Поделиться",
+        "Ещё раз"
+      ],
+      "errors": [],
+      "field": [
+        41.94174757281553,
+        374.5922330097087,
+        1038.0582524271845,
+        1370.7087378640776
+      ]
+    },
+    {
+      "scenario": "04-rules-blocked",
+      "phase": "idle",
+      "energy": 49,
+      "rulesUpdateRequired": true,
+      "attempts": [
+        {
+          "shared": false,
+          "pending": false,
+          "error": "rules_changed",
+          "timeMs": 1
+        },
+        {
+          "shared": true,
+          "pending": false,
+          "error": null,
+          "timeMs": 615
+        }
+      ],
+      "commands": [
+        "guest",
+        "round_start",
+        "round_activate",
+        "round_finish",
+        "scores",
+        "round_start"
+      ],
+      "texts": [
+        "Untouch",
+        "Попытка: 1 ⚡ · коснитесь поля",
+        "49",
+        "0.615",
+        "Топ дня",
+        "0.615",
+        "Мой рекорд",
+        "Выкл.",
+        "00:00.000",
+        "Риск 0 · Пробег 0",
+        "Выкл.",
+        "Правила обновились. Перезапустите игру."
+      ],
+      "errors": [],
+      "field": [
+        41.94174757281553,
+        374.5922330097087,
+        1038.0582524271845,
+        1370.7087378640776
+      ]
+    },
+    {
+      "scenario": "05-offline-pending",
+      "phase": "idle",
+      "energy": 49,
+      "rulesUpdateRequired": false,
+      "attempts": [
+        {
+          "shared": false,
+          "pending": true,
+          "error": null,
+          "timeMs": 1
+        }
+      ],
+      "commands": [
+        "guest",
+        "round_start",
+        "round_start"
+      ],
+      "texts": [
+        "Untouch",
+        "Попытка: 1 ⚡ · коснитесь поля",
+        "49",
+        "—",
+        "Топ дня",
+        "0.000",
+        "Мой рекорд",
+        "Выкл.",
+        "00:00.000",
+        "Риск 0 · Пробег 0",
+        "Выкл."
+      ],
+      "errors": [],
+      "field": [
+        41.94174757281553,
+        374.5922330097087,
+        1038.0582524271845,
+        1370.7087378640776
+      ]
+    },
+    {
+      "scenario": "06-reconnected-once",
+      "phase": "idle",
+      "energy": 49,
+      "rulesUpdateRequired": false,
+      "attempts": [
+        {
+          "shared": true,
+          "pending": false,
+          "error": null,
+          "timeMs": 1
+        }
+      ],
+      "commands": [
+        "guest",
+        "round_start",
+        "round_start",
+        "round_start",
+        "round_activate",
+        "round_finish"
+      ],
+      "texts": [
+        "Untouch",
+        "Попытка: 1 ⚡ · коснитесь поля",
+        "49",
+        "—",
+        "Топ дня",
+        "0.000",
+        "Мой рекорд",
+        "Выкл.",
+        "00:00.000",
+        "Риск 0 · Пробег 0",
+        "Выкл."
+      ],
+      "errors": [],
+      "field": [
+        41.94174757281553,
+        374.5922330097087,
+        1038.0582524271845,
+        1370.7087378640776
+      ]
+    },
+    {
+      "scenario": "07-finish-recovered",
+      "phase": "idle",
+      "energy": 49,
+      "rulesUpdateRequired": false,
+      "attempts": [
+        {
+          "shared": true,
+          "pending": true,
+          "error": null,
+          "timeMs": 1
+        }
+      ],
+      "commands": [
+        "guest",
+        "round_start",
+        "round_activate",
+        "round_finish",
+        "round_finish"
+      ],
+      "texts": [
+        "Untouch",
+        "Попытка: 1 ⚡ · коснитесь поля",
+        "49",
+        "—",
+        "Топ дня",
+        "0.000",
+        "Мой рекорд",
+        "Выкл.",
+        "00:00.000",
+        "Риск 0 · Пробег 0",
+        "Выкл."
+      ],
+      "errors": [],
+      "field": [
+        41.94174757281553,
+        374.5922330097087,
+        1038.0582524271845,
+        1370.7087378640776
+      ]
+    }
+  ],
+  "allPassed": true,
+  "cloudCalls": 0,
+  "package": "com.best4u.untouch.uiprobe.review"
+}

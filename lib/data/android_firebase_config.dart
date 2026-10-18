@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'remote_config_bootstrap.dart';
 import 'shared_config_loader.dart';
+import '../domain/android_game_constraints.dart';
 
 /// A whole immutable startup snapshot. No mid-round activation or Hostland
 /// fallback. Cached values belong to this backend generation only.
@@ -88,7 +89,13 @@ abstract final class AndroidFirebaseConfig {
         aspects.any((v) => v is! num || !v.isFinite || v <= 0 || v > 100)) {
       throw const FormatException('Invalid enemy geometry');
     }
-    return SharedConfigs.fromSnapshot(snapshot, source);
+    final parsed = SharedConfigs.fromSnapshot(snapshot, source);
+    if (!AndroidGameConstraints.playable(parsed.gameplay)) {
+      throw const FormatException(
+        'Android configuration has unplayable geometry',
+      );
+    }
+    return parsed;
   }
 
   static Future<SharedConfigs> load() async {

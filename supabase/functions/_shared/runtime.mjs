@@ -57,6 +57,7 @@ export function handler(callback,{admin=false}={}){return async request=>{
     if(!known)console.error(JSON.stringify({event:'unhandled_request_error',name:error.name,
       code:typeof error.code==='string'&&/^[A-Za-z0-9_]{1,40}$/.test(error.code)?error.code:undefined,
       frames:typeof error.stack==='string'?error.stack.split('\n').slice(1,4):undefined}));
-    return new Response(JSON.stringify({ok:false,error:known?error.code:'service_unavailable',...(known&&Array.isArray(error.details)?{details:error.details}:{})}),{status:known?error.status:503,headers});
+    return new Response(JSON.stringify({ok:false,error:known?error.code:'service_unavailable',...(known&&Array.isArray(error.details)?{details:error.details}:{}),
+      ...(known&&error.code==='result_time_invalid'&&Number.isSafeInteger(error.retryAfterMs)&&error.retryAfterMs>0&&error.retryAfterMs<=3600000?{retryAfterMs:error.retryAfterMs}:{})}),{status:known?error.status:503,headers});
   }
 };}

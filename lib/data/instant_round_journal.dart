@@ -16,6 +16,7 @@ class InstantRoundJournal {
     required this.published,
     required this.recoverResult,
     required this.changed,
+    this.rejected,
     int Function()? elapsedMilliseconds,
   }) : _elapsed = elapsedMilliseconds {
     account.addListener(_accountChanged);
@@ -26,11 +27,14 @@ class InstantRoundJournal {
   final Future<void> Function(String owner, String attemptId) published;
   final Map<String, dynamic>? Function(String attemptId) recoverResult;
   final void Function() changed;
+  final Future<void> Function(String owner, String attemptId, String code)?
+  rejected;
   final int Function()? _elapsed;
   final Stopwatch _clock = Stopwatch()..start();
   int get _now => _elapsed?.call() ?? _clock.elapsedMilliseconds;
   final List<Map<String, dynamic>> _rows = [];
   final Map<String, int> _activationAges = {};
+  final Map<String, int> _finishNotBefore = {};
   SharedPreferences? _prefs;
   String? _owner, _active;
   Future<void> _writes = Future.value();
@@ -41,10 +45,12 @@ class InstantRoundJournal {
   int? _retryAt;
   int _backoff = 1;
   String? lastError;
+  bool rulesUpdateRequired = false;
   String? get activeKey => _active;
   bool get ready => _loaded && _owner == account.id;
-  bool get hasPending => _rows.isNotEmpty;
-  bool pendingAttempt(String id) => _rows.any((r) => r['requestId'] == id);
+  bool get hasPending => _rows.any((r) => r['rejected'] == null);
+  bool pendingAttempt(String id) =>
+      _rows.any((r) => r['requestId'] == id && r['rejected'] == null);
   String _key(String owner) =>
       '${account.storagePrefix}instant_rounds_v1_$owner';
 
@@ -72,7 +78,12 @@ class InstantRoundJournal {
           _active = null;
           _rows.clear();
           _activationAges.clear();
+          _finishNotBefore.clear();
+          rulesUpdateRequired = false;
           if (owner != null) {
+            rulesUpdateRequired =
+                _prefs!.getString('${_key(owner)}_blocked_revision') ==
+                account.rulesRevision;
             final raw = _prefs!.getString(_key(owner));
             if (raw != null) {
               final saved = jsonDecode(raw) as List;
@@ -111,6 +122,7 @@ class InstantRoundJournal {
   String? begin({required bool helmet, required bool jump, required int cost}) {
     final owner = _owner;
     if (!ready ||
+        rulesUpdateRequired ||
         owner == null ||
         _active != null ||
         _rows.length >= 10000 ||
@@ -230,8 +242,61 @@ class InstantRoundJournal {
     'round_canceled',
     'operation_conflict',
     'result_invalid',
+    'result_time_invalid',
+    'result_metrics_invalid',
+    'round_invalid',
+    'round_not_activated',
+    'round_already_started',
     'round_not_found',
   };
+
+  static const _rulesErrors = {
+    'rules_changed',
+    'revision_mismatch',
+    'economy_update_required',
+    'update_required',
+  };
+
+  Future<void> _retireRejected(String owner, Map<String, dynamic> row) async {
+    final code = row['rejected'] as String;
+    if (_rulesErrors.contains(code) &&
+        row['rulesRevision'] == account.rulesRevision) {
+      rulesUpdateRequired = true;
+      if (!await _prefs!.setString(
+        '${_key(owner)}_blocked_revision',
+        account.rulesRevision,
+      )) {
+        throw StateError('round_storage_failed');
+      }
+    }
+    _costs();
+    // A run rejected during play still needs its local metrics recorded once.
+    if (row['result'] == null && row['abandoned'] != true) {
+      changed();
+      return;
+    }
+    final key = row['requestId'] as String;
+    await rejected?.call(owner, key, code);
+    final archiveKey = '${_key(owner)}_rejected';
+    final archived = _prefs!.getStringList(archiveKey) ?? [];
+    archived.removeWhere((raw) {
+      try {
+        return (jsonDecode(raw) as Map)['requestId'] == key;
+      } catch (_) {
+        return false;
+      }
+    });
+    archived.add(jsonEncode(row));
+    if (archived.length > 200) archived.removeRange(0, archived.length - 200);
+    if (!await _prefs!.setStringList(archiveKey, archived)) {
+      throw StateError('round_storage_failed');
+    }
+    _rows.remove(row);
+    _activationAges.remove(key);
+    _finishNotBefore.remove(key);
+    await _save();
+    changed();
+  }
 
   Future<void> _work() async {
     _running = true;
@@ -242,10 +307,7 @@ class InstantRoundJournal {
         if (_disposed || owner != _owner || owner != account.id) return;
         final key = row['requestId'] as String;
         if (row['rejected'] != null) {
-          if (row['result'] == null && row['abandoned'] != true) continue;
-          _rows.remove(row);
-          await _save();
-          changed();
+          await _retireRejected(owner, row);
           continue;
         }
         try {
@@ -286,6 +348,11 @@ class InstantRoundJournal {
           if (row['abandoned'] != true) {
             final result = row['result'];
             if (result is! Map) continue;
+            final notBefore = _finishNotBefore[key] ?? 0;
+            if (_now < notBefore) {
+              _later(notBefore - _now);
+              continue;
+            }
             // A late activation must never relax the server's elapsed-time
             // check. Delay only delivery, never input or the result screen.
             final age = _now - (_activationAges[key] ??= _now);
@@ -305,6 +372,7 @@ class InstantRoundJournal {
           }
           _rows.remove(row);
           _activationAges.remove(key);
+          _finishNotBefore.remove(key);
           await _save();
           _backoff = 1;
           _costs();
@@ -312,6 +380,22 @@ class InstantRoundJournal {
         } on MobileApiError catch (error) {
           if (owner != _owner || _disposed) return;
           lastError = error.code;
+          if (error.code == 'result_time_invalid') {
+            // An early finish is not a permanent refusal: server time may
+            // lag a recovered activation. Skip this row without blocking later
+            // results, retry at its deadline, and bound repeated bad replies.
+            final refusals = ((row['timeRefusals'] as int?) ?? 0) + 1;
+            row['timeRefusals'] = refusals;
+            if (refusals < 8) {
+              final delay = (error.retryAfterMs ?? (1000 * (1 << refusals)))
+                  .clamp(100, 3600000);
+              _finishNotBefore[key] = _now + delay;
+              await _save();
+              _later(delay);
+              changed();
+              continue;
+            }
+          }
           if (_terminal.contains(error.code)) {
             if (error.code == 'insufficient_energy') {
               // Another device or an administrator may have spent the cached
@@ -322,9 +406,8 @@ class InstantRoundJournal {
               await _wallet();
             }
             row['rejected'] = error.code;
-            _costs();
             await _save();
-            changed();
+            await _retireRejected(owner, row);
             continue;
           }
           _backoff = (_backoff * 2).clamp(2, 60);
