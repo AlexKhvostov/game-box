@@ -72,7 +72,7 @@ android {
 }
 
 gradle.taskGraph.whenReady {
-    if (allTasks.any { it.name.startsWith("bundle") && it.name.endsWith("Release") }) {
+    if (allTasks.any { it.project.path == ":app" && it.name == "bundleRelease" }) {
         require(privateSigningPath != null) { "Google Play AAB requires private release signing credentials" }
     }
 }
