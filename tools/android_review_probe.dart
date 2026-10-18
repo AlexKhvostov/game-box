@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -72,6 +73,7 @@ bool offline = false;
 String? failure;
 int startupConfigMs = 0;
 int configRemoteWaitMs = 0;
+Map<String, dynamic>? lastPhysicalProof;
 GameWorld? visibleWorld() {
   GameWorld? world;
   void visit(Element e) {
@@ -128,6 +130,19 @@ Future<http.Response> respond(http.Request request) async {
       rounds[body['requestId']]!['activated'] = true;
     case 'round_finish':
       final row = rounds[body['roundId']]!;
+      if (body['proof'] is Map) {
+        lastPhysicalProof = {
+          ...Map<String, dynamic>.from(body),
+          'requestId': body['roundId'],
+          'config':
+              (jsonDecode(
+                    await rootBundle.loadString(
+                      AndroidFirebaseConfig.assetPath,
+                    ),
+                  )
+                  as Map)['config'],
+        };
+      }
       if (row['finished'] != true) {
         row['finished'] = true;
         row['timeMs'] = body['timeMs'];
@@ -207,6 +222,7 @@ Map<String, dynamic> state() {
     'errors': errors,
     'startupConfigMs': startupConfigMs,
     'configRemoteWaitMs': configRemoteWaitMs,
+    if (lastPhysicalProof != null) 'lastPhysicalProof': lastPhysicalProof,
     if (visibleWorld() case final world?)
       'player': [world.player.dx, world.player.dy, world.playerSize],
     if (field != null)

@@ -31,10 +31,10 @@ export function identity(user){
   return{googleLinked:!!google,name:typeof trusted.full_name==='string'?trusted.full_name.slice(0,200):null,
     email:typeof trusted.email==='string'?trusted.email.slice(0,320):null};
 }
-export async function input(request){
+export async function input(request,maxBodyBytes=20000){
   requireThat(request.headers.get('content-type')?.startsWith('application/json'),'content_type_invalid',415);
   const reader=request.body?.getReader();requireThat(reader,'body_invalid',400);let length=0;const chunks=[];
-  while(true){const {value,done}=await reader.read();if(done)break;length+=value.length;if(length>20000){await reader.cancel();throw new ApiError('body_too_large',413);}chunks.push(value);}
+  while(true){const {value,done}=await reader.read();if(done)break;length+=value.length;if(length>maxBodyBytes){await reader.cancel();throw new ApiError('body_too_large',413);}chunks.push(value);}
   const bytes=new Uint8Array(length);let offset=0;for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.length;}
   try{const value=JSON.parse(new TextDecoder().decode(bytes));requireThat(value&&typeof value==='object'&&!Array.isArray(value),'body_invalid',400);return value;}catch(error){if(error instanceof ApiError)throw error;throw new ApiError('body_invalid',400);}
 }
@@ -46,12 +46,12 @@ export function cors(request,admin=false){
   return{'Content-Type':'application/json;charset=utf-8','Cache-Control':'no-store',Vary:'Origin',
     ...(origin&&allowed.includes(origin)?{'Access-Control-Allow-Origin':origin,'Access-Control-Allow-Headers':'authorization,apikey,content-type,x-client-info','Access-Control-Allow-Methods':'POST,OPTIONS'}:{})};
 }
-export function handler(callback,{admin=false}={}){return async request=>{
+export function handler(callback,{admin=false,maxBodyBytes=20000}={}){return async request=>{
   let headers={'Content-Type':'application/json;charset=utf-8','Cache-Control':'no-store'};
   try{
     headers=cors(request,admin);if(request.method==='OPTIONS')return new Response(null,{status:204,headers});
     requireThat(request.method==='POST','method_invalid',405);
-    const user=await authenticated(request),body=await input(request);
+    const user=await authenticated(request),body=await input(request,maxBodyBytes);
     return new Response(JSON.stringify(await callback({user,body,request})),{headers});
   }catch(error){const known=typeof error.code==='string'&&Number.isInteger(error.status);
     if(!known)console.error(JSON.stringify({event:'unhandled_request_error',name:error.name,

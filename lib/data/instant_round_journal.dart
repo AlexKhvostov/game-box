@@ -143,6 +143,7 @@ class InstantRoundJournal {
       'cost': cost,
       'revision': economy.energyConfig.revision,
       'rulesRevision': account.rulesRevision,
+      'proofVersion': 1,
     });
     _active = requestId;
     lastError = null;
@@ -246,6 +247,9 @@ class InstantRoundJournal {
     'result_invalid',
     'result_time_invalid',
     'result_metrics_invalid',
+    'result_proof_required',
+    'result_proof_invalid',
+    'body_too_large',
     'round_invalid',
     'round_not_activated',
     'round_already_started',
@@ -326,6 +330,7 @@ class InstantRoundJournal {
               'helmet': row['helmet'],
               'jump': row['jump'],
               'rulesRevision': row['rulesRevision'],
+              'proofVersion': row['proofVersion'],
               'revision': row['revision'],
             });
             if (owner != _owner || _disposed) return;

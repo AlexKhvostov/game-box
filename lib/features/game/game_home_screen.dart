@@ -21,6 +21,7 @@ import '../../data/scores_store.dart';
 import '../../domain/gameplay_config.dart';
 import '../../domain/arcade_rules.dart';
 import '../../domain/round_delivery.dart';
+import '../../domain/replay_random.dart';
 import '../../l10n/app_localizations.dart';
 import '../../telegram/telegram_bridge.dart';
 import '../../ui/game_sfx.dart';
@@ -74,6 +75,19 @@ class _GameHomeScreenState extends State<GameHomeScreen>
   Duration _lastElapsed = Duration.zero;
   int _aliveMs = 0;
   double _elapsedPreciseMs = 0;
+  List<List<num>>? _proofEvents;
+  void _recordProof(List<num> event) {
+    final events = _proofEvents;
+    if (events == null) return;
+    if (events.length < 600000) {
+      events.add(event);
+    } else if (events.length == 600000) {
+      events.add([
+        -1,
+      ]); // bounded storage; server rejects a truncated transcript.
+    }
+  }
+
   bool _backgrounded = false;
   Timer? _interstitialTimer;
   int _resultMs = 0;
@@ -356,6 +370,7 @@ class _GameHomeScreenState extends State<GameHomeScreen>
             ? idleMult + (1.0 - idleMult) * Curves.easeOut.transform(t)
             : 1.0;
 
+        _recordProof([0, dtMs]);
         _elapsedPreciseMs += dtMs;
         _aliveMs = _elapsedPreciseMs.floor();
         world.tickJump(dt);
@@ -568,6 +583,9 @@ class _GameHomeScreenState extends State<GameHomeScreen>
       runDistance: _resultRun.round(),
       hadJump: _runHadJump,
       hadHelmet: _runHadHelmet,
+      replayProof: _proofEvents == null
+          ? null
+          : {'version': 1, 'events': _proofEvents},
     );
     _interstitialTimer?.cancel();
     final resultSession = _session;
@@ -635,10 +653,10 @@ class _GameHomeScreenState extends State<GameHomeScreen>
 
     // Pointer coordinates are already in the viewport's logical units.
     // Convert field display units to the fixed Telegram simulation units.
-    _world!.movePlayerBy(
-      delta * (GameViewport.referenceFieldSide / _visualFieldSide),
-      checkEnemies: !_isInvulnerable,
-    );
+    final simulationDelta =
+        delta * (GameViewport.referenceFieldSide / _visualFieldSide);
+    _recordProof([1, simulationDelta.dx, simulationDelta.dy]);
+    _world!.movePlayerBy(simulationDelta, checkEnemies: !_isInvulnerable);
     if (_world!.playerHitsBorder()) {
       if (!_world!.wallsKillPlayer) {
         _world!.clampPlayerToField();
@@ -1001,6 +1019,16 @@ class _GameHomeScreenState extends State<GameHomeScreen>
     _hintPulse.stop();
     GameSfx.gameStart();
     final gameplay = context.read<GameplayConfig>();
+    final proofKey = context.read<ScoresStore>().activeInstantRoundKey;
+    _proofEvents = proofKey == null ? null : [];
+    if (proofKey != null) {
+      _world = GameWorld(
+        config: gameplay,
+        field: const Size(380, 380),
+        rng: ReplayRandom(proofKey),
+        wallInset: ArcadeRules.wallInset(gameplay.borderWidth),
+      )..resetLayout();
+    }
     setState(() {
       _waitingEnergyRound = null;
       _startingRound = false;
@@ -1029,7 +1057,10 @@ class _GameHomeScreenState extends State<GameHomeScreen>
       _flashJumpBlocked();
       return;
     }
-    if (_world!.tryJump()) {
+    if (_world!.tryJump(
+      nowMs: _proofEvents == null ? null : _elapsedPreciseMs,
+    )) {
+      _recordProof([2]);
       GameSfx.jump();
       _frame.value++;
     } else {
@@ -1330,12 +1361,21 @@ class _GameHomeScreenState extends State<GameHomeScreen>
                           return w == null
                               ? 1.0
                               : (1 -
-                                        w.jumpCooldownRemaining() /
+                                        w.jumpCooldownRemaining(
+                                              nowMs: _proofEvents == null
+                                                  ? null
+                                                  : _elapsedPreciseMs,
+                                            ) /
                                             w.jumpCooldownMs)
                                     .clamp(0.0, 1.0);
                         },
                         jumpRemainingMs: () =>
-                            _world?.jumpCooldownRemaining() ?? 0,
+                            _world?.jumpCooldownRemaining(
+                              nowMs: _proofEvents == null
+                                  ? null
+                                  : _elapsedPreciseMs,
+                            ) ??
+                            0,
                         onProfileTap: () => showProfileSheet(context),
                         onLeave: widget.onLeave,
                         onLivesTap: () {

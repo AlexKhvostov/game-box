@@ -42,7 +42,10 @@ class ScoresStore extends ChangeNotifier {
           if (_disposed || account!.id != owner) return;
           final index = _attempts.indexWhere((a) => a.id == id);
           if (index >= 0) {
-            _attempts[index] = _attempts[index].copyWith(deliveryError: code);
+            _attempts[index] = _attempts[index].copyWith(
+              deliveryError: code,
+              clearReplayProof: true,
+            );
             await _persistAttempts();
           }
           _changed();
@@ -53,6 +56,7 @@ class ScoresStore extends ChangeNotifier {
           if (index >= 0) {
             _attempts[index] = _attempts[index].copyWith(
               shared: true,
+              clearReplayProof: true,
               displayName: account!.nickname,
             );
             await _persistAttempts();
@@ -145,6 +149,7 @@ class ScoresStore extends ChangeNotifier {
   bool get localHistoryReadable => _historyWritable;
   bool get rulesUpdateRequired => _instant?.rulesUpdateRequired ?? false;
   String? get roundDeliveryError => _instant?.lastError;
+  String? get activeInstantRoundKey => _instant?.activeKey;
   String? beginInstantRound({
     required bool helmet,
     required bool jump,
@@ -158,6 +163,7 @@ class ScoresStore extends ChangeNotifier {
     'riskCount': a.riskCount,
     'hadJump': a.hadJump,
     'hadHelmet': a.hadHelmet,
+    if (a.replayProof != null) 'proof': a.replayProof,
   };
   final Map<String, List<ScoreEntry>> _periodScores = {};
   Future<String?>? _roundPending;
@@ -645,6 +651,7 @@ class ScoresStore extends ChangeNotifier {
     int runDistance = 0,
     bool hadJump = false,
     bool hadHelmet = false,
+    Map<String, dynamic>? replayProof,
   }) {
     final recording = _recordAttempt(
       timeMs,
@@ -652,6 +659,7 @@ class ScoresStore extends ChangeNotifier {
       runDistance: runDistance,
       hadJump: hadJump,
       hadHelmet: hadHelmet,
+      replayProof: replayProof,
     );
     _recording = recording;
     return recording.whenComplete(() {
@@ -665,6 +673,7 @@ class ScoresStore extends ChangeNotifier {
     required int runDistance,
     required bool hadJump,
     required bool hadHelmet,
+    Map<String, dynamic>? replayProof,
   }) async {
     final instantKey = _instant?.activeKey;
     await _ensureLocalReady();
@@ -679,6 +688,7 @@ class ScoresStore extends ChangeNotifier {
         runDistance: runDistance.clamp(0, 9999999),
         hadJump: hadJump,
         hadHelmet: hadHelmet,
+        replayProof: replayProof,
       ),
     );
     if (_attempts.length > _maxAttempts) {

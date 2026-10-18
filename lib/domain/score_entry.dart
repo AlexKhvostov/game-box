@@ -98,6 +98,7 @@ class LocalAttempt {
     this.hadJump = false,
     this.hadHelmet = false,
     this.deliveryError,
+    this.replayProof,
   });
 
   final String id;
@@ -112,6 +113,7 @@ class LocalAttempt {
   final bool hadJump;
   final bool hadHelmet;
   final String? deliveryError;
+  final Map<String, dynamic>? replayProof;
 
   double get timeSec => timeMs / 1000.0;
   int get score => ArcadeRules.score(timeMs, runDistance, riskCount);
@@ -124,6 +126,7 @@ class LocalAttempt {
     bool? hadJump,
     bool? hadHelmet,
     String? deliveryError,
+    bool clearReplayProof = false,
   }) {
     return LocalAttempt(
       id: id,
@@ -136,6 +139,7 @@ class LocalAttempt {
       hadJump: hadJump ?? this.hadJump,
       hadHelmet: hadHelmet ?? this.hadHelmet,
       deliveryError: deliveryError ?? this.deliveryError,
+      replayProof: clearReplayProof ? null : replayProof,
     );
   }
 
@@ -150,6 +154,7 @@ class LocalAttempt {
     'hadJump': hadJump,
     'hadHelmet': hadHelmet,
     if (deliveryError != null) 'deliveryError': deliveryError,
+    if (replayProof != null) 'replayProof': replayProof,
   };
 
   factory LocalAttempt.fromJson(Map<String, dynamic> json) {
@@ -172,6 +177,9 @@ class LocalAttempt {
       hadJump: json['hadJump'] as bool? ?? false,
       hadHelmet: json['hadHelmet'] as bool? ?? false,
       deliveryError: json['deliveryError'] as String?,
+      replayProof: json['replayProof'] is Map
+          ? Map<String, dynamic>.from(json['replayProof'])
+          : null,
     );
   }
 }

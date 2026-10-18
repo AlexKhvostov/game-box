@@ -18,7 +18,7 @@ let stamp=Date.UTC(2026,9,16,12),serial=0;
 const id=() => hash(`operation:${++serial}`);
 const unique=prefix => `${prefix}_${runTag}_${++serial}`;
 const identity={googleLinked:true,name:'Test',email:'not-persisted@example.invalid'};
-const engine=createEngine({db,now:() => stamp,verifyPlay:async (uid,sku,token) => ({valid:true,consumed:token.startsWith('consumed'),expiresAt:stamp+86400000,orderId:hash(token),endConfirmed:false})});
+const engine=createEngine({roundProof:{start(){},finish(){}},db,now:() => stamp,verifyPlay:async (uid,sku,token) => ({valid:true,consumed:token.startsWith('consumed'),expiresAt:stamp+86400000,orderId:hash(token),endConfirmed:false})});
 const call=(uid,action,args={},google={}) => engine.execute(uid,{action,...args},google);
 const op=(uid,kind,args={},operationId=id(),google={}) => call(uid,'wallet_operation',{kind,args,operationId},google);
 const rejects=(promise,code) => assert.rejects(promise,e => e.code === code);
@@ -58,14 +58,15 @@ test('pending paid entitlement blocks bonus until Google reconciliation',async (
   const p=await call(uid,'profile');assert.equal(p.profile.wallet.energySubscription.awaitingReconciliation,true);
   await rejects(op(uid,'energy_bonus_claim'),'subscription_verification_pending');
 });
-test('video grants 40 only with server cooldown; owner isolation; no local amount',async () => {
-  const uid=unique('video');await op(uid,'watch_ad');
-  assert.equal((await call(uid,'profile')).profile.wallet.energy,90);
-  await rejects(op(uid,'watch_ad'),'ad_not_ready');
-  stamp+=120000;await op(uid,'watch_ad');assert.equal((await call(uid,'profile')).profile.wallet.energy,130);
-  await rejects(op(uid,'watch_ad',{energy:999999}),'operation_invalid');
+test('video callback cannot grant energy without provider-signed server confirmation',async () => {
+  const uid=unique('video');await call(uid,'guest');
+  await rejects(op(uid,'watch_ad'),'ad_verification_unavailable');
+  stamp+=120000;await rejects(op(uid,'watch_ad'),'ad_verification_unavailable');
+  await rejects(op(uid,'watch_ad',{energy:999999}),'ad_verification_unavailable');
+  assert.equal((await call(uid,'profile')).profile.wallet.energy,50);
   assert.equal((await call(unique('other'),'guest')).profile.wallet.energy,50);
 });
+
 test('retired achievements cannot be claimed; age/google compatibility rewards remain once-only',async () => {
   const uid=unique('task');await call(uid,'guest');await rejects(op(uid,'energy_reward',{id:'google'}),'bonus_locked');
   await rejects(op(uid,'energy_reward',{id:'age'}),'bonus_locked');
@@ -140,7 +141,7 @@ test('active round cannot refund; forged owner, boosts, clock and duplicate chan
 });
 test('round freezes policy while new requests must negotiate active revision',async () => {
   const uid=unique('policy');let policy=structuredClone(defaults);
-  const en=createEngine({db,now:()=>stamp,getPolicy:async()=>policy});
+  const en=createEngine({roundProof:{start(){},finish(){}},db,now:()=>stamp,getPolicy:async()=>policy});
   const requestId=id(),r=await en.execute(uid,{action:'round_start',requestId,rulesRevision:policy.revision});
   await en.execute(uid,{action:'round_activate',requestId});
   policy.config.economy.runRewardEvery=1;policy.revision=hash(policy.config);stamp+=2000;
@@ -219,7 +220,7 @@ test('deferred Google replacement keeps outgoing tier until its paid expiry',asy
 });
 test('replaced token cannot overwrite new rights; sync survives Google unlink; refund debited once',async()=>{
   const uid=unique('replacement'),oldToken=unique('old_token'),newToken=unique('new_token');
-  const en=createEngine({db,now:()=>stamp,verifyPlay:async(u,sku,t)=>({valid:true,expiresAt:stamp+86400000,orderId:t,activeProductId:sku,
+  const en=createEngine({roundProof:{start(){},finish(){}},db,now:()=>stamp,verifyPlay:async(u,sku,t)=>({valid:true,expiresAt:stamp+86400000,orderId:t,activeProductId:sku,
     linkedPurchaseToken:t===newToken ? oldToken : null})});
   await en.execute(uid,{action:'play_verify',productId:'energy_batteries_2_v1',purchaseToken:oldToken},identity);
   await en.execute(uid,{action:'play_verify',productId:'energy_batteries_5_v1',purchaseToken:newToken},identity);

@@ -12,14 +12,18 @@ abstract interface class AdsDriver {
   Future<bool> showInterstitial({required bool Function() canShow});
 }
 
-/// One fullscreen ad at a time. Only the SDK reward event authorizes a credit.
+/// One fullscreen ad at a time. Reward ads need a provider-signed server receipt.
 class AdsService extends ChangeNotifier {
   AdsService(this.driver, {required this.audience}) {
     audience.addListener(_policyChanged);
   }
   final AdsDriver driver;
   final AudiencePolicy audience;
-  bool get available => audience.rewardedAdsEnabled;
+  // The current Yandex integration has no configured signed server receipts.
+  // Keep the driver for interstitial/demo tests, but never promise real energy.
+  bool get rewardVerificationAvailable => false;
+  bool get available =>
+      rewardVerificationAvailable && audience.rewardedAdsEnabled;
   AdFailure? lastFailure;
   void _policyChanged() => notifyListeners();
   @override

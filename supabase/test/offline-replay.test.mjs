@@ -6,7 +6,7 @@ import {createEngine} from '../functions/_shared/core/engine.mjs';
 import {hash} from '../functions/_shared/core/policy.mjs';
 const local=await testDatabase();after(()=>local.close());const db=new PostgresStore(local.pool);
 let stamp=Date.UTC(2026,9,17),serial=0;const uid='offline_replay_isolated';
-const engine=createEngine({db,now:()=>stamp});const call=body=>engine.execute(uid,body);
+const engine=createEngine({roundProof:{start(){},finish(){}},db,now:()=>stamp});const call=body=>engine.execute(uid,body);
 const initial=await call({action:'guest'});const revision=initial.profile.wallet.energyConfig.revision;
 const policy=(await db.collection('players').doc(uid).get()).data();
 // The canonical rules revision comes from the same defaults as the engine.

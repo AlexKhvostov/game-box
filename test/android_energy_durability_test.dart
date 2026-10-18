@@ -33,9 +33,13 @@ class PermittedAds extends AudiencePolicy {
 }
 
 class RewardedDriver implements AdsDriver {
+  int loads = 0;
   @override
-  Future<AdOutcome> showRewarded({bool Function()? canShow}) async =>
-      AdOutcome.rewarded;
+  Future<AdOutcome> showRewarded({bool Function()? canShow}) async {
+    loads++;
+    return AdOutcome.rewarded;
+  }
+
   @override
   Future<bool> showInterstitial({required bool Function() canShow}) async =>
       false;
@@ -179,7 +183,7 @@ void main() {
   );
 
   test(
-    'rejected SDK-earned video never reports success or 20 energy',
+    'Yandex without signed receipts never loads a rewarded ad or promises energy',
     () async {
       final account = MobileAccount(
         vault: MemoryVault(),
@@ -197,12 +201,68 @@ void main() {
       await bridge.load();
       await account.load();
       await bridge.flush();
-      final ads = AdsService(RewardedDriver(), audience: PermittedAds());
+      final driver = RewardedDriver();
+      final ads = AdsService(driver, audience: PermittedAds());
       final outcome = await ads.watchAndClaim(store);
       expect(outcome.reward, 0);
       expect(outcome.outcome, AdOutcome.unavailable);
       expect(store.energy, 20);
+      expect(driver.loads, 0);
       ads.dispose();
+    },
+  );
+
+  test(
+    'retired pending video claim is archived and cannot block the next bonus',
+    () async {
+      final kinds = <String>[];
+      var version = 1;
+      final account = MobileAccount(
+        vault: MemoryVault(),
+        client: MockClient((request) async {
+          final body = jsonDecode(request.body) as Map;
+          if (body['action'] == 'wallet_operation') {
+            kinds.add(body['kind'] as String);
+            if (body['kind'] == 'watch_ad') {
+              return http.Response(
+                '{"ok":false,"error":"ad_verification_unavailable"}',
+                503,
+              );
+            }
+            return profile(wallet(energy: 40), version: ++version);
+          }
+          return profile(wallet(), version: version);
+        }),
+      );
+      final store = EconomyStore();
+      await store.load();
+      final bridge = MobileWalletBridge(account, store);
+      await bridge.load();
+      await account.load();
+      await bridge.flush();
+      await expectLater(
+        store.claimEnergyReward('watch_ad'),
+        throwsA(
+          isA<MobileApiError>().having(
+            (e) => e.code,
+            'code',
+            'ad_verification_unavailable',
+          ),
+        ),
+      );
+      await store.claimEnergy();
+      await bridge.flush();
+      expect(kinds.first, 'watch_ad');
+      expect(kinds.length, 2);
+      expect(store.energy, 40);
+      final prefs = await SharedPreferences.getInstance();
+      expect(
+        jsonDecode(prefs.getString('mobile_wallet_operations_v1')!),
+        isEmpty,
+      );
+      expect(prefs.getStringList('mobile_wallet_deferred_v2'), hasLength(1));
+      store.dispose();
+      account.dispose();
     },
   );
 

@@ -15,6 +15,13 @@ class PermittedRewardAudience extends AudiencePolicy {
   AgeBand? get band => AgeBand.adult18plus;
 }
 
+// Animation/ACK fixture only: no real provider receipt or SDK is exercised.
+class VerifiedFixtureAds extends AdsService {
+  VerifiedFixtureAds(super.driver, {required super.audience});
+  @override
+  bool get rewardVerificationAvailable => true;
+}
+
 class ControlledRewardDriver implements AdsDriver {
   final result = Completer<AdOutcome>();
   int loads = 0;
@@ -76,7 +83,7 @@ void main() {
         final e = await fixture.store(nextAt: fixture.stamp + 14400000);
         final audience = PermittedRewardAudience(),
             driver = ControlledRewardDriver();
-        final ads = AdsService(driver, audience: audience);
+        final ads = VerifiedFixtureAds(driver, audience: audience);
         addTearDown(() {
           ads.dispose();
           audience.dispose();
@@ -165,7 +172,7 @@ void main() {
   ) async {
     final e = await fixture.store();
     final a = PermittedRewardAudience(), d = ControlledRewardDriver();
-    final ads = AdsService(d, audience: a);
+    final ads = VerifiedFixtureAds(d, audience: a);
     addTearDown(() {
       ads.dispose();
       a.dispose();
@@ -203,7 +210,7 @@ void main() {
     (t) async {
       final e = await fixture.store();
       final a = PermittedRewardAudience(), d = ControlledRewardDriver();
-      final ads = AdsService(d, audience: a);
+      final ads = VerifiedFixtureAds(d, audience: a);
       addTearDown(() {
         ads.dispose();
         a.dispose();
@@ -232,7 +239,7 @@ void main() {
   ) async {
     final e = await fixture.store();
     final a = PermittedRewardAudience(), d = ControlledRewardDriver();
-    final ads = AdsService(d, audience: a);
+    final ads = VerifiedFixtureAds(d, audience: a);
     addTearDown(() {
       ads.dispose();
       a.dispose();
@@ -273,7 +280,7 @@ void main() {
     (t) async {
       final e = await fixture.store();
       final a = PermittedRewardAudience(), d = ControlledRewardDriver();
-      final ads = AdsService(d, audience: a);
+      final ads = VerifiedFixtureAds(d, audience: a);
       addTearDown(() {
         ads.dispose();
         a.dispose();

@@ -471,6 +471,9 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
           e.energyConfig.reward('watch_ad'),
           context.watch<AdsService?>()?.busy == true
               ? _tr(context, 'Загрузка…', 'Loading…')
+              : context.watch<AdsService?>()?.rewardVerificationAvailable !=
+                    true
+              ? _tr(context, 'Недоступно', 'Unavailable')
               : e.watchAdCooldownRemaining == null
               ? _tr(context, 'Смотреть', 'Watch')
               : bonusTime(e.watchAdCooldownRemaining!),
@@ -679,8 +682,8 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
                   _text(
                     _tr(
                       context,
-                      'Видео за энергию остаётся доступным.',
-                      'Rewarded video remains available.',
+                      'Доступность видео за энергию проверяется отдельно.',
+                      'Rewarded video availability is checked separately.',
                     ),
                     size: 11,
                     color: _muted,
@@ -784,8 +787,12 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
       _text(
         _tr(
           context,
-          'Дождитесь награды и закройте рекламу.',
-          'Finish the video to receive energy.',
+          context.watch<AdsService?>()?.rewardVerificationAvailable == true
+              ? 'Дождитесь награды и закройте рекламу.'
+              : 'Видео за энергию временно недоступно.',
+          context.watch<AdsService?>()?.rewardVerificationAvailable == true
+              ? 'Finish the video to receive energy.'
+              : 'Rewarded video is temporarily unavailable.',
         ),
         size: 15,
         align: TextAlign.center,
@@ -795,7 +802,13 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
         key: const ValueKey('simple-watch-video'),
         height: 52,
         primary: true,
-        onTap: !_busy && e.canClaimWatchAd ? () => _watchVideo(e) : null,
+        onTap:
+            !_busy &&
+                e.canClaimWatchAd &&
+                context.watch<AdsService?>()?.rewardVerificationAvailable ==
+                    true
+            ? () => _watchVideo(e)
+            : null,
         child: _text(
           _busy
               ? _tr(context, 'Проверяем…', 'Checking…')

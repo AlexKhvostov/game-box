@@ -10,7 +10,7 @@ import 'package:game_box/features/balance/simple_energy_sheet.dart';
 import 'package:game_box/ui/energy_reward_motion.dart';
 import 'simple_energy_test.dart' as fixture;
 import 'energy_reward_motion_test.dart'
-    show PermittedRewardAudience, ControlledRewardDriver;
+    show PermittedRewardAudience, ControlledRewardDriver, VerifiedFixtureAds;
 import 'neon_account_hud_test.dart' show saveFrame;
 
 void main() {
@@ -57,7 +57,7 @@ void main() {
       final a = PermittedRewardAudience(),
           d = ControlledRewardDriver(),
           key = GlobalKey();
-      final ads = AdsService(d, audience: a);
+      final ads = VerifiedFixtureAds(d, audience: a);
       addTearDown(() {
         ads.dispose();
         a.dispose();

@@ -13,4 +13,4 @@ Deno.serve(handler(async ({user,body})=>{
     try{await acknowledge(receipt);}catch{console.warn('play_acknowledgement_pending');}
   }
   return result;
-}));
+},{maxBodyBytes:12*1024*1024}));

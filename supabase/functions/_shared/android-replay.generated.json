@@ -1,0 +1,11 @@
+{
+  "lib/features/game/game_world.dart": "e735289759d115342c624c20475d8be41f91c85a466f0bfed81531cd5ccc6cc6",
+  "lib/domain/gameplay_config.dart": "7f82e87eded00dff1ad954fc095a2d8de2236b70fa1dcddb85142bb7efdd4276",
+  "lib/domain/replay_random.dart": "8a4326a81f2450541f9438d7ad9ca3d0044dcfe26d353970deef86b43e4e5db2",
+  "lib/app/mobile_gameplay_tuning.dart": "c2d155c2382fe69552b77281978523cb5872a86216e20298d429b54e06def6be",
+  "lib/domain/arcade_rules.dart": "4bd0c8a514b9b3d07198152dfa28cae259b509e5b6f405b9b43a741c5cdb5606",
+  "tools/replay/geometry.dart": "36a4b15686fcee04777325461cf11033d9236f6073591a5d1ccf1ab432507831",
+  "tools/replay/session.dart": "34b7fc25dda604b925267b016083c904c780d00dfe9fde7ea38c0fc64304daa8",
+  "tools/replay/main.dart": "aa5ad492cfa94a85e3bd250e2162283f52b82fd8340fcbf023a384af03264235",
+  "generatedSha256": "7a1d89bf9914c8e3466290caebd48ab1e8be7872683e1ceac432c33aad398312"
+}

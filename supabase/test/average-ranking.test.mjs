@@ -10,7 +10,7 @@ import {fields,applyChanges,getValue} from '../functions/_shared/config-schema.m
 const local=await testDatabase();after(()=>local.close());const db=new PostgresStore(local.pool);
 let stamp=Date.UTC(2026,9,18),serial=0;
 let policy=structuredClone(defaults);
-const engine=createEngine({db,getPolicy:async()=>policy,now:()=>stamp});
+const engine=createEngine({roundProof:{start(){},finish(){}},db,getPolicy:async()=>policy,now:()=>stamp});
 const board=uid=>engine.execute(uid,{action:'scores',period:'average'});
 async function player(uid){await engine.execute(uid,{action:'guest'});}
 async function seed(uid,values,extra={}){
@@ -46,7 +46,7 @@ test('all four RC fields affect existing history immediately without waiting for
 test('actual accepted rounds: duplicate finish once; reverse delivery sorted by server round start',async()=>{
  await player('delivery');
  const cfg=structuredClone(defaults.config);cfg.ranking={average:{...averageDefaults,minAttempts:1,windowSize:2}};const p={ok:true,config:cfg,revision:hash(cfg)};
- const e=createEngine({db,getPolicy:async()=>p,now:()=>stamp});
+ const e=createEngine({roundProof:{start(){},finish(){}},db,getPolicy:async()=>p,now:()=>stamp});
  const call=body=>e.execute('delivery',body);const starts=[];
  for(let i=0;i<2;i++){const requestId=hash(`delivery:${i}`);const r=await call({action:'round_start',requestId,rulesRevision:p.revision});await call({action:'round_activate',requestId});starts.push(r.roundId);stamp+=10000;}
  const finish=(id,timeMs)=>({action:'round_finish',roundId:id,timeMs,runDistance:0,riskCount:0,hadJump:false,hadHelmet:false});

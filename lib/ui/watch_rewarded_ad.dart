@@ -30,7 +30,11 @@ Future<void> watchRewardedAd(
     } else {
       final ru = Localizations.localeOf(context).languageCode == 'ru';
       final policy = ads?.audience;
-      final message = !AudiencePolicy.adsBuildEnabled || ads == null
+      final message = ads?.rewardVerificationAvailable == false
+          ? (ru
+                ? 'Видео за энергию временно недоступно.'
+                : 'Rewarded video is temporarily unavailable.')
+          : !AudiencePolicy.adsBuildEnabled || ads == null
           ? (ru
                 ? 'Реклама отключена в этой сборке.'
                 : 'Ads are disabled in this build.')

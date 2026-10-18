@@ -1,0 +1,18 @@
+00:00 +0: loading D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart
+00:00 +0: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: false journal persistence never posts, even after preferences cache mutated
+00:00 +1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: false dequeue persistence retains the ID and retries server receipt without double grant
+00:00 +2: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: false archive persistence never removes deferred legacy operation
+00:00 +3: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: Yandex without signed receipts never loads a rewarded ad or promises energy
+00:00 +4: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: retired pending video claim is archived and cannot block the next bonus
+00:00 +5: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: queued awaited operation quarantined after owner change fails its caller
+00:00 +6: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: atomic cache owner cannot be reattributed by a split legacy pointer
+00:00 +7: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: live server clock uses monotonic elapsed and ignores device date changes
+00:00 +8: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: offline restart freezes trusted saved charge until a fresh server anchor
+00:00 +9: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: failed monetary snapshot write is retried even if plugin memory already changed
+00:00 +10: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: restored tokens never inherit stale launch owner; purchased requires native owner proof
+00:00 +11: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: pending subscription claim is archived and cannot deadlock Play verification
+00:00 +12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: lost Google restore acknowledgement requires resync and quarantines old-owner queue
+00:00 +13: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: a complete atomic snapshot survives missing legacy fields after process death
+00:00 +14: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_replay_proof_test.dart: real Dart physics emits completed proofs for server cross-runtime verification
+00:00 +15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_replay_proof_test.dart: pending proof survives storage, ACK drops bulky proof but retains metrics
+00:00 +16: All tests passed!

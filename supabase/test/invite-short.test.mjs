@@ -7,7 +7,7 @@ import {testDatabase} from './database.mjs';
 const local=await testDatabase(),db=new PostgresStore(local.pool);
 after(()=>local.close());
 let stamp=Date.UTC(2026,9,18),serial=0;
-const engine=createEngine({db,now:()=>stamp});
+const engine=createEngine({roundProof:{start(){},finish(){}},db,now:()=>stamp});
 const call=(uid,action='invites_state',args={},linked=false)=>engine.execute(uid,{action,...args},{googleLinked:linked});
 const reject=(promise,code)=>assert.rejects(promise,e=>e.code===code);
 const player=uid=>db.collection('players').doc(uid);

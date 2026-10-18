@@ -169,6 +169,7 @@ class MobileWalletBridge {
     'offer_invalid',
     'charge_empty',
     'ad_unavailable',
+    'ad_verification_unavailable',
     'age_payload_invalid',
     'feedback_rating',
     'update_required',

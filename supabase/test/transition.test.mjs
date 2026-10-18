@@ -5,7 +5,7 @@ import {PostgresStore} from '../functions/_shared/postgres-store.mjs';
 import {createEngine} from '../functions/_shared/core/engine.mjs';
 const local=await testDatabase();after(()=>local.close());
 const db=new PostgresStore(local.pool);let clock=1000000;
-const engine=createEngine({db,now:()=>clock,verifyPlay:async()=>({valid:true,expiresAt:clock+86400000,orderId:'test-only'})});
+const engine=createEngine({roundProof:{start(){},finish(){}},db,now:()=>clock,verifyPlay:async()=>({valid:true,expiresAt:clock+86400000,orderId:'test-only'})});
 test('revoked subscription cannot restore paid rights on a later valid-looking response',async()=>{
   const command={action:'play_verify',productId:'energy_batteries_2_v1',purchaseToken:'test-revoked-sub-token'};
   await engine.execute('revoked_sub',command,{googleLinked:true});

@@ -9,7 +9,7 @@ import {applyChanges} from '../functions/_shared/config-schema.mjs';
 const local=await testDatabase();after(()=>local.close());
 const db=new PostgresStore(local.pool);
 let stamp=Date.UTC(2026,9,18),serial=0,policy=structuredClone(defaults);
-const engine=createEngine({db,getPolicy:async()=>policy,now:()=>stamp});
+const engine=createEngine({roundProof:{start(){},finish(){}},db,getPolicy:async()=>policy,now:()=>stamp});
 const call=(uid,action,args={})=>engine.execute(uid,{action,...args});
 async function opened(uid) {
   const requestId=hash(`review:${++serial}`);

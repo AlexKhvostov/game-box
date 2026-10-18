@@ -9,7 +9,7 @@ test('changed Remote Config bonus and both invite rewards reach actual server pa
  const policy=structuredClone(defaults),e=policy.config.economy.androidEnergyV2,b=e.simpleBonus;
  Object.assign(b,{initialEnergy:90,reward:41,tier2Reward:82,tier5Reward:205,periodSec:3600,videoReward:47,videoCooldownSec:300,inviterReward:73});e.rewards.invite=29;
  policy.revision=hash(policy.config);let stamp=Date.UTC(2026,9,17);let serial=0;
- const engine=createEngine({db,getPolicy:async()=>policy,now:()=>stamp});
+ const engine=createEngine({roundProof:{start(){},finish(){}},db,getPolicy:async()=>policy,now:()=>stamp});
  const call=(uid,action,extra={},google=false)=>engine.execute(uid,{action,...extra},{googleLinked:google});
  const host='config_host',friend='config_friend';
  let profile=(await call(host,'guest')).profile;

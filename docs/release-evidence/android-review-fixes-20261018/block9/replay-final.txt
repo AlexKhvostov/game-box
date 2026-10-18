@@ -1,0 +1,32 @@
+TAP version 13
+# (node:46936) ExperimentalWarning: Importing JSON modules is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: compiled verifier is current for actual Dart physics/config/PRNG and verifier source
+ok 1 - compiled verifier is current for actual Dart physics/config/PRNG and verifier source
+  ---
+  duration_ms: 8.481
+  ...
+# Subtest: 256 completed real Flutter/Dart runs match compiled server physics across frame rates/loadouts
+ok 2 - 256 completed real Flutter/Dart runs match compiled server physics across frame rates/loadouts
+  ---
+  duration_ms: 340.203
+  ...
+# Subtest: tampered duration/distance/risk/seed/jump/continued life cannot pass production verifier
+ok 3 - tampered duration/distance/risk/seed/jump/continued life cannot pass production verifier
+  ---
+  duration_ms: 5.5821
+  ...
+# Subtest: new server attempts require proof before debit; accepted result is idempotent and cannot be forged
+ok 4 - new server attempts require proof before debit; accepted result is idempotent and cannot be forged
+  ---
+  duration_ms: 165.1592
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4361.2769

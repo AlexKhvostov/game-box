@@ -6,6 +6,7 @@ import {averageRanking} from '../average-ranking.mjs';
 import {recordRankings} from '../record-ranking.mjs';
 import {plausibleAndroidResult} from '../android-constraints.mjs';
 import {ApiError} from './policy.mjs';
+import {androidRoundProof} from '../android-replay.mjs';
 const clone = v => structuredClone(v);
 const owner = uid => `supabase:${uid}`;
 const canonical = v => Array.isArray(v) ? v.map(canonical) : v && typeof v === 'object' ? Object.fromEntries(Object.keys(v).sort().map(k => [k, canonical(v[k])])) : v;
@@ -39,7 +40,7 @@ function publicProfile(p, policy, identity, now) {
     googleName:identity.googleLinked ? identity.name ?? null : null, googleEmail:identity.googleLinked ? identity.email ?? null : null,
     hideGoogleAccount:p.hideGoogleAccount, wallet, walletVersion:p.version, serverNow:now, timezoneOffset:180};
 }
-function createEngine({db, getPolicy = async () => defaults, verifyPlay, googleLinkedForUid, now = Date.now}) {
+function createEngine({db, getPolicy = async () => defaults, verifyPlay, googleLinkedForUid, roundProof=androidRoundProof, now = Date.now}) {
   const playerRef = uid => db.collection('players').doc(uid);
   const linked=googleLinkedForUid ?? (async uid=>(await playerRef(uid).get()).data()?.googleLinked === true);
   async function execute(uid, input, identity = {}) {
@@ -66,6 +67,23 @@ function createEngine({db, getPolicy = async () => defaults, verifyPlay, googleL
       verified = await verifyPlay(uid, input.productId, input.purchaseToken);
     }
     if (input.action === 'play_sync') return syncPlay(uid, identity, policy);
+    // CPU work must run before acquiring transactional player/round locks.
+    let verifiedProofRound;
+    if(input.action==='round_finish') {
+      const id=nonce(input.roundId),saved=(await db.collection('rounds').doc(id).get()).data();
+      requireThat(saved?.uid===uid,'round_not_found',404);
+      if(saved.proofVersion===1&&!saved.finishedAt) {
+        requireThat(!saved.canceled,'round_canceled');requireThat(saved.activatedAt!=null,'round_not_activated');
+        integer(input.timeMs,1,3600000,'result_invalid');
+        integer(input.runDistance,0,10000000,'result_invalid');integer(input.riskCount,0,10000,'result_invalid');
+        if(input.timeMs>stamp-saved.activatedAt+1200){const error=new ApiError('result_time_invalid');error.retryAfterMs=input.timeMs-(stamp-saved.activatedAt+1200);throw error;}
+        requireThat(plausibleAndroidResult(input),'result_metrics_invalid');
+        // Charge the normal per-owner request limit before expensive replay,
+        // including invalid proofs. No player transaction is held during CPU work.
+        await execute(uid,{action:'profile'},identity);
+        roundProof.finish(input,saved);verifiedProofRound=id;
+      }
+    }
     return db.runTransaction(async tx => {
       const ref=playerRef(uid), snap=await tx.get(ref);
       const p=snap.exists ? snap.data() : seed(uid,policy,stamp);
@@ -110,7 +128,7 @@ function createEngine({db, getPolicy = async () => defaults, verifyPlay, googleL
           put(opRef,{fingerprint,response,createdAt:stamp,policyRevision:policy.revision});
         }
       } else if (['round_start','round_activate','round_cancel','round_finish'].includes(action)) {
-        response=await round(tx,p,input,policy,stamp,put);
+        response=await round(tx,p,input,policy,stamp,put,verifiedProofRound);
       } else if (action === 'play_quote') {
         const sku=input.productId, originalTerms=product(sku), requestId=nonce(input.requestId);
         const config=policy.config.economy.androidEnergyV2;
@@ -245,14 +263,13 @@ function createEngine({db, getPolicy = async () => defaults, verifyPlay, googleL
       w.energy+=e.rewards.feedback;w.claimed.push('energy_feedback');return {};
     }
     if (kind === 'watch_ad') {
-      empty();requireThat(!w.lastAdAt || stamp >= w.lastAdAt+b.videoCooldownSec*1000,'ad_not_ready');
-      // Existing Yandex integration has no signed SSV receipt. Only SDK reward
-      // event invokes this operation. Server fixes amount, ownership and cooldown.
-      w.energy+=b.videoReward;w.lastAdAt=stamp;return {};
+      // No provider-signed server receipt is configured for Yandex. A client
+      // callback (including a demo SDK callback) never authorizes real energy.
+      requireThat(false,'ad_verification_unavailable',503);
     }
     requireThat(false,'legacy_operation_disabled');
   }
-  async function round(tx,p,input,policy,stamp,put) {
+  async function round(tx,p,input,policy,stamp,put,verifiedProofRound) {
     const start=input.action === 'round_start', finish=input.action === 'round_finish';
     const roundId=finish ? nonce(input.roundId) : hash(`${p.uid}:${nonce(input.requestId)}`);
     const rr=db.collection('rounds').doc(roundId), old=await tx.get(rr);
@@ -263,6 +280,7 @@ function createEngine({db, getPolicy = async () => defaults, verifyPlay, googleL
         requireThat(!r.canceled,'round_canceled');return {roundId,activated:r.activatedAt != null,finished:r.finishedAt != null,hadHelmet:r.hadHelmet,hadJump:r.hadJump,attemptCost:r.cost};
       }
       requireThat(input.rulesRevision === policy.revision,'rules_changed');
+      roundProof.start(input);
       const e=policy.config.economy.androidEnergyV2;
       requireThat(!input.revision || input.revision === e.revision,'revision_mismatch');
       const hadHelmet=input.helmet === true,hadJump=input.jump === true;
@@ -271,7 +289,7 @@ function createEngine({db, getPolicy = async () => defaults, verifyPlay, googleL
       const cost=e.baseAttemptCost+(hadHelmet ? e.helmetExtraCost : 0)+(hadJump ? e.jumpExtraCost : 0);
       requireThat(p.wallet.energy >= cost,'insufficient_energy');p.wallet.energy-=cost;p.wallet.gamesStarted++;
       p.activeRound=roundId;
-      put(rr,{uid:p.uid,platform:'android',fingerprint,startedAt:stamp,activatedAt:null,finishedAt:null,canceled:false,hadHelmet,hadJump,cost,policy});
+      put(rr,{uid:p.uid,platform:'android',requestId:input.requestId,proofVersion:1,fingerprint,startedAt:stamp,activatedAt:null,finishedAt:null,canceled:false,hadHelmet,hadJump,cost,policy});
       return {roundId,activated:false,finished:false,hadHelmet,hadJump,attemptCost:cost};
     }
     requireThat(old.exists && old.data().uid === p.uid,'round_not_found',404);
@@ -288,6 +306,7 @@ function createEngine({db, getPolicy = async () => defaults, verifyPlay, googleL
     const result={timeMs:input.timeMs,runDistance:input.runDistance,riskCount:input.riskCount,hadJump:input.hadJump === true,hadHelmet:input.hadHelmet === true};
     const resultHash=digest(result);
     if (r.finishedAt) {requireThat(r.resultHash === resultHash,'operation_conflict');return r.result;}
+    requireThat(r.proofVersion!==1||verifiedProofRound===roundId,'result_proof_invalid');
     requireThat(r.activatedAt != null,'round_not_activated');
     integer(result.timeMs,1,3600000,'result_invalid');integer(result.runDistance,0,10000000,'result_invalid');integer(result.riskCount,0,10000,'result_invalid');
     if(result.timeMs > stamp-r.activatedAt+1200) {const error=new ApiError('result_time_invalid');error.retryAfterMs=result.timeMs-(stamp-r.activatedAt+1200);throw error;}

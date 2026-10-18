@@ -1,0 +1,4 @@
+00:00 +0: loading D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_replay_proof_test.dart
+00:00 +0: real Dart physics emits completed proofs for server cross-runtime verification
+00:00 +1: pending proof survives storage, ACK drops bulky proof but retains metrics
+00:00 +2: All tests passed!
