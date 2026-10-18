@@ -30,26 +30,27 @@
   "productionRelease": true,
   "limitations": [
     "AAB code and assets match the accepted Huawei APK179; Google Play delivered build not yet installed on device",
-    "AAB and listing saved, but final review submission is not registered by Console; requires manual check",
-    "Commercial Yandex ads depend on app moderation; Play purchases need separate device verification"
+    "Commercial Yandex ads depend on app moderation; Play purchases need separate device verification",
+    "Submission9 registered; Google review approval and Play delivery pending"
   ],
   "sourceCommit": "ed9e2ff5e04bd5c6e13047f474d6391dffae9704",
   "sourceDeviceAcceptance": "docs/release-evidence/phone-copies-build-label-20261018/README.md",
   "codeAndAssetsMatchDeviceApk": true,
   "matchedCodeAndAssetFiles": 69,
   "localVerification": "docs/release-evidence/google-play179-20261018/aab-verification.json",
-  "playStatus": "uploaded-saved-retry-submission-not-registered",
+  "playStatus": "submitted-in-review",
   "playTrack": "Alpha",
   "playReleaseId": 10,
-  "playSubmitted": false,
+  "playSubmitted": true,
   "googleUploadAccepted": true,
   "googleReleaseReview": "ready-for-release-no-blocking-errors",
   "googleNewInstallSizeMb": 32.5,
   "googleUnsupportedDevicesDelta": 0,
-  "googlePreReviewChecks": "complete-no-blocking-issues-after-resave",
-  "playSubmissionBlocker": "Final confirmation closes but Console retains five changes not yet sent for review; repeats in fresh tab, no visible error",
+  "googlePreReviewChecks": "running-after-registered-submission9",
   "reviewEvidence": "docs/release-evidence/google-play179-20261018/README.md",
   "playReleaseName": "179 - 1.0.178 - 18.10.2026",
-  "supportRequestStatus": "draft-awaiting-user-authorization",
-  "retryEvidence": "docs/release-evidence/google-play179-20261018/retry-final-state.txt"
+  "supportRequestStatus": "draft-do-not-send-user-prefers-self-diagnosis",
+  "retryEvidence": "docs/release-evidence/google-play179-20261018/retry-final-state.txt",
+  "playSubmissionId": 9,
+  "playSubmittedAt": "2026-10-18T19:15:00+03:00"
 }

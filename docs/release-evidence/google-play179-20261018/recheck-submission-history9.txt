@@ -1,0 +1,183 @@
+Browser tab: 1941751449, Title: "История проверок | Untouch", URL: "https://play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/publishing/submission-activity".
+0 AXWebArea История проверок | Untouch, URL: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/publishing/submission-activity
+	1 container
+		2 text Загрузка Google Play Console
+		3 container
+			4 container
+				5 link Description: Логотип Google Play Console, Value: play.google.com/console/u/0/developers/7352115345592950495/app-list
+				6 button Непрочитанные уведомления Открыть центр уведомлений
+					7 text Непрочитанные уведомления
+				8 button Untouch
+					9 text Untouch
+				10 button Сменить аккаунт разработчика
+					11 image Сменить аккаунт разработчика
+			12 container
+				13 link Description: Все приложения, Value: play.google.com/console/u/0/developers/7352115345592950495/app-list
+				14 content list
+					15 container Панель управления
+						16 button Панель управления
+							17 text Панель управления
+					18 container Статистика
+						19 button Статистика
+							20 text Статистика
+					21 container Обзор публикации
+						22 button Обзор публикации
+							23 text Обзор публикации
+					24 container Защищено Google Play
+						25 button Защищено Google Play
+							26 text Защищено Google Play
+					27 container (collapsed) Description: Тестирование и выпуск, Secondary Actions: Expand
+						28 button Тестирование и выпуск
+							29 text Тестирование и выпуск
+					46 container (collapsed) Description: Мониторинг и улучшение, Secondary Actions: Expand
+						47 button Мониторинг и улучшение
+							48 text Мониторинг и улучшение
+					49 container (collapsed) Description: Привлечение пользователей, Secondary Actions: Expand
+						50 button Привлечение пользователей
+							51 text Привлечение пользователей
+					52 container (collapsed) Description: Монетизация с Google Play, Secondary Actions: Expand
+						53 button Монетизация с Google Play
+							54 text Монетизация с Google Play
+			55 container main-content
+				297 container
+					298 link Description: Вернуться на страницу "Обзор публикации", Value: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/publishing
+					299 heading История проверок, Value: 1
+						300 text История проверок
+					301 container
+						302 text Отслеживайте отправленные на проверку изменения и их статус. Доступны данные с 1 мая 2026 г.
+						303 button Подробнее о странице "История проверок" (статья откроется в новой вкладке)
+					304 table
+						305 row Добавить фильтр
+							306 cell
+								307 combo box (collapsed, settable) Description: Добавить фильтр, Secondary Actions: Expand
+					308 pop up button (collapsed) Description: Выбор диапазона дат, ID: aA1AD94D5-3B88-4F38-A1CF-D6A745B89D60--50, Secondary Actions: Expand
+						388 text date_range
+						389 text Выбор диапазона дат
+					309 table История проверок
+						310 row Идентификатор запроса Отправлено Изменения Статус
+							311 cell Идентификатор запроса
+								390 text Идентификатор запроса
+							312 cell Отправлено
+								391 text Отправлено
+							313 cell Изменения
+								392 text Изменения
+							314 cell Статус
+								393 text Статус
+							315 cell
+						316 row 9 окт. 18, 2026, 7:15 PM Закрытое тестирование - Alpha, Данные для Google Play На рассмотрении Посмотреть сведения об отправленных материалах
+							317 cell
+								394 text 9
+							318 cell
+								395 text окт. 18, 2026, 7:15 PM
+							319 cell
+								396 text Закрытое тестирование - Alpha, Данные для Google Play
+							320 cell
+								397 text На рассмотрении
+							321 cell
+								322 link Description: Посмотреть сведения об отправленных материалах, Value: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/publishing/submission-activity/9/details
+						323 row 8 окт. 15, 2026, 7:43 PM Закрытое тестирование - Alpha, Контент приложения Опубликовано Посмотреть сведения об отправленных материалах
+							324 cell
+								398 text 8
+							325 cell
+								399 text окт. 15, 2026, 7:43 PM
+							326 cell
+								400 text Закрытое тестирование - Alpha, Контент приложения
+							327 cell
+								401 text Опубликовано
+							328 cell
+								329 link Description: Посмотреть сведения об отправленных материалах, Value: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/publishing/submission-activity/8/details
+						330 row 7 окт. 15, 2026, 4:00 PM Закрытое тестирование - Alpha Опубликовано Посмотреть сведения об отправленных материалах
+							331 cell
+								402 text 7
+							332 cell
+								403 text окт. 15, 2026, 4:00 PM
+							333 cell
+								404 text Закрытое тестирование - Alpha
+							334 cell
+								405 text Опубликовано
+							335 cell
+								336 link Description: Посмотреть сведения об отправленных материалах, Value: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/publishing/submission-activity/7/details
+						337 row 6 окт. 15, 2026, 3:21 AM Закрытое тестирование - Alpha Опубликовано Посмотреть сведения об отправленных материалах
+							338 cell
+								406 text 6
+							339 cell
+								407 text окт. 15, 2026, 3:21 AM
+							340 cell
+								408 text Закрытое тестирование - Alpha
+							341 cell
+								409 text Опубликовано
+							342 cell
+								343 link Description: Посмотреть сведения об отправленных материалах, Value: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/publishing/submission-activity/6/details
+						344 row 5 окт. 13, 2026, 4:47 PM Данные для Google Play Опубликовано Посмотреть сведения об отправленных материалах
+							345 cell
+								410 text 5
+							346 cell
+								411 text окт. 13, 2026, 4:47 PM
+							347 cell
+								412 text Данные для Google Play
+							348 cell
+								413 text Опубликовано
+							349 cell
+								350 link Description: Посмотреть сведения об отправленных материалах, Value: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/publishing/submission-activity/5/details
+						351 row 4 окт. 12, 2026, 10:09 PM Закрытое тестирование - Alpha, Контент приложения Опубликовано Посмотреть сведения об отправленных материалах
+							352 cell
+								414 text 4
+							353 cell
+								415 text окт. 12, 2026, 10:09 PM
+							354 cell
+								416 text Закрытое тестирование - Alpha, Контент приложения
+							355 cell
+								417 text Опубликовано
+							356 cell
+								357 link Description: Посмотреть сведения об отправленных материалах, Value: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/publishing/submission-activity/4/details
+						358 row 3 окт. 10, 2026, 6:47 PM Закрытое тестирование - Alpha Опубликовано Посмотреть сведения об отправленных материалах
+							359 cell
+								418 text 3
+							360 cell
+								419 text окт. 10, 2026, 6:47 PM
+							361 cell
+								420 text Закрытое тестирование - Alpha
+							362 cell
+								421 text Опубликовано
+							363 cell
+								364 link Description: Посмотреть сведения об отправленных материалах, Value: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/publishing/submission-activity/3/details
+						365 row 2 окт. 10, 2026, 11:54 AM Закрытое тестирование - Alpha Опубликовано Посмотреть сведения об отправленных материалах
+							366 cell
+								422 text 2
+							367 cell
+								423 text окт. 10, 2026, 11:54 AM
+							368 cell
+								424 text Закрытое тестирование - Alpha
+							369 cell
+								425 text Опубликовано
+							370 cell
+								371 link Description: Посмотреть сведения об отправленных материалах, Value: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/publishing/submission-activity/2/details
+						372 row 1 окт. 10, 2026, 3:33 AM Закрытое тестирование - Alpha, Данные для Google Play, Контент приложения, Расширенные настройки распространения, Настройки для Google Play Опубликовано Посмотреть сведения об отправленных материалах
+							373 cell
+								426 text 1
+							374 cell
+								427 text окт. 10, 2026, 3:33 AM
+							375 cell
+								428 text Закрытое тестирование - Alpha, Данные для Google Play, Контент приложения, Расширенные настройки распространения, Настройки для Google Play
+							376 cell
+								429 text Опубликовано
+							377 cell
+								378 link Description: Посмотреть сведения об отправленных материалах, Value: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/publishing/submission-activity/1/details
+					430 text 1–9
+					379 button (disabled) На предыдущую страницу
+					380 button (disabled) На следующую страницу
+				381 link Description: Информация об обновлениях, Value: play.google.com/console/about/whats-new/
+				382 link Description: Панель мониторинга, Value: status.play.google.com/
+				383 link Description: Справка, Value: play.google.com/console/u/0/developers/7352115345592950495/help-and-support?app=4976408092958094737
+				384 text © Google, 2026
+				385 link Description: Конфиденциальность, Value: google.com/policies/privacy/
+				386 link Description: Соглашение о распространении ПО, Value: play.google.com/about/developer-distribution-agreement.html
+				387 link Description: Условия использования, Value: play.google.com/about/console/terms-of-service/
+	272 container
+		273 button logo icon
+			274 image logo icon
+			275 image
+		276 container
+			277 button
+
+The focused UI element is 0 AXWebArea История проверок | Untouch, URL: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/publishing/submission-activity

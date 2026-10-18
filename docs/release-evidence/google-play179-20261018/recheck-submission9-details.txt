@@ -1,0 +1,113 @@
+Browser tab: 1941751449, Title: "Сведения об отправленном приложении | Untouch", URL: "https://play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/publishing/submission-activity/9/details".
+0 AXWebArea Сведения об отправленном приложении | Untouch, URL: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/publishing/submission-activity/9/details
+	1 container
+		2 text Загрузка Google Play Console
+		3 container
+			4 container
+				5 link Description: Логотип Google Play Console, Value: play.google.com/console/u/0/developers/7352115345592950495/app-list
+				6 button Непрочитанные уведомления Открыть центр уведомлений
+					7 text Непрочитанные уведомления
+				8 button Untouch
+					9 text Untouch
+				10 button Сменить аккаунт разработчика
+					11 image Сменить аккаунт разработчика
+			12 container
+				13 link Description: Все приложения, Value: play.google.com/console/u/0/developers/7352115345592950495/app-list
+				14 content list
+					15 container Панель управления
+						16 button Панель управления
+							17 text Панель управления
+					18 container Статистика
+						19 button Статистика
+							20 text Статистика
+					21 container Обзор публикации
+						22 button Обзор публикации
+							23 text Обзор публикации
+					24 container Защищено Google Play
+						25 button Защищено Google Play
+							26 text Защищено Google Play
+					27 container (collapsed) Description: Тестирование и выпуск, Secondary Actions: Expand
+						28 button Тестирование и выпуск
+							29 text Тестирование и выпуск
+					46 container (collapsed) Description: Мониторинг и улучшение, Secondary Actions: Expand
+						47 button Мониторинг и улучшение
+							48 text Мониторинг и улучшение
+					49 container (collapsed) Description: Привлечение пользователей, Secondary Actions: Expand
+						50 button Привлечение пользователей
+							51 text Привлечение пользователей
+					52 container (collapsed) Description: Монетизация с Google Play, Secondary Actions: Expand
+						53 button Монетизация с Google Play
+							54 text Монетизация с Google Play
+			55 container main-content
+				297 container
+					298 link Description: Вернуться на страницу "История проверок", Value: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/publishing/submission-activity
+					299 heading Отправленное приложение 9, Value: 1
+						300 text Отправленное приложение 9
+					301 heading 5 изменений, Value: 2
+						329 text 5 изменений
+					302 table Changes
+						303 row Элемент изменен Описание
+							304 cell
+								330 text Элемент изменен
+							305 cell
+								331 text Описание
+						332 row Закрытое тестирование - Alpha
+							333 cell
+								334 text Закрытое тестирование - Alpha
+						306 row 179 - 1.0.178 - 18.10.2026 Начать полное внедрение
+							307 cell
+								335 text 179 - 1.0.178 - 18.10.2026
+							308 cell
+								336 text Начать полное внедрение
+						337 row Страницы приложения
+							338 cell
+								339 text Страницы приложения
+						309 row Русский – ru-RU Стандартная страница приложения Изменить краткое описание на "Версия 1.0.178 (179) • 18.10.2026. Управляйте кубиком и избегайте врагов."
+							310 cell
+								340 text Русский – ru-RU
+								341 text Стандартная страница приложения
+							311 cell
+								342 text Изменить краткое описание на "Версия 1.0.178 (179) • 18.10.2026. Управляйте кубиком и избегайте врагов."
+						312 row Русский – ru-RU Стандартная страница приложения Изменить полное описание
+							313 cell
+								343 text Русский – ru-RU
+								344 text Стандартная страница приложения
+							314 cell
+								345 text Изменить полное описание
+						315 row Английский (Соединенные Штаты) – en-US Стандартная страница приложения Изменить краткое описание на "Version 1.0.178 (179) • 18.10.2026. Guide the cube and dodge obstacles."
+							316 cell
+								346 text Английский (Соединенные Штаты) – en-US
+								347 text Стандартная страница приложения
+							317 cell
+								348 text Изменить краткое описание на "Version 1.0.178 (179) • 18.10.2026. Guide the cube and dodge obstacles."
+						318 row Английский (Соединенные Штаты) – en-US Стандартная страница приложения Изменить полное описание
+							319 cell
+								349 text Английский (Соединенные Штаты) – en-US
+								350 text Стандартная страница приложения
+							320 cell
+								351 text Изменить полное описание
+					352 text Идентификатор запроса
+					353 text 9
+					354 text Источник
+					355 text Play Console
+					356 text Изменения сохранены
+					357 text окт. 18, 2026, 7:15 PM
+					358 text Статус
+					359 text На рассмотрении
+					321 button Перейти на страницу "Обзор публикации"
+						360 text Перейти на страницу "Обзор публикации"
+				322 link Description: Информация об обновлениях, Value: play.google.com/console/about/whats-new/
+				323 link Description: Панель мониторинга, Value: status.play.google.com/
+				324 link Description: Справка, Value: play.google.com/console/u/0/developers/7352115345592950495/help-and-support?app=4976408092958094737
+				325 text © Google, 2026
+				326 link Description: Конфиденциальность, Value: google.com/policies/privacy/
+				327 link Description: Соглашение о распространении ПО, Value: play.google.com/about/developer-distribution-agreement.html
+				328 link Description: Условия использования, Value: play.google.com/about/console/terms-of-service/
+	272 container
+		273 button logo icon
+			274 image logo icon
+			275 image
+		276 container
+			277 button
+
+The focused UI element is 0 AXWebArea Сведения об отправленном приложении | Untouch, URL: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/publishing/submission-activity/9/details

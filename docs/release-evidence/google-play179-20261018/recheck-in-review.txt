@@ -1,0 +1,136 @@
+Browser tab: 1941751449, Title: "Обзор публикации | Untouch", URL: "https://play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/publishing".
+0 AXWebArea Обзор публикации | Untouch, URL: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/publishing
+	1 container
+		2 text Загрузка Google Play Console
+		3 container
+			4 container
+				5 link Description: Логотип Google Play Console, Value: play.google.com/console/u/0/developers/7352115345592950495/app-list
+				6 button Непрочитанные уведомления Открыть центр уведомлений
+					7 text Непрочитанные уведомления
+				8 button Untouch
+					9 text Untouch
+				10 button Сменить аккаунт разработчика
+					11 image Сменить аккаунт разработчика
+			12 container
+				13 link Description: Все приложения, Value: play.google.com/console/u/0/developers/7352115345592950495/app-list
+				14 content list
+					15 container Панель управления
+						16 button Панель управления
+							17 text Панель управления
+					18 container Статистика
+						19 button Статистика
+							20 text Статистика
+					21 container Обзор публикации
+						22 button Обзор публикации
+							23 text Обзор публикации
+					24 container Защищено Google Play
+						25 button Защищено Google Play
+							26 text Защищено Google Play
+					27 container (collapsed) Description: Тестирование и выпуск, Secondary Actions: Expand
+						28 button Тестирование и выпуск
+							29 text Тестирование и выпуск
+					46 container (collapsed) Description: Мониторинг и улучшение, Secondary Actions: Expand
+						47 button Мониторинг и улучшение
+							48 text Мониторинг и улучшение
+					49 container (collapsed) Description: Привлечение пользователей, Secondary Actions: Expand
+						50 button Привлечение пользователей
+							51 text Привлечение пользователей
+					52 container (collapsed) Description: Монетизация с Google Play, Secondary Actions: Expand
+						53 button Монетизация с Google Play
+							54 text Монетизация с Google Play
+			55 container main-content
+				297 container
+					383 heading Обзор публикации, Value: 1
+						384 text Обзор публикации
+					385 container
+						386 text Здесь вы можете просматривать изменения, внесенные в приложение, и указывать, когда их публиковать или отправлять на проверку.
+						387 button Показать подробную информацию о следующей странице: Обзор публикации
+					388 pop up button (collapsed) Управляемая публикация выключена., ID: aA1AD94D5-3B88-4F38-A1CF-D6A745B89D60--48, Secondary Actions: Expand
+					389 text Последняя публикация: 15 октября 2026 г.
+					390 link Description: История проверок, Value: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/publishing/submission-activity
+					391 heading Изменения на проверке, Value: 2
+						392 text Изменения на проверке
+					393 button (collapsed) Description: Подробнее об объекте "Изменения на проверке", Secondary Actions: Expand
+					394 button Удалить изменения
+						395 text Удалить изменения
+					396 button (expanded) Description: Скрыть следующий контент: Изменения на проверке, Secondary Actions: Collapse
+						397 text Скрыть
+					398 heading Проверка на наличие распространенных проблем, Value: 4
+						399 text Проверка на наличие распространенных проблем
+					400 level indicator Проверка на наличие распространенных проблем, Value: 100
+					401 container
+						402 text Такая проверка позволяет выявить определенные нарушения правил и проблемы с качеством приложения, чтобы вы могли устранить их, прежде чем отправить изменения на рассмотрение. Если на этом этапе не будет найдено проблем, изменения будут отправлены сразу.
+						403 link Value: support.google.com/googleplay/android-developer/answer/14807773, Description: Перейти в Справочный центр и узнать больше об автоматических проверках, которые мы проводим для выявления проблем до отправки вами изменений на проверку
+					404 text Осталось меньше минуты
+					405 table Изменения
+						406 row Элемент изменен Описание
+							407 cell
+								408 text Элемент изменен
+							409 cell
+								410 text Описание
+							411 cell
+						412 row Закрытое тестирование - Alpha
+							413 cell
+								414 text Закрытое тестирование - Alpha
+						415 row 179 - 1.0.178 - 18.10.2026 Начать полное внедрение Ещё
+							416 cell
+								417 text 179 - 1.0.178 - 18.10.2026
+							418 cell
+								419 text Начать полное внедрение
+							420 cell
+								421 list Ещё
+									422 pop up button (collapsed) Description: Ещё, Secondary Actions: Expand
+						423 row Страницы приложения
+							424 cell
+								425 text Страницы приложения
+						426 row Английский (Соединенные Штаты) – en-US Стандартная страница приложения Изменить краткое описание на "Version 1.0.178 (179) • 18.10.2026. Guide the cube and dodge obstacles." Ещё
+							427 cell
+								428 text Английский (Соединенные Штаты) – en-US
+								429 text Стандартная страница приложения
+							430 cell
+								431 text Изменить краткое описание на "Version 1.0.178 (179) • 18.10.2026. Guide the cube and dodge obstacles."
+							432 cell
+								433 list Ещё
+									434 pop up button (collapsed) Description: Ещё, Secondary Actions: Expand
+						435 row Английский (Соединенные Штаты) – en-US Стандартная страница приложения Изменить полное описание Ещё
+							436 cell
+								437 text Английский (Соединенные Штаты) – en-US
+								438 text Стандартная страница приложения
+							439 cell
+								440 text Изменить полное описание
+							441 cell
+								442 list Ещё
+									443 pop up button (collapsed) Description: Ещё, Secondary Actions: Expand
+						444 row Русский – ru-RU Стандартная страница приложения Изменить краткое описание на "Версия 1.0.178 (179) • 18.10.2026. Управляйте кубиком и избегайте врагов." Ещё
+							445 cell
+								446 text Русский – ru-RU
+								447 text Стандартная страница приложения
+							448 cell
+								449 text Изменить краткое описание на "Версия 1.0.178 (179) • 18.10.2026. Управляйте кубиком и избегайте врагов."
+							450 cell
+								451 list Ещё
+									452 pop up button (collapsed) Description: Ещё, Secondary Actions: Expand
+						453 row Русский – ru-RU Стандартная страница приложения Изменить полное описание Ещё
+							454 cell
+								455 text Русский – ru-RU
+								456 text Стандартная страница приложения
+							457 cell
+								458 text Изменить полное описание
+							459 cell
+								460 list Ещё
+									461 pop up button (collapsed) Description: Ещё, Secondary Actions: Expand
+				376 link Description: Информация об обновлениях, Value: play.google.com/console/about/whats-new/
+				377 link Description: Панель мониторинга, Value: status.play.google.com/
+				378 link Description: Справка, Value: play.google.com/console/u/0/developers/7352115345592950495/help-and-support?app=4976408092958094737
+				379 text © Google, 2026
+				380 link Description: Конфиденциальность, Value: google.com/policies/privacy/
+				381 link Description: Соглашение о распространении ПО, Value: play.google.com/about/developer-distribution-agreement.html
+				382 link Description: Условия использования, Value: play.google.com/about/console/terms-of-service/
+	272 container
+		273 button logo icon
+			274 image logo icon
+			275 image
+		276 container
+			277 button
+
+The focused UI element is 0 AXWebArea Обзор публикации | Untouch, URL: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/publishing
