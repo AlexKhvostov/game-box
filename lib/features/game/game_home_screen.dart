@@ -72,9 +72,10 @@ class _GameHomeScreenState extends State<GameHomeScreen>
   bool _ensureScheduled = false;
 
   _Phase _phase = _Phase.idle;
-  Duration _lastElapsed = Duration.zero;
+  Duration? _lastElapsed;
   int _aliveMs = 0;
   double _elapsedPreciseMs = 0;
+  double _simulationDebtMs = 0;
   List<List<num>>? _proofEvents;
   void _recordProof(List<num> event) {
     final events = _proofEvents;
@@ -174,7 +175,7 @@ class _GameHomeScreenState extends State<GameHomeScreen>
       _routeCurrent = current;
       _modalBackdrop.allowSnapshotting =
           !current && !kIsWeb && AppTargetConfig.isMobile;
-      _lastElapsed = Duration.zero;
+      _lastElapsed = null;
       if (!current) {
         _clearPointers();
         _ticker.stop();
@@ -225,7 +226,7 @@ class _GameHomeScreenState extends State<GameHomeScreen>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     _backgrounded = state != AppLifecycleState.resumed;
-    _lastElapsed = Duration.zero;
+    _lastElapsed = null;
     _clearPointers();
     if (_backgrounded) {
       _ticker.stop();
@@ -280,7 +281,7 @@ class _GameHomeScreenState extends State<GameHomeScreen>
       _aliveMs = 0;
       _elapsedPreciseMs = 0;
       _rampT = 0;
-      _lastElapsed = Duration.zero;
+      _lastElapsed = null;
       _session++;
       _clearPointers();
       _impacts.clear();
@@ -315,13 +316,33 @@ class _GameHomeScreenState extends State<GameHomeScreen>
     if (world == null || !mounted || _backgrounded || !_routeCurrent) return;
     if (_phase == _Phase.result) return;
 
+    final firstTick = _lastElapsed == null;
+    final rawDtMs = firstTick
+        ? 0.0
+        : (elapsed - _lastElapsed!).inMicroseconds / 1000.0;
+    _lastElapsed = elapsed;
+    if (firstTick) _simulationDebtMs = 0;
+    if (rawDtMs <= 0) return;
+    if (_phase != _Phase.playing) {
+      _simulationDebtMs = 0;
+      _advanceFrame(world, min(50.0, rawDtMs));
+      return;
+    }
+    // Keep unprocessed foreground time. Bound work per rendered frame, while
+    // each physics step stays <=50ms; pauses/routes re-anchor the first tick.
+    _simulationDebtMs += rawDtMs;
+    var budget = min(250.0, _simulationDebtMs);
+    while (budget > 1e-9 && _phase == _Phase.playing) {
+      final step = min(50.0, budget);
+      _simulationDebtMs -= step;
+      budget -= step;
+      _advanceFrame(world, step);
+    }
+    if (_phase != _Phase.playing) _simulationDebtMs = 0;
+  }
+
+  void _advanceFrame(GameWorld world, double dtMs) {
     try {
-      final rawDtMs = (_lastElapsed == Duration.zero)
-          ? 0.0
-          : (elapsed - _lastElapsed).inMicroseconds / 1000.0;
-      _lastElapsed = elapsed;
-      if (rawDtMs <= 0) return;
-      final dtMs = min(50.0, rawDtMs);
       final dt = dtMs / 1000.0;
       final config = context.read<GameplayConfig>();
 
@@ -1036,7 +1057,7 @@ class _GameHomeScreenState extends State<GameHomeScreen>
       _aliveMs = 0;
       _elapsedPreciseMs = 0;
       _rampT = 0;
-      _lastElapsed = Duration.zero;
+      _lastElapsed = null;
       _sfxRiskCount = 0;
       _runEarnUnlocks.clear();
       _runHadJump = jump;

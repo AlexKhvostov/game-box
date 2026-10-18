@@ -72,7 +72,8 @@ class ScoresStore extends ChangeNotifier {
       await _recording;
       if (_outbox.isNotEmpty ||
           _roundPending != null ||
-          _instant?.activeKey != null) {
+          _instant?.activeKey != null ||
+          _instant?.hasPending == true) {
         throw const MobileApiError('round_delivery_pending');
       }
     };

@@ -114,7 +114,59 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUp(() => SharedPreferences.setMockInitialValues({}));
   test(
-    'unfinished play blocks identity switch; completed offline queue permits sign-in recovery',
+    'obsolete unaccepted protocol row is retained diagnostically without blocking updated client',
+    () async {
+      final server = RunServer()..refusal = 'update_required';
+      final e = EconomyStore();
+      await e.load();
+      await e.applyServerWallet(
+        server.wallet(),
+        owner: owner,
+        serverNow: energy_fixture.stamp,
+      );
+      final a = RunAccount(server),
+          prefs = await SharedPreferences.getInstance();
+      final key = '${a.storagePrefix}instant_rounds_v1_$owner';
+      await prefs.setString(
+        key,
+        jsonEncode([
+          {
+            'owner': owner,
+            'requestId': 'old-protocol',
+            'helmet': false,
+            'jump': false,
+            'cost': 1,
+            'rulesRevision': a.rulesRevision,
+            'revision': e.energyConfig.revision,
+            'result': result,
+          },
+        ]),
+      );
+      final j = InstantRoundJournal(
+        account: a,
+        economy: e,
+        published: (_, _) async {},
+        recoverResult: (_) => null,
+        changed: () {},
+      );
+      await j.bindOwner();
+      j.retry();
+      await flush();
+      expect(j.hasPending, false);
+      expect(j.rulesUpdateRequired, false);
+      final retired =
+          jsonDecode(prefs.getStringList('${key}_rejected')!.single) as Map;
+      expect(retired['requestId'], 'old-protocol');
+      expect(retired['rejected'], 'update_required');
+      server.refusal = null;
+      expect(j.begin(helmet: false, jump: false, cost: 1), isNotNull);
+      j.dispose();
+      a.dispose();
+      e.dispose();
+    },
+  );
+  test(
+    'active or completed pending run blocks identity switch until confirmed',
     () async {
       final server = RunServer()..offline = true;
       final e = EconomyStore();
@@ -136,8 +188,28 @@ void main() {
         throwsA(isA<MobileApiError>()),
       );
       await scores.recordAttempt(1);
-      await a.beforeIdentityChange!();
+      await expectLater(
+        a.beforeIdentityChange!(),
+        throwsA(
+          isA<MobileApiError>().having(
+            (e) => e.code,
+            'code',
+            'round_delivery_pending',
+          ),
+        ),
+      );
       expect(scores.isAttemptPending(scores.myAttempts.first.id), true);
+      server.offline = false;
+      await scores.retryPendingResults();
+      for (
+        var retry = 0;
+        retry < 30 && scores.isAttemptPending(scores.myAttempts.first.id);
+        retry++
+      ) {
+        await Future<void>.delayed(const Duration(milliseconds: 5));
+      }
+      await a.beforeIdentityChange!();
+      expect(scores.isAttemptPending(scores.myAttempts.first.id), false);
       scores.dispose();
       a.dispose();
       e.dispose();

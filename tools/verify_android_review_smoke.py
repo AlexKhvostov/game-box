@@ -4,7 +4,7 @@ from pathlib import Path
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('--apk',type=Path,required=True);p.add_argument('--out',type=Path,required=True)
-    args=p.parse_args();args.out.mkdir(parents=True,exist_ok=True)
+    p.add_argument('--stall-frame',action='store_true');args=p.parse_args();args.out.mkdir(parents=True,exist_ok=True)
     adb=Path.home()/'AppData/Local/Android/Sdk/platform-tools/adb.exe'
     devices=[line.split()[0] for line in subprocess.check_output([str(adb),'devices']).decode().splitlines() if '\tdevice' in line and not line.startswith('emulator-')]
     assert len(devices)==1,'Exactly one physical Android device must be connected'
@@ -35,7 +35,9 @@ def main():
         installed=run('install','-r',args.apk.resolve());assert b'Success'in installed,installed.decode()
         run('forward','tcp:8898','tcp:8898')
         s=cold();assert s['energy']==50,s;assert s['configRemoteWaitMs']<1500,s;save('01-home',s)
-        tap_field(s);s=wait(lambda s:s['phase']=='playing',seconds=3);save('02-playing',s)
+        tap_field(s);s=wait(lambda s:s['phase']=='playing',seconds=3)
+        if args.stall_frame:req('stall-frame');s=wait(lambda s:s['phase']=='playing',seconds=3)
+        save('02-playing',s)
         l,t,r,b=s['field'];run('shell','input','swipe',round((l+r)/2),round((t+b)/2),round(l-40),round((t+b)/2),200)
         s=wait(lambda s:s['phase']=='result',seconds=6)
         s=wait(lambda s:s['attempts']and s['attempts'][0]['shared'],seconds=8);save('03-result-confirmed',s)

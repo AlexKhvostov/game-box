@@ -184,7 +184,7 @@ void main() {
     expect(economy.tokens, before + 4);
   });
 
-  for (final fps in [60, 90, 120, 144]) {
+  for (final fps in [1, 4, 10, 60, 90, 120, 144]) {
     testWidgets('arcade timer preserves elapsed time at $fps FPS', (
       tester,
     ) async {
@@ -219,6 +219,11 @@ void main() {
       final frame = Duration(microseconds: (1000000 / fps).round());
       for (var i = 0; i < fps; i++) {
         await tester.pump(frame);
+      }
+      if (fps == 1) {
+        for (var catchUp = 0; catchUp < 4; catchUp++) {
+          await tester.pump(const Duration(milliseconds: 1));
+        }
       }
       final timer = tester.widget<Text>(
         find.byKey(const ValueKey('arcade-top-timer')),

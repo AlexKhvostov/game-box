@@ -1,0 +1,2 @@
+{"protectedDocumentDifferences":[]}
+{"protectedDocumentsUnchanged":true,"players":2,"scores":37,"rankingRecomputedIndependently":true,"values":[{"attempts":2,"eligible":2,"averageSeconds":4.491,"bestSeconds":7.216},{"attempts":35,"eligible":32,"averageSeconds":4.61,"bestSeconds":13.418}],"countersRls":true,"publicAccess":false,"newRealGames":0,"newRealWalletOperations":0,"source":"read-only actual database, compared with encrypted pre-delivery snapshot"}

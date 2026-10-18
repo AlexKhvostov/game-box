@@ -1,0 +1,1 @@
+{"mainVersion": 175, "readOnlyNavigation": ["record", "average", "attempts", "energy-unavailable-video"], "accountPreserved": true, "realGameStarts": 0, "purchasesOrRewardsRequested": 0, "stoppedInFinally": true}

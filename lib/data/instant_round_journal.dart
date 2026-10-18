@@ -265,7 +265,10 @@ class InstantRoundJournal {
 
   Future<void> _retireRejected(String owner, Map<String, dynamic> row) async {
     final code = row['rejected'] as String;
+    final obsoleteProtocol =
+        code == 'update_required' && row['proofVersion'] != 1;
     if (_rulesErrors.contains(code) &&
+        !obsoleteProtocol &&
         row['rulesRevision'] == account.rulesRevision) {
       rulesUpdateRequired = true;
       if (!await _prefs!.setString(

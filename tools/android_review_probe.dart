@@ -347,6 +347,11 @@ Future<void> main() async {
         }
         await Future<void>.delayed(const Duration(milliseconds: 300));
       }
+      if (request.uri.path == '/stall-frame') {
+        final stall = Stopwatch()..start();
+        while (stall.elapsedMilliseconds < 120) {}
+        await Future<void>.delayed(const Duration(milliseconds: 30));
+      }
       if (request.uri.path == '/collision-fixture') {
         final world = visibleWorld()!;
         world.player = const Offset(50, 120);

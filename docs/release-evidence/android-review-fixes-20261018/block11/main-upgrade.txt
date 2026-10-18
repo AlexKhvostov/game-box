@@ -1,0 +1,1 @@
+{"installedFrom": 174, "installedVersion": 175, "package": "com.best4u.untouch", "installMode": "update -r; no uninstall/data-clear", "homeAndAccountCaptured": true, "usbStayAwake": "2"}
