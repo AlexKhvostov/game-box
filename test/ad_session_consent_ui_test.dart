@@ -47,6 +47,12 @@ Future<(AudiencePolicy, _Driver, AdsService)> _mount(
   final e = EconomyStore(storagePrefix: 'session_ads_ui_');
   await e.load();
   await e.enableEnergyPreview();
+  // This UI fixture dismisses every SDK presentation. Only the server's
+  // pre-view authorization is needed; no wallet credit is simulated.
+  e.sendEnergyOperation = (kind, args) async {
+    expect(kind, 'rewarded_ad_start');
+    expect(args['sessionId'], matches(RegExp(r'^[a-f0-9]{64}$')));
+  };
   final account = MobileAccount();
   final billing = PlayBillingService(account, testServicePreview: preview);
   await t.pumpWidget(
