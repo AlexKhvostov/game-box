@@ -1,0 +1,12 @@
+{
+  "androidApiVersion": 14,
+  "remoteConfigAdminVersion": 13,
+  "remoteSourcesMatchedLocal": true,
+  "canonicalHashes": {
+    "core/engine.mjs": "e9cf60aa1823de27c178bb175fa515daed67368b63a3098f7fa4b68ba90f6515",
+    "core/policy.mjs": "6e42795de7de6d90d553ea2f4340b3cda6b86bd16482756e1f0dc14553ed642a",
+    "rewarded-quota.mjs": "d57cd9fdcb3bf112fe8da47b264e8944cb7c710c28a28907c0712597620e21db",
+    "config-schema.mjs": "0406d8ab84b896ff14fba93ae62cf67e732ec55963aa56568b81437591a5a94c"
+  },
+  "unauthenticatedHttp": 401
+}

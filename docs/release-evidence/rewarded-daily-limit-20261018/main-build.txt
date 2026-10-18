@@ -1,0 +1,19 @@
+Running Gradle task 'assembleRelease'...
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by net.rubygrapefruit.platform.internal.NativeLibraryLoader in an unnamed module (file:/C:/Users/alexe/.gradle/wrapper/dists/gradle-9.1.0-all/7wzd0jkjit61aq2p43wpjgij9/gradle-9.1.0/lib/native-platform-0.22-milestone-28.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+WARNING: Your app uses the following plugins that apply Kotlin Gradle Plugin (KGP): firebase_remote_config
+Future versions of Flutter will fail to build if your app uses plugins that apply KGP.
+
+Please check the changelogs of these plugins and upgrade to a version that supports Built-in Kotlin.
+If no such version exists, report the issue to the plugin. If necessary, here is a guide on filing
+an issue against a plugin: https://docs.flutter.dev/release/breaking-changes/migrate-to-built-in-kotlin/for-app-developers#report-incompatible-kotlin-gradle-plugin-usage-to-plugin-authors
+
+If you are a plugin author, please migrate your plugin to Built-in Kotlin using this guide: https://docs.flutter.dev/release/breaking-changes/migrate-to-built-in-kotlin/for-plugin-authors
+Font asset "MaterialIcons-Regular.otf" was tree-shaken, reducing it from 1645184 to 11304 bytes (99.3% reduction). Tree-shaking can be disabled by providing the --no-tree-shake-icons flag when building your app.
+Running Gradle task 'assembleRelease'...                          119,8s
+√ Built build\app\outputs\flutter-apk\app-release.apk (82.9MB)
+Artifact: D:\_P_R_O_J_E_C_T\game\square\Untouch\releases\android-v1.0.176_20261018_120038_266\Untouch-1.0.176+177.apk
+SHA256: 06e56c17164aac92a585c51422e2980c8fe5a6a6ecb353aaaf80e03995dc710c

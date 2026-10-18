@@ -1,0 +1,13 @@
+{
+  "lib/data/ads_service.dart": "11bb1215537149c0b762afa479023b47b0678bedc319d93f48bfd28cd4b0983f",
+  "lib/data/economy_store.dart": "feeb484433327000cbe7426ae318b1353ead6b8620a8614d0882047e591cafb1",
+  "lib/data/android_firebase_config.dart": "88058642f804f71b01024fef42de90077e2cff464f13767f0bbe3c3cd76feb34",
+  "lib/domain/android_energy.dart": "e7aad0a718a24ca965205bc115f9fc30385b34741e91bc6db71b28c419a96f2c",
+  "lib/features/balance/simple_energy_sheet.dart": "fd76c01a034f8be821d26ba915cdeaa81e39d7ec6355093d062a29ed8a234c30",
+  "lib/data/mobile_wallet_bridge.dart": "7defde70161c740cce91dacd5b4fca2fda1cdec820c365851a085846b514323a",
+  "lib/data/yandex_ads_driver.dart": "9f11d37147a30e94617fdbd049e7ee308a95d5769ace37446201c765e3c5eb2d",
+  "lib/data/audience_policy.dart": "a3b491bcd0fce284b190c274816b511a390bd24c05f0d260b59b3714535cecf6",
+  "assets/config/android-firebase.json": "50d2ea0fb1a4393be5dfb2de2c929e818294ea3ef92d64f9ecf843098bdbf070",
+  "pubspec.yaml": "d52703e8e0c661a8be7d9c05f046f769645b2f49071a05ef25f8601e38a3ef4b",
+  "pubspec.lock": "443874bb328b61c7200a3a6a73a02fff07adc65517b36884baeade9846728bd9"
+}

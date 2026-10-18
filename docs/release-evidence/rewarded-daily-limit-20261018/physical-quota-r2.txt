@@ -1,0 +1,1 @@
+{"isolatedPhysicalProfile": true, "dailyLimit": 20, "states": [{"used": 0, "canClaim": true, "errors": []}, {"used": 19, "canClaim": true, "errors": []}, {"used": 20, "canClaim": false, "errors": []}], "exhaustedTapNoWalletRequest": true, "energyPreserved": 50, "realCloudWalletCalls": 0}

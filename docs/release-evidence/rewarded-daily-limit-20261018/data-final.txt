@@ -1,0 +1,3 @@
+(node:45520) ExperimentalWarning: Importing JSON modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"protectedDataUnchanged":true,"quotaCountersSeededFromActualLedger":true,"counts":[0,3],"players":2,"scores":37,"newRealWalletOperations":0,"newRealScores":0,"energyUnchanged":true,"receiptServiceTimestampOnly":true}

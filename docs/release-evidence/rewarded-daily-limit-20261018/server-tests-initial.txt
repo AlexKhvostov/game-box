@@ -1,0 +1,683 @@
+
+> test
+> node --test --test-concurrency=1 test/*.test.mjs
+
+TAP version 13
+# (node:42636) ExperimentalWarning: Importing JSON modules is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: compiled verifier is current for actual Dart physics/config/PRNG and verifier source
+ok 1 - compiled verifier is current for actual Dart physics/config/PRNG and verifier source
+  ---
+  duration_ms: 9.2838
+  ...
+# Subtest: 256 completed real Flutter/Dart runs match compiled server physics across frame rates/loadouts
+ok 2 - 256 completed real Flutter/Dart runs match compiled server physics across frame rates/loadouts
+  ---
+  duration_ms: 122.7013
+  ...
+# Subtest: tampered duration/distance/risk/seed/jump/continued life cannot pass production verifier
+ok 3 - tampered duration/distance/risk/seed/jump/continued life cannot pass production verifier
+  ---
+  duration_ms: 3.4535
+  ...
+# Subtest: new server attempts require proof before debit; accepted result is idempotent and cannot be forged
+ok 4 - new server attempts require proof before debit; accepted result is idempotent and cannot be forged
+  ---
+  duration_ms: 72.3344
+  ...
+# Subtest: exact dynamic thresholds, duplicate upsert, owner/platform/duration changes and deletion
+ok 5 - exact dynamic thresholds, duplicate upsert, owner/platform/duration changes and deletion
+  ---
+  duration_ms: 103.5946
+  ...
+# Subtest: rollback leaves counters unchanged; unrelated document mutations have no effect
+ok 6 - rollback leaves counters unchanged; unrelated document mutations have no effect
+  ---
+  duration_ms: 22.3715
+  ...
+# Subtest: restricted runtime can maintain/read counters; public roles cannot access them
+ok 7 - restricted runtime can maintain/read counters; public roles cannot access them
+  ---
+  duration_ms: 16.1759
+  ...
+# Subtest: migration backfills existing scores once without changing their contents
+ok 8 - migration backfills existing scores once without changing their contents
+  ---
+  duration_ms: 634.6623
+  ...
+# (node:40564) ExperimentalWarning: Importing JSON modules is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: defaults, strict 1 second boundary and 19/20 admission; no fake seed
+ok 9 - defaults, strict 1 second boundary and 19/20 admission; no fake seed
+  ---
+  duration_ms: 143.2676
+  ...
+# Subtest: filter before last50; exponential normalization; one record; hidden/deleted/platform isolation
+ok 10 - filter before last50; exponential normalization; one record; hidden/deleted/platform isolation
+  ---
+  duration_ms: 584.3913
+  ...
+# Subtest: all four RC fields affect existing history immediately without waiting for board cache
+ok 11 - all four RC fields affect existing history immediately without waiting for board cache
+  ---
+  duration_ms: 135.9797
+  ...
+# Subtest: actual accepted rounds: duplicate finish once; reverse delivery sorted by server round start
+ok 12 - actual accepted rounds: duplicate finish once; reverse delivery sorted by server round start
+  ---
+  duration_ms: 56.6223
+  ...
+# Subtest: ties deterministic, minimum independent of window,100% means ordinary mean
+ok 13 - ties deterministic, minimum independent of window,100% means ordinary mean
+  ---
+  duration_ms: 25.8192
+  ...
+# (node:39856) ExperimentalWarning: Importing JSON modules is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# (node:39856) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+# Subtest: authorization comes only from private admin membership, not supplied actor metadata
+ok 14 - authorization comes only from private admin membership, not supplied actor metadata
+  ---
+  duration_ms: 1.9582
+  ...
+# Subtest: draft is isolated from live config and requires exact base ETag
+ok 15 - draft is isolated from live config and requires exact base ETag
+  ---
+  duration_ms: 10.8917
+  ...
+# Subtest: publishing requires matching preview revision, records audit, preserves legacy config, rejects replay
+ok 16 - publishing requires matching preview revision, records audit, preserves legacy config, rejects replay
+  ---
+  duration_ms: 14.5879
+  ...
+# Subtest: successful admin publication invalidates warm policy immediately; a draft leaves live policy unchanged
+ok 17 - successful admin publication invalidates warm policy immediately; a draft leaves live policy unchanged
+  ---
+  duration_ms: 14.9457
+  ...
+# (node:8768) ExperimentalWarning: Importing JSON modules is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: changed Remote Config bonus and both invite rewards reach actual server payouts
+ok 18 - changed Remote Config bonus and both invite rewards reach actual server payouts
+  ---
+  duration_ms: 173.7866
+  ...
+# (node:40300) ExperimentalWarning: Importing JSON modules is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: all 124 shipped/defaulted leaves have metadata; edits preserve unknown non-Android settings
+not ok 19 - all 124 shipped/defaulted leaves have metadata; edits preserve unknown non-Android settings
+  ---
+  duration_ms: 2.3962
+  location: 'D:\\_P_R_O_J_E_C_T\\game\\square\\Untouch\\supabase\\test\\config.test.mjs:4:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+
+    125 !== 124
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 124
+  actual: 125
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///D:/_P_R_O_J_E_C_T/game/square/Untouch/supabase/test/config.test.mjs:5:10)
+    Test.runInAsyncScope (node:async_hooks:211:14)
+    Test.run (node:internal/test_runner/test:934:25)
+    Test.start (node:internal/test_runner/test:833:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:296:17)
+  ...
+# Subtest: server rejects unknown/readonly, duplicate, non-integer, out-of-range and invalid paired fields
+ok 20 - server rejects unknown/readonly, duplicate, non-integer, out-of-range and invalid paired fields
+  ---
+  duration_ms: 1.2402
+  ...
+# Subtest: derived duplicates follow editable canonical fields without changing immutable SKU contents
+ok 21 - derived duplicates follow editable canonical fields without changing immutable SKU contents
+  ---
+  duration_ms: 0.7711
+  ...
+# Subtest: current admin UI exposes bonus in hours, hides retired batteries, keeps feedback reward
+ok 22 - current admin UI exposes bonus in hours, hides retired batteries, keeps feedback reward
+  ---
+  duration_ms: 1.541
+  ...
+# Subtest: all editable fields have cross-language contract cases and ranges match runtime clamps
+not ok 23 - all editable fields have cross-language contract cases and ranges match runtime clamps
+  ---
+  duration_ms: 4.7559
+  location: 'D:\\_P_R_O_J_E_C_T\\game\\square\\Untouch\\supabase\\test\\config.test.mjs:38:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected ... Lines skipped
+
+      [
+        'enemies.areaMultiplier',
+    ...
+        'economy.androidEnergyV2.simpleBonus.videoCooldownSec',
+        'economy.androidEnergyV2.simpleBonus.inviterReward',
+    -   'economy.androidEnergyV2.simpleBonus.videoDailyLimit',
+        'economy.runRewardEvery',
+    ...
+        'ranking.average.minAttempts',
+        'ranking.average.minDurationMs'
+      ]
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    0: 'enemies.areaMultiplier'
+    1: 'enemies.angleMinDeg'
+    2: 'enemies.angleMaxDeg'
+    3: 'enemies.collideWithEachOther'
+    4: 'enemies.spinDegPerSec'
+    5: 'player.size'
+    6: 'player.showFace'
+    7: 'field.borderWidth'
+    8: 'field.brightness'
+    9: 'field.shadowBrightness'
+    10: 'field.colorHex'
+    11: 'game.startHintEnabled'
+    12: 'game.idleSpeedMultiplier'
+    13: 'game.idleEnemiesMove'
+    14: 'game.jumpEnabled'
+    15: 'game.jumpDurationSec'
+    16: 'game.jumpScale'
+    17: 'game.helmetEnabled'
+    18: 'game.helmetInvulnSec'
+    19: 'game.startInvulnSec'
+    20: 'game.wallsKillPlayer'
+    21: 'game.jumpCooldownSec'
+    22: 'audio.music'
+    23: 'audio.musicVolume'
+    24: 'audio.sfxVolume'
+    25: 'audio.sfxMobWall'
+    26: 'audio.sfxMobCollide'
+    27: 'audio.sfxHeroMob'
+    28: 'audio.sfxHeroWall'
+    29: 'audio.sfxNearMiss'
+    30: 'audio.sfxHelmet'
+    31: 'audio.sfxJump'
+    32: 'audio.sfxStart'
+    33: 'economy.androidEnergyV2.baseAttemptCost'
+    34: 'economy.androidEnergyV2.helmetExtraCost'
+    35: 'economy.androidEnergyV2.jumpExtraCost'
+    36: 'economy.androidEnergyV2.rewards.feedback'
+    37: 'economy.androidEnergyV2.rewards.invite'
+    38: 'economy.androidEnergyV2.simpleBonus.initialEnergy'
+    39: 'economy.androidEnergyV2.simpleBonus.reward'
+    40: 'economy.androidEnergyV2.simpleBonus.periodSec'
+    41: 'economy.androidEnergyV2.simpleBonus.tier2Reward'
+    42: 'economy.androidEnergyV2.simpleBonus.tier5Reward'
+    43: 'economy.androidEnergyV2.simpleBonus.videoReward'
+    44: 'economy.androidEnergyV2.simpleBonus.videoCooldownSec'
+    45: 'economy.androidEnergyV2.simpleBonus.inviterReward'
+    46: 'economy.androidEnergyV2.simpleBonus.videoDailyLimit'
+    47: 'economy.runRewardEvery'
+    48: 'economy.riskRewardEvery'
+    49: 'economy.interstitialSessionGraceSec'
+    50: 'economy.interstitialSessionFreeRounds'
+    51: 'economy.interstitialGraceSec'
+    52: 'economy.interstitialCooldownSec'
+    53: 'economy.interstitialMinLives'
+    54: 'mobileEnemies.startSpeedSteps'
+    55: 'mobileEnemies.accelerationSteps'
+    56: 'mobileEnemies.speedVariation'
+    57: 'mobileEnemies.accelerationVariation'
+    58: 'ranking.average.windowSize'
+    59: 'ranking.average.previousWeightPercent'
+    60: 'ranking.average.minAttempts'
+    61: 'ranking.average.minDurationMs'
+  actual:
+    0: 'enemies.areaMultiplier'
+    1: 'enemies.angleMinDeg'
+    2: 'enemies.angleMaxDeg'
+    3: 'enemies.collideWithEachOther'
+    4: 'enemies.spinDegPerSec'
+    5: 'player.size'
+    6: 'player.showFace'
+    7: 'field.borderWidth'
+    8: 'field.brightness'
+    9: 'field.shadowBrightness'
+    10: 'field.colorHex'
+    11: 'game.startHintEnabled'
+    12: 'game.idleSpeedMultiplier'
+    13: 'game.idleEnemiesMove'
+    14: 'game.jumpEnabled'
+    15: 'game.jumpDurationSec'
+    16: 'game.jumpScale'
+    17: 'game.helmetEnabled'
+    18: 'game.helmetInvulnSec'
+    19: 'game.startInvulnSec'
+    20: 'game.wallsKillPlayer'
+    21: 'game.jumpCooldownSec'
+    22: 'audio.music'
+    23: 'audio.musicVolume'
+    24: 'audio.sfxVolume'
+    25: 'audio.sfxMobWall'
+    26: 'audio.sfxMobCollide'
+    27: 'audio.sfxHeroMob'
+    28: 'audio.sfxHeroWall'
+    29: 'audio.sfxNearMiss'
+    30: 'audio.sfxHelmet'
+    31: 'audio.sfxJump'
+    32: 'audio.sfxStart'
+    33: 'economy.androidEnergyV2.baseAttemptCost'
+    34: 'economy.androidEnergyV2.helmetExtraCost'
+    35: 'economy.androidEnergyV2.jumpExtraCost'
+    36: 'economy.androidEnergyV2.rewards.feedback'
+    37: 'economy.androidEnergyV2.rewards.invite'
+    38: 'economy.androidEnergyV2.simpleBonus.initialEnergy'
+    39: 'economy.androidEnergyV2.simpleBonus.reward'
+    40: 'economy.androidEnergyV2.simpleBonus.periodSec'
+    41: 'economy.androidEnergyV2.simpleBonus.tier2Reward'
+    42: 'economy.androidEnergyV2.simpleBonus.tier5Reward'
+    43: 'economy.androidEnergyV2.simpleBonus.videoReward'
+    44: 'economy.androidEnergyV2.simpleBonus.videoCooldownSec'
+    45: 'economy.androidEnergyV2.simpleBonus.inviterReward'
+    46: 'economy.runRewardEvery'
+    47: 'economy.riskRewardEvery'
+    48: 'economy.interstitialSessionGraceSec'
+    49: 'economy.interstitialSessionFreeRounds'
+    50: 'economy.interstitialGraceSec'
+    51: 'economy.interstitialCooldownSec'
+    52: 'economy.interstitialMinLives'
+    53: 'mobileEnemies.startSpeedSteps'
+    54: 'mobileEnemies.accelerationSteps'
+    55: 'mobileEnemies.speedVariation'
+    56: 'mobileEnemies.accelerationVariation'
+    57: 'ranking.average.windowSize'
+    58: 'ranking.average.previousWeightPercent'
+    59: 'ranking.average.minAttempts'
+    60: 'ranking.average.minDurationMs'
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///D:/_P_R_O_J_E_C_T/game/square/Untouch/supabase/test/config.test.mjs:41:10)
+    async Test.run (node:internal/test_runner/test:935:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:633:7)
+  ...
+# (node:24960) ExperimentalWarning: Importing JSON modules is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: feedback directory is admin-only and rejects unbounded or invalid filters
+ok 24 - feedback directory is admin-only and rejects unbounded or invalid filters
+  ---
+  duration_ms: 8.9919
+  ...
+# Subtest: feedback pages have stable tie ordering, full text, author and optional rating
+ok 25 - feedback pages have stable tie ordering, full text, author and optional rating
+  ---
+  duration_ms: 7.1403
+  ...
+# Subtest: search and rating combine, unrated differs from all, SQL wildcards are literal
+ok 26 - search and rating combine, unrated differs from all, SQL wildcards are literal
+  ---
+  duration_ms: 17.4324
+  ...
+# Subtest: feedback rendering escapes user content and distinguishes missing assessment
+ok 27 - feedback rendering escapes user content and distinguishes missing assessment
+  ---
+  duration_ms: 48.9844
+  ...
+# Subtest: historical feedback spend backfill counts activated costs, excludes refunds, preserves existing counters
+ok 28 - historical feedback spend backfill counts activated costs, excludes refunds, preserves existing counters
+  ---
+  duration_ms: 963.2567
+  ...
+# (node:29072) ExperimentalWarning: Importing JSON modules is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# (node:29072) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+# Subtest: new profile starts at 50 once; old MySQL fields cannot seed or choose UID
+ok 29 - new profile starts at 50 once; old MySQL fields cannot seed or choose UID
+  ---
+  duration_ms: 31.8596
+  ...
+# Subtest: concurrent duplicate hidden taps credit exactly 20; changed payload conflicts
+ok 30 - concurrent duplicate hidden taps credit exactly 20; changed payload conflicts
+  ---
+  duration_ms: 53.2131
+  ...
+# Subtest: bonus 30 and 8h server clock; lost reply replay; racing distinct nonces only one award
+ok 31 - bonus 30 and 8h server clock; lost reply replay; racing distinct nonces only one award
+  ---
+  duration_ms: 23.8742
+  ...
+# Subtest: pending paid entitlement blocks bonus until Google reconciliation
+ok 32 - pending paid entitlement blocks bonus until Google reconciliation
+  ---
+  duration_ms: 13.2105
+  ...
+# Subtest: video needs an owner-bound session; one reward and server cooldown
+ok 33 - video needs an owner-bound session; one reward and server cooldown
+  ---
+  duration_ms: 60.4582
+  ...
+# Subtest: uncompleted/expired sessions never credit; parallel claims credit once
+ok 34 - uncompleted/expired sessions never credit; parallel claims credit once
+  ---
+  duration_ms: 34.6754
+  ...
+# Subtest: retired achievements cannot be claimed; age/google compatibility rewards remain once-only
+ok 35 - retired achievements cannot be claimed; age/google compatibility rewards remain once-only
+  ---
+  duration_ms: 42.2575
+  ...
+# Subtest: feedback validated and atomically credited once; no external messages
+ok 36 - feedback validated and atomically credited once; no external messages
+  ---
+  duration_ms: 24.2855
+  ...
+# Subtest: feedback spend counts activation once, excludes refunded starts and ignores client totals
+ok 37 - feedback spend counts activation once, excludes refunded starts and ignores client totals
+  ---
+  duration_ms: 55.7432
+  ...
+# Subtest: nickname uniqueness and Google privacy are server controlled
+ok 38 - nickname uniqueness and Google privacy are server controlled
+  ---
+  duration_ms: 19.3122
+  ...
+# Subtest: round 1+helmet+jump costs 3; cancellation refunds frozen cost once before activation
+ok 39 - round 1+helmet+jump costs 3; cancellation refunds frozen cost once before activation
+  ---
+  duration_ms: 19.6384
+  ...
+# Subtest: active round cannot refund; forged owner, boosts, clock and duplicate changed result rejected
+ok 40 - active round cannot refund; forged owner, boosts, clock and duplicate changed result rejected
+  ---
+  duration_ms: 40.2606
+  ...
+# Subtest: round freezes policy while new requests must negotiate active revision
+ok 41 - round freezes policy while new requests must negotiate active revision
+  ---
+  duration_ms: 21.3023
+  ...
+# Subtest: Play verified receipts are globally owned and idempotent; consumed unknown token rejected
+ok 42 - Play verified receipts are globally owned and idempotent; consumed unknown token rejected
+  ---
+  duration_ms: 24.5612
+  ...
+# Subtest: Google subscription rights select bonus60/150 and expired confirmed rights select30
+ok 43 - Google subscription rights select bonus60/150 and expired confirmed rights select30
+  ---
+  duration_ms: 29.7025
+  ...
+# Subtest: SKU quote immutable and cannot switch product with same nonce
+ok 44 - SKU quote immutable and cannot switch product with same nonce
+  ---
+  duration_ms: 8.9355
+  ...
+# Subtest: inviter60 only after5 confirmed games and Google, no repeated payout on unlink/relink
+ok 45 - inviter60 only after5 confirmed games and Google, no repeated payout on unlink/relink
+  ---
+  duration_ms: 170.2884
+  ...
+# Subtest: Firebase ranking is private-data free and one best row per player for all periods
+ok 46 - Firebase ranking is private-data free and one best row per player for all periods
+  ---
+  duration_ms: 104.3158
+  ...
+# Subtest: Play REST validation checks state, SKU and obfuscated owner; no actual payment
+ok 47 - Play REST validation checks state, SKU and obfuscated owner; no actual payment
+  ---
+  duration_ms: 0.6973
+  ...
+# Subtest: policy hash and critical ranges reject malformed configuration
+ok 48 - policy hash and critical ranges reject malformed configuration
+  ---
+  duration_ms: 0.4473
+  ...
+# Subtest: deferred Google replacement keeps outgoing tier until its paid expiry
+ok 49 - deferred Google replacement keeps outgoing tier until its paid expiry
+  ---
+  duration_ms: 1.9259
+  ...
+# Subtest: replaced token cannot overwrite new rights; sync survives Google unlink; refund debited once
+ok 50 - replaced token cannot overwrite new rights; sync survives Google unlink; refund debited once
+  ---
+  duration_ms: 89.2664
+  ...
+# Subtest: public Google name follows privacy immediately and never exposes email in cached ranking
+ok 51 - public Google name follows privacy immediately and never exposes email in cached ranking
+  ---
+  duration_ms: 97.6151
+  ...
+# Subtest: Play consume/acknowledge retry does not fail after a lost successful store response
+ok 52 - Play consume/acknowledge retry does not fail after a lost successful store response
+  ---
+  duration_ms: 1.1423
+  ...
+# (node:16448) ExperimentalWarning: Importing JSON modules is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: unlink prepares only the server-verified Google email, same UID, without password or mail request
+ok 53 - unlink prepares only the server-verified Google email, same UID, without password or mail request
+  ---
+  duration_ms: 1.1666
+  ...
+# Subtest: unverified or mismatched primary email cannot create a recovery identity
+ok 54 - unverified or mismatched primary email cannot create a recovery identity
+  ---
+  duration_ms: 0.489
+  ...
+# Subtest: already prepared accounts need no change; failed Auth update cannot claim unlink readiness
+ok 55 - already prepared accounts need no change; failed Auth update cannot claim unlink readiness
+  ---
+  duration_ms: 0.1973
+  ...
+# (node:33360) ExperimentalWarning: Importing JSON modules is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: different UIDs race on the same deterministic candidate; losing transaction retries another alias
+ok 56 - different UIDs race on the same deterministic candidate; losing transaction retries another alias
+  ---
+  duration_ms: 143.6237
+  ...
+# Subtest: same UID concurrent first calls converge on one alias after retry
+ok 57 - same UID concurrent first calls converge on one alias after retry
+  ---
+  duration_ms: 1.6478
+  ...
+# (node:44128) ExperimentalWarning: Importing JSON modules is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: first invite request lazily reserves stable six code for all responses, preserving legacy alias
+ok 58 - first invite request lazily reserves stable six code for all responses, preserving legacy alias
+  ---
+  duration_ms: 42.2632
+  ...
+# Subtest: occupied candidates never overwritten; exhaustion rolls back whole lazy allocation
+ok 59 - occupied candidates never overwritten; exhaustion rolls back whole lazy allocation
+  ---
+  duration_ms: 108.6921
+  ...
+# Subtest: simultaneous first requests return one stable alias (SQL pool serializes these calls)
+ok 60 - simultaneous first requests return one stable alias (SQL pool serializes these calls)
+  ---
+  duration_ms: 28.6514
+  ...
+# Subtest: invalid/unknown/self rollback; both aliases bind same immutable inviter idempotently
+ok 61 - invalid/unknown/self rollback; both aliases bind same immutable inviter idempotently
+  ---
+  duration_ms: 60.5478
+  ...
+# Subtest: failed bind rolls back newly reserved short alias and new profile
+ok 62 - failed bind rolls back newly reserved short alias and new profile
+  ---
+  duration_ms: 4.142
+  ...
+# Subtest: short alias retains 5 real rounds, Google at both, 60/20 once, immutable aliases after reward
+ok 63 - short alias retains 5 real rounds, Google at both, 60/20 once, immutable aliases after reward
+  ---
+  duration_ms: 159.1582
+  ...
+# (node:34516) ExperimentalWarning: Importing JSON modules is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: queued offline runs retain individual debits and results; ranking selects best after replay
+ok 64 - queued offline runs retain individual debits and results; ranking selects best after replay
+  ---
+  duration_ms: 93.7829
+  ...
+# Subtest: empty wallet rejects every new request and allows only an authoritative top-up
+ok 65 - empty wallet rejects every new request and allows only an authoritative top-up
+  ---
+  duration_ms: 126.5116
+  ...
+# Subtest: both rankings: top200 only, actual own place1/50/200/201/520, all attempts counted
+ok 66 - both rankings: top200 only, actual own place1/50/200/201/520, all attempts counted
+  ---
+  duration_ms: 528.9136
+  ...
+# Subtest: periods independently pick own best attempt and rank before cutting
+ok 67 - periods independently pick own best attempt and rank before cutting
+  ---
+  duration_ms: 41.7564
+  ...
+# Subtest: hidden, deleted and other-platform results cannot displace visible players; zero/short-only owner
+ok 68 - hidden, deleted and other-platform results cannot displace visible players; zero/short-only owner
+  ---
+  duration_ms: 219.1962
+  ...
+# (node:39700) ExperimentalWarning: Importing JSON modules is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: scheduled endpoint requires exact nonempty server credential
+ok 69 - scheduled endpoint requires exact nonempty server credential
+  ---
+  duration_ms: 1.007
+  ...
+# Subtest: worker refreshes known subscriptions, retries acknowledgement, leaves last player activity unchanged
+ok 70 - worker refreshes known subscriptions, retries acknowledgement, leaves last player activity unchanged
+  ---
+  duration_ms: 40.4
+  ...
+# Subtest: refunds match both known purchase token and exact order; old renewed order cannot revoke newer rights
+ok 71 - refunds match both known purchase token and exact order; old renewed order cannot revoke newer rights
+  ---
+  duration_ms: 53.4159
+  ...
+# Subtest: live lease prevents two cron invocations from processing the same batch
+ok 72 - live lease prevents two cron invocations from processing the same batch
+  ---
+  duration_ms: 4.8628
+  ...
+# (node:37416) ExperimentalWarning: Importing JSON modules is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# (node:37416) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+# Subtest: Remote Config publication changes only Android key, preserves unrelated parameters/conditions/groups
+ok 73 - Remote Config publication changes only Android key, preserves unrelated parameters/conditions/groups
+  ---
+  duration_ms: 3.3758
+  ...
+# Subtest: existing grouped Android parameter stays grouped and conditional economic policy is refused
+ok 74 - existing grouped Android parameter stays grouped and conditional economic policy is refused
+  ---
+  duration_ms: 1.3634
+  ...
+# (node:31240) ExperimentalWarning: Importing JSON modules is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: impossible metrics cannot award energy or write a score; normal metrics and replay still work
+ok 75 - impossible metrics cannot award energy or write a score; normal metrics and replay still work
+  ---
+  duration_ms: 71.3209
+  ...
+# Subtest: rules change rejects a new old-revision start before debit but preserves an already accepted run
+ok 76 - rules change rejects a new old-revision start before debit but preserves an already accepted run
+  ---
+  duration_ms: 43.8812
+  ...
+# Subtest: early finish reports its exact retry delay and succeeds later without an extra debit
+ok 77 - early finish reports its exact retry delay and succeeds later without an extra debit
+  ---
+  duration_ms: 27.6495
+  ...
+# Subtest: publication and runtime both reject configurations which cannot start Android
+ok 78 - publication and runtime both reject configurations which cannot start Android
+  ---
+  duration_ms: 2.3572
+  ...
+# (node:48672) ExperimentalWarning: Importing JSON modules is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: list of120 unpaid invitations does no Auth fan-out
+ok 79 - list of120 unpaid invitations does no Auth fan-out
+  ---
+  duration_ms: 317.6943
+  ...
+# Subtest: durable bounded worker wraps cursor, retries failure and pays each side exactly once
+ok 80 - durable bounded worker wraps cursor, retries failure and pays each side exactly once
+  ---
+  duration_ms: 159.4371
+  ...
+# Subtest: anonymous and authenticated roles cannot read or write private game/admin data
+ok 81 - anonymous and authenticated roles cannot read or write private game/admin data
+  ---
+  duration_ms: 6.9132
+  ...
+# Subtest: runtime role can update game data, cannot promote an administrator or access auth.users
+ok 82 - runtime role can update game data, cannot promote an administrator or access auth.users
+  ---
+  duration_ms: 7.4279
+  ...
+# (node:856) ExperimentalWarning: Importing JSON modules is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: support denies non-admins and private email search finds a user without exposing Auth directory
+ok 83 - support denies non-admins and private email search finds a user without exposing Auth directory
+  ---
+  duration_ms: 12.4672
+  ...
+# Subtest: directory includes Auth-only accounts, protected administrator has no editable game balance
+ok 84 - directory includes Auth-only accounts, protected administrator has no editable game balance
+  ---
+  duration_ms: 8.6183
+  ...
+# Subtest: only admins can read internal feedback in the matching player card
+ok 85 - only admins can read internal feedback in the matching player card
+  ---
+  duration_ms: 14.7187
+  ...
+# Subtest: manual energy is atomic, audited, stale-version protected, repeat does not grant twice
+ok 86 - manual energy is atomic, audited, stale-version protected, repeat does not grant twice
+  ---
+  duration_ms: 24.9911
+  ...
+# Subtest: delete requires exact user confirmation and cannot delete administrator
+ok 87 - delete requires exact user confirmation and cannot delete administrator
+  ---
+  duration_ms: 6.4398
+  ...
+# Subtest: failed external deletion freezes only target; retry cleans personal data, preserves other players and purchase anti-replay tombstones
+ok 88 - failed external deletion freezes only target; retry cleans personal data, preserves other players and purchase anti-replay tombstones
+  ---
+  duration_ms: 47.2943
+  ...
+# Subtest: Auth-only account can be deleted without creating a playable profile or touching another account
+ok 89 - Auth-only account can be deleted without creating a playable profile or touching another account
+  ---
+  duration_ms: 14.0349
+  ...
+# (node:47152) ExperimentalWarning: Importing JSON modules is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: revoked subscription cannot restore paid rights on a later valid-looking response
+ok 90 - revoked subscription cannot restore paid rights on a later valid-looking response
+  ---
+  duration_ms: 36.7597
+  ...
+# Subtest: background reconciliation keeps actual last player activity intact
+ok 91 - background reconciliation keeps actual last player activity intact
+  ---
+  duration_ms: 14.7229
+  ...
+# Subtest: future Telegram score cannot enter Android rankings and input cannot select platform
+ok 92 - future Telegram score cannot enter Android rankings and input cannot select platform
+  ---
+  duration_ms: 18.0007
+  ...
+# Subtest: Telegram identifiers retain full text precision, uniqueness and cascade on account deletion
+ok 93 - Telegram identifiers retain full text precision, uniqueness and cascade on account deletion
+  ---
+  duration_ms: 11.7981
+  ...
+1..93
+# tests 93
+# suites 0
+# pass 91
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 27635.2982

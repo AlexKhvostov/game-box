@@ -1,0 +1,8 @@
+{
+  "localPreview": true,
+  "dailyDefault": 20,
+  "cooldownDefault": 120,
+  "zeroRejected": true,
+  "previewBothChanges": true,
+  "publishedThroughBrowser": false
+}

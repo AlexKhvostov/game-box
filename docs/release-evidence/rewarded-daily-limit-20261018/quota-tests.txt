@@ -1,0 +1,62 @@
+TAP version 13
+# (node:41824) ExperimentalWarning: Importing JSON modules is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: 20 confirmed rewards per Minsk day; duplicate ACK never consumes twice; next midnight resets
+ok 1 - 20 confirmed rewards per Minsk day; duplicate ACK never consumes twice; next midnight resets
+  ---
+  duration_ms: 372.8931
+  ...
+# Subtest: last daily credit is atomic across sessions; abandoned sessions consume no quota
+ok 2 - last daily credit is atomic across sessions; abandoned sessions consume no quota
+  ---
+  duration_ms: 36.5447
+  ...
+# Subtest: RC changes quota/cooldown immediately and preserves today usage; old config defaults to20
+not ok 3 - RC changes quota/cooldown immediately and preserves today usage; old config defaults to20
+  ---
+  duration_ms: 0.6416
+  location: 'D:\\_P_R_O_J_E_C_T\\game\\square\\Untouch\\supabase\\test\\rewarded-quota.test.mjs:38:1'
+  failureType: 'testCodeFailure'
+  error: 'policy_invalid'
+  code: 'policy_invalid'
+  stack: |-
+    requireThat (file:///D:/_P_R_O_J_E_C_T/game/square/Untouch/supabase/functions/_shared/core/policy.mjs:9:74)
+    types (file:///D:/_P_R_O_J_E_C_T/game/square/Untouch/supabase/functions/_shared/core/policy.mjs:26:5)
+    types (file:///D:/_P_R_O_J_E_C_T/game/square/Untouch/supabase/functions/_shared/core/policy.mjs:27:129)
+    types (file:///D:/_P_R_O_J_E_C_T/game/square/Untouch/supabase/functions/_shared/core/policy.mjs:27:129)
+    types (file:///D:/_P_R_O_J_E_C_T/game/square/Untouch/supabase/functions/_shared/core/policy.mjs:27:129)
+    types (file:///D:/_P_R_O_J_E_C_T/game/square/Untouch/supabase/functions/_shared/core/policy.mjs:27:129)
+    validatePolicy (file:///D:/_P_R_O_J_E_C_T/game/square/Untouch/supabase/functions/_shared/core/policy.mjs:29:3)
+    Object.execute (file:///D:/_P_R_O_J_E_C_T/game/square/Untouch/supabase/functions/_shared/core/engine.mjs:53:20)
+    async TestContext.<anonymous> (file:///D:/_P_R_O_J_E_C_T/game/square/Untouch/supabase/test/rewarded-quota.test.mjs:40:16)
+    async Test.run (node:internal/test_runner/test:935:9)
+  ...
+# Subtest: admin exposes daily count and cooldown with integer ranges; unrelated fields stay unchanged
+not ok 4 - admin exposes daily count and cooldown with integer ranges; unrelated fields stay unchanged
+  ---
+  duration_ms: 1.2059
+  location: 'D:\\_P_R_O_J_E_C_T\\game\\square\\Untouch\\supabase\\test\\rewarded-quota.test.mjs:50:1'
+  failureType: 'testCodeFailure'
+  error: 'policy_invalid'
+  code: 'policy_invalid'
+  stack: |-
+    requireThat (file:///D:/_P_R_O_J_E_C_T/game/square/Untouch/supabase/functions/_shared/core/policy.mjs:9:74)
+    types (file:///D:/_P_R_O_J_E_C_T/game/square/Untouch/supabase/functions/_shared/core/policy.mjs:26:5)
+    types (file:///D:/_P_R_O_J_E_C_T/game/square/Untouch/supabase/functions/_shared/core/policy.mjs:27:129)
+    types (file:///D:/_P_R_O_J_E_C_T/game/square/Untouch/supabase/functions/_shared/core/policy.mjs:27:129)
+    types (file:///D:/_P_R_O_J_E_C_T/game/square/Untouch/supabase/functions/_shared/core/policy.mjs:27:129)
+    types (file:///D:/_P_R_O_J_E_C_T/game/square/Untouch/supabase/functions/_shared/core/policy.mjs:27:129)
+    validatePolicy (file:///D:/_P_R_O_J_E_C_T/game/square/Untouch/supabase/functions/_shared/core/policy.mjs:29:3)
+    TestContext.<anonymous> (file:///D:/_P_R_O_J_E_C_T/game/square/Untouch/supabase/test/rewarded-quota.test.mjs:58:148)
+    Test.runInAsyncScope (node:async_hooks:211:14)
+    Test.run (node:internal/test_runner/test:934:25)
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 2
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1534.3657

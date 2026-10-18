@@ -1,0 +1,59 @@
+TAP version 13
+# (node:21776) ExperimentalWarning: Importing JSON modules is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: all 125 shipped/defaulted leaves have metadata; edits preserve unknown non-Android settings
+ok 1 - all 125 shipped/defaulted leaves have metadata; edits preserve unknown non-Android settings
+  ---
+  duration_ms: 2.3957
+  ...
+# Subtest: server rejects unknown/readonly, duplicate, non-integer, out-of-range and invalid paired fields
+ok 2 - server rejects unknown/readonly, duplicate, non-integer, out-of-range and invalid paired fields
+  ---
+  duration_ms: 0.7631
+  ...
+# Subtest: derived duplicates follow editable canonical fields without changing immutable SKU contents
+ok 3 - derived duplicates follow editable canonical fields without changing immutable SKU contents
+  ---
+  duration_ms: 0.3019
+  ...
+# Subtest: current admin UI exposes bonus in hours, hides retired batteries, keeps feedback reward
+ok 4 - current admin UI exposes bonus in hours, hides retired batteries, keeps feedback reward
+  ---
+  duration_ms: 0.8097
+  ...
+# Subtest: all editable fields have cross-language contract cases and ranges match runtime clamps
+ok 5 - all editable fields have cross-language contract cases and ranges match runtime clamps
+  ---
+  duration_ms: 9.3596
+  ...
+# (node:49688) ExperimentalWarning: Importing JSON modules is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: 20 confirmed rewards per Minsk day; duplicate ACK never consumes twice; next midnight resets
+ok 6 - 20 confirmed rewards per Minsk day; duplicate ACK never consumes twice; next midnight resets
+  ---
+  duration_ms: 435.0299
+  ...
+# Subtest: last daily credit is atomic across sessions; abandoned sessions consume no quota
+ok 7 - last daily credit is atomic across sessions; abandoned sessions consume no quota
+  ---
+  duration_ms: 46.1771
+  ...
+# Subtest: RC changes quota/cooldown immediately and preserves today usage; old config defaults to20
+ok 8 - RC changes quota/cooldown immediately and preserves today usage; old config defaults to20
+  ---
+  duration_ms: 34.2765
+  ...
+# Subtest: admin exposes daily count and cooldown with integer ranges; unrelated fields stay unchanged
+ok 9 - admin exposes daily count and cooldown with integer ranges; unrelated fields stay unchanged
+  ---
+  duration_ms: 1.7897
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1797.3459

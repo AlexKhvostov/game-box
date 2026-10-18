@@ -1,0 +1,4 @@
+(node:19828) ExperimentalWarning: Importing JSON modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:19828) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+{"ok":true,"published":true,"version":"51","dailyLimit":20,"cooldownSec":120,"changedFields":["economy.androidEnergyV2.simpleBonus.videoDailyLimit"],"otherSettingsUnchanged":true,"encryptedBackup":true}

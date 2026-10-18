@@ -1,0 +1,34 @@
+00:00 +0: loading D:/_P_R_O_J_E_C_T/game/square/Untouch/test/rewarded_daily_limit_test.dart
+00:00 +0: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/rewarded_daily_limit_test.dart: quota uses anchored server time; phone clock cannot reset a full day
+00:00 +1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/rewarded_daily_limit_test.dart: canonical RC daily/cooldown fields reach typed model; missing field defaults20
+00:00 +2: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/rewarded_daily_limit_test.dart: daily quota explains tomorrow and disables SDK entry before presentation
+00:00 +3: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/rewarded_daily_limit_test.dart: daily quota explains tomorrow and disables SDK entry before presentation
+00:00 +4: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/rewarded_daily_limit_test.dart: daily quota explains tomorrow and disables SDK entry before presentation
+00:00 +5: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/rewarded_daily_limit_test.dart: daily quota explains tomorrow and disables SDK entry before presentation
+00:00 +6: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/rewarded_daily_limit_test.dart: daily quota explains tomorrow and disables SDK entry before presentation
+00:00 +7: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/rewarded_daily_limit_test.dart: daily quota explains tomorrow and disables SDK entry before presentation
+00:00 +8: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/rewarded_daily_limit_test.dart: daily quota explains tomorrow and disables SDK entry before presentation
+00:00 +9: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/rewarded_daily_limit_test.dart: daily quota explains tomorrow and disables SDK entry before presentation
+00:01 +10: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/rewarded_daily_limit_test.dart: daily quota explains tomorrow and disables SDK entry before presentation
+00:01 +11: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_durability_test.dart: Lost bonus ACK reuses durable operationId; restart reconciles once
+00:01 +12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_durability_test.dart: Cooldown rejection is terminal and cannot block game or Play sync
+00:01 +13: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_durability_test.dart: Phone clock changes cannot finish the anchored server cooldown
+00:01 +14: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_durability_test.dart: Subscriber SDK result AdOutcome.rewarded credits only completion
+00:01 +15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_durability_test.dart: Subscriber SDK result AdOutcome.dismissed credits only completion
+00:01 +16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_durability_test.dart: Subscriber SDK result AdOutcome.unavailable credits only completion
+00:01 +17: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Final JS choreography: read until640ms, arc midpoint960, counter rolls1280–1600
+00:01 +18: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Video AdOutcome.rewarded: only SDK reward plus ACK returns to energy and celebrates once
+00:03 +19: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Video AdOutcome.dismissed: only SDK reward plus ACK returns to energy and celebrates once
+00:03 +20: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Video AdOutcome.unavailable: only SDK reward plus ACK returns to energy and celebrates once
+00:03 +21: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: SDK success with failed ACK never celebrates/credits
+00:03 +22: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Reward from old profile does not submit a claim in new profile
+00:03 +23: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: A dismissed window stays closed when rewarded ACK arrives
+00:03 +24: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Actual ACK amount replaces a stale configured advertisement amount
+00:03 +25: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Reduced180ms has no flight painter, no scale, and ends on time
+00:03 +26: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Cancel owner restores underlying UI and preserves settled value
+00:03 +27: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Cancel background restores underlying UI and preserves settled value
+00:03 +28: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Cancel resize restores underlying UI and preserves settled value
+00:03 +29: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Cancel route restores underlying UI and preserves settled value
+00:03 +30: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Cancel scroll restores underlying UI and preserves settled value
+00:03 +31: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: 1600ms finish, replay is ignored; reduced180ms and one live region
+00:04 +32: All tests passed!

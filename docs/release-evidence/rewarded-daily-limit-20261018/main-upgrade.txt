@@ -1,0 +1,1 @@
+{"from": 176, "installed": 177, "installMode": "update -r, no data clear/uninstall", "accountAndHomeSemanticsUnchanged": true, "todayUsed": 3, "dailyLimit": 20, "balance": 969, "actualAdsStarted": 0, "usb": "2"}

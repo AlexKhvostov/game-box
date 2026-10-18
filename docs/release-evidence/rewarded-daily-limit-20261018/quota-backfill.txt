@@ -1,0 +1,3 @@
+(node:47796) ExperimentalWarning: Importing JSON modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"ok":true,"applied":true,"players":2,"counts":[0,3],"timezone":"Europe/Minsk UTC+3","energyChanged":false,"scoresChanged":false,"encryptedBackup":true}
