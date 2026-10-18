@@ -1,0 +1,11 @@
+{
+  "lib/data/audience_policy.dart": "d6d9a5ec8245512b806b4a570678fe1f473fac6e529d2095bad8ea72db1813dd",
+  "lib/data/yandex_ads_driver.dart": "4bb20659086c198313f40b9d9d75e5f73510eb01db95a96da82e4bd695bed052",
+  "lib/ui/ad_privacy_settings.dart": "333db212ab4d3ce4af1d99856927f6fb1a0b34456c3abf8f6e95329b367cfcf9",
+  "tools/build_phone_apk.ps1": "7ddcc6d2c4986575bb49a056bf4533a730b90280a543f5934ff2dc37d5b610c8",
+  "tools/simple_energy_probe.dart": "9ef8e9f3b90f241cb30fde0db01556645dbd27a1273acecd1c4b45fd0e78d3cd",
+  "test/live_ads_gate_test.dart": "6e30816b2c54b519c17f699bcef9fd4e17d726875fe11d76ce82811d2e0b7229",
+  "test/neon_account_hud_test.dart": "dcdd5d741f4775d54334985c40cde0a20f4a32d1dbd053e623e85990b18cc91b",
+  "test/ad_session_consent_ui_test.dart": "1abd10c33e01408c5decde167ca54107b728e802b64a6cabc1edb6bab47add77",
+  "pubspec.yaml": "87d7842dd8d8c1e8c25ee8d961e0d7e0a52b35251f26a6ff9997c3020f03bfd7"
+}

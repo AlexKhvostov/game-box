@@ -1,0 +1,8 @@
+{
+  "packagesStopped": {
+    "com.best4u.untouch": true,
+    "com.best4u.untouch.uiprobe.simpleenergy": true,
+    "com.best4u.untouch.uiprobe.review": true
+  },
+  "stayOnWhilePluggedIn": "2"
+}

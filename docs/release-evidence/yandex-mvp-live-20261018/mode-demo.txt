@@ -1,0 +1,46 @@
+00:00 +0: loading D:/_P_R_O_J_E_C_T/game/square/Untouch/test/live_ads_gate_test.dart
+00:00 +0: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/live_ads_gate_test.dart: explicit demo or publisher mode admits only opted-in adult ads
+00:00 +1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: AgeBand.age6to8 has no ad switch or reward button; daily rewards remain
+00:00 +2: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: AgeBand.age6to8 has no ad switch or reward button; daily rewards remain
+00:00 +3: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: AgeBand.age6to8 has no ad switch or reward button; daily rewards remain
+00:00 +4: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: AgeBand.age6to8 has no ad switch or reward button; daily rewards remain
+00:00 +5: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: AgeBand.age6to8 has no ad switch or reward button; daily rewards remain
+00:00 +6: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: AgeBand.age6to8 has no ad switch or reward button; daily rewards remain
+00:00 +7: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: AgeBand.age6to8 has no ad switch or reward button; daily rewards remain
+00:00 +8: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: AgeBand.age6to8 has no ad switch or reward button; daily rewards remain
+00:00 +9: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: AgeBand.age6to8 has no ad switch or reward button; daily rewards remain
+00:00 +10: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: AgeBand.age6to8 has no ad switch or reward button; daily rewards remain
+00:01 +11: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:01 +12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:01 +13: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:01 +14: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:01 +15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:01 +16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:01 +17: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:01 +18: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:01 +19: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:01 +20: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:01 +21: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:01 +22: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:01 +23: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:01 +24: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:01 +25: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:01 +26: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:01 +27: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:01 +28: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:02 +29: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:02 +30: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:02 +31: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: adult permission requires separate disclosure; minors have no switch
+00:02 +31 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: adult permission requires separate disclosure; minors have no switch
+00:02 +32 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Ineligible AgeBand.under6 never starts SDK or consents implicitly
+00:02 +33 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Ineligible AgeBand.under18 never starts SDK or consents implicitly
+00:02 +34 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Ineligible AgeBand.age13to15 never starts SDK or consents implicitly
+00:02 +35 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Ineligible AgeBand.age16to17 never starts SDK or consents implicitly
+00:02 +36 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Ineligible AgeBand.unknown never starts SDK or consents implicitly
+00:02 +37 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Reward button directly invokes SDK without a second dialog or interstitial opt-in
+00:03 +38 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Decline or cancel explicit settings consent never starts SDK: cancel=false
+00:03 +39 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Decline or cancel explicit settings consent never starts SDK: cancel=true
+00:03 +40 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Session revoke prevents a new request or new consent
+00:03 +41 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Concurrent helpers share one voluntary dialog
+00:03 +42 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Account switch uses same consent and energy wording
+00:03 +43 ~1: All tests passed!

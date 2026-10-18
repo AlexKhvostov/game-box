@@ -1,0 +1,39 @@
+00:00 +0: loading D:/_P_R_O_J_E_C_T/game/square/Untouch/test/live_ads_gate_test.dart
+00:00 +0: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/live_ads_gate_test.dart: explicit demo or publisher mode admits only opted-in adult ads
+00:04 +1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: AgeBand.age6to8 has no ad switch or reward button; daily rewards remain
+00:05 +2: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: AgeBand.age6to8 has no ad switch or reward button; daily rewards remain
+00:05 +2 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: AgeBand.age6to8 has no ad switch or reward button; daily rewards remain
+00:05 +3 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Ads-off build cannot prompt or invoke advertising SDK
+00:06 +4 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Ads-off build cannot prompt or invoke advertising SDK
+00:06 +5 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: AgeBand.age21plus has no ad switch or reward button; daily rewards remain
+00:06 +5 ~2: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: AgeBand.age21plus has no ad switch or reward button; daily rewards remain
+00:06 +5 ~3: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: AgeBand.age21plus has no ad switch or reward button; daily rewards remain
+00:06 +5 ~4: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: AgeBand.age21plus has no ad switch or reward button; daily rewards remain
+00:06 +5 ~5: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: AgeBand.age21plus has no ad switch or reward button; daily rewards remain
+00:06 +5 ~6: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: AgeBand.age21plus has no ad switch or reward button; daily rewards remain
+00:06 +5 ~7: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: AgeBand.age21plus has no ad switch or reward button; daily rewards remain
+00:06 +5 ~8: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: AgeBand.age21plus has no ad switch or reward button; daily rewards remain
+00:06 +5 ~9: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: AgeBand.age21plus has no ad switch or reward button; daily rewards remain
+00:06 +5 ~10: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: AgeBand.age21plus has no ad switch or reward button; daily rewards remain
+00:06 +5 ~11: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: AgeBand.age21plus has no ad switch or reward button; daily rewards remain
+00:06 +5 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: AgeBand.age21plus has no ad switch or reward button; daily rewards remain
+00:06 +6 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: no SDK calls or credit before permission: null
+00:06 +7 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: no SDK calls or credit before permission: AgeBand.under6
+00:06 +8 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: no SDK calls or credit before permission: AgeBand.age6to8
+00:06 +9 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: no SDK calls or credit before permission: AgeBand.age9to12
+00:06 +10 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: no SDK calls or credit before permission: AgeBand.age13to15
+00:06 +11 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: no SDK calls or credit before permission: AgeBand.age16to17
+00:06 +12 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: no SDK calls or credit before permission: AgeBand.age18to20
+00:06 +13 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: no SDK calls or credit before permission: AgeBand.age21plus
+00:06 +14 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: no SDK calls or credit before permission: AgeBand.unknown
+00:06 +15 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: no SDK calls or credit before permission: AgeBand.under18
+00:06 +16 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: no SDK calls or credit before permission: AgeBand.adult18plus
+00:06 +17 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: age persists, permission does not; game reset cannot up-age
+00:06 +18 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: unrecognized group remains local with ads off until declaration
+00:06 +19 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: adult consent is session-only and revocation stops late reward
+00:06 +19 ~13: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: revocation discards interstitial that finishes loading later
+00:06 +19 ~14: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: profile asks age without advertising hints (ru)
+00:06 +20 ~14: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: profile asks age without advertising hints (en)
+00:06 +21 ~14: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: neutral age question has no default or advertising hint
+00:06 +22 ~14: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: adult permission requires separate disclosure; minors have no switch
+00:06 +22 ~15: All tests passed!

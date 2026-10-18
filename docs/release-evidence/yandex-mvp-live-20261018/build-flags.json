@@ -1,0 +1,17 @@
+{
+  "versionUnchanged": true,
+  "cases": [
+    {
+      "rejected": true,
+      "flags": "-DemoAds -LiveAds"
+    },
+    {
+      "rejected": true,
+      "flags": "-ProductionRelease -DemoAds"
+    },
+    {
+      "rejected": true,
+      "flags": "-TestTools -LiveAds"
+    }
+  ]
+}

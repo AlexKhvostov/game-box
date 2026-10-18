@@ -1,0 +1,130 @@
+- heading [level=5]:
+  - generic: Интерфейс РСЯ может временно работать нестабильно, а статистика отображаться не полностью или с задержкой
+- text: Ваши деньги и данные в безопасности. Мы работаем над восстановлением.
+- link:
+  - /url: https://yandex.ru/support/partner/ru/special-mode
+  - text: Подробнее
+- button:
+- navigation:
+  - link:
+    - /url: /v2/dashboard
+  - link:
+    - /url: /v2/dashboard/
+    - generic: Дашборд
+  - button:
+    - link:
+      - /url: /v2/notifications/new/
+      - generic: Уведомления
+  - button:
+    - link:
+      - /url: /v2/web/campaigns/
+      - generic: Реклама на сайтах
+  - button:
+    - link:
+      - /url: /v2/inapp/app/
+      - generic: Реклама в приложениях
+  - link:
+    - /url: /v2/messengers/
+    - generic: Реклама в мессенджерах
+  - button:
+    - link:
+      - /url: /v2/statistics/constructor/
+      - generic: Статистика
+  - link:
+    - /url: /v2/documents
+    - generic: Документы
+  - button:
+    - link:
+      - /url: /v2/inviter/
+      - generic: Дополнительно
+  - button:
+    - link:
+      - /url: /v2/settings/general/
+      - generic: Настройки
+  - link:
+    - /url: https://adfox.yandex.ru/pi_auth/
+    - generic: Adfox
+  - button:
+- heading [level=2]: Настройки блока
+- link: Назад
+- link:
+  - /url: /v2/inapp/app/20184253/
+  - text: Untouch
+- button:
+  - generic: ID 20184253
+- generic: Untouch Android — Crystals Rewarded
+- generic: Реклама с вознаграждением
+- button:
+  - generic: Статистика
+- button:
+  - generic: R-M-20184253-1
+- radiogroup:
+  - radio [checked]
+  - generic: Общие
+  - radio
+  - generic: География
+- generic: Имя / название
+- textbox: Untouch Android — Crystals Rewarded
+- generic: Untouch Android — Crystals Rewarded
+- button:
+- generic: Настройки CPM
+- text: CPM стратегия
+- button:
+- textbox
+- button:
+  - generic: Максимальный доход
+- generic: Настройки вознаграждения
+- text: Название валюты
+- button:
+- textbox: Energy
+- generic: Energy
+- button:
+- generic: Сумма вознаграждения
+- spinbutton: "40"
+- generic: "40"
+- button:
+- heading [level=2]:
+  - text: Рекламные сети
+  - button:
+- generic: Yandex
+- generic: Активна
+- generic: In-App Bidding
+- button:
+- button:
+  - generic: Добавить рекламную сеть
+- button [disabled]:
+  - generic: Сохранить
+- button:
+  - generic: Отменить
+- navigation:
+  - button:
+    - button:
+  - button:
+  - button:
+  - button:
+  - button:
+  - button:
+  - button:
+  - button:
+    - button:
+- contentinfo:
+  - text: © 2006—2026
+  - link:
+    - /url: https://ya.ru
+    - text: Яндекс
+  - link:
+    - /url: https://t.me/+62Q5PRpMbothN2Iy
+    - generic: Канал РСЯ
+  - link:
+    - /url: https://t.me/YANbloggers
+    - generic: Канал для блогеров
+  - link:
+    - /url: https://yandex.ru/legal/partner
+    - text: Правила участия
+  - link: Обратная связь
+  - link:
+    - /url: https://yandex.ru/jobs
+    - text: Вакансии
+  - link:
+    - /url: https://company.yandex.ru
+    - text: О компании

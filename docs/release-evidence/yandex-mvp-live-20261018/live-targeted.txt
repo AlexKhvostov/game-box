@@ -1,0 +1,57 @@
+00:00 +0: loading D:/_P_R_O_J_E_C_T/game/square/Untouch/test/live_ads_gate_test.dart
+00:00 +0: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/live_ads_gate_test.dart: explicit demo or publisher mode admits only opted-in adult ads
+00:05 +1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: AgeBand.age6to8 has no ad switch or reward button; daily rewards remain
+00:05 +2: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: AgeBand.age6to8 has no ad switch or reward button; daily rewards remain
+00:05 +3: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: AgeBand.age6to8 has no ad switch or reward button; daily rewards remain
+00:05 +4: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: AgeBand.age6to8 has no ad switch or reward button; daily rewards remain
+00:05 +5: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: AgeBand.age6to8 has no ad switch or reward button; daily rewards remain
+00:05 +6: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: AgeBand.age6to8 has no ad switch or reward button; daily rewards remain
+00:05 +7: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: AgeBand.age6to8 has no ad switch or reward button; daily rewards remain
+00:05 +8: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: AgeBand.age6to8 has no ad switch or reward button; daily rewards remain
+00:05 +9: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: AgeBand.age6to8 has no ad switch or reward button; daily rewards remain
+00:05 +10: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: AgeBand.age6to8 has no ad switch or reward button; daily rewards remain
+00:06 +11: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:06 +12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:06 +13: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:06 +14: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:06 +15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:06 +16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:06 +17: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:06 +18: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:06 +19: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:06 +20: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:06 +21: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:06 +22: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:06 +23: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:06 +24: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:06 +25: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:06 +26: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:06 +27: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:06 +28: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:06 +29: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:06 +30: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:06 +31: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:06 +32: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:06 +33: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:06 +34: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:07 +35: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:07 +36: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:07 +37: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:07 +38: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:07 +39: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: adult permission requires separate disclosure; minors have no switch
+00:07 +39 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: adult permission requires separate disclosure; minors have no switch
+00:07 +40 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: adult permission requires separate disclosure; minors have no switch
+00:07 +41 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Ineligible AgeBand.under18 never starts SDK or consents implicitly
+00:07 +42 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Ineligible AgeBand.age13to15 never starts SDK or consents implicitly
+00:07 +43 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/rewarded_daily_limit_test.dart: quota uses anchored server time; phone clock cannot reset a full day
+00:07 +44 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Ineligible AgeBand.age16to17 never starts SDK or consents implicitly
+00:07 +45 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Ineligible AgeBand.age16to17 never starts SDK or consents implicitly
+00:07 +46 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/rewarded_daily_limit_test.dart: daily quota explains tomorrow and disables SDK entry before presentation
+00:07 +47 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/rewarded_daily_limit_test.dart: daily quota explains tomorrow and disables SDK entry before presentation
+00:08 +48 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/rewarded_daily_limit_test.dart: daily quota explains tomorrow and disables SDK entry before presentation
+00:08 +49 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/rewarded_daily_limit_test.dart: daily quota explains tomorrow and disables SDK entry before presentation
+00:08 +50 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/rewarded_daily_limit_test.dart: daily quota explains tomorrow and disables SDK entry before presentation
+00:08 +51 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/rewarded_daily_limit_test.dart: daily quota explains tomorrow and disables SDK entry before presentation
+00:08 +52 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/rewarded_daily_limit_test.dart: daily quota explains tomorrow and disables SDK entry before presentation
+00:08 +53 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/rewarded_daily_limit_test.dart: daily quota explains tomorrow and disables SDK entry before presentation
+00:08 +54 ~1: All tests passed!

@@ -1,0 +1,19 @@
+{
+  "versionCode": 178,
+  "publisherRewardedUnit": "R-M-20184253-1",
+  "yandexAppStatus": "test",
+  "realSdk": true,
+  "actualProductionWallet": true,
+  "before": {
+    "energy": 995,
+    "used": 3,
+    "limit": 20
+  },
+  "after": {
+    "energy": 1035,
+    "used": 4,
+    "limit": 20
+  },
+  "rewardExactly40AndQuotaExactlyOne": true,
+  "commercialRevenueVerified": false
+}

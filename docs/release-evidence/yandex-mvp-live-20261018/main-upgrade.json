@@ -1,0 +1,10 @@
+{
+  "from": 177,
+  "installed": 178,
+  "sameHomeAndAccount": true,
+  "sameEnergyAndQuota": true,
+  "energy": 995,
+  "used": 3,
+  "limit": 20,
+  "updateWithoutDataClear": true
+}
