@@ -148,7 +148,7 @@ The test description was:
 00:03 +122 ~1 -1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: Reward button directly invokes SDK without a second dialog or interstitial opt-in [E]
   Test failed. See exception logs above.
   The test description was: Reward button directly invokes SDK without a second dialog or interstitial opt-in
-  
+
 00:03 +123 ~1 -1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_game_transition_test.dart: last-energy paid pending receipt can be retried with zero wallet
 00:03 +124 ~1 -1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_game_transition_test.dart: last-energy paid pending receipt can be retried with zero wallet
 00:03 +125 ~1 -1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_game_transition_test.dart: last-energy paid pending receipt can be retried with zero wallet

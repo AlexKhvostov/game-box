@@ -57,7 +57,7 @@ The test description was:
 00:07 +34 -1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Reward from old profile does not submit a claim in new profile [E]
   Test failed. See exception logs above.
   The test description was: Reward from old profile does not submit a claim in new profile
-  
+
 00:07 +34 -1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: A dismissed window stays closed when rewarded ACK arrives
 00:07 +35 -1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Actual ACK amount replaces a stale configured advertisement amount
 ══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
@@ -83,7 +83,7 @@ The test description was:
 00:07 +35 -2: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Actual ACK amount replaces a stale configured advertisement amount [E]
   Test failed. See exception logs above.
   The test description was: Actual ACK amount replaces a stale configured advertisement amount
-  
+
 00:07 +35 -2: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Reduced180ms has no flight painter, no scale, and ends on time
 00:07 +36 -2: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Cancel owner restores underlying UI and preserves settled value
 00:07 +37 -2: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Cancel background restores underlying UI and preserves settled value
