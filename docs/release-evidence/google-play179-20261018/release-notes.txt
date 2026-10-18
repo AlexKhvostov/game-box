@@ -1,0 +1,8 @@
+<en-US>
+Version 1.0.178 (179). Updated 18.10.2026.
+Enemies now start from their visible positions without jumping. Updated energy rewards, Yandex rewarded ads and daily reward limits. Improved leaderboard, interface and game stability.
+</en-US>
+<ru-RU>
+Версия 1.0.178 (179). Обновлено 18.10.2026.
+Враги начинают движение со своих видимых мест без скачка при старте. Обновлены энергетические награды, реклама Яндекса за вознаграждение и суточные ограничения. Улучшены рейтинг, интерфейс и стабильность игры.
+</ru-RU>

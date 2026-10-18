@@ -1,0 +1,272 @@
+Browser tab: 1941752166, Title: "Стандартная страница приложения | Untouch", URL: "https://play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/store-listings/default/edit".
+1 AXWebArea Стандартная страница приложения | Untouch, URL: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/store-listings/default/edit
+	2 container
+		3 text Загрузка Google Play Console
+		4 container
+			5 container
+				6 link Description: Логотип Google Play Console, Value: play.google.com/console/u/0/developers/7352115345592950495/app-list
+				7 button Непрочитанные уведомления Открыть центр уведомлений
+					8 text Непрочитанные уведомления
+				9 button Untouch
+					10 text Untouch
+				11 button Сменить аккаунт разработчика
+					12 image Сменить аккаунт разработчика
+			13 container
+				14 link Description: Все приложения, Value: play.google.com/console/u/0/developers/7352115345592950495/app-list
+				15 content list
+					16 container Панель управления
+						17 button Панель управления
+							18 text Панель управления
+					19 container Статистика
+						20 button Статистика
+							21 text Статистика
+					22 container Обзор публикации
+						23 button Обзор публикации
+							24 text Обзор публикации
+					25 container Защищено Google Play
+						26 button Защищено Google Play
+							27 text Защищено Google Play
+					28 container (collapsed) Description: Тестирование и выпуск, Secondary Actions: Expand
+						29 button Тестирование и выпуск
+							30 text Тестирование и выпуск
+					31 container (collapsed) Description: Мониторинг и улучшение, Secondary Actions: Expand
+						32 button Мониторинг и улучшение
+							33 text Мониторинг и улучшение
+					34 container (expanded) Description: Привлечение пользователей, Secondary Actions: Collapse
+						35 button Привлечение пользователей
+							36 text Привлечение пользователей
+						37 content list
+							38 container
+								39 container (expanded) Description: Страница приложения, Secondary Actions: Collapse
+									40 button Страница приложения
+									41 content list
+										42 container
+											43 container Страницы приложения
+												44 button Страницы приложения
+											45 container Рекламный контент
+												46 button Рекламный контент
+											47 container Видео YouTube
+												48 button Видео YouTube
+											49 container Настройки для Google Play
+												50 button Настройки для Google Play
+								51 container (collapsed) Description: Эффективность страницы приложения, Secondary Actions: Expand
+									52 button Эффективность страницы приложения
+								53 container (collapsed) Description: Сервисы Play Games, Secondary Actions: Expand
+									54 button Сервисы Play Games
+								55 container (collapsed) Description: Переводы, Secondary Actions: Expand
+									56 button Переводы
+								57 container Ссылки на контент
+									58 button Ссылки на контент
+					59 container (collapsed) Description: Монетизация с Google Play, Secondary Actions: Expand
+						60 button Монетизация с Google Play
+							61 text Монетизация с Google Play
+			62 container main-content
+				63 container
+					64 link Description: Вернуться на страницу "Страницы приложения", Value: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/store-listings
+					65 heading Стандартная страница приложения, Value: 1
+						66 text Стандартная страница приложения
+					67 container
+						68 text Опубликованные Измените название, значок и скриншоты приложения, чтобы выбрать, как пользователи будут видеть ваше приложение в Google Play.
+					69 tab group
+						70 tab (selected, settable, boolean) Description: Шаг 1 из 2: Объекты, Value: 1
+1
+Объекты
+						71 tab (selectable, disabled, settable, boolean) Description: Шаг 2 из 2: Отзыв, Value: 0
+2
+Отзыв
+					72 container aCA5873DB-0949-4801-9D07-30A5DD911AB1--0
+						73 text Выбор языка
+						74 pop up button (collapsed) Description: По умолчанию – Английский (Соединенные Штаты) – en-US, Secondary Actions: Expand
+							75 text По умолчанию – Английский (Соединенные Штаты) – en-US
+						76 button Перейти к следующему языку
+							77 text Следующий язык
+						78 heading Импортируйте переводы с помощью ИИ, Value: 3
+							79 text Импортируйте переводы с помощью ИИ
+						80 text Используйте ИИ, чтобы сэкономить время на создании и добавлении переводов для каждого языка.
+						81 button Понятно
+							82 text Понятно
+						83 button Импортировать файл
+							84 text Импортировать файл
+						85 container
+							86 heading Общие текстовые ресурсы, Value: 2
+								87 text Общие текстовые ресурсы
+							88 container Поле, обязательное для заполнения
+								89 text *
+						90 button (expanded) Description: Скрыть следующий контент: Общие текстовые ресурсы, Secondary Actions: Collapse
+						91 container a3CDE81EF-817C-46C4-8000-4A9BB207A7E6--26
+							92 container
+								93 text Чтобы избежать распространенных проблем со страницей приложения в Google Play, ознакомьтесь с
+								94 link Description: Посмотреть правила в отношении метаданных (откроются в новой вкладке), Value: play.google.com/about/storelisting-promotional/metadata
+								95 text  и материалами из
+								96 link Description: Посмотреть инструкции в Справочном центре (откроются в новой вкладке), Value: support.google.com/googleplay/android-developer/answer/9866151
+								97 text . Прежде чем отправлять приложение, прочитайте
+								98 link Description: Посмотреть правила программы (откроются в новой вкладке), Value: play.google.com/about/developer-content-policy
+								99 text .
+								100 text Если оно отвечает требованиям для
+								101 link Description: Посмотреть справку о предварительном уведомлении (откроется в новой вкладке), Value: support.google.com/googleplay/android-developer/answer/6320428
+								102 text  специалистов по проверке приложений Google Play, свяжитесь с нами перед публикацией.
+							103 container
+								104 container
+									105 text Название приложения
+									106 container Поле, обязательное для заполнения
+										107 text *
+								108 text Это название будет показано в Google Play.
+								109 container
+									110 text field (settable) Название приложения, Value: Untouch
+									111 text В тексте 7 символов из 30
+							112 container
+								113 container
+									114 text Краткое описание
+									115 container Поле, обязательное для заполнения
+										116 text *
+								117 text Пользователи смогут развернуть его, чтобы прочитать полную информацию.
+								118 container
+									119 text field (settable) Краткое описание, Value: Guide the cube, dodge moving obstacles and see how long you can last
+									120 text В тексте 68 символов из 80
+							121 container
+								122 container
+									123 text Полное описание
+									124 container Поле, обязательное для заполнения
+										125 text *
+								126 container
+									127 text entry area (settable) Полное описание, Value: One little cube. Moving obstacles. How long can you keep them apart?
+
+Untouch is a dodge arcade game where every close call matters. Slide your finger to guide the mint-green cube around the arena, watch the red shapes and find a way through. Stay clear for a little longer, then see if you can beat your own time.
+
+EASY TO START, ROOM TO IMPROVE
+Touch and move to take control. Read the gaps, change direction and keep your cool as the obstacles pick up speed. A small movement can save a run; a careless one can end it.
+
+MORE THAN A STOPWATCH
+See your survival time, close-call risks and distance travelled. Compare your results with your personal best and explore the leaderboard. Each attempt is another chance to find a better route.
+
+A LITTLE EXTRA HELP
+Use crystals to rent Jump or Helmet. Jump lets you leap over an enemy with a second finger; Helmet protects you from one hit per run. These abilities require an active rental.
+
+YOUR NEXT ATTEMPT
+Lives are used for attempts, so choose your moments. Follow your progress, adjust music and sound effects, and come back with a new idea for the next run.
+
+Untouch supports English and Russian. Network features, including the shared leaderboard, require an internet connection.
+									128 text В тексте 1232 символа из 4000
+						129 container
+							130 heading Общие визуальные ресурсы, Value: 2
+								131 text Общие визуальные ресурсы
+							132 container Поле, обязательное для заполнения
+								133 text *
+						134 button (expanded) Description: Скрыть следующий контент: Общие визуальные ресурсы, Secondary Actions: Collapse
+						135 container a3CDE81EF-817C-46C4-8000-4A9BB207A7E6--27
+							136 container
+								137 text Управляйте значком, скриншотами и видео, чтобы продвигать приложение в Google Play. Перед этим ознакомьтесь с
+								138 link Description: Посмотреть правила в отношении контента (откроются в новой вкладке), Value: support.google.com/googleplay/android-developer/answer/9866151#zippy=,app-icon
+								139 text . Если на переведенной странице приложения нет локализованных графических ресурсов, мы используем их версии для выбранного у вас по умолчанию языка.
+							140 container
+								141 container
+									142 text Значок приложения
+									143 container Поле, обязательное для заполнения
+										144 text *
+								145 container icon-hint
+									146 text Выберите изображение в формате PNG или JPEG с разрешением 512 x 512 пкс. Размер файла – не более 1 МБ. Значок должен соответствовать
+									147 link Description: Посмотреть спецификации дизайна (откроются в новой вкладке), Value: developer.android.com/google-play/resources/icon-design-specifications
+									148 text  и
+									149 link Description: Посмотреть правила в отношении метаданных (откроются в новой вкладке), Value: support.google.com/googleplay/android-developer/answer/9898842
+									150 text .
+								151 container
+									152 image neon-icon-20261013.png
+									153 container
+										154 button Удалить объект "neon-icon-20261013.png"
+										155 button Посмотреть сведения об объекте "neon-icon-20261013.png"
+									156 container Значок 1 из 1
+										157 text 1/1
+									158 button Добавить объекты
+										159 text Добавить объекты
+							160 container
+								161 container
+									162 text Картинка для описания
+									163 container Поле, обязательное для заполнения
+										164 text *
+								165 container feature-graphic-hint
+									166 text Картинка для описания должна быть в формате PNG или JPEG и с разрешением 1024 x 500 пкс. Размер файла — не более 15 МБ. Это изображение будет использоваться для продвижения приложения.
+									167 link Description: Подробнее о рекомендациях по продвижению (страница откроется в новой вкладке), Value: play.google.com/console/about/guides/featuring/
+								168 container
+									169 image neon-feature-20261013.png
+									170 container
+										171 button Удалить объект "neon-feature-20261013.png"
+										172 button Посмотреть сведения об объекте "neon-feature-20261013.png"
+									173 container Изображение 1 из 1
+										174 text 1/1
+									175 button Добавить объекты
+										176 text Добавить объекты
+							177 container
+								178 text Видео
+								179 text Чтобы добавить видео, укажите его URL на YouTube. Оно должно быть без рекламы и возрастных ограничений, а также доступно всем или по ссылке.
+								180 text field (settable) Видео
+						181 container
+							182 heading Ресурсы для телефонов, Value: 2
+								183 text Ресурсы для телефонов
+							184 container Поле, обязательное для заполнения
+								185 text *
+						186 button (expanded) Description: Скрыть следующий контент: Ресурсы для телефонов, Secondary Actions: Collapse
+						187 container
+							188 container
+								189 text Скриншоты для смартфона
+								190 container Поле, обязательное для заполнения
+									191 text *
+							192 text Загрузите от двух до восьми скриншотов для телефона. Выберите формат PNG или JPEG. Соотношение сторон изображения должно составлять 16:9 или 9:16, длина каждой стороны – от 320 до 3840 пкс. Размер одного файла – не более 8 МБ.
+							193 container
+								194 image 01-dodge-en-US.png
+								195 container
+									196 button Удалить объект "01-dodge-en-US.png"
+									197 button Посмотреть сведения об объекте "01-dodge-en-US.png"
+								198 image 02-result-en-US.png
+								199 container
+									200 button Удалить объект "02-result-en-US.png"
+									201 button Посмотреть сведения об объекте "02-result-en-US.png"
+								202 image 03-leaderboard-en-US.png
+								203 container
+									204 button Удалить объект "03-leaderboard-en-US.png"
+									205 button Посмотреть сведения об объекте "03-leaderboard-en-US.png"
+								206 image 04-ten-seconds-en-US.png
+								207 container
+									208 button Удалить объект "04-ten-seconds-en-US.png"
+									209 button Посмотреть сведения об объекте "04-ten-seconds-en-US.png"
+								210 image 05-reflex-challenge-en-US.png
+								211 container
+									212 button Удалить объект "05-reflex-challenge-en-US.png"
+									213 button Посмотреть сведения об объекте "05-reflex-challenge-en-US.png"
+								214 container Скриншот 5 из 8
+									215 text 5/8
+								216 button Добавить объекты
+									217 text Добавить объекты
+						218 heading Ресурсы для планшетов, Value: 2
+							219 text Ресурсы для планшетов
+						220 button (collapsed) Description: Показать следующий контент: Ресурсы для планшетов, Secondary Actions: Expand
+						221 heading Объекты для Google Play Games на компьютере, Value: 2
+							222 text Объекты для Google Play Games на компьютере
+						223 button (collapsed) Description: Показать следующий контент: Объекты для Google Play Games на компьютере, Secondary Actions: Expand
+						224 heading Ассеты для устройств Desktop, Value: 2
+							225 text Ассеты для устройств Desktop
+						226 button (collapsed) Description: Показать следующий контент: Ассеты для устройств Desktop, Secondary Actions: Expand
+						227 heading Ресурсы для Android XR, Value: 2
+							228 text Ресурсы для Android XR
+						229 button (collapsed) Description: Показать следующий контент: Ресурсы для Android XR, Secondary Actions: Expand
+					230 container
+						231 button (disabled) Не сохранять
+							232 text Не сохранять
+						233 button (disabled) Сохранить как проект
+							234 text Сохранить как проект
+						235 button Далее
+							236 text Далее
+				237 link Description: Информация об обновлениях, Value: play.google.com/console/about/whats-new/
+				238 link Description: Панель мониторинга, Value: status.play.google.com/
+				239 link Description: Справка, Value: play.google.com/console/u/0/developers/7352115345592950495/help-and-support?app=4976408092958094737
+				240 text © Google, 2026
+				241 link Description: Конфиденциальность, Value: google.com/policies/privacy/
+				242 link Description: Соглашение о распространении ПО, Value: play.google.com/about/developer-distribution-agreement.html
+				243 link Description: Условия использования, Value: play.google.com/about/console/terms-of-service/
+	244 container
+		245 button logo icon
+			246 image logo icon
+			247 image
+		248 container
+			249 button
+
+The focused UI element is 1 AXWebArea Стандартная страница приложения | Untouch, URL: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/store-listings/default/edit

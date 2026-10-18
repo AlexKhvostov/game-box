@@ -1,0 +1,97 @@
+Browser tab: 1941752166, Title: "Реклама | Untouch", URL: "https://play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/app-content/ads-declaration".
+1 AXWebArea Реклама | Untouch, URL: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/app-content/ads-declaration
+	2 container
+		3 text Загрузка Google Play Console
+		4 container
+			5 container
+				6 link Description: Логотип Google Play Console, Value: play.google.com/console/u/0/developers/7352115345592950495/app-list
+				7 button Непрочитанные уведомления Открыть центр уведомлений
+					8 text Непрочитанные уведомления
+				9 button Untouch
+					10 text Untouch
+				11 button Сменить аккаунт разработчика
+					12 image Сменить аккаунт разработчика
+			13 container
+				14 link Description: Все приложения, Value: play.google.com/console/u/0/developers/7352115345592950495/app-list
+				15 content list
+					16 container Панель управления
+						17 button Панель управления
+							18 text Панель управления
+					19 container Статистика
+						20 button Статистика
+							21 text Статистика
+					22 container Обзор публикации
+						23 button Обзор публикации
+							24 text Обзор публикации
+					25 container Защищено Google Play
+						26 button Защищено Google Play
+							27 text Защищено Google Play
+					28 container (collapsed) Description: Тестирование и выпуск, Secondary Actions: Expand
+						29 button Тестирование и выпуск
+							30 text Тестирование и выпуск
+					31 container (expanded) Description: Мониторинг и улучшение, Secondary Actions: Collapse
+						32 button Мониторинг и улучшение
+							33 text Мониторинг и улучшение
+						250 content list
+							251 container
+								252 container (collapsed) Description: Охват и устройства, Secondary Actions: Expand
+									253 button Охват и устройства
+								254 container (collapsed) Description: Оценки и отзывы, Secondary Actions: Expand
+									255 button Оценки и отзывы
+								256 container (collapsed) Description: Android Vitals, Secondary Actions: Expand
+									257 button Android Vitals
+								258 container (expanded) Description: Правила и программы, Secondary Actions: Collapse
+									259 button Правила и программы
+									277 content list
+										278 container
+											279 container Соответствие правилам
+												280 button Соответствие правилам
+											281 container Контент приложения
+												282 button Контент приложения
+											283 container (collapsed) Description: Программы, Secondary Actions: Expand
+												284 button Программы
+					34 container (collapsed) Description: Привлечение пользователей, Secondary Actions: Expand
+						35 button Привлечение пользователей
+							36 text Привлечение пользователей
+					59 container (collapsed) Description: Монетизация с Google Play, Secondary Actions: Expand
+						60 button Монетизация с Google Play
+							61 text Монетизация с Google Play
+			62 container main-content
+				63 container
+					285 link Description: Вернуться на страницу "Контент приложения", Value: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/app-content/overview
+					286 heading Реклама, Value: 1
+						309 text Реклама
+					287 text Укажите, содержит ли ваше приложение рекламу, в том числе из сторонних рекламных сетей. Эта информация должна быть точной и актуальной.
+					288 link Description: Подробнее о заявлении о рекламе, Откроется на новой вкладке, Value: support.google.com/googleplay/android-developer/answer/9815348#ads
+					289 container Вопрос об объявлениях
+						290 text Реклама
+						310 container
+							311 text Ваше приложение содержит рекламу? Ознакомьтесь с
+							312 link Description: правилами размещения рекламы, Value: play.google.com/about/monetization-ads/ads/
+							313 text  и измените приложение в соответствии с нашими требованиями.
+						291 Реклама
+							292 container
+								293 radio button (settable, integer) Description: Да, мое приложение содержит рекламу, Value: 1, ID: a3CDE81EF-817C-46C4-8000-4A9BB207A7E6--152
+								294 text Рядом с названием приложения в Google Play будет показываться надпись "Есть реклама".
+								295 link Description: Подробнее о заявлении о рекламе, Откроется на новой вкладке, Value: support.google.com/googleplay/android-developer/answer/9815348#ads
+							296 container
+								297 radio button (settable, integer) Description: Нет, мое приложение не содержит рекламу, Value: 0, ID: a3CDE81EF-817C-46C4-8000-4A9BB207A7E6--153
+					298 button (disabled) Не сохранять
+						299 text Не сохранять
+					300 button (disabled) Сохранить
+						301 text Сохранить
+				302 link Description: Информация об обновлениях, Value: play.google.com/console/about/whats-new/
+				303 link Description: Панель мониторинга, Value: status.play.google.com/
+				304 link Description: Справка, Value: play.google.com/console/u/0/developers/7352115345592950495/help-and-support?app=4976408092958094737
+				305 text © Google, 2026
+				306 link Description: Конфиденциальность, Value: google.com/policies/privacy/
+				307 link Description: Соглашение о распространении ПО, Value: play.google.com/about/developer-distribution-agreement.html
+				308 link Description: Условия использования, Value: play.google.com/about/console/terms-of-service/
+	244 container
+		245 button logo icon
+			246 image logo icon
+			247 image
+		248 container
+			249 button
+
+The focused UI element is 1 AXWebArea Реклама | Untouch, URL: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/app-content/ads-declaration

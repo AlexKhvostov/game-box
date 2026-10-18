@@ -1,0 +1,104 @@
+Browser tab: 1941752174, Title: "Приложения в Google Play – Untouch", URL: "https://play.google.com/store/apps/details?id=com.best4u.untouch&hl=ru".
+0 AXWebArea Приложения в Google Play – Untouch, URL: play.google.com/store/apps/details?id=com.best4u.untouch&hl=ru
+	1 container yDmH0d
+		2 container
+			3 container Заголовок страницы
+				4 link Description: Логотип Google Play, Value: play.google.com/store/games
+				5 container Главная панель навигации
+					6 tab group
+						7 tab (selectable, settable, boolean) Игры, Value: 0, ID: 11
+						8 tab (selected, settable, boolean) Приложения, Value: 1
+						9 tab (selectable, settable, boolean) Книги, Value: 0, ID: 5
+						10 tab (selectable, settable, boolean) Детям, Value: 0, ID: 13
+						11 tab (selectable, settable, boolean) Подарочные карты, Value: 0, ID: 16
+				12 button Поиск
+				13 button Справочный центр
+		15 container
+			16 container
+				17 heading Untouch, Value: 1
+					18 text Untouch
+				19 link Description: Best4U, Value: play.google.com/store/apps/developer?id=Best4U
+				20 text Есть реклама
+				21 container Информационные значки
+					22 container
+						23 text 5+ (количество скачиваний)
+			24 button Установить на устройствах
+				25 text Установить на устройствах
+			26 button Поделиться
+			27 text Это приложение можно скачать на некоторые из ваших устройств. Вы можете открыть доступ к этому контенту членам вашей семьи. Подробнее
+			28 link Description: о Семейной библиотеке, Value: play.google.com/store/family/create
+			29 text …
+			30 container
+				31 content list
+					32 button Скриншот
+					33 button Скриншот
+					34 button Скриншот
+					35 button Скриншот
+					36 button Скриншот
+				37 container
+					38 heading Безопасность данных, Value: 2
+						39 text Безопасность данных
+					40 link Description: Подробнее об игре "Безопасность данных", Value: play.google.com/store/apps/datasafety?id=com.best4u.untouch
+				41 text Чтобы контролировать безопасность, нужно знать, как разработчики собирают ваши данные и передают их третьим лицам. Методы обеспечения безопасности и конфиденциальности могут зависеть от того, как вы используете приложение, а также от вашего региона и возраста. Информация ниже предоставлена разработчиком и в будущем может измениться.
+				42 content list
+					43 container
+						44 text Это приложение может передавать указанные типы данных третьим лицам Личная информация, История действий в приложении и Идентификаторы устройства или другие идентификаторы
+					45 container
+						46 text Это приложение может собирать указанные типы данных Личная информация, Финансовые данные и ещё 2
+					47 text Данные шифруются при передаче
+					48 text Вы можете запросить удаление данных
+				49 container
+					50 link Description: Подробнее о безопасности данных, Value: play.google.com/store/apps/datasafety?id=com.best4u.untouch
+				51 container
+					52 heading Описание игры, Value: 2
+						53 text Описание игры
+					54 button Подробнее об игре "Описание игры"
+				55 container Уворачивайтесь от фигур, берегите маленького кубика и улучшайте своё время
+					56 text Уворачивайтесь от фигур, берегите маленького кубика и улучшайте своё время
+				57 text Последнее обновление
+				58 text 15 окт. 2026 г.
+				59 container
+					60 link Description: Аркады, Value: play.google.com/store/apps/category/GAME_ARCADE
+			61 link Description: Пожаловаться (откроется в новом окне), Value: support.google.com/googleplay/?p=report_content
+			62 image Возрастные ограничения
+			63 text 3+
+			64 link Description: Подробнее о возрастных ограничениях (ссылка откроется в новом окне), Value: support.google.com/googleplay?p=appgame_ratings
+			65 container developer-contacts-heading
+				66 heading Поддержка приложения, Value: 2
+					67 text Поддержка приложения
+				68 button (collapsed) Description: Развернуть, Secondary Actions: Expand
+			69 container
+				70 heading Вам также могут понравиться..., Value: 2
+					71 text Вам также могут понравиться...
+				72 container
+					73 link Description: Подробнее об игре "Вам также могут понравиться...", Value: play.google.com/store/apps/collection/cluster?gsr=SlxqLFRNeDFmZU4rV3l2aFVUK210enFkVlhYRkFPK3Z5eDZBVHMvdHNwSGNQclU9mggoChYKEmNvbS5iZXN0NHUudW50b3VjaBAHEAIaBggCEAAYACAAMAE4ALASAA%3D%3D:S:ANO1ljJ37iI
+				74 link Description: Roblox Roblox Corporation Средняя оценка: 4,0 из 5, Value: play.google.com/store/apps/details?id=com.roblox.client
+				75 link Description: Football League 2026 MOBILE SOCCER Средняя оценка: 4,4 из 5, Value: play.google.com/store/apps/details?id=com.football.soccer.league
+				76 link Description: Supreme Duelist Stickman Neron's Brother Средняя оценка: 4,5 из 5, Value: play.google.com/store/apps/details?id=com.Neurononfire.SupremeDuelist
+				77 link Description: Школьная Вечеринка Крафт Candy Room Games & RabbitCo Средняя оценка: 4,7 из 5, Value: play.google.com/store/apps/details?id=com.candyroom.clubcraft
+				78 link Description: Блок Бласт (Block Blast) HungryStudio Средняя оценка: 4,7 из 5, Value: play.google.com/store/apps/details?id=com.block.juggle
+				79 link Description: Dude Theft Wars FPS Open world Poxel Studios Games Средняя оценка: 4,4 из 5, Value: play.google.com/store/apps/details?id=com.PoxelStudios.DudeTheftAuto
+		80 container
+			81 text Google Play
+			82 link Description: Play Pass, Value: play.google.com/store/pass/getstarted
+			83 link Description: Play Points, Value: play.google.com/store/points/enroll
+			84 link Description: Подарочные карты, Value: play.google.com/about/giftcards
+			85 link Description: Использовать бонус, Value: play.google.com/redeem
+			86 link Description: Правила возврата платежей, Value: support.google.com/googleplay/answer/134336
+			87 text Дети и семья
+			88 link Description: Руководство для родителей, Value: support.google.com/googleplay?p=pff_parentguide
+			89 link Description: Семейный доступ, Value: support.google.com/googleplay/answer/7007852
+			90 link Description: Условия использования, Value: play.google.com/intl/ru_by/about/play-terms.html
+			91 link Description: Конфиденциальность, Value: policies.google.com/privacy
+			92 link Description: О Google Play, Value: support.google.com/googleplay/?p=about_play
+			93 link Description: Для разработчиков, Value: developer.android.com/index.html
+			94 link Description: Google Store, Value: store.google.com/?playredirect=true&utm_source=play&utm_medium=google_oo&utm_campaign=GS106288
+			95 text Все цены указаны с учетом НДС. Беларусь (Русский)
+	96 container
+		97 button logo icon
+			98 image logo icon
+			99 image
+		100 container
+			101 button
+
+The focused UI element is 0 AXWebArea Приложения в Google Play – Untouch, URL: play.google.com/store/apps/details?id=com.best4u.untouch&hl=ru

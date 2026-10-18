@@ -1,0 +1,335 @@
+Browser tab: 1941752166, Title: "Проверка выпусков | Untouch", URL: "https://play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/tracks/4700706526707048937/releases/10/review".
+1 AXWebArea Проверка выпусков | Untouch, URL: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/tracks/4700706526707048937/releases/10/review
+	2 container
+		3 text Загрузка Google Play Console
+		4 container
+			5 container
+				6 link Description: Логотип Google Play Console, Value: play.google.com/console/u/0/developers/7352115345592950495/app-list
+				7 button Непрочитанные уведомления Открыть центр уведомлений
+					8 text Непрочитанные уведомления
+				9 button Untouch
+					10 text Untouch
+				11 button Сменить аккаунт разработчика
+					12 image Сменить аккаунт разработчика
+			13 container
+				14 link Description: Все приложения, Value: play.google.com/console/u/0/developers/7352115345592950495/app-list
+				15 content list
+					16 container Панель управления
+						17 button Панель управления
+							18 text Панель управления
+					19 container Статистика
+						20 button Статистика
+							21 text Статистика
+					22 container Обзор публикации
+						23 button Обзор публикации
+							24 text Обзор публикации
+					25 container Защищено Google Play
+						26 button Защищено Google Play
+							27 text Защищено Google Play
+					28 container (expanded) Description: Тестирование и выпуск, Secondary Actions: Collapse
+						29 button Тестирование и выпуск
+							30 text Тестирование и выпуск
+						31 content list
+							32 container
+								33 container Последние выпуски и наборы
+									34 button Последние выпуски и наборы
+								35 container Рабочая версия
+									36 button Рабочая версия
+								37 container Ранний доступ
+									38 button Ранний доступ
+								39 container (expanded) Description: Тестирование, Secondary Actions: Collapse
+									40 button Тестирование
+									211 content list
+										212 container
+											213 container Открытое тестирование
+												214 button Открытое тестирование
+											215 container Закрытое тестирование
+												216 button Закрытое тестирование
+											217 container Внутреннее тестирование
+												218 button Внутреннее тестирование
+											219 container (collapsed) Description: Отчет о тестировании, Secondary Actions: Expand
+												220 button Отчет о тестировании
+											221 container Внутренний доступ к приложениям
+												222 button Внутренний доступ к приложениям
+								53 container Предварительная регистрация
+									54 button Предварительная регистрация
+								55 container Целостность приложения
+									56 button Целостность приложения
+								57 container Расширенные настройки
+									58 button Расширенные настройки
+					59 container (collapsed) Description: Мониторинг и улучшение, Secondary Actions: Expand
+						60 button Мониторинг и улучшение
+							61 text Мониторинг и улучшение
+					62 container (collapsed) Description: Привлечение пользователей, Secondary Actions: Expand
+						63 button Привлечение пользователей
+							64 text Привлечение пользователей
+					65 container (collapsed) Description: Монетизация с Google Play, Secondary Actions: Expand
+						66 button Монетизация с Google Play
+							67 text Монетизация с Google Play
+			68 container main-content
+				223 container
+					224 heading Создание закрытой тестовой версии, Value: 1
+						225 text Создание закрытой тестовой версии
+					226 container
+						227 text Готово к выпуску.
+					228 tab group
+						229 tab (selectable, disabled, settable, boolean) Description: Шаг 1 из 2: Создать выпуск, Value: 0
+Создать выпуск
+						230 tab (selected, settable, boolean) Description: Шаг 2 из 2: Посмотреть и подтвердить, Value: 1
+2
+Посмотреть и подтвердить
+					231 button Удаление проекта
+						232 text Удаление проекта
+					233 heading Изменения в поддерживаемых устройствах, Value: 2
+						234 text Изменения в поддерживаемых устройствах
+					235 text Поддержка некоторых устройств могла прекратиться из-за изменений в манифесте или отсутствия набора App Bundle. Устройства, исключенные из каталога, скрыты.
+					236 table Поддерживаемые типы устройств
+						237 row Тип устройства Устройства, которые поддерживались в прошлом выпуске Неподдерживаемые устройства Новые поддерживаемые устройства Всего устройств, которые поддерживаются в этом выпуске
+							238 cell
+							239 cell Тип устройства
+								240 text Тип устройства
+							241 cell Устройства, которые поддерживались в прошлом выпуске
+								242 text Устройства, которые поддерживались в прошлом выпуске
+							243 cell Неподдерживаемые устройства
+								244 text Неподдерживаемые устройства
+							245 cell Новые поддерживаемые устройства
+								246 text Новые поддерживаемые устройства
+							247 cell Всего устройств, которые поддерживаются в этом выпуске
+								248 text Всего устройств, которые поддерживаются в этом выпуске
+							249 cell
+						250 row Телефон 12 378 0 0 12 378
+							251 cell
+							252 cell
+								253 text Телефон
+							254 cell
+								255 text 12 378
+							256 cell
+								257 text 0
+							258 cell
+								259 text 0
+							260 cell
+								261 text 12 378
+							262 cell
+						263 row Планшетный ПК 6 803 0 0 6 803
+							264 cell
+							265 cell
+								266 text Планшетный ПК
+							267 cell
+								268 text 6 803
+							269 cell
+								270 text 0
+							271 cell
+								272 text 0
+							273 cell
+								274 text 6 803
+							275 cell
+						276 row ТВ 7 0 0 7
+							277 cell
+							278 cell
+								279 text ТВ
+							280 cell
+								281 text 7
+							282 cell
+								283 text 0
+							284 cell
+								285 text 0
+							286 cell
+								287 text 7
+							288 cell
+						289 row Носимое устройство 0 0 0 0
+							290 cell
+							291 cell
+								292 text Носимое устройство
+							293 cell
+								294 text 0
+							295 cell
+								296 text 0
+							297 cell
+								298 text 0
+							299 cell
+								300 text 0
+							301 cell
+						302 row В автомобиле 27 0 0 27
+							303 cell
+							304 cell
+								305 text В автомобиле
+							306 cell
+								307 text 27
+							308 cell
+								309 text 0
+							310 cell
+								311 text 0
+							312 cell
+								313 text 27
+							314 cell
+						315 row Chromebook 77 0 0 77
+							316 cell
+							317 cell
+								318 text Chromebook
+							319 cell
+								320 text 77
+							321 cell
+								322 text 0
+							323 cell
+								324 text 0
+							325 cell
+								326 text 77
+							327 cell
+						328 row Android XR 1 0 0 1
+							329 cell
+							330 cell
+								331 text Android XR
+							332 cell
+								333 text 1
+							334 cell
+								335 text 0
+							336 cell
+								337 text 0
+							338 cell
+								339 text 1
+							340 cell
+					341 heading Доставка выпуска, Value: 2
+						342 text Доставка выпуска
+					343 container
+						344 button (collapsed) Размер новых установок, Secondary Actions: Expand
+						345 text 32.5 МБ -6.26 МБ
+						346 text по сравнению с предыдущим выпуском
+					347 container
+						348 button (collapsed) Время скачивания, Secondary Actions: Expand
+						349 text 18 сек. -3 сек.
+						350 text по сравнению с предыдущим выпуском
+					351 container
+						352 button (collapsed) Размер обновления, Secondary Actions: Expand
+					353 heading Новые наборы App Bundle, Value: 2
+						354 text Новые наборы App Bundle
+					355 table Объекты
+						356 row Тип файла Версия Уровни API Целевой SDK Атрибуты компоновки экрана ABI Обязательные функции
+							357 cell
+							358 cell Тип файла
+								359 text Тип файла
+							360 cell Версия
+								361 text Версия
+							362 cell Уровни API
+								363 text Уровни API
+							364 cell Целевой SDK
+								365 text Целевой SDK
+							366 cell Атрибуты компоновки экрана
+								367 text Атрибуты компоновки экрана
+							368 cell ABI
+								369 text ABI
+							370 cell Обязательные функции
+								371 text Обязательные функции
+							372 cell
+						373 row Сведения об этом наборе App Bundle отличаются от данных набора 133 (1.0.132) из предыдущего выпуска. App bundle К объекту app bundle прикреплены следующие файлы: файл сопоставления ReTrace и нативные отладочные символы Расширенный режим 179 (1.0.178) 24+ 36 4 3 1 Показать подробные сведения для "Набор App Bundle 179 (1.0.178)"
+							374 cell
+								375 button Сведения об этом наборе App Bundle отличаются от данных набора 133 (1.0.132) из предыдущего выпуска.
+							376 cell
+								377 text App bundle
+								378 container К объекту app bundle прикреплены следующие файлы: файл сопоставления ReTrace и нативные отладочные символы
+								379 button (collapsed) Расширенный режим, Secondary Actions: Expand
+									380 text Расширенный режим
+							381 cell
+								382 text 179 (1.0.178)
+							383 cell
+								384 text 24+
+							385 cell
+								386 text 36
+							387 cell
+								388 text 4
+							389 cell
+								390 text 3
+							391 cell
+								392 text 1
+							393 cell
+								394 button Показать подробные сведения для "Набор App Bundle 179 (1.0.178)"
+					395 heading Предыдущий выпуск, Value: 3
+						396 text Предыдущий выпуск
+					397 heading включены, Value: 4
+						398 text включены
+					399 text В этот выпуск не будут добавлены наборы App Bundle из предыдущего.
+					400 heading Не включены, Value: 4
+						401 text Не включены
+					402 text В этом разделе перечислены версии приложения из предыдущего выпуска, которые будут удалены в текущем.
+					403 table Объекты
+						404 row Тип файла Версия Уровни API Целевой SDK Атрибуты компоновки экрана ABI Обязательные функции
+							405 cell Тип файла
+								406 text Тип файла
+							407 cell Версия
+								408 text Версия
+							409 cell Уровни API
+								410 text Уровни API
+							411 cell Целевой SDK
+								412 text Целевой SDK
+							413 cell Атрибуты компоновки экрана
+								414 text Атрибуты компоновки экрана
+							415 cell ABI
+								416 text ABI
+							417 cell Обязательные функции
+								418 text Обязательные функции
+							419 cell
+						420 row App bundle К объекту app bundle прикреплены следующие файлы: файл сопоставления ReTrace и нативные отладочные символы Расширенный режим 133 (1.0.132) 24+ 36 4 3 1 Показать подробные сведения для "Набор App Bundle 133 (1.0.132)"
+							421 cell
+								422 text App bundle
+								423 container К объекту app bundle прикреплены следующие файлы: файл сопоставления ReTrace и нативные отладочные символы
+								424 button (collapsed) Расширенный режим, Secondary Actions: Expand
+									425 text Расширенный режим
+							426 cell
+								427 text 133 (1.0.132)
+							428 cell
+								429 text 24+
+							430 cell
+								431 text 36
+							432 cell
+								433 text 4
+							434 cell
+								435 text 3
+							436 cell
+								437 text 1
+							438 cell
+								439 button Показать подробные сведения для "Набор App Bundle 133 (1.0.132)"
+					440 heading Примечания к выпуску, Value: 2
+						441 text Примечания к выпуску
+					442 text Язык по умолчанию: en-US
+					443 text Version 1.0.178 (179). Updated 18.10.2026.
+Enemies now start from their visible positions without jumping. Updated energy rewards, Yandex rewarded ads and daily reward limits. Improved leaderboard, interface and game stability.
+					444 text Примечания к выпуску предоставлены на 2 языках из 2
+					445 button (collapsed) Description: Показать все, Secondary Actions: Expand
+						446 text Показать все
+					447 heading Поэтапное внедрение, Value: 2
+						448 text Поэтапное внедрение
+					449 text Введите процент пользовательский базы, для которого вы хотите внедрить этот выпуск
+					450 container 0 установок на активных устройствах
+						451 text Число установок на активных устройствах
+						452 text 0
+					453 container Процент внедрения
+						454 container
+							455 text Процент внедрения
+							456 container Поле, обязательное для заполнения
+								457 text *
+						458 container
+							459 text field (settable) %, Value: 100,0
+							460 text %
+					461 container Ожидаются 0 установок при внедрении
+						462 text Ожидаемое число установок при внедрении
+						463 text 0
+					464 container
+						465 text Если вы сохраните изменения, они будут добавлены на страницу "Обзор публикации" и готовы к отправке на проверку.
+						466 button Назад
+							467 text Назад
+						468 button Сохранить
+							469 text Сохранить
+				470 link Description: Информация об обновлениях, Value: play.google.com/console/about/whats-new/
+				471 link Description: Панель мониторинга, Value: status.play.google.com/
+				472 link Description: Справка, Value: play.google.com/console/u/0/developers/7352115345592950495/help-and-support?app=4976408092958094737
+				473 text © Google, 2026
+				474 link Description: Конфиденциальность, Value: google.com/policies/privacy/
+				475 link Description: Соглашение о распространении ПО, Value: play.google.com/about/developer-distribution-agreement.html
+				476 link Description: Условия использования, Value: play.google.com/about/console/terms-of-service/
+	205 container
+		206 button logo icon
+			207 image logo icon
+			208 image
+		209 container
+			210 button
+
+The focused UI element is 1 AXWebArea Проверка выпусков | Untouch, URL: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/tracks/4700706526707048937/releases/10/review

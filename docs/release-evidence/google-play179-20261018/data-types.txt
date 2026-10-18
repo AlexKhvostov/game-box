@@ -1,0 +1,213 @@
+Browser tab: 1941752166, Title: "Безопасность данных | Untouch", URL: "https://play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/app-content/data-privacy-security".
+1 AXWebArea Безопасность данных | Untouch, URL: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/app-content/data-privacy-security
+	2 container
+		3 text Загрузка Google Play Console
+		4 container
+			5 container
+				6 link Description: Логотип Google Play Console, Value: play.google.com/console/u/0/developers/7352115345592950495/app-list
+				7 button Непрочитанные уведомления Открыть центр уведомлений
+					8 text Непрочитанные уведомления
+				9 button Untouch
+					10 text Untouch
+				11 button Сменить аккаунт разработчика
+					12 image Сменить аккаунт разработчика
+			13 container
+				14 link Description: Все приложения, Value: play.google.com/console/u/0/developers/7352115345592950495/app-list
+				15 content list
+					16 container Панель управления
+						17 button Панель управления
+							18 text Панель управления
+					19 container Статистика
+						20 button Статистика
+							21 text Статистика
+					22 container Обзор публикации
+						23 button Обзор публикации
+							24 text Обзор публикации
+					25 container Защищено Google Play
+						26 button Защищено Google Play
+							27 text Защищено Google Play
+					28 container (collapsed) Description: Тестирование и выпуск, Secondary Actions: Expand
+						29 button Тестирование и выпуск
+							30 text Тестирование и выпуск
+					31 container (expanded) Description: Мониторинг и улучшение, Secondary Actions: Collapse
+						32 button Мониторинг и улучшение
+							33 text Мониторинг и улучшение
+						250 content list
+							251 container
+								252 container (collapsed) Description: Охват и устройства, Secondary Actions: Expand
+									253 button Охват и устройства
+								254 container (collapsed) Description: Оценки и отзывы, Secondary Actions: Expand
+									255 button Оценки и отзывы
+								256 container (collapsed) Description: Android Vitals, Secondary Actions: Expand
+									257 button Android Vitals
+								258 container (expanded) Description: Правила и программы, Secondary Actions: Collapse
+									259 button Правила и программы
+									277 content list
+										278 container
+											279 container Соответствие правилам
+												280 button Соответствие правилам
+											281 container Контент приложения
+												282 button Контент приложения
+											283 container (collapsed) Description: Программы, Secondary Actions: Expand
+												284 button Программы
+					34 container (collapsed) Description: Привлечение пользователей, Secondary Actions: Expand
+						35 button Привлечение пользователей
+							36 text Привлечение пользователей
+					59 container (collapsed) Description: Монетизация с Google Play, Secondary Actions: Expand
+						60 button Монетизация с Google Play
+							61 text Монетизация с Google Play
+			62 container main-content
+				63 container
+					285 link Description: Вернуться на страницу "Контент приложения", Value: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/app-content/overview
+					286 heading Безопасность данных, Value: 1
+						287 text Безопасность данных
+					288 button Экспортировать в виде CSV-файла
+						289 text Экспортировать в виде CSV-файла
+					290 button Импортировать из CSV-файла
+						291 text Импортировать из CSV-файла
+					292 container
+						293 text Объясните пользователям, как ваше приложение собирает и передает личные данные.
+						294 button Показать подробную информацию о следующей странице: Безопасность данных
+					295 tab group
+						296 tab (selectable, disabled, settable, boolean) Description: Шаг 1 из 5: Общие сведения, Value: 0
+Общие сведения
+						297 tab (selectable, disabled, settable, boolean) Description: Шаг 2 из 5: Сбор и безопасность данных, Value: 0
+Сбор и безопасность данных
+						298 tab (selected, settable, boolean) Description: Шаг 3 из 5: Типы данных, Value: 1
+							357 text 3
+							358 text Типы данных
+						299 tab (selectable, disabled, settable, boolean) Description: Шаг 4 из 5: Использование и обработка данных, Value: 0
+4
+Использование и обработка данных
+						300 tab (selectable, disabled, settable, boolean) Description: Шаг 5 из 5: Предварительный просмотр, Value: 0
+5
+Предварительный просмотр
+					301 container aCA5873DB-0949-4801-9D07-30A5DD911AB1--4
+						359 heading Типы данных, Value: 2
+							360 text Типы данных
+						361 container
+							362 text Выберите все типы пользовательских данных, которые собирает и передает ваше приложение.
+							363 link Description: Подробнее о странице "Типы данных", Откроется на новой вкладке, Value: support.google.com/googleplay/android-developer/answer/10787469?hl=ru#collection
+						364 text Необходимо выбрать:
+						365 content list
+							366 container
+								367 AXListMarker •
+								368 text Все типы пользовательских данных, которые собирает и/или передает приложение.
+							369 container
+								370 AXListMarker •
+								371 text Все пользовательские данные, отправляемые с устройства с помощью библиотек или SDK, которые есть в вашем приложении, независимо от того, кому передается информация: вам, то есть разработчику, или третьему лицу.
+							372 container
+								373 AXListMarker •
+								374 text Все пользовательские данные, которые передаются с вашего сервера третьему лицу или стороннему приложению на том же устройстве.
+							375 container
+								376 AXListMarker •
+								377 text Все пользовательские данные, которые собираются или передаются с помощью компонентов WebView, за исключением тех ситуаций, когда пользователь переходит на страницу вне приложения.
+						378 container
+							379 text Это требование не распространяется на некоторые типы сбора и передачи данных.
+							380 link Description: Посмотреть исключения, Откроется на новой вкладке, Value: support.google.com/googleplay/android-developer/answer/10787469?hl=ru#types
+						381 text После того как вы выбрали все типы пользовательских данных, которые собирает и передает ваше приложение, нажмите "Далее".
+						382 heading Местоположение, Value: 3
+							383 text Местоположение
+						384 button (expanded) Description: Скрыть следующий контент: Местоположение, Secondary Actions: Collapse
+							385 text Скрыть
+						386 container
+							387 container
+								388 checkbox (settable, integer) Description: Приблизительное местоположение Подробнее, Value: 0
+								389 container
+									390 text Приблизительное местоположение
+									391 button (collapsed) Description: Подробнее, Secondary Actions: Expand
+							392 container
+								393 checkbox (settable, integer) Description: Точное местоположение Подробнее, Value: 0
+								394 container
+									395 text Точное местоположение
+									396 button (collapsed) Description: Подробнее, Secondary Actions: Expand
+						397 heading Личная информация, Value: 3
+							398 text Личная информация
+						399 button (collapsed) Description: Показать следующий контент: Личная информация, Secondary Actions: Expand
+							400 text Показать
+						401 text Выбрано 3 типа данных из 9.
+						402 heading Финансовые сведения, Value: 3
+							403 text Финансовые сведения
+						404 button (collapsed) Description: Показать следующий контент: Финансовые сведения, Secondary Actions: Expand
+							405 text Показать
+						406 text Выбран 1 тип данных из 4.
+						407 heading Здоровье и фитнес, Value: 3
+							408 text Здоровье и фитнес
+						409 button (collapsed) Description: Показать следующий контент: Здоровье и фитнес, Secondary Actions: Expand
+							410 text Показать
+						411 text Выбрано 0 типов данных из 2.
+						412 heading Сообщения, Value: 3
+							413 text Сообщения
+						414 button (collapsed) Description: Показать следующий контент: Сообщения, Secondary Actions: Expand
+							415 text Показать
+						416 text Выбрано 0 типов данных из 3.
+						417 heading Фото и видео, Value: 3
+							418 text Фото и видео
+						419 button (collapsed) Description: Показать следующий контент: Фото и видео, Secondary Actions: Expand
+							420 text Показать
+						421 text Выбрано 0 типов данных из 2.
+						422 heading Аудиофайлы, Value: 3
+							423 text Аудиофайлы
+						424 button (collapsed) Description: Показать следующий контент: Аудиофайлы, Secondary Actions: Expand
+							425 text Показать
+						426 text Выбрано 0 типов данных из 3.
+						427 heading Файлы и документы, Value: 3
+							428 text Файлы и документы
+						429 button (collapsed) Description: Показать следующий контент: Файлы и документы, Secondary Actions: Expand
+							430 text Показать
+						431 text Выбрано 0 типов данных из 1.
+						432 heading Календарь, Value: 3
+							433 text Календарь
+						434 button (collapsed) Description: Показать следующий контент: Календарь, Secondary Actions: Expand
+							435 text Показать
+						436 text Выбрано 0 типов данных из 1.
+						437 heading Контакты, Value: 3
+							438 text Контакты
+						439 button (collapsed) Description: Показать следующий контент: Контакты, Secondary Actions: Expand
+							440 text Показать
+						441 text Выбрано 0 типов данных из 1.
+						442 heading История действий в приложении, Value: 3
+							443 text История действий в приложении
+						444 button (collapsed) Description: Показать следующий контент: История действий в приложении, Secondary Actions: Expand
+							445 text Показать
+						446 text Выбрано 3 типа данных из 5.
+						447 heading Сведения о просмотре страниц в интернете, Value: 3
+							448 text Сведения о просмотре страниц в интернете
+						449 button (collapsed) Description: Показать следующий контент: Сведения о просмотре страниц в интернете, Secondary Actions: Expand
+							450 text Показать
+						451 text Выбрано 0 типов данных из 1.
+						452 heading Сведения о приложении и данные о его работе, Value: 3
+							453 text Сведения о приложении и данные о его работе
+						454 button (collapsed) Description: Показать следующий контент: Сведения о приложении и данные о его работе, Secondary Actions: Expand
+							455 text Показать
+						456 text Выбрано 0 типов данных из 3.
+						457 heading Идентификаторы устройства или другие идентификаторы, Value: 3
+							458 text Идентификаторы устройства или другие идентификаторы
+						459 button (collapsed) Description: Показать следующий контент: Идентификаторы устройства или другие идентификаторы, Secondary Actions: Expand
+							460 text Показать
+						461 text Выбран 1 тип данных из 1.
+					340 text Шаг 3 из 5: Типы данных
+					341 container
+						342 button Далее
+							343 text Далее
+						462 button Назад
+							463 text Назад
+						464 button (disabled) Сохранить проект
+							465 text Сохранить проект
+						466 button (disabled) Не сохранять изменения
+							467 text Не сохранять изменения
+				350 link Description: Информация об обновлениях, Value: play.google.com/console/about/whats-new/
+				351 link Description: Панель мониторинга, Value: status.play.google.com/
+				352 link Description: Справка, Value: play.google.com/console/u/0/developers/7352115345592950495/help-and-support?app=4976408092958094737
+				353 text © Google, 2026
+				354 link Description: Конфиденциальность, Value: google.com/policies/privacy/
+				355 link Description: Соглашение о распространении ПО, Value: play.google.com/about/developer-distribution-agreement.html
+				356 link Description: Условия использования, Value: play.google.com/about/console/terms-of-service/
+	244 container
+		245 button logo icon
+			246 image logo icon
+			247 image
+		248 container
+			249 button
+
+The focused UI element is 298 tab (selected, settable, boolean) Description: Шаг 3 из 5: Типы данных, Value: 1

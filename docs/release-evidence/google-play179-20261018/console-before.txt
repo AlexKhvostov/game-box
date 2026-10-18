@@ -1,0 +1,263 @@
+Browser tab: 1941752166, Title: "Последние выпуски и наборы | Untouch", URL: "https://play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/releases/overview".
+0 AXWebArea Последние выпуски и наборы | Untouch, URL: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/releases/overview
+	1 container
+		2 text Загрузка Google Play Console
+		7 container
+			8 container
+				9 link Description: Логотип Google Play Console, Value: play.google.com/console/u/0/developers/7352115345592950495/app-list
+				10 button Непрочитанные уведомления Открыть центр уведомлений
+					11 text Непрочитанные уведомления
+				12 button Untouch
+					13 text Untouch
+				14 button Сменить аккаунт разработчика
+					15 image Сменить аккаунт разработчика
+			16 container
+				17 link Description: Все приложения, Value: play.google.com/console/u/0/developers/7352115345592950495/app-list
+				18 content list
+					19 container Панель управления
+						20 button Панель управления
+							21 text Панель управления
+					22 container Статистика
+						23 button Статистика
+							24 text Статистика
+					25 container Обзор публикации
+						26 button Обзор публикации
+							27 text Обзор публикации
+					28 container Защищено Google Play
+						29 button Защищено Google Play
+							30 text Защищено Google Play
+					31 container (expanded) Description: Тестирование и выпуск, Secondary Actions: Collapse
+						32 button Тестирование и выпуск
+							33 text Тестирование и выпуск
+						87 content list
+							88 container
+								89 container Последние выпуски и наборы
+									90 button Последние выпуски и наборы
+								91 container Рабочая версия
+									92 button Рабочая версия
+								93 container Ранний доступ
+									94 button Ранний доступ
+								95 container (collapsed) Description: Тестирование, Secondary Actions: Expand
+									96 button Тестирование
+								97 container Предварительная регистрация
+									98 button Предварительная регистрация
+								99 container Целостность приложения
+									100 button Целостность приложения
+								101 container Расширенные настройки
+									102 button Расширенные настройки
+					34 container (collapsed) Description: Мониторинг и улучшение, Secondary Actions: Expand
+						35 button Мониторинг и улучшение
+							36 text Мониторинг и улучшение
+					37 container (collapsed) Description: Привлечение пользователей, Secondary Actions: Expand
+						38 button Привлечение пользователей
+							39 text Привлечение пользователей
+					40 container (collapsed) Description: Монетизация с Google Play, Secondary Actions: Expand
+						41 button Монетизация с Google Play
+							42 text Монетизация с Google Play
+			43 container main-content
+				44 container
+					103 heading Последние выпуски и наборы, Value: 1
+						136 text Последние выпуски и наборы
+					104 container
+						105 text Общие сведения обо всех версиях приложения и наборах App Bundle.
+						106 button Показать подробную информацию о следующей странице: Последние выпуски и наборы
+					107 table
+						108 row Добавить фильтр
+							109 cell
+								110 combo box (collapsed, settable) Description: Добавить фильтр, Secondary Actions: Expand
+					111 container Поиск выпусков
+						112 container
+							113 text Поиск выпусков
+							114 text field (settable) Поиск выпусков
+					115 heading Последние выпуски, Value: 2
+						137 text Последние выпуски
+					116 button (collapsed) Description: Подробнее об объекте "Последние выпуски", Secondary Actions: Expand
+					138 container
+						139 table Последние выпуски
+							140 row Версия Последняя версия Версия Статус выпуска Последнее обновление Страны/регионы Количество установок
+								141 cell Версия
+									142 text Версия
+								143 cell Последняя версия
+									144 text Последняя версия
+								145 cell Версия
+									146 text Версия
+								147 cell Статус выпуска
+									148 text Статус выпуска
+								149 cell Последнее обновление
+									150 text Последнее обновление
+								151 cell Страны/регионы
+									152 text Страны/регионы
+								153 cell Количество установок
+									154 text Количество установок
+								155 cell
+							156 row 133 (1.0.132) 133 Закрытое тестирование - Alpha Доступно тестировщикам в Google Play Полномасштабное обновление 15 окт. 2026 г. 20:49 178 Из 178. 50,00 % Сведения о выпуске
+								157 cell
+									158 text 133 (1.0.132)
+								159 cell
+									160 text 133
+								161 cell
+									162 text Закрытое тестирование - Alpha
+								163 cell
+									164 text Доступно тестировщикам в Google Play
+									165 text Полномасштабное обновление
+								166 cell
+									167 text 15 окт. 2026 г.
+									168 text 20:49
+								169 cell
+									170 text 178
+									171 text Из 178.
+								172 cell
+									173 text 50,00 %
+								174 cell
+									175 link Description: Сведения о выпуске, Value: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/tracks/4700706526707048937/releases/9/details
+							176 row 1.0.41 (42) — internal verification 42 Внутреннее тестирование Черновик - - - Изменить выпуск
+								177 cell
+									178 text 1.0.41 (42) — internal verification
+								179 cell
+									180 text 42
+								181 cell
+									182 text Внутреннее тестирование
+								183 cell
+									184 text Черновик
+								185 cell
+									186 text -
+								187 cell
+									188 text -
+								189 cell
+									190 text -
+								191 cell
+									192 link Description: Изменить выпуск, Value: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/tracks/4701625945024130335/releases/1/prepare
+					118 heading Последние наборы App Bundle, Value: 2
+						193 text Последние наборы App Bundle
+					119 link Description: Показать все наборы App Bundle, Value: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/bundle-explorer-selector
+					120 container
+						121 table
+							122 row Добавить фильтр
+								123 cell
+									124 combo box (collapsed, settable) Description: Добавить фильтр, Secondary Actions: Expand
+						125 container Найти по номеру или названию версии
+							126 container
+								127 text Найти по номеру или названию версии
+								128 text field (settable) Найти по номеру или названию версии
+						194 container
+							195 table Версии приложений
+								196 row Код версии Название версии Тип файла Загружено Количество установок Статус выпуска
+									197 cell Код версии
+										198 text Код версии
+									199 cell
+										200 text Название версии
+									201 cell
+										202 text Тип файла
+									203 cell Загружено
+										204 text Загружено
+									205 cell
+										206 text Количество установок
+									207 cell
+										208 text Статус выпуска
+									209 cell
+									210 cell
+								211 row 133 1.0.132 App bundle Расширенный режим 15 окт. 2026 г., 15:52 ≤ 100 Активно Показать версию
+									212 cell
+										213 text 133
+									214 cell
+										215 text 1.0.132
+									216 cell
+										217 text App bundle
+										218 button (collapsed) Расширенный режим, Secondary Actions: Expand
+											219 text Расширенный режим
+									220 cell
+										221 text 15 окт. 2026 г., 15:52
+									222 cell
+										223 text ≤ 100
+									224 cell
+										225 text Активно
+									226 cell
+									227 cell
+										228 button Показать версию
+								229 row 132 1.0.131 App bundle Расширенный режим 15 окт. 2026 г., 15:26 ≤ 100 Неактивно Показать версию
+									230 cell
+										231 text 132
+									232 cell
+										233 text 1.0.131
+									234 cell
+										235 text App bundle
+										236 button (collapsed) Расширенный режим, Secondary Actions: Expand
+											237 text Расширенный режим
+									238 cell
+										239 text 15 окт. 2026 г., 15:26
+									240 cell
+										241 text ≤ 100
+									242 cell
+										243 text Неактивно
+									244 cell
+									245 cell
+										246 button Показать версию
+								247 row 131 1.0.130 App bundle Расширенный режим 15 окт. 2026 г., 14:44 ≤ 100 Неактивно Показать версию
+									248 cell
+										249 text 131
+									250 cell
+										251 text 1.0.130
+									252 cell
+										253 text App bundle
+										254 button (collapsed) Расширенный режим, Secondary Actions: Expand
+											255 text Расширенный режим
+									256 cell
+										257 text 15 окт. 2026 г., 14:44
+									258 cell
+										259 text ≤ 100
+									260 cell
+										261 text Неактивно
+									262 cell
+									263 cell
+										264 button Показать версию
+								265 row 129 1.0.128 App bundle Расширенный режим 15 окт. 2026 г., 12:58 ≤ 100 Неактивно Показать версию
+									266 cell
+										267 text 129
+									268 cell
+										269 text 1.0.128
+									270 cell
+										271 text App bundle
+										272 button (collapsed) Расширенный режим, Secondary Actions: Expand
+											273 text Расширенный режим
+									274 cell
+										275 text 15 окт. 2026 г., 12:58
+									276 cell
+										277 text ≤ 100
+									278 cell
+										279 text Неактивно
+									280 cell
+									281 cell
+										282 button Показать версию
+								283 row 122 1.0.121 App bundle Расширенный режим 15 окт. 2026 г., 00:17 ≤ 100 Неактивно Показать версию
+									284 cell
+										285 text 122
+									286 cell
+										287 text 1.0.121
+									288 cell
+										289 text App bundle
+										290 button (collapsed) Расширенный режим, Secondary Actions: Expand
+											291 text Расширенный режим
+									292 cell
+										293 text 15 окт. 2026 г., 00:17
+									294 cell
+										295 text ≤ 100
+									296 cell
+										297 text Неактивно
+									298 cell
+									299 cell
+										300 button Показать версию
+				129 link Description: Информация об обновлениях, Value: play.google.com/console/about/whats-new/
+				130 link Description: Панель мониторинга, Value: status.play.google.com/
+				131 link Description: Справка, Value: play.google.com/console/u/0/developers/7352115345592950495/help-and-support?app=4976408092958094737
+				132 text © Google, 2026
+				133 link Description: Конфиденциальность, Value: google.com/policies/privacy/
+				134 link Description: Соглашение о распространении ПО, Value: play.google.com/about/developer-distribution-agreement.html
+				135 link Description: Условия использования, Value: play.google.com/about/console/terms-of-service/
+	3 container
+		4 button logo icon
+			5 image logo icon
+			6 image
+		85 container
+			86 button
+
+The focused UI element is 0 AXWebArea Последние выпуски и наборы | Untouch, URL: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/releases/overview

@@ -1,3 +1,7 @@
+## Google Play179 — 18.10.2026 18:22 Europe/Minsk
+
+AAB1.0.178+179 принят Google/Alpha100%,178стран;69code-assets совпадают с Huawei179, подпись/SDK/16KiB PASS. EN/RU краткие/полные описания и notes с версией179/датой18.10.2026 сохранены. Preflight завершился без блокирующих ошибок, однако окончательная кнопка не регистрирует отправку: Console/Dashboard «ещё не отправлено», новой заявки в истории нет. **Не опубликовано/не считать отправленным**; окно подтверждения оставлено в Chrome для ручного действия. Main stopped/USB2, данные не очищались. [Задача](tasks/2026-10-18-google-play179.md), [отчёт](../docs/release-evidence/google-play179-20261018/README.md).
+
 ## Одна копия, номер и старт врагов — Android179, 18.10.2026 17:43 Europe/Minsk
 
 Основная **Untouch 179** установлена поверх178, номер берётся из versionCode автоматически. Две старые и временная QA-копии удалены по поручению; на Huawei один пакет. Исправлен скачок врагов при первом касании: seeded-мир готовится до старта, сохраняет текущий pose; snapEnemiesToHome удалён. API15 поддерживает начальный pose и старые proof; остальные серверные модули/RC51/экономика/Яндекс прежние. Full1027PASS/2SKIP,server98/analyze/APK/profile-instant/Huawei PASS. Home/account/1029энергии/4из20 сохранены; реальных раундов владельца в задаче0. Main stopped/USB2. [Задача](tasks/2026-10-18-phone-copies-build-label.md), [отчёт](../docs/release-evidence/phone-copies-build-label-20261018/README.md).
