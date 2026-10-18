@@ -11,19 +11,21 @@ export async function recordRankings({db,uid,stamp,period='allPeriods'}) {
   const result=await db.pool.query(`
     with windows as (select key as period,value::bigint as since from jsonb_each_text($1::jsonb)),
     best as (
-      select w.period,s.key,s.body,p.body as profile,
-        row_number() over(partition by w.period,s.body->>'uid'
-          order by (s.body->>'timeMs')::bigint desc,(s.body->>'createdAt')::bigint desc,s.key desc) as attempt
-      from untouch.documents s join untouch.documents p
-        on p.parent='players' and p.key=s.body->>'uid'
-      join windows w on (s.body->>'createdAt')::bigint>=w.since
-      where s.parent='scores' and s.body->>'platform'='android'
-        and (s.body->>'timeMs')::bigint>=1
-        and coalesce((p.body->>'supportDisabled')::boolean,false)=false
+      select w.period,s.key,s.body,p.body as profile
+      from untouch.documents p cross join windows w
+      cross join lateral (
+        select s.key,s.body from untouch.documents s
+        where s.parent='scores' and s.body->>'platform'='android'
+          and s.body->>'uid'=p.key and (s.body->>'timeMs')::bigint>=1
+          and (s.body->>'createdAt')::bigint>=w.since
+        order by (s.body->>'timeMs')::bigint desc,(s.body->>'createdAt')::bigint desc,s.key desc
+        limit 1
+      ) s
+      where p.parent='players' and coalesce((p.body->>'supportDisabled')::boolean,false)=false
     ), ranked as (
       select *,row_number() over(partition by period order by
         (body->>'timeMs')::bigint desc,(body->>'createdAt')::bigint desc,body->>'uid')::integer as place
-      from best where attempt=1
+      from best
     )
     select period,jsonb_agg(jsonb_build_object(
       'id',key,'userId','supabase:'||(body->>'uid'),'playerName',profile->>'nickname',

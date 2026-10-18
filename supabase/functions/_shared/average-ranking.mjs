@@ -7,20 +7,25 @@ export async function averageRanking({db,config,uid,stamp}){
   const rules=averageRules(config);
   const result=await db.pool.query(`
     with totals as (
-      select body->>'uid' as uid,count(*)::integer as total_count
+      select body->>'uid' as uid,count(*)::integer as total_count,
+        count(*) filter(where (body->>'timeMs')::numeric > $1)::integer as eligible_count
       from untouch.documents where parent='scores' and body->>'platform'='android' group by body->>'uid'
     ), ordered as (
-      select s.body->>'uid' as uid, (s.body->>'timeMs')::numeric as time_ms,
-        coalesce((s.body->>'attemptAt')::bigint,(s.body->>'createdAt')::bigint) as played_at,
-        row_number() over (partition by s.body->>'uid' order by
-          coalesce((s.body->>'attemptAt')::bigint,(s.body->>'createdAt')::bigint) desc,s.key desc) as age,
-        count(*) over (partition by s.body->>'uid') as eligible_count,
-        p.body->>'nickname' as nickname
-      from untouch.documents s join untouch.documents p
-        on p.parent='players' and p.key=s.body->>'uid'
-      where s.parent='scores' and s.body->>'platform'='android'
-        and (s.body->>'timeMs')::numeric > $1
-        and coalesce((p.body->>'supportDisabled')::boolean,false)=false
+      select p.key as uid,s.time_ms,s.played_at,s.age,t.eligible_count,p.body->>'nickname' as nickname
+      from untouch.documents p join totals t on t.uid=p.key
+      cross join lateral (
+        select (recent.body->>'timeMs')::numeric as time_ms,
+          coalesce((recent.body->>'attemptAt')::bigint,(recent.body->>'createdAt')::bigint) as played_at,
+          row_number() over(order by coalesce((recent.body->>'attemptAt')::bigint,(recent.body->>'createdAt')::bigint) desc,recent.key desc) as age
+        from (
+          select s.body,s.key from untouch.documents s
+          where s.parent='scores' and s.body->>'platform'='android' and s.body->>'uid'=p.key
+            and (s.body->>'timeMs')::numeric > $1
+          order by coalesce((s.body->>'attemptAt')::bigint,(s.body->>'createdAt')::bigint) desc,s.key desc
+          limit $3
+        ) recent
+      ) s
+      where p.parent='players' and coalesce((p.body->>'supportDisabled')::boolean,false)=false
     ), aggregates as (
       select uid,max(nickname) as nickname,
         sum(time_ms*power($2::numeric,age-1))/sum(power($2::numeric,age-1)) as average_ms,
@@ -32,7 +37,7 @@ export async function averageRanking({db,config,uid,stamp}){
     )
     select coalesce((select jsonb_agg(jsonb_build_object(
       'userId','supabase:'||uid,'playerName',nickname,'averageMs',average_ms,
-      'usedCount',used_count,'eligibleCount',eligible_count,'totalAttempts',t.total_count,'lastAt',last_at,'place',place) order by place)
+      'usedCount',used_count,'eligibleCount',r.eligible_count,'totalAttempts',t.total_count,'lastAt',last_at,'place',place) order by place)
       from ranked r join totals t using(uid) where place<=200),'[]'::jsonb) as rows,
       (select jsonb_build_object('userId','supabase:'||p.key,'playerName',p.body->>'nickname',
         'averageMs',a.average_ms,'usedCount',coalesce(a.used_count,0),

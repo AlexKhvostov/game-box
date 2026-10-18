@@ -98,7 +98,10 @@ abstract final class AndroidFirebaseConfig {
     return parsed;
   }
 
-  static Future<SharedConfigs> load() async {
+  static Future<SharedConfigs> load({
+    Duration refreshBudget = const Duration(milliseconds: 750),
+    Future<String> Function(String defaults)? remoteLoader,
+  }) async {
     final defaults = await rootBundle.loadString(assetPath);
     final fallback = parse(defaults, 'firebase-bundled');
     if (const String.fromEnvironment(
@@ -107,44 +110,53 @@ abstract final class AndroidFirebaseConfig {
       return fallback;
     }
     final prefs = await SharedPreferences.getInstance();
-    String? cached = prefs.getString(cacheKey);
-    try {
-      await RemoteConfigBootstrap.initialize().timeout(
-        const Duration(seconds: 8),
-      );
-      final rc = FirebaseRemoteConfig.instance;
-      final forceFetch = prefs.getBool(forceFetchKey) == true;
-      await rc.setConfigSettings(
-        RemoteConfigSettings(
-          fetchTimeout: const Duration(seconds: 5),
-          minimumFetchInterval: forceFetch
-              ? Duration.zero
-              : const Duration(minutes: 1),
-        ),
-      );
-      await rc.setDefaults({key: defaults});
-      // fetchAndActivate at startup only; an active round/purchase keeps terms.
+    var local = fallback;
+    final cached = prefs.getString(cacheKey);
+    if (cached != null) {
       try {
-        await rc.fetchAndActivate();
-        await prefs.setBool(forceFetchKey, false);
+        local = parse(cached, 'firebase-cache');
       } catch (_) {}
-      final value = rc.getValue(key);
-      final raw = value.asString();
-      final config = parse(
-        raw,
-        value.source == ValueSource.valueRemote
-            ? 'firebase-remote-config'
-            : 'firebase-bundled',
-      );
+    }
+    // One budget covers the entire remote pipeline. A late valid snapshot is
+    // cached for next startup, never applied to an active round or purchase.
+    final refresh = () async {
+      final raw =
+          await (remoteLoader?.call(defaults) ?? _fetch(defaults, prefs));
+      final config = parse(raw, 'firebase-remote-config');
       await prefs.setString(cacheKey, raw);
       return config;
+    }();
+    try {
+      return await refresh.timeout(refreshBudget);
     } catch (_) {
-      if (cached != null) {
-        try {
-          return parse(cached, 'firebase-cache');
-        } catch (_) {}
-      }
-      return fallback;
+      return local;
     }
+  }
+
+  static Future<String> _fetch(String defaults, SharedPreferences prefs) async {
+    await RemoteConfigBootstrap.initialize().timeout(
+      const Duration(seconds: 8),
+    );
+    final rc = FirebaseRemoteConfig.instance;
+    final forceFetch = prefs.getBool(forceFetchKey) == true;
+    await rc.setConfigSettings(
+      RemoteConfigSettings(
+        fetchTimeout: const Duration(seconds: 5),
+        minimumFetchInterval: forceFetch
+            ? Duration.zero
+            : const Duration(minutes: 1),
+      ),
+    );
+    await rc.setDefaults({key: defaults});
+    // fetchAndActivate at startup only; an active round/purchase keeps terms.
+    try {
+      await rc.fetchAndActivate();
+      await prefs.setBool(forceFetchKey, false);
+    } catch (_) {}
+    final value = rc.getValue(key);
+    final raw = value.asString();
+    return value.source == ValueSource.valueRemote
+        ? raw
+        : prefs.getString(cacheKey) ?? raw;
   }
 }

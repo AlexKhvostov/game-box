@@ -38,6 +38,14 @@ for(const name of ['policy','engine','play']) {
     'return rows.filter(row=>profiles.has(row.uid) && !profiles.get(row.uid).supportDisabled).map(row=>{const p=profiles.get(row.uid);');
   if(name==='engine')source=patchCurrentGame(source);
   if(name==='engine')source=patchInviteShortCodes(source);
+  // Large host fan-out belongs to the scheduled bounded reconciler. Listing
+  // invitations must not wait for an Auth lookup for every unpaid friend.
+  if(name==='engine') source=source.replace(
+    "      if(identity.googleLinked && ['google_link','google_restore','invites_state','invites_list'].includes(input.action)) {",
+    "      if(identity.googleLinked && ['google_link','google_restore'].includes(input.action)) {"
+  ).replace('        while(true) {','        for(let batch=0;batch<1;batch++) {')
+   .replace(".orderBy('__name__').limit(100);", ".orderBy('__name__').limit(10);")
+   .replace('if(page.size < 100) break;cursor=page.docs.at(-1);','if(page.size < 10) break;cursor=page.docs.at(-1);');
   if(name==='policy') source="import {androidGeometryIssues} from '../android-constraints.mjs';\n"+source.replace('  return snapshot;',"  requireThat(androidGeometryIssues(c).length === 0,'policy_geometry_invalid',503);\n  return snapshot;");
   if(name==='play') source=source.replace('function createPlayVerifier({request} = {})','function createPlayVerifier({request,credentials} = {})').replace("new GoogleAuth({scopes:","new GoogleAuth({credentials,scopes:");
   if(/require\(|module\.exports/.test(source)) throw Error(`Unconverted CommonJS in ${name}`);

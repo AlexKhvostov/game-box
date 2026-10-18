@@ -8,6 +8,7 @@ export async function testDatabase(){
   await pg.exec(await fs.readFile(new URL('../migrations/20261016183000_support_console.sql',import.meta.url),'utf8'));
   await pg.exec(await fs.readFile(new URL('../migrations/20261016190000_support_directory.sql',import.meta.url),'utf8'));
   await pg.exec(await fs.readFile(new URL('../migrations/20261016193000_platform_identities.sql',import.meta.url),'utf8'));
+  await pg.exec(await fs.readFile(new URL('../migrations/20261018071436_android_ranking_indexes.sql',import.meta.url),'utf8'));
   let tail=Promise.resolve();
   async function connect(){let release;const next=new Promise(resolve=>release=resolve),before=tail;tail=next;await before;return{query:(text,values=[])=>pg.query(text,values),release};}
   const pool={connect,query:async(text,values=[])=>{const client=await connect();try{return await client.query(text,values);}finally{client.release();}}};

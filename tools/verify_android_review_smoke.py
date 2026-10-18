@@ -34,7 +34,7 @@ def main():
         run('shell','am','force-stop','com.best4u.untouch')
         installed=run('install','-r',args.apk.resolve());assert b'Success'in installed,installed.decode()
         run('forward','tcp:8898','tcp:8898')
-        s=cold();assert s['energy']==50,s;save('01-home',s)
+        s=cold();assert s['energy']==50,s;assert s['configRemoteWaitMs']<1500,s;save('01-home',s)
         tap_field(s);s=wait(lambda s:s['phase']=='playing',seconds=3);save('02-playing',s)
         l,t,r,b=s['field'];run('shell','input','swipe',round((l+r)/2),round((t+b)/2),round(l-40),round((t+b)/2),200)
         s=wait(lambda s:s['phase']=='result',seconds=6)

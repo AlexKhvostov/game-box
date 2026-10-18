@@ -196,16 +196,16 @@ function createEngine({db, getPolicy = async () => defaults, verifyPlay, googleL
       return {ok:true,...response,profile:publicProfile(p,policy,identity,stamp),serverNow:stamp,
         ...(['invites_state','invites_bind','invites_list'].includes(action) ? {_invitePlayer:p} : {})};
     }).then(async result => {
-      if(identity.googleLinked && ['google_link','google_restore','invites_state','invites_list'].includes(input.action)) {
+      if(identity.googleLinked && ['google_link','google_restore'].includes(input.action)) {
         let cursor=null;
-        while(true) {
-          let query=db.collection('invitations').where('inviterUid','==',uid).where('rewardedAt','==',null).orderBy('__name__').limit(100);
+        for(let batch=0;batch<1;batch++) {
+          let query=db.collection('invitations').where('inviterUid','==',uid).where('rewardedAt','==',null).orderBy('__name__').limit(10);
           if(cursor) query=query.startAfter(cursor);
           const page=await query.get();
           for(const doc of page.docs) {
             if(await linked(doc.id)) await execute(doc.id,{action:'profile'},{googleLinked:true,background:true});
           }
-          if(page.size < 100) break;cursor=page.docs.at(-1);
+          if(page.size < 10) break;cursor=page.docs.at(-1);
         }
         // Incoming rewards can update this player's wallet in another tx.
         const current=await playerRef(uid).get();

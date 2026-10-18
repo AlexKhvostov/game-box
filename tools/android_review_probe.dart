@@ -4,7 +4,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:provider/provider.dart';
@@ -70,6 +69,8 @@ final commands = <String>[];
 int version = 0;
 bool offline = false;
 String? failure;
+int startupConfigMs = 0;
+int configRemoteWaitMs = 0;
 GameWorld? visibleWorld() {
   GameWorld? world;
   void visit(Element e) {
@@ -203,6 +204,8 @@ Map<String, dynamic> state() {
     'commands': commands,
     'texts': texts,
     'errors': errors,
+    'startupConfigMs': startupConfigMs,
+    'configRemoteWaitMs': configRemoteWaitMs,
     if (visibleWorld() case final world?)
       'player': [world.player.dx, world.player.dy, world.playerSize],
     if (field != null)
@@ -221,10 +224,17 @@ Future<void> main() async {
     errors.add(e.exceptionAsString());
     FlutterError.presentError(e);
   };
-  final shared = AndroidFirebaseConfig.parse(
-    await rootBundle.loadString(AndroidFirebaseConfig.assetPath),
-    'review-probe',
+  final configClock = Stopwatch()..start();
+  var remoteBegan = 0;
+  final shared = await AndroidFirebaseConfig.load(
+    remoteLoader: (defaults) async {
+      remoteBegan = configClock.elapsedMilliseconds;
+      await Future<void>.delayed(const Duration(seconds: 4));
+      return defaults;
+    },
   );
+  startupConfigMs = configClock.elapsedMilliseconds;
+  configRemoteWaitMs = startupConfigMs - remoteBegan;
   final prefix =
       'supabase_android_review_probe_${DateTime.now().microsecondsSinceEpoch}_';
   wallet = {
