@@ -1,0 +1,124 @@
+Browser tab: 1941752202, Title: "Учетные данные | Untouch", URL: "https://play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/app-content/testing-credentials".
+1 AXWebArea Учетные данные | Untouch, URL: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/app-content/testing-credentials
+	2 container
+		3 text Загрузка Google Play Console
+		4 container
+			5 container
+				6 link Description: Логотип Google Play Console, Value: play.google.com/console/u/0/developers/7352115345592950495/app-list
+				7 button Непрочитанные уведомления Открыть центр уведомлений
+					8 text Непрочитанные уведомления
+				9 button Untouch
+					10 text Untouch
+				11 button Сменить аккаунт разработчика
+					12 image Сменить аккаунт разработчика
+			13 container
+				14 link Description: Все приложения, Value: play.google.com/console/u/0/developers/7352115345592950495/app-list
+				15 content list
+					16 container Панель управления
+						17 button Панель управления
+							18 text Панель управления
+					19 container Статистика
+						20 button Статистика
+							21 text Статистика
+					22 container Обзор публикации
+						23 button Обзор публикации
+							24 text Обзор публикации
+					25 container Защищено Google Play
+						26 button Защищено Google Play
+							27 text Защищено Google Play
+					28 container (collapsed) Description: Тестирование и выпуск, Secondary Actions: Expand
+						29 button Тестирование и выпуск
+							30 text Тестирование и выпуск
+					31 container (expanded) Description: Мониторинг и улучшение, Secondary Actions: Collapse
+						32 button Мониторинг и улучшение
+							33 text Мониторинг и улучшение
+						34 content list
+							35 container
+								36 container (collapsed) Description: Охват и устройства, Secondary Actions: Expand
+									37 button Охват и устройства
+								38 container (collapsed) Description: Оценки и отзывы, Secondary Actions: Expand
+									39 button Оценки и отзывы
+								40 container (collapsed) Description: Android Vitals, Secondary Actions: Expand
+									41 button Android Vitals
+								42 container (expanded) Description: Правила и программы, Secondary Actions: Collapse
+									43 button Правила и программы
+									44 content list
+										45 container
+											46 container Соответствие правилам
+												47 button Соответствие правилам
+											48 container Контент приложения
+												49 button Контент приложения
+											50 container (collapsed) Description: Программы, Secondary Actions: Expand
+												51 button Программы
+					52 container (collapsed) Description: Привлечение пользователей, Secondary Actions: Expand
+						53 button Привлечение пользователей
+							54 text Привлечение пользователей
+					55 container (collapsed) Description: Монетизация с Google Play, Secondary Actions: Expand
+						56 button Монетизация с Google Play
+							57 text Монетизация с Google Play
+			58 container main-content
+				59 container
+					60 link Description: Вернуться на страницу "Контент приложения", Value: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/app-content/overview
+					61 heading Учетные данные, Value: 1
+						62 text Учетные данные
+					63 text Ранее эта декларация называлась "Доступ к приложениям". Чтобы мы могли проверить ваше приложение, нам нужны учетные данные для доступа ко всем его разделам. Если у нас не будет полного доступа к нему, оно может быть отклонено. Мы не можем создавать новые аккаунты, использовать личные аккаунты для совершения покупок или оформлять бесплатные пробные подписки, чтобы проверять приложения.
+					64 link Description: Подробнее об учетных данных (откроется в новой вкладке), Value: support.google.com/googleplay/android-developer/answer/9859455?#app_access
+					65 container Учетные данные
+						66 text Учетные данные
+						67 text В вашем приложении есть закрытые разделы?
+						68 container
+							69 radio button (settable, integer) Description: Да, Value: 0, ID: aEDCAD439-E35B-49C5-8015-21E1F2D7D59A--33
+							70 text Что из перечисленного ниже требуется для доступа к приложению:
+							71 content list
+								72 container
+									73 AXListMarker •
+									74 text Учетные данные (например, адрес электронной почты), имя пользователя, вход с аккаунтом Google или система единого входа (SSO).
+								75 container
+									76 AXListMarker •
+									77 text Платежи, например за контент для однократных покупок, подписки или уровни доступа.
+								78 container
+									79 AXListMarker •
+									80 text Реферальные коды или QR-коды.
+								81 container
+									82 AXListMarker •
+									83 text Одноразовые PIN-коды или двухэтапная аутентификация.
+								84 container
+									85 AXListMarker •
+									86 text Биометрическая аутентификация.
+								87 container
+									88 AXListMarker •
+									89 text Действия, которые нужно выполнить на другом устройстве.
+						90 container
+							91 radio button (settable, integer) Description: Нет, Value: 1, ID: aEDCAD439-E35B-49C5-8015-21E1F2D7D59A--34
+							92 text Что из перечисленного ниже верно для вашего приложения:
+							93 content list
+								94 container
+									95 AXListMarker •
+									96 text В приложении нет разделов с ограниченным доступом.
+								97 container
+									98 AXListMarker •
+									99 text Вход в аккаунт не требуется ни в одной стране или регионе.
+								100 container
+									101 AXListMarker •
+									102 text Входить в аккаунт и платить за контент не требуется.
+						103 text Если нам не удастся проверить какой-либо раздел, мы можем отклонить обновление или удалить приложение из Google Play. Убедитесь, что все разделы полностью доступны.
+					104 container
+						105 button (disabled) Не сохранять
+							106 text Не сохранять
+						107 button (disabled) Сохранить
+							108 text Сохранить
+				109 link Description: Информация об обновлениях, Value: play.google.com/console/about/whats-new/
+				110 link Description: Панель мониторинга, Value: status.play.google.com/
+				111 link Description: Справка, Value: play.google.com/console/u/0/developers/7352115345592950495/help-and-support?app=4976408092958094737
+				112 text © Google, 2026
+				113 link Description: Конфиденциальность, Value: google.com/policies/privacy/
+				114 link Description: Соглашение о распространении ПО, Value: play.google.com/about/developer-distribution-agreement.html
+				115 link Description: Условия использования, Value: play.google.com/about/console/terms-of-service/
+	116 container
+		117 button logo icon
+			118 image logo icon
+			119 image
+		120 container
+			121 button
+
+The focused UI element is 1 AXWebArea Учетные данные | Untouch, URL: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/app-content/testing-credentials

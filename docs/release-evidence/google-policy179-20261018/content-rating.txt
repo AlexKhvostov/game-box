@@ -1,0 +1,243 @@
+Browser tab: 1941752202, Title: "Возрастные ограничения | Untouch", URL: "https://play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/app-content/content-rating-overview".
+1 AXWebArea Возрастные ограничения | Untouch, URL: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/app-content/content-rating-overview
+	2 container
+		3 text Загрузка Google Play Console
+		4 container
+			5 container
+				6 link Description: Логотип Google Play Console, Value: play.google.com/console/u/0/developers/7352115345592950495/app-list
+				7 button Непрочитанные уведомления Открыть центр уведомлений
+					8 text Непрочитанные уведомления
+				9 button Untouch
+					10 text Untouch
+				11 button Сменить аккаунт разработчика
+					12 image Сменить аккаунт разработчика
+			13 container
+				14 link Description: Все приложения, Value: play.google.com/console/u/0/developers/7352115345592950495/app-list
+				15 content list
+					16 container Панель управления
+						17 button Панель управления
+							18 text Панель управления
+					19 container Статистика
+						20 button Статистика
+							21 text Статистика
+					22 container Обзор публикации
+						23 button Обзор публикации
+							24 text Обзор публикации
+					25 container Защищено Google Play
+						26 button Защищено Google Play
+							27 text Защищено Google Play
+					28 container (collapsed) Description: Тестирование и выпуск, Secondary Actions: Expand
+						29 button Тестирование и выпуск
+							30 text Тестирование и выпуск
+					31 container (expanded) Description: Мониторинг и улучшение, Secondary Actions: Collapse
+						32 button Мониторинг и улучшение
+							33 text Мониторинг и улучшение
+						34 content list
+							35 container
+								36 container (collapsed) Description: Охват и устройства, Secondary Actions: Expand
+									37 button Охват и устройства
+								38 container (collapsed) Description: Оценки и отзывы, Secondary Actions: Expand
+									39 button Оценки и отзывы
+								40 container (collapsed) Description: Android Vitals, Secondary Actions: Expand
+									41 button Android Vitals
+								42 container (expanded) Description: Правила и программы, Secondary Actions: Collapse
+									43 button Правила и программы
+									44 content list
+										45 container
+											46 container Соответствие правилам
+												47 button Соответствие правилам
+											48 container Контент приложения
+												49 button Контент приложения
+											50 container (collapsed) Description: Программы, Secondary Actions: Expand
+												51 button Программы
+					52 container (collapsed) Description: Привлечение пользователей, Secondary Actions: Expand
+						53 button Привлечение пользователей
+							54 text Привлечение пользователей
+					55 container (collapsed) Description: Монетизация с Google Play, Secondary Actions: Expand
+						56 button Монетизация с Google Play
+							57 text Монетизация с Google Play
+			58 container main-content
+				59 container
+					138 link Description: Вернуться на страницу "Контент приложения", Value: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/app-content/overview
+					139 heading Возрастные ограничения, Value: 1
+						140 text Возрастные ограничения
+					141 container
+						142 text Возрастные ограничения присваиваются официальными организациями по оценке контента.
+						143 button Показать подробную информацию о следующей странице: Возрастные ограничения
+					144 text Если вы внесли изменения в приложение, которые повлияют на предыдущие ответы, заполните новую анкету.
+					145 button Новый опрос
+						146 text Новый опрос
+					147 heading Текущие возрастные ограничения, Value: 3
+						148 text Текущие возрастные ограничения
+					149 container
+						150 text Статус IARC
+						151 text Выполнен
+						152 button Посмотреть подробную информацию о возрастных ограничениях
+							153 text Подробнее
+						154 text Электронный адрес
+						155 text support@untouch.fun
+						156 button Изменить
+							157 text Изменить
+						158 text Номер сертификата IARC
+						159 text -
+						160 text Отправлено
+						161 text 9 октября 2026 г., 16:10
+						162 text Возрастные ограничения
+						163 image G (для всех), Australian Classification Board (ACB), Австралия
+						164 image Для всех, Classificação Indicativa (ClassInd), Бразилия
+						165 image Для всех, Entertainment Software Rating Board (ESRB), Северная Америка
+						166 image Для всех, Game Rating and Administration Committee (GRAC), Южная Корея
+						167 image 6+, Digital Game Self-regulation Committee (DGSC), Тайвань
+						168 image 7, General Authority of Media Regulation (Gmedia), Саудовская Аравия
+						169 image 3+, Pan-European Game Information (PEGI), Европа
+						170 image 6+, Unterhaltungssoftware Selbstkontrolle (USK), Германия
+						171 image 3+, IARC Generic, Остальные страны
+						172 image 3+, Google Play, Россия
+					173 heading Предыдущие анкеты, Value: 3
+						174 text Предыдущие анкеты
+					175 button (expanded) Description: Скрыть следующий контент: Предыдущие анкеты, Secondary Actions: Collapse
+						176 text Скрыть
+					177 table История анкет
+						178 row Отправлено Номер сертификата IARC Электронный адрес
+							179 cell Отправлено
+								202 text Отправлено
+							180 cell Номер сертификата IARC
+								203 text Номер сертификата IARC
+							181 cell Электронный адрес
+								204 text Электронный адрес
+							182 cell
+						183 row 9 октября 2026 г., 16:10 - support@untouch.fun Посмотреть подробную информацию о возрастных ограничениях
+							184 cell
+								205 text 9 октября 2026 г., 16:10
+							185 cell
+								206 text -
+							186 cell
+								207 text support@untouch.fun
+							187 cell
+								188 button Посмотреть подробную информацию о возрастных ограничениях
+					189 container
+						190 text Данные о возрастных ограничениях для контента в Google Play предоставляются
+						191 link Description: Международной коалицией возрастной классификации (IARC), Value: globalratings.com/
+						192 text . Проходя этот опрос, вы соглашаетесь с
+						193 link Description: Условиями предоставления услуг, Value: web.iarcservices.com/terms
+						194 text  IARC.
+				195 link Description: Информация об обновлениях, Value: play.google.com/console/about/whats-new/
+				196 link Description: Панель мониторинга, Value: status.play.google.com/
+				197 link Description: Справка, Value: play.google.com/console/u/0/developers/7352115345592950495/help-and-support?app=4976408092958094737
+				198 text © Google, 2026
+				199 link Description: Конфиденциальность, Value: google.com/policies/privacy/
+				200 link Description: Соглашение о распространении ПО, Value: play.google.com/about/developer-distribution-agreement.html
+				201 link Description: Условия использования, Value: play.google.com/about/console/terms-of-service/
+		208 container default-acx-overlay-container
+			210 container
+				211 container Сводка
+					212 heading Сводка, Value: 2, ID: a2218B269-68E6-4EDE-97F7-7C0BAC269E65--209
+						213 text Сводка
+					214 button Закрыть
+					215 container
+						216 text Категория
+						217 text Игра
+						230 text Изображение насилия, крови или кровавых сцен
+						231 text Игра содержит контент с жестоким обращением с любыми существами, кроме людей
+						232 text Насилие над другими существами
+						233 text Контент используется в фантастическом контексте Пикселизованное или детское оформление Реакция на акты насилия изображается нереалистично Акты насилия демонстрируются часто, с неблизкого расстояния Поведение вымышленных существ напоминает человеческое
+						218 heading Возрастные ограничения, Value: 2
+							219 text Возрастные ограничения
+						220 heading Австралия, Value: 3
+							234 text Австралия
+						235 text Организация по оценке контента: Australian Classification Board (ACB).
+						236 text Оценка
+						237 container
+							238 image G (для всех)
+							239 text G (для всех)
+						240 text Описание контента
+						241 text Очень умеренное насилие
+						221 heading Бразилия, Value: 3
+							242 text Бразилия
+						243 text Организация по оценке контента: Classificação Indicativa (ClassInd).
+						244 text Оценка
+						245 container
+							246 image Для всех
+							247 text Для всех
+						248 text Описание контента
+						249 text -
+						222 heading Северная Америка, Value: 3
+							250 text Северная Америка
+						251 text Организация по оценке контента: Entertainment Software Rating Board (ESRB).
+						252 text Оценка
+						253 container
+							254 image Для всех
+							255 text Для всех
+						256 text Описание контента
+						257 text Фэнтези с умеренным насилием
+						223 heading Южная Корея, Value: 3
+							258 text Южная Корея
+						259 text Организация по оценке контента: Game Rating and Administration Committee (GRAC).
+						260 text Оценка
+						261 container
+							262 image Для всех
+							263 text Для всех
+						264 text Описание контента
+						265 text Насилие
+						224 heading Тайвань, Value: 3
+							266 text Тайвань
+						267 text Организация по оценке контента: Digital Game Self-regulation Committee (DGSC).
+						268 text Оценка
+						269 container
+							270 image 6+
+							271 text 6+
+						272 text Описание контента
+						273 text Насилие
+						225 heading Саудовская Аравия, Value: 3
+							274 text Саудовская Аравия
+						275 text Организация по оценке контента: General Authority of Media Regulation (Gmedia).
+						276 text Оценка
+						277 container
+							278 image 7
+							279 text 7
+						280 text Описание контента
+						281 text -
+						226 heading Европа, Value: 3
+							282 text Европа
+						283 text Организация по оценке контента: Pan-European Game Information (PEGI).
+						284 text Оценка
+						285 container
+							286 image 3+
+							287 text 3+
+						288 text Описание контента
+						289 text -
+						227 heading Германия, Value: 3
+							290 text Германия
+						291 text Организация по оценке контента: Unterhaltungssoftware Selbstkontrolle (USK).
+						292 text Оценка
+						293 container
+							294 image 6+
+							295 text 6+
+						296 text Описание контента
+						297 text Комическое насилие
+						228 heading Остальные страны, Value: 3
+							298 text Остальные страны
+						299 text Организация по оценке контента: IARC Generic.
+						300 text Оценка
+						301 container
+							302 image 3+
+							303 text 3+
+						304 text Описание контента
+						305 text -
+						229 heading Россия, Value: 3
+							306 text Россия
+						307 text Организация по оценке контента: Google Play.
+						308 text Оценка
+						309 container
+							310 image 3+
+							311 text 3+
+						312 text Описание контента
+						313 text -
+	132 container
+		133 button logo icon
+			134 image logo icon
+			135 image
+		136 container
+			137 button
+
+The focused UI element is 214 button Закрыть

@@ -1,0 +1,47 @@
+Конфиденциальность Untouch — Best4U
+untouch ✳
+English
+Удаление данных
+Untouch для Android · Best4U · 16 октября 2026 года
+Конфиденциальность Android-игры
+Разработчик — Best4U. Поддержка:
+support@untouch.fun
+. Эта страница описывает Android-версию с Supabase и Firebase Remote Config. Telegram-версия и прежний сайт имеют собственную инфраструктуру; их данные не переносятся в новый Android-профиль.
+Профиль и игровой прогресс
+Supabase Auth создаёт гостевой идентификатор. Закрытая база PostgreSQL в Supabase хранит ник, энергию, попытки и результаты, награды, приглашения, подтверждённые покупки и журнал операций. Серверные функции Supabase проверяют владельца, время и повторы запросов. Старые балансы и результаты из прежней базы не импортируются. Без сети игра может использовать подтверждённый локальный кеш; неподтверждённые награды не становятся серверным балансом.
+Секреты старой установки и старые локальные очереди не отправляются новому серверу. Настройки звука, музыки, интерфейса и возрастная группа сохраняются на устройстве. Дата рождения не запрашивается; возрастная группа не передаётся игровому серверу. Сервер может хранить только факт выполнения возрастного задания.
+Google и покупки
+По вашему выбору Google можно связать с профилем для восстановления. Supabase Auth обрабатывает идентификатор Google и данные профиля, включая имя и email. Игра не получает пароль Google. Изменение подключения Google не удаляет весь аккаунт и не отменяет подписку. Возможность отключения зависит от наличия другого подтверждённого способа доступа к тому же профилю. Полное удаление данных запрашивается отдельно.
+Оплата и действующие права проверяются через Google Play. Сервер хранит токен покупки, товар, владельца, статус, срок и сведения, необходимые для проверки и защиты от повторного начисления. Номер карты игре не передаётся. Удаление игрового профиля не удаляет заказы из аккаунта Google и не отменяет подписки Google Play.
+Что видят другие игроки
+В рейтинге видны игровой ник, публичный идентификатор и результаты. Имя Google может отображаться только после отключения вами настройки «Не показывать мой аккаунт в рейтинге». Email, токены входа и покупки не публикуются. Android-рейтинг хранится отдельно от прежнего общего рейтинга Telegram.
+Отзывы и приглашения
+Добровольный отзыв будет сохраняться в Supabase после включения функции: текст20–1000символов, необязательная оценка1–5, идентификатор, дата и сведения о награде. Email Google автоматически к отзыву не добавляется. Новая версия не отправляет отзыв другим игрокам и не читает адресную книгу. Поддержка просматривает сохранённые отзывы отдельно.
+Для приглашений хранятся код, связь профилей, выполнение условий и начисленные награды. Пригласивший может видеть ник, выполнение условия и награду приглашённого. Отправку ссылки другим людям выполняет сам игрок.
+Реклама и аналитика
+Играть можно без рекламного согласия. Рекламные функции ограничены совершеннолетними18+ и отдельным добровольным разрешением на сеанс; изменение возрастного ответа само по себе рекламу не включает. Внутренние тестовые сборки могут показывать демонстрационные объявления Яндекса. Персонализация и отслеживание местоположения не включаются игрой. Firebase Analytics в Android отключена; Supabase Auth и Remote Config не зависят от согласия на рекламную аналитику.
+Поставщики и технические журналы
+Для работы используются Supabase (профили и игровые данные), Google/Firebase (вход Google, покупки и Remote Config), Google Play и, при разрешённых рекламных функциях, Яндекс. Технические сведения, такие как IP-адрес, дата и результат запроса, могут обрабатываться инфраструктурой для безопасности и диагностики. Секреты, полные тела запросов и платёжные токены не выводятся игровым сервером в диагностические сообщения. Поставщики применяют собственные условия:
+Supabase
+,
+Google
+,
+Яндекс
+.
+Обращения и удаление
+В письме поддержке обрабатываются адрес отправителя, содержание и предоставленные сведения для проверки владельца. Не отправляйте пароли, одноразовые коды и банковские данные. Для удаления следуйте
+инструкции
+. Сроки резервных копий и технических журналов уточняются при исполнении обращения; удалённый профиль не восстанавливается из копии для обычной игры.
+Untouch Android privacy
+Developer: Best4U. Contact
+support@untouch.fun
+. This page covers the Android version using Supabase and Firebase Remote Config. Old MySQL profiles, balances and results are not imported; Telegram remains separate.
+Supabase Auth identifies a guest and optionally links Google for recovery. Authentication may process your Google identifier, name and email. Supabase PostgreSQL stores game progress, operations, invitations and verified purchase records. Feedback storage will be used when the feature is enabled. Supabase Edge Functions validate ownership, time and duplicate requests. Google Play handles payment and purchase entitlements; the game does not receive card details.
+Nicknames, public identifiers and results appear in the Android ranking. Your Google name is public only if you choose to show it; email and tokens are private. Sound, interface preferences and age band stay on the device. Only completion of an age task may be sent to the game server. No date of birth or address book is collected.
+When enabled, optional feedback contains text, optional rating, player identifier, date and reward status. Google email is not automatically attached. Invitation records include the participants, progress and rewards. Players share links themselves.
+Advertising requires an eligible adult age and separate session consent. Internal builds may use Yandex demo ads. The game does not enable personalized advertising or location tracking. Android Firebase Analytics is disabled. Auth and Remote Config work independently of advertising consent. Supabase, Google/Firebase, Google Play and Yandex process data under their respective policies; infrastructure may keep technical security logs.
+Changing Google linkage does not delete the game profile or cancel subscriptions. Disconnecting requires another verified way to access the same profile. Request full deletion through
+account deletion support
+. Contact emails include the information you provide; never send passwords, sign-in codes or bank details. Backup and technical-log retention is clarified when handling the request.
+Поставщики сервисов и настройки
+Supabase хранит данные игры в регионе Frankfurt (eu-central-1). Firebase Remote Config хранит общие настройки игры. Админка размещена на Firebase Hosting. Настройки публикует только администратор; секретные ключи не передаются в игру или браузер. Firebase Analytics в текущей сборке отключена; A/B-тесты ещё не запущены.

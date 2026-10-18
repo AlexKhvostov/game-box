@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://untouch.fun/privacy/",
+    "error": "TimeoutError",
+    "reason": "The read operation timed out"
+  },
+  {
+    "url": "https://untouch.fun/delete-account/",
+    "status": 200,
+    "final": "https://untouch.fun/delete-account/",
+    "contentType": "text/html",
+    "sha256": "44685b62eb1294b73f755a18c59556784f749ac212f14442e4121b1f62644a69",
+    "evidence": "custom-deletion.txt",
+    "length": 9666
+  },
+  {
+    "url": "https://untouch-android-game-box-b30d4.web.app/privacy/",
+    "status": 200,
+    "final": "https://untouch-android-game-box-b30d4.web.app/privacy/",
+    "contentType": "text/html; charset=utf-8",
+    "sha256": "3361b1bab65b8a423a99941972a1158b3dc935c0be7c1f28774f3469c9493fae",
+    "evidence": "firebase-privacy.txt",
+    "length": 11045
+  },
+  {
+    "url": "https://untouch-android-game-box-b30d4.web.app/delete-account/",
+    "status": 200,
+    "final": "https://untouch-android-game-box-b30d4.web.app/delete-account/",
+    "contentType": "text/html; charset=utf-8",
+    "sha256": "658fd5fc57354a4a7bd8dfdd0e4daa80ae1dd6b93124405fdf61d74fb6d24678",
+    "evidence": "firebase-deletion.txt",
+    "length": 10525
+  }
+]

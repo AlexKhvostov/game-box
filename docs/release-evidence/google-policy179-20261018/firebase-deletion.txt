@@ -1,0 +1,47 @@
+Удаление аккаунта и данных Untouch — Best4U
+untouch ✳
+English
+Конфиденциальность
+Untouch для Android · Best4U · 16 октября 2026 года
+Удаление аккаунта и данных
+Вы можете запросить удаление гостевого профиля и связанных данных Untouch. Для отправки запроса не нужно устанавливать игру заново.
+Отправьте запрос в поддержку
+Запросить удаление по email ↗
+Или напишите вручную на
+support@untouch.fun
+с темой «Untouch — удалить аккаунт».
+Что указать в письме
+Что вы хотите удалить: весь профиль и данные либо отдельные сведения.
+Ваш игровой ник и идентификатор профиля, если он вам известен. Укажите, что играли в Android-версию.
+Есть ли у вас доступ к прежней установке игры. Если доступа нет, всё равно отправьте обращение — поддержка объяснит доступные варианты проверки.
+Не отправляйте
+пароль Google, одноразовые коды входа, секрет установки или банковские реквизиты.
+Как проходит удаление
+Поддержка проверит запрос и владение профилем: одного публичного ника недостаточно, чтобы удалить чужой аккаунт. При доступе к игре может потребоваться временно установить выданный поддержкой проверочный ник. Если доступ потерян и надёжно подтвердить владение нельзя, мы объясним ограничение; данные чужого профиля по одному заявлению не удаляются.
+После подтверждения владения мы удалим данные из рабочей базы в течение 30 календарных дней и подтвердим завершение по email. Если требуются дополнительные сведения для проверки владельца, поддержка сообщит об этом. Остаточные резервные копии и журналы описаны ниже.
+Какие данные удаляются
+Серверный профиль и ник, привязки устройств и Google, если они существуют.
+Результаты в рейтинге, игровые попытки, прогресс, энергия, время получения бонуса, усиления, награды и история игровых операций.
+Отправленные отзывы, их очередь и связанные с профилем сведения о приглашениях. Если отзыв уже доставлен в поддержку, его удаление из почты обрабатывается отдельно по тому же запросу.
+Связанные записи покупок, если они имеются и нет конкретного законного основания для дальнейшего хранения. О таком основании, составе данных и сроке поддержка сообщит отдельно.
+Восстановить удалённый прогресс нельзя. Если после удаления снова запустить игру, может быть создан новый гостевой профиль. Локальные настройки на телефоне можно убрать очисткой данных приложения или его удалением.
+Копии, журналы и подписки
+Удаление из рабочей базы не означает мгновенного исчезновения из резервных копий и технических журналов. Данные Android хранятся в Supabase (игровая база и Auth), Google/Firebase (вход Google, покупки, Remote Config и хостинг); фактические сроки резервных копий, технических журналов и остаточные данные поддержка уточнит при исполнении запроса. Копии не используются для возвращения удалённого профиля в обычную работу.
+Удаление профиля само по себе не отменяет подписку Google Play. Если у вас есть подписка, управлять ей можно в
+разделе подписок Google Play
+. В тестовых сборках покупки энергии и недельные подписки на увеличенный бонус подключены через Google Play. Бесплатна только покупка лицензионного тестировщика с явно обозначенным Google тестовым способом оплаты. Обычная банковская карта может привести к реальному списанию, даже в закрытом тесте. После включения удаление игрового профиля не удалит историю заказов, которую хранит Google в вашем аккаунте.
+Delete your Untouch account and data
+Untouch for Android is developed by Best4U. Email
+support@untouch.fun
+with the subject “Untouch — Delete account”. You do not need to reinstall the game to submit a request. Include your nickname, player ID if known, whether you still have access to the game, and whether you want all account data or specific information deleted.
+We verify ownership before deleting data. A public nickname alone is not proof. If you still have access, support may ask you to temporarily set a verification nickname. If access is lost, contact us to discuss available verification options. We cannot delete someone else's profile without reliable proof. Never send passwords, sign-in codes, installation secrets or bank details.
+After ownership verification, we will delete the data from the live database within 30 calendar days and confirm completion by email. Support will tell you if further information is needed to verify ownership. Residual backups and logs are described below.
+Deletion covers the server profile, nickname, device/account links, leaderboard results, rounds, progress, energy, bonus timers, boosts, rewards and game operations. It also covers submitted feedback, its delivery queue and invitation information linked to the profile. Feedback already delivered to support email is handled separately under the same request. Any purchase records retained for a specific lawful reason will be explained with their purpose and retention period. Deletion is irreversible; starting the game later may create a new guest profile. Clear app data or uninstall to remove local settings.
+Residual hosting backups and technical logs may remain temporarily. Android uses Supabase for Auth and game data, and Google/Firebase for Google sign-in, purchases, settings and hosting; support will clarify the actual backup and technical-log retention when handling the request. Account deletion does not cancel Google Play subscriptions; use
+Google Play subscription settings
+. Energy purchases and weekly subscriptions for increased bonuses are connected through Google Play in test builds. A purchase is free only for a registered license tester using an explicitly labelled Google test payment method. An ordinary bank card may cause a real charge, including on a closed test track. Once enabled, deleting a game profile will not delete order history held by Google in your account.
+Минимальные записи после удаления
+Сырые токены покупок, имя, почта, профиль и результаты удаляются из рабочей игровой базы. Для защиты от повторного начисления могут оставаться хеши покупок без связи с пользователем. В закрытом журнале поддержки сохраняются ID операции и удалённого профиля, причина, дата и результат действия, без имени, почты и токена покупки.
+На главную
+Политика конфиденциальности
+Поддержка

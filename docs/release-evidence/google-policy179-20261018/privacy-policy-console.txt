@@ -1,0 +1,106 @@
+Browser tab: 1941752202, Title: "Политика конфиденциальности | Untouch", URL: "https://play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/app-content/privacy-policy".
+1 AXWebArea Политика конфиденциальности | Untouch, URL: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/app-content/privacy-policy
+	2 container
+		3 text Загрузка Google Play Console
+		4 container
+			5 container
+				6 link Description: Логотип Google Play Console, Value: play.google.com/console/u/0/developers/7352115345592950495/app-list
+				7 button Непрочитанные уведомления Открыть центр уведомлений
+					8 text Непрочитанные уведомления
+				9 button Untouch
+					10 text Untouch
+				11 button Сменить аккаунт разработчика
+					12 image Сменить аккаунт разработчика
+			13 container
+				14 link Description: Все приложения, Value: play.google.com/console/u/0/developers/7352115345592950495/app-list
+				15 content list
+					16 container Панель управления
+						17 button Панель управления
+							18 text Панель управления
+					19 container Статистика
+						20 button Статистика
+							21 text Статистика
+					22 container Обзор публикации
+						23 button Обзор публикации
+							24 text Обзор публикации
+					25 container Защищено Google Play
+						26 button Защищено Google Play
+							27 text Защищено Google Play
+					28 container (collapsed) Description: Тестирование и выпуск, Secondary Actions: Expand
+						29 button Тестирование и выпуск
+							30 text Тестирование и выпуск
+					31 container (expanded) Description: Мониторинг и улучшение, Secondary Actions: Collapse
+						32 button Мониторинг и улучшение
+							33 text Мониторинг и улучшение
+						34 content list
+							35 container
+								36 container (collapsed) Description: Охват и устройства, Secondary Actions: Expand
+									37 button Охват и устройства
+								38 container (collapsed) Description: Оценки и отзывы, Secondary Actions: Expand
+									39 button Оценки и отзывы
+								40 container (collapsed) Description: Android Vitals, Secondary Actions: Expand
+									41 button Android Vitals
+								42 container (expanded) Description: Правила и программы, Secondary Actions: Collapse
+									43 button Правила и программы
+									44 content list
+										45 container
+											46 container Соответствие правилам
+												47 button Соответствие правилам
+											48 container Контент приложения
+												49 button Контент приложения
+											50 container (collapsed) Description: Программы, Secondary Actions: Expand
+												51 button Программы
+					52 container (collapsed) Description: Привлечение пользователей, Secondary Actions: Expand
+						53 button Привлечение пользователей
+							54 text Привлечение пользователей
+					55 container (collapsed) Description: Монетизация с Google Play, Secondary Actions: Expand
+						56 button Монетизация с Google Play
+							57 text Монетизация с Google Play
+			58 container main-content
+				59 container
+					60 link Description: Вернуться на страницу "Контент приложения", Value: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/app-content/overview
+					61 heading Политика конфиденциальности, Value: 1
+						62 text Политика конфиденциальности
+					63 text Добавьте политику конфиденциальности, которая будет показываться на странице приложения в Google Play. Это поможет пользователям понять, как вы обрабатываете их конфиденциальные данные и сведения об устройствах.
+					64 link Description: Подробнее о том, как добавить политику конфиденциальности, Откроется на новой вкладке, Value: support.google.com/googleplay/android-developer/answer/9859455?hl=ru#privacy_policy
+					65 text Следует разместить ссылку на политику конфиденциальности на странице приложения в Google Play и в самом приложении, даже если оно не предназначено для детей и не получает доступ к личным или конфиденциальным пользовательским данным.
+					66 text Чтобы ускорить проверку, убедитесь, что политика конфиденциальности отвечает следующим требованиям:
+					67 content list
+						68 container
+							69 AXListMarker •
+							70 text размещена по активному общедоступному URL (начинается с "http://" или "https://") с действительным SSL-сертификатом;
+						71 container
+							72 AXListMarker •
+							73 text доступна по всему миру без географических ограничений, геозонирования или требований выполнить вход;
+						74 container
+							75 AXListMarker •
+							76 text отображается на стандартной веб-странице, которую нельзя редактировать (не в виде PDF-файла или файла для скачивания);
+						77 container
+							78 AXListMarker •
+							79 text относится именно к вашему приложению, охватывает конфиденциальность пользователей и подробно описывает, как приложение собирает, использует и передает пользовательские данные, включая типы сторон, которым они передаются.
+					80 text Чтобы не допускать типичных нарушений, ознакомьтесь с нашими
+					81 link Description: правилами в отношении пользовательских данных, Value: support.google.com/googleplay/android-developer/answer/10144311?ref_topic=9877467
+					82 text .
+					83 container
+						84 text field (settable) URL политики конфиденциальности, Value: https://untouch.fun/privacy/
+						85 container aA8C0071B-91D7-4CE8-9A66-E961D8643C5A--0
+							86 text Укажите URL, например https://example.com/privacy.
+					87 button (disabled) Не сохранять
+						88 text Не сохранять
+					89 button (disabled) Сохранить
+						90 text Сохранить
+				91 link Description: Информация об обновлениях, Value: play.google.com/console/about/whats-new/
+				92 link Description: Панель мониторинга, Value: status.play.google.com/
+				93 link Description: Справка, Value: play.google.com/console/u/0/developers/7352115345592950495/help-and-support?app=4976408092958094737
+				94 text © Google, 2026
+				95 link Description: Конфиденциальность, Value: google.com/policies/privacy/
+				96 link Description: Соглашение о распространении ПО, Value: play.google.com/about/developer-distribution-agreement.html
+				97 link Description: Условия использования, Value: play.google.com/about/console/terms-of-service/
+	98 container
+		99 button logo icon
+			100 image logo icon
+			101 image
+		102 container
+			103 button
+
+The focused UI element is 1 AXWebArea Политика конфиденциальности | Untouch, URL: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/app-content/privacy-policy

@@ -1,0 +1,214 @@
+Browser tab: 1941752202, Title: "Безопасность данных | Untouch", URL: "https://play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/app-content/data-privacy-security".
+1 AXWebArea Безопасность данных | Untouch, URL: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/app-content/data-privacy-security
+	2 container
+		3 text Загрузка Google Play Console
+		4 container
+			5 container
+				6 link Description: Логотип Google Play Console, Value: play.google.com/console/u/0/developers/7352115345592950495/app-list
+				7 button Непрочитанные уведомления Открыть центр уведомлений
+					8 text Непрочитанные уведомления
+				9 button Untouch
+					10 text Untouch
+				11 button Сменить аккаунт разработчика
+					12 image Сменить аккаунт разработчика
+			13 container
+				14 link Description: Все приложения, Value: play.google.com/console/u/0/developers/7352115345592950495/app-list
+				15 content list
+					16 container Панель управления
+						17 button Панель управления
+							18 text Панель управления
+					19 container Статистика
+						20 button Статистика
+							21 text Статистика
+					22 container Обзор публикации
+						23 button Обзор публикации
+							24 text Обзор публикации
+					25 container Защищено Google Play
+						26 button Защищено Google Play
+							27 text Защищено Google Play
+					28 container (collapsed) Description: Тестирование и выпуск, Secondary Actions: Expand
+						29 button Тестирование и выпуск
+							30 text Тестирование и выпуск
+					31 container (expanded) Description: Мониторинг и улучшение, Secondary Actions: Collapse
+						32 button Мониторинг и улучшение
+							33 text Мониторинг и улучшение
+						34 content list
+							35 container
+								36 container (collapsed) Description: Охват и устройства, Secondary Actions: Expand
+									37 button Охват и устройства
+								38 container (collapsed) Description: Оценки и отзывы, Secondary Actions: Expand
+									39 button Оценки и отзывы
+								40 container (collapsed) Description: Android Vitals, Secondary Actions: Expand
+									41 button Android Vitals
+								42 container (expanded) Description: Правила и программы, Secondary Actions: Collapse
+									43 button Правила и программы
+									44 content list
+										45 container
+											46 container Соответствие правилам
+												47 button Соответствие правилам
+											48 container Контент приложения
+												49 button Контент приложения
+											50 container (collapsed) Description: Программы, Secondary Actions: Expand
+												51 button Программы
+					52 container (collapsed) Description: Привлечение пользователей, Secondary Actions: Expand
+						53 button Привлечение пользователей
+							54 text Привлечение пользователей
+					55 container (collapsed) Description: Монетизация с Google Play, Secondary Actions: Expand
+						56 button Монетизация с Google Play
+							57 text Монетизация с Google Play
+			58 container main-content
+				59 container
+					60 link Description: Вернуться на страницу "Контент приложения", Value: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/app-content/overview
+					61 heading Безопасность данных, Value: 1
+						62 text Безопасность данных
+					63 button Экспортировать в виде CSV-файла
+						64 text Экспортировать в виде CSV-файла
+					65 button Импортировать из CSV-файла
+						66 text Импортировать из CSV-файла
+					67 container
+						68 text Объясните пользователям, как ваше приложение собирает и передает личные данные.
+						69 button Показать подробную информацию о следующей странице: Безопасность данных
+					70 tab group
+						71 tab (selectable, disabled, settable, boolean) Description: Шаг 1 из 5: Общие сведения, Value: 0
+Общие сведения
+						72 tab (selectable, disabled, settable, boolean) Description: Шаг 2 из 5: Сбор и безопасность данных, Value: 0
+Сбор и безопасность данных
+						73 tab (selectable, disabled, settable, boolean) Description: Шаг 3 из 5: Типы данных, Value: 0
+Типы данных
+						74 tab (selectable, disabled, settable, boolean) Description: Шаг 4 из 5: Использование и обработка данных, Value: 0
+Использование и обработка данных
+						75 tab (selected, settable, boolean) Description: Шаг 5 из 5: Предварительный просмотр, Value: 1
+5
+Предварительный просмотр
+					76 container a8670234C-722C-4940-A122-1889B528EEF6--4
+						140 heading Предварительный просмотр данных для Google Play, Value: 2
+							141 text Предварительный просмотр данных для Google Play
+						142 button Свернуть все
+							143 text Свернуть все
+						144 text На основании ваших ответов пользователи в Google Play увидят следующую информацию.
+						145 heading Передаваемые данные, Value: 3
+							146 text Передаваемые данные
+						147 text Данные, которые могут передаваться другим компаниям или организациям.
+						148 text Личная информация
+						149 text Имя, Идентификаторы пользователей
+						150 button (expanded) Description: Скрыть подробности, Secondary Actions: Collapse
+							151 text Скрыть подробности
+						207 container a2B01B299-24C6-4530-A7A7-DC7CC994C284--117
+							208 heading Какие данные передаются и для чего, Value: 4
+								209 text Какие данные передаются и для чего
+							210 text Имя
+							211 text Функции приложения
+							212 text Идентификаторы пользователей
+							213 text Функции приложения
+						152 text История действий в приложении
+						153 text Другие действия
+						154 button (expanded) Description: Скрыть подробности, Secondary Actions: Collapse
+							155 text Скрыть подробности
+						214 container a2B01B299-24C6-4530-A7A7-DC7CC994C284--118
+							215 heading Какие данные передаются и для чего, Value: 4
+								216 text Какие данные передаются и для чего
+							217 text Другие действия
+							218 text Функции приложения
+						156 text Идентификаторы устройства или другие идентификаторы
+						157 text Идентификаторы устройства или другие идентификаторы
+						158 button (expanded) Description: Скрыть подробности, Secondary Actions: Collapse
+							159 text Скрыть подробности
+						219 container a2B01B299-24C6-4530-A7A7-DC7CC994C284--119
+							220 heading Какие данные передаются и для чего, Value: 4
+								221 text Какие данные передаются и для чего
+							222 text Идентификаторы устройства или другие идентификаторы
+							223 text Реклама или маркетинг
+						160 heading Собираемые данные, Value: 3
+							161 text Собираемые данные
+						162 text Данные, которые это приложение может собирать
+						163 text Личная информация
+						164 text Имя, Электронный адрес, Идентификаторы пользователей
+						165 button (expanded) Description: Скрыть подробности, Secondary Actions: Collapse
+							166 text Скрыть подробности
+						224 container a2B01B299-24C6-4530-A7A7-DC7CC994C284--120
+							225 heading Какие данные собираются и для чего, Value: 4
+								226 text Какие данные собираются и для чего
+							227 text Имя
+							228 text Функции приложения, Управление аккаунтом
+							229 text Электронный адрес
+							230 text По желанию
+							231 text Функции приложения, Управление аккаунтом
+							232 text Идентификаторы пользователей
+							233 text Функции приложения, Предотвращение мошенничества, безопасность и соответствие требованиям, Управление аккаунтом
+						167 text Финансовые сведения
+						168 text История покупок
+						169 button (expanded) Description: Скрыть подробности, Secondary Actions: Collapse
+							170 text Скрыть подробности
+						234 container a2B01B299-24C6-4530-A7A7-DC7CC994C284--121
+							235 heading Какие данные собираются и для чего, Value: 4
+								236 text Какие данные собираются и для чего
+							237 text История покупок
+							238 text По желанию
+							239 text Функции приложения, Предотвращение мошенничества, безопасность и соответствие требованиям
+						171 text История действий в приложении
+						172 text Действия в приложении, Другой контент, созданный пользователями, Другие действия
+						173 button (expanded) Description: Скрыть подробности, Secondary Actions: Collapse
+							174 text Скрыть подробности
+						240 container a2B01B299-24C6-4530-A7A7-DC7CC994C284--122
+							241 heading Какие данные собираются и для чего, Value: 4
+								242 text Какие данные собираются и для чего
+							243 text Действия в приложении
+							244 text Функции приложения, Предотвращение мошенничества, безопасность и соответствие требованиям
+							245 text Другой контент, созданный пользователями
+							246 text По желанию
+							247 text Функции приложения, Аналитика, Предотвращение мошенничества, безопасность и соответствие требованиям
+							248 text Другие действия
+							249 text Функции приложения, Предотвращение мошенничества, безопасность и соответствие требованиям
+						175 text Идентификаторы устройства или другие идентификаторы
+						176 text Идентификаторы устройства или другие идентификаторы
+						177 button (expanded) Description: Скрыть подробности, Secondary Actions: Collapse
+							178 text Скрыть подробности
+						250 container a2B01B299-24C6-4530-A7A7-DC7CC994C284--123
+							251 heading Какие данные собираются и для чего, Value: 4
+								252 text Какие данные собираются и для чего
+							253 text Идентификаторы устройства или другие идентификаторы
+							254 text Функции приложения, Предотвращение мошенничества, безопасность и соответствие требованиям, Реклама или маркетинг, Управление аккаунтом
+						179 heading Удаление данных, Value: 3
+							180 text Удаление данных
+						181 text Данные, которые могут быть удалены пользователями.
+						182 text Удаление аккаунта в приложении
+						183 container
+							184 text Вы можете запросить удаление аккаунта и связанных с ним данных из этого приложения.
+							185 link Description: https://untouch.fun/delete-account/, Value: untouch.fun/delete-account/
+						186 text Управление данными приложения
+						187 container
+							188 text Вы можете запросить удаление данных, которые собираются приложением. При этом ваш аккаунт удален не будет. Например, к таким данным относится история действий и транзакций, а также изображения и видео.
+							189 link Description: https://untouch.fun/delete-account/, Value: untouch.fun/delete-account/
+						190 heading Защита данных, Value: 3
+							191 text Защита данных
+						192 heading Данные шифруются при передаче, Value: 4
+							193 text Данные шифруются при передаче
+						194 text Ваши данные передаются через защищенное подключение
+						195 heading Политика конфиденциальности, Value: 3
+							196 text Политика конфиденциальности
+						197 text https://untouch.fun/privacy/
+					115 text Шаг 5 из 5: Предварительный просмотр
+					198 container
+						199 button (disabled) Не сохранять
+							200 text Не сохранять
+						201 button Назад
+							202 text Назад
+						203 button (disabled) Сохранить как проект
+							204 text Сохранить как проект
+						205 button (disabled) Сохранить
+							206 text Сохранить
+				125 link Description: Информация об обновлениях, Value: play.google.com/console/about/whats-new/
+				126 link Description: Панель мониторинга, Value: status.play.google.com/
+				127 link Description: Справка, Value: play.google.com/console/u/0/developers/7352115345592950495/help-and-support?app=4976408092958094737
+				128 text © Google, 2026
+				129 link Description: Конфиденциальность, Value: google.com/policies/privacy/
+				130 link Description: Соглашение о распространении ПО, Value: play.google.com/about/developer-distribution-agreement.html
+				131 link Description: Условия использования, Value: play.google.com/about/console/terms-of-service/
+	132 container
+		133 button logo icon
+			134 image logo icon
+			135 image
+		136 container
+			137 button
+
+The focused UI element is 142 button Свернуть все

@@ -1,0 +1,219 @@
+Browser tab: 1941752202, Title: "Безопасность данных | Untouch", URL: "https://play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/app-content/data-privacy-security".
+1 AXWebArea Безопасность данных | Untouch, URL: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/app-content/data-privacy-security
+	2 container
+		3 text Загрузка Google Play Console
+		4 container
+			5 container
+				6 link Description: Логотип Google Play Console, Value: play.google.com/console/u/0/developers/7352115345592950495/app-list
+				7 button Непрочитанные уведомления Открыть центр уведомлений
+					8 text Непрочитанные уведомления
+				9 button Untouch
+					10 text Untouch
+				11 button Сменить аккаунт разработчика
+					12 image Сменить аккаунт разработчика
+			13 container
+				14 link Description: Все приложения, Value: play.google.com/console/u/0/developers/7352115345592950495/app-list
+				15 content list
+					16 container Панель управления
+						17 button Панель управления
+							18 text Панель управления
+					19 container Статистика
+						20 button Статистика
+							21 text Статистика
+					22 container Обзор публикации
+						23 button Обзор публикации
+							24 text Обзор публикации
+					25 container Защищено Google Play
+						26 button Защищено Google Play
+							27 text Защищено Google Play
+					28 container (collapsed) Description: Тестирование и выпуск, Secondary Actions: Expand
+						29 button Тестирование и выпуск
+							30 text Тестирование и выпуск
+					31 container (expanded) Description: Мониторинг и улучшение, Secondary Actions: Collapse
+						32 button Мониторинг и улучшение
+							33 text Мониторинг и улучшение
+						34 content list
+							35 container
+								36 container (collapsed) Description: Охват и устройства, Secondary Actions: Expand
+									37 button Охват и устройства
+								38 container (collapsed) Description: Оценки и отзывы, Secondary Actions: Expand
+									39 button Оценки и отзывы
+								40 container (collapsed) Description: Android Vitals, Secondary Actions: Expand
+									41 button Android Vitals
+								42 container (expanded) Description: Правила и программы, Secondary Actions: Collapse
+									43 button Правила и программы
+									44 content list
+										45 container
+											46 container Соответствие правилам
+												47 button Соответствие правилам
+											48 container Контент приложения
+												49 button Контент приложения
+											50 container (collapsed) Description: Программы, Secondary Actions: Expand
+												51 button Программы
+					52 container (collapsed) Description: Привлечение пользователей, Secondary Actions: Expand
+						53 button Привлечение пользователей
+							54 text Привлечение пользователей
+					55 container (collapsed) Description: Монетизация с Google Play, Secondary Actions: Expand
+						56 button Монетизация с Google Play
+							57 text Монетизация с Google Play
+			58 container main-content
+				59 container
+					60 link Description: Вернуться на страницу "Контент приложения", Value: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/app-content/overview
+					61 heading Безопасность данных, Value: 1
+						62 text Безопасность данных
+					63 button Экспортировать в виде CSV-файла
+						64 text Экспортировать в виде CSV-файла
+					65 button Импортировать из CSV-файла
+						66 text Импортировать из CSV-файла
+					67 container
+						68 text Объясните пользователям, как ваше приложение собирает и передает личные данные.
+						69 button Показать подробную информацию о следующей странице: Безопасность данных
+					70 tab group
+						71 tab (selectable, disabled, settable, boolean) Description: Шаг 1 из 5: Общие сведения, Value: 0
+Общие сведения
+						72 tab (selected, settable, boolean) Description: Шаг 2 из 5: Сбор и безопасность данных, Value: 1
+							138 text 2
+							139 text Сбор и безопасность данных
+						73 tab (selectable, disabled, settable, boolean) Description: Шаг 3 из 5: Типы данных, Value: 0
+3
+Типы данных
+						74 tab (selectable, disabled, settable, boolean) Description: Шаг 4 из 5: Использование и обработка данных, Value: 0
+4
+Использование и обработка данных
+						75 tab (selectable, disabled, settable, boolean) Description: Шаг 5 из 5: Предварительный просмотр, Value: 0
+5
+Предварительный просмотр
+					76 container a8670234C-722C-4940-A122-1889B528EEF6--1
+						140 heading Сбор и безопасность данных, Value: 2
+							141 text Сбор и безопасность данных
+						142 container
+							143 text Проверьте перечень пользовательских данных, информацию о которых вам нужно предоставить.
+							144 link Description: Посмотреть обязательные типы данных, Откроется на новой вкладке, Value: support.google.com/googleplay/android-developer/answer/10787469?hl=ru#types
+						145 container
+							146 text Ваше приложение собирает пользовательские данные или передает их третьим лицам?
+							147 Ваше приложение собирает пользовательские данные или передает их третьим лицам?
+								148 container
+									149 radio button (settable, integer) Description: Да, Value: 1, ID: a2B01B299-24C6-4530-A7A7-DC7CC994C284--25
+							150 container a2B01B299-24C6-4530-A7A7-DC7CC994C284--26
+								151 container
+									152 text Все пользовательские данные, которые собирает приложение, передаются в зашифрованном виде?
+									153 link Description: Подробнее о том, как следует отвечать на вопросы…, Откроется на новой вкладке, Value: support.google.com/googleplay/android-developer/answer/10787469?hl=ru#other
+									154 Все пользовательские данные, которые собирает приложение, передаются в зашифрованном виде?
+										155 container
+											156 radio button (settable, integer) Description: Да, Value: 1, ID: a2B01B299-24C6-4530-A7A7-DC7CC994C284--42
+										157 container
+											158 radio button (settable, integer) Description: Нет, Value: 0, ID: a2B01B299-24C6-4530-A7A7-DC7CC994C284--43
+								159 container
+									160 text Какие способы создания аккаунта доступны в вашем приложении? Выберите все подходящие варианты. Сюда входят аккаунты, которые пользователи создают полностью в самом приложении или перейдя из него на предназначенную для этого веб-страницу. Именем пользователя может быть идентификатор, адрес электронной почты или номер телефона. Для подтверждения личности может использоваться двухэтапная аутентификация, одноразовый код, биометрия или система единого входа.
+									161 container Какие способы создания аккаунта доступны в вашем приложении? Выберите все подходящие варианты.
+										162 container
+											163 checkbox (settable, integer) Description: Имя пользователя и пароль, Value: 0
+											164 text Имя пользователя и пароль
+										165 container
+											166 checkbox (settable, integer) Description: Имя пользователя и другие данные для подтверждения личности, Value: 0
+											167 text Имя пользователя и другие данные для подтверждения личности
+										168 container
+											169 checkbox (settable, integer) Description: Имя пользователя, пароль и другие данные для аутентификации, Value: 0
+											170 text Имя пользователя, пароль и другие данные для аутентификации
+										171 container
+											172 checkbox (settable, integer) Description: OAuth, Value: 1
+											173 text OAuth
+										174 container
+											175 checkbox (settable, integer) Description: Другое, Value: 1
+											176 text Другое
+										177 container
+											178 text Опишите, какой способ создания аккаунта используется в вашем приложении.
+											179 container Опишите, какой способ создания аккаунта используется в вашем приложении.
+												180 text field (settable) The app automatically creates a guest game profile using a random installation identifier and a securely stored secret. Optional Sign in with Google (OAuth) links and restores the guest profile. Google sign-in is not required to play.
+										181 container
+											182 checkbox (disabled, settable, integer) Description: В приложении нельзя создать аккаунт, Value: 0
+											183 text В приложении нельзя создать аккаунт
+								184 container
+									185 text Укажите ссылку, по которой пользователи могут запросить удаление аккаунта и связанных с ним данных
+									186 container
+										187 text URL для запроса на удаление аккаунта
+										188 text field (settable) URL для запроса на удаление аккаунта, Value: https://untouch.fun/delete-account/
+									189 text Этот URL будет виден на странице приложения в Google Play. По ссылке должен открываться ресурс, на котором:
+									190 content list
+										191 container
+											192 AXListMarker •
+											193 text упомянуто название приложения или имя разработчика, указанные на странице приложения;
+										194 container
+											195 AXListMarker •
+											196 text размещена на видном месте пошаговая инструкция о том, как запросить удаление аккаунта;
+										197 container
+											198 AXListMarker •
+											199 text содержится информация о том, данные каких типов будут удалены или сохранены, и о сроках хранения.
+								200 container
+									201 text Вы предоставляете пользователям возможность запросить полное или частичное удаление своих данных без удаления аккаунта? (необязательно)
+									202 container
+										203 text Это позволяет пользователям лучше контролировать свои данные.
+										204 link Description: Подробнее о требованиях Google Play в отношении удаления аккаунтов, Откроется на новой вкладке, Value: support.google.com/googleplay/android-developer/answer/13327111?hl=ru
+									205 Вы предоставляете пользователям возможность запросить полное или частичное удаление своих данных без удаления аккаунта?
+										206 container
+											207 radio button (settable, integer) Description: Да, Value: 1, ID: a2B01B299-24C6-4530-A7A7-DC7CC994C284--32
+										208 container
+											209 text Укажите ссылку, по которой пользователи могут запросить удаление своих данных.
+											210 container
+												211 text URL для запроса на удаление данных
+												212 text field (settable) URL для запроса на удаление данных, Value: https://untouch.fun/delete-account/
+											213 text Этот URL будет виден на странице приложения в Google Play. По ссылке должен открываться ресурс, на котором:
+											214 content list
+												215 container
+													216 AXListMarker •
+													217 text упомянуто название приложения или имя разработчика, указанные на странице приложения;
+												218 container
+													219 AXListMarker •
+													220 text размещена на видном месте пошаговая инструкция о том, как запросить удаление данных.
+												221 container
+													222 AXListMarker •
+													223 text содержится информация о том, данные каких типов будут удалены или сохранены, и о сроках хранения.
+										224 container
+											225 radio button (settable, integer) Description: Нет, Value: 0, ID: a2B01B299-24C6-4530-A7A7-DC7CC994C284--36
+										226 container
+											227 radio button (settable, integer) Description: Нет, но пользовательские данные автоматически удаляются в течение 90 дней, Value: 0, ID: a2B01B299-24C6-4530-A7A7-DC7CC994C284--37
+									228 button
+										229 text Удалить ответы
+							230 Ваше приложение собирает пользовательские данные или передает их третьим лицам?
+								231 container
+									232 radio button (settable, integer) Description: Нет, Value: 0, ID: a2B01B299-24C6-4530-A7A7-DC7CC994C284--38
+						233 heading Дополнительные значки, Value: 3
+							234 text Дополнительные значки
+						235 text Вы можете показывать дополнительные значки на странице приложения в Google Play. Это поможет сделать ваше приложение заметнее и повысить доверие пользователей.
+						236 container
+							237 heading Независимая проверка безопасности, Value: 4
+								238 text Независимая проверка безопасности
+							239 text Получите заключение о соответствии международному стандарту безопасности.
+							240 button Подробнее о независимой проверке безопасности
+								241 text Подробнее
+						242 container
+							243 heading Поддерживаются платежи через UPI, Value: 4
+								244 text Поддерживаются платежи через UPI
+							245 text Если вы распространяете в Индии приложение, в котором используется Единый платежный интерфейс (UPI), такое приложение можно аккредитовать в Национальной платежной корпорации Индии (NPCI).
+							246 button Подробнее о платежах через UPI
+								247 text Подробнее
+					115 text Шаг 2 из 5: Сбор и безопасность данных
+					116 container
+						117 button Далее
+							118 text Далее
+						248 button Назад
+							249 text Назад
+						250 button (disabled) Сохранить проект
+							251 text Сохранить проект
+						252 button (disabled) Не сохранять изменения
+							253 text Не сохранять изменения
+				125 link Description: Информация об обновлениях, Value: play.google.com/console/about/whats-new/
+				126 link Description: Панель мониторинга, Value: status.play.google.com/
+				127 link Description: Справка, Value: play.google.com/console/u/0/developers/7352115345592950495/help-and-support?app=4976408092958094737
+				128 text © Google, 2026
+				129 link Description: Конфиденциальность, Value: google.com/policies/privacy/
+				130 link Description: Соглашение о распространении ПО, Value: play.google.com/about/developer-distribution-agreement.html
+				131 link Description: Условия использования, Value: play.google.com/about/console/terms-of-service/
+	132 container
+		133 button logo icon
+			134 image logo icon
+			135 image
+		136 container
+			137 button
+
+The focused UI element is 72 tab (selected, settable, boolean) Description: Шаг 2 из 5: Сбор и безопасность данных, Value: 1

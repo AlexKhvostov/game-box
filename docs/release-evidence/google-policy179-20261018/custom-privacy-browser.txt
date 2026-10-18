@@ -1,0 +1,141 @@
+Browser tab: 1941752208, Title: "Политика конфиденциальности Untouch — Best4U", URL: "https://untouch.fun/privacy/".
+0 AXWebArea Политика конфиденциальности Untouch — Best4U, URL: untouch.fun/privacy/
+	1 container
+		2 link Description: untouch ✳, Value: untouch.fun/
+		3 container Навигация
+			4 link Description: English, Value: untouch.fun/privacy/#english
+			5 link Description: Удаление данных, Value: untouch.fun/delete-account/
+		6 text Best4U · Обновлено 15 октября 2026 года
+		7 heading Политика конфиденциальности, Value: 1
+			8 text Политика конфиденциальности
+		9 container
+			10 text Эта политика описывает обработку данных в Android-игре  Untouch  (com.best4u.untouch), разработчик —  Best4U , и на страницах поддержки untouch.fun. По вопросам данных пишите на
+			11 link Description: support@untouch.fun, Value: mailto:support@untouch.fun
+			12 text . Telegram-версия использует отдельные функции Telegram и не входит в описанный здесь состав Android-данных.
+		13 container
+			14 text Состояние функций на 15 октября 2026 года.  В Android-версии используются энергия, заряд батарей, задания и приглашения друзей. Демонстрационная реклама Яндекса доступна только пользователям 18+ после отдельного добровольного разрешения на текущий сеанс. В тестовых сборках подключена оплата через Google Play. Бесплатны только лицензионные тестовые покупки: аккаунт должен быть добавлен в лицензионные тестировщики, а в окне Google должен быть выбран явно обозначенный тестовый способ оплаты. Закрытый тест не делает обычную банковскую карту тестовой: она может привести к реальному списанию. Если сервер разрешает отдельное бесплатное начисление энергии, это не покупка и не просмотр рекламы.
+		15 heading Аналитика сайта untouch.fun — с 14 октября 2026 года, Value: 2
+			16 text Аналитика сайта untouch.fun — с 14 октября 2026 года
+		17 text На лендинге используется Google Analytics 4 после разрешения посетителя. Аналитика учитывает посещения и источники переходов, UTM-метки кампаний, запуск демоигры, повторные попытки, длительность раунда и нажатия кнопок Google Play, App Store и Telegram. Cookies помогают различать посещения и сеансы. Имя, Gmail, игровой профиль и идентификатор игрока из приложения в эту аналитику не передаются. Рекламные функции Google Signals и персонализация рекламы отключены.
+		18 container
+			19 text До разрешения и при выборе «Без аналитики» Google-тег не загружается. Решение хранится в браузере. Изменить его можно кнопкой «Настройки аналитики» внизу лендинга; при отказе аналитические cookies сайта удаляются. Блокировщики могут ограничивать сбор статистики. Это отдельная аналитика сайта и не меняет настройку Firebase Analytics в Android-приложении.
+			20 link Description: Как Google обрабатывает данные сайтов-партнёров, Value: policies.google.com/technologies/partner-sites
+			21 text .
+		22 heading Возрастная группа, Value: 2
+			23 text Возрастная группа
+		24 text Возрастная группа сохраняется только на устройстве; дата рождения не запрашивается, группа не отправляется игровому серверу или рекламной сети. Играть и сохранять результаты можно без выбора группы. Группа запрашивается перед получением ресурсов. Ошибочный выбор можно исправить в аккаунте игры: «Возраст» → «Изменить», без сброса прогресса. Исправление не включает рекламу автоматически. Реклама доступна только допущенным пользователям 18+ после отдельного добровольного разрешения на сеанс.
+		25 heading Какие данные обрабатывает игра, Value: 2
+			26 text Какие данные обрабатывает игра
+		27 content list
+			28 container
+				29 AXListMarker •
+				30 text Гостевой профиль:  случайный идентификатор установки, постоянный идентификатор игрока, выбранный ник и смещение часового пояса. Они нужны для доступа к своему прогрессу, работы суточных игровых функций и рейтинга.
+			31 container
+				32 AXListMarker •
+				33 text Игровые действия и прогресс:  результаты и время попыток, энергия, заряд батарей, усиления, награды и игровые операции. Эти сведения нужны для сохранения прогресса, рейтинга и защиты от повторного начисления наград.
+			34 container
+				35 AXListMarker •
+				36 text Технические сведения:  IP-адрес и параметры запросов могут попадать в журналы хостинга; они используются для работы сервиса, диагностики и ограничения злоупотреблений.
+			37 container
+				38 AXListMarker •
+				39 text Настройки устройства:  настройки звука, музыки и интерфейса сохраняются локально.
+			40 container
+				41 AXListMarker •
+				42 text Обращения в поддержку:  адрес отправителя, содержание письма и сведения, которые вы предоставили для поиска профиля и проверки обращения.
+		43 heading Отзывы и приглашения, Value: 2
+			44 text Отзывы и приглашения
+		45 text Вы можете добровольно отправить отзыв из игры: текст от 20 до 1000 символов и, по желанию, оценку от 1 до 5. Сервер сохраняет текст, оценку, идентификатор игрока, дату и сведения о награде и ставит отзыв в очередь отправки на support@untouch.fun через почтового поставщика. Email игрока не добавляется к такому отзыву автоматически. Эти сведения нужны для обратной связи, улучшения игры и предотвращения повторного получения награды.
+		46 text При участии в приглашениях сервер хранит код, связь пригласившего и приглашённого профилей, выполнение условий и начисленные награды. В списке пригласившего могут отображаться игровой ник приглашённого, его прогресс по условию и награда. Игра не читает адресную книгу телефона и не отправляет приглашения автоматически: ссылкой делится сам игрок.
+		47 heading Что видят другие игроки, Value: 2
+			48 text Что видят другие игроки
+		49 text Игровой ник, публичный идентификатор профиля и результаты доступны в общем рейтинге, в том числе игрокам Telegram-версии. Не используйте в нике телефон, адрес или другие личные сведения. Секрет доступа к профилю не публикуется.
+		50 heading Вход Google и восстановление профиля, Value: 2
+			51 text Вход Google и восстановление профиля
+		52 container
+			53 text Для привязки и восстановления игрового профиля мы используем идентификатор аккаунта Google и подтверждение входа (ID token). Приложение передаёт подтверждение нашему серверу; сервер проверяет его и связывает идентификатор Google с игровым профилем. Пароль Google игре и нашему серверу не передаётся. Привязка необязательна: играть можно с гостевым профилем. Она позволяет восстановить связанный прогресс после переустановки или на другом устройстве. Подтверждение входа может содержать email, имя и адрес изображения профиля Google; сервер проверяет токен в памяти и сохраняет идентификатор Google, подтверждённый адрес почты и имя, связанные с игровым профилем. Имя и почта показываются владельцу в аккаунте игры и доступны администратору для идентификации, поддержки и удаления профиля. По умолчанию в рейтинге виден только игровой ник. Если игрок снимает галочку «Не показывать мой аккаунт в рейтинге», рядом с ником может показываться имя Google. Почта, идентификатор Google и токен в рейтинг не передаются. Токен и изображение Google в базе не сохраняются. В аккаунте игры можно отключить Google: сервер удалит привязку и сохранённые имя и email Google, а игровой прогресс останется в гостевом профиле. Это не удаляет профиль и не отменяет подписку. Google обрабатывает данные по своей
+			54 link Description: политике конфиденциальности, Value: policies.google.com/privacy?hl=ru
+			55 text .
+		56 heading Покупки энергии и подписка на батареи — при включении, Value: 2
+			57 text Покупки энергии и подписка на батареи — при включении
+		58 text Разовые покупки пополняют энергию. Недельная подписка с автоматическим продлением подключает дополнительные батареи к одной бесплатной: планируется +1 батарея за 1 доллар США или +4 за 3 доллара США на 7 дней. Это базовые плановые цены; доступность, точную цену и валюту вашего региона, период и условия Google Play показывает перед подтверждением. Каждая батарея накапливает энергию до своего предела; заряд можно забрать на баланс. В тестовых сборках подключена оплата через Google Play. Покупка бесплатна только для лицензионного тестировщика при выборе явно обозначенного Google тестового способа оплаты. Обычная банковская карта может привести к реальному списанию, даже в закрытом тесте. Расчёт и списание денег проводит Google Play. Номер карты и банковские реквизиты оплаты наше приложение и игровой сервер не получают.
+		59 text Для проверки, выдачи и восстановления покупки приложение передаёт нашему серверу идентификатор товара и токен покупки — техническое подтверждение, позволяющее запросить её состояние у Google. В Google Play передаётся хеш внутреннего игрового идентификатора для связи покупки с профилем. Сервер обрабатывает историю покупок, связанный игровой профиль, товар, даты, выданную энергию, срок подписки и сведения о её состоянии и возвратах. Токен хранится в зашифрованном виде вместе с его хешем. Эти сведения нужны для выдачи оплаченного, защиты от повторной выдачи, восстановления, продления, отмены и обработки возвратов. При настройке уведомлений Google сервер получает события покупок и подписок и проверяет их состояние через Google Play.
+		60 container
+			61 text Подпиской можно управлять и отменять её продление в
+			62 link Description: Google Play, Value: play.google.com/store/account/subscriptions
+			63 text . Удаление приложения или игрового профиля само по себе не отменяет подписку. Обработка Google данных платежа регулируется правилами Google; удаление профиля Untouch не удаляет историю заказов в аккаунте Google.
+		64 heading Реклама и поставщики услуг, Value: 2
+			65 text Реклама и поставщики услуг
+		66 container
+			67 text В тестовой Android-версии используются демонстрационные объявления Yandex Mobile Ads. SDK не запускается при старте игры: его можно включить только допущенному пользователю 18+ после отдельного разрешения при выборе видео или в настройках аккаунта. Можно играть без рекламы. Разрешение не переносится на следующий запуск. Его отзыв прекращает новые рекламные запросы; для полной остановки уже запущенного модуля нужно закрыть приложение. При работе SDK Яндекс получает технические данные соединения и доступные SDK сведения об устройстве и приложении; даже демонстрационная реклама обращается к сервисам поставщика. Доступность рекламных идентификаторов зависит от версии Android и конфигурации SDK; разрешение AD_ID в этой сборке удалено. Мы не передаём Яндексу игровой ник и результаты. Применяются
+			68 link Description: политика конфиденциальности Яндекса, Value: yandex.ru/legal/confidential/
+			69 text  и настройки SDK. Передача местоположения выключена, согласие на персонализированную рекламу автоматически не предоставляется.
+		70 text Игра не запрашивает разрешения на камеру, микрофон, контакты или местоположение. В текущей сборке сбор Firebase Analytics отключён. Для сервера и сайта используется хостинг Hostland; для ответов на обращения — почтовый сервис. Эти поставщики обрабатывают необходимые для оказания своих услуг данные. Данные могут обрабатываться вне вашей страны.
+		71 heading Защита и сроки хранения, Value: 2
+			72 text Защита и сроки хранения
+		73 text Связь приложения с сервером использует HTTPS. Секрет доступа хранится в защищённом хранилище Android; сервер использует его хеш. Доступ к рабочей базе ограничен обслуживанием игры.
+		74 container
+			75 text Профиль и прогресс хранятся, пока профиль используется и пока не исполнен подтверждённый запрос на удаление. После подтверждения владения данные удаляются из рабочей базы в течение 30 календарных дней. Удаление приложения с телефона само по себе не удаляет серверный профиль. Состав удаляемых данных и порядок обращения описаны на
+			76 link Description: странице удаления, Value: untouch.fun/delete-account/
+			77 text . После включения платежей запрос охватывает и связанные записи покупок. Если отдельные минимальные сведения необходимо сохранить по конкретному законному основанию, поддержка объяснит состав, цель и срок такого хранения; это не разрешение хранить всю историю бессрочно.
+		78 text После удаления из рабочей базы остаточные данные могут некоторое время сохраняться в резервных копиях и технических журналах хостинга. Hostland указывает доступность стандартных копий сайтов и баз за последние 14 дней; фактический срок конкретных копий и журналов уточняется при обработке запроса. Мы сообщим вам о сохраняемых данных, причине и сроке, если такое хранение необходимо. Резервные копии не используются для возвращения удалённого профиля в обычную работу.
+		79 heading Ваши обращения и изменения политики, Value: 2
+			80 text Ваши обращения и изменения политики
+		81 container
+			82 text Вы можете запросить сведения о своих данных, исправление или удаление через
+			83 link Description: support@untouch.fun, Value: mailto:support@untouch.fun
+			84 text . Для защиты профиля мы можем попросить подтвердить владение им. Не присылайте пароли, коды входа, секрет установки или банковские реквизиты.
+		85 text Если вы считаете, что ребёнок передал нам личные сведения, свяжитесь с поддержкой для проверки и удаления. При изменении функций игры или состава данных мы обновим эту страницу и дату редакции.
+		86 container english
+			87 heading Privacy policy — English, Value: 2
+				88 text Privacy policy — English
+			89 container
+				90 text Untouch for Android (com.best4u.untouch) is developed by Best4U. Contact:
+				91 link Description: support@untouch.fun, Value: mailto:support@untouch.fun
+				92 text . This policy covers the Android game and these support pages, not the separate Telegram experience.
+			93 text The age-group declaration stays on the device; no birthday is requested and the age group is not sent to the game server or ad network. Gameplay and score saving do not require an age-group answer. Resource actions ask for a group. A mistaken answer can be corrected via Account → Age → Change without resetting game progress. Correction does not enable ads automatically. Ads are available only to users aged 18+ after separate voluntary permission for the current session.
+			94 text We process an installation identifier, player ID, nickname, time-zone offset, gameplay results, progress, rewards and operations to run the game, save progress and prevent duplicate rewards. Sound and interface preferences are stored locally. Hosting logs may contain IP addresses and request details. Support emails contain your address and the information you send. Nicknames, public player IDs and scores are visible in the shared leaderboard.
+			95 heading Google sign-in and recovery, Value: 3
+				96 text Google sign-in and recovery
+			97 container
+				98 text To link and restore a game profile, we use the Google account identifier and proof of sign-in (ID token). The app sends the token to our server, which verifies it and links the Google identifier to the game profile. Your Google password is not sent to Untouch or our server. Linking is optional: you can play as a guest. It lets you recover linked progress after reinstallation or on another device. The sign-in token may contain an email address, name and Google profile image URL; our server verifies the token in memory and stores the Google identifier, verified email address and display name linked to the game profile. The name and email are visible to the profile owner and available to the administrator for identification, support and profile deletion. By default, only the game nickname is shown on the leaderboard. If the player unchecks “Hide my account on the leaderboard”, their Google display name may appear next to their nickname. Email, Google identifier and token are never sent to the leaderboard. The token and Google image are not stored in the database. You can unlink Google in the game account. The server removes the Google link and stored Google name/email while progress remains in the guest profile. This does not delete the profile or cancel a subscription. Google processes data under its
+				99 link Description: privacy policy, Value: policies.google.com/privacy
+				100 text .
+			101 heading Feedback and invitations, Value: 3
+				102 text Feedback and invitations
+			103 text You can voluntarily send an in-game comment of 20–1000 characters and an optional 1–5 rating. Our server stores the comment, rating, player ID, date and reward details and queues delivery to support@untouch.fun through our email provider. The player’s email is not automatically added to this feedback. We use it to respond to feedback, improve the game and prevent repeated rewards. Invitations store the code, inviter/invitee relationship, qualifying progress and rewards. The inviter may see the invited player’s game nickname, qualifying progress and reward. The app does not read phone contacts or send invitations automatically; players choose how to share their link.
+			104 heading Website analytics — from 14 October 2026, Value: 3
+				105 text Website analytics — from 14 October 2026
+			106 text The untouch.fun landing page uses Google Analytics 4 after visitor permission. It measures visits, referral and UTM campaign sources, demo starts, retries, round duration and Google Play, App Store and Telegram clicks. Cookies distinguish visits and sessions. App player IDs, profiles, names and Gmail addresses are not sent to this website analytics. Google Signals and advertising personalization are disabled.
+			107 container
+				108 text Before permission, or when analytics is refused, the Google tag is not loaded. The choice stays in the browser and can be changed using the analytics settings button in the website footer. Refusal deletes the website analytics cookies. Blockers may limit measurement. Website analytics does not change the Android Firebase Analytics setting.
+				109 link Description: How Google processes partner-site data, Value: policies.google.com/technologies/partner-sites
+				110 text .
+			111 heading Energy purchases and battery subscriptions — when enabled, Value: 3
+				112 text Energy purchases and battery subscriptions — when enabled
+			113 text One-time purchases add energy. A weekly auto-renewing subscription connects extra batteries in addition to one free battery. The planned base options are +1 battery for US$1 or +4 for US$3 per 7 days; availability, the exact regional price and currency, period and terms are displayed by Google Play before confirmation. Each battery accumulates energy up to its capacity, which can be collected into the balance. Google Play checkout is connected in test builds. A purchase is free only for an account registered as a license tester when an explicitly labelled Google test payment method is selected. An ordinary bank card may cause a real charge, including on a closed test track. Google Play processes payment. Our app and game server do not receive your card number or payment bank details.
+			114 text To verify, deliver and restore purchases, the app sends our server the product identifier and purchase token, a technical proof used to query Google about the purchase. A hash of the internal game identifier is sent to Google Play to associate the purchase with the profile. The server processes purchase history, the associated game profile, product, dates, delivered energy, subscription expiry, status and refund information. The token is stored encrypted together with its hash. These records support delivery, prevention of duplicate grants, restoration, renewal, cancellation and refunds. When Google notifications are configured, our server receives purchase and subscription events and verifies their state through Google Play.
+			115 container
+				116 text You can manage subscriptions and cancel renewal in
+				117 link Description: Google Play, Value: play.google.com/store/account/subscriptions
+				118 text . Uninstalling the app or deleting a game profile does not cancel a subscription. Google processes payment data under its own policies. Deleting an Untouch profile does not delete order history in your Google account.
+			119 container
+				120 text The Android test version uses Yandex demo ads only for users aged 18+ after separate voluntary permission when choosing a video or in account settings. The SDK does not initialize at game launch. You can play without ads. Permission expires when the app closes. Revocation stops new requests; close the app to fully stop an initialized SDK. Yandex receives technical connection data and device/app information available to its SDK, including for demo ads. Advertising identifier availability depends on Android version and SDK configuration; this build removes the AD_ID permission. We do not send your game nickname or results to Yandex. See
+				121 link Description: Yandex’s privacy policy, Value: yandex.com/legal/confidential/
+				122 text . Location tracking and automatic consent to personalized advertising are off. The app requests no camera, microphone, contacts or location permission. Firebase Analytics collection is disabled. The Android version has energy, batteries, tasks and invitations, optional Google linking/recovery, and Google Play checkout in test builds. Where the server permits a test grant, unavailable videos or energy packs can offer a separate free grant; this is not a purchase or ad impression. Free license-test purchases require a registered license tester account and an explicitly labelled Google test payment method. A closed test track does not turn an ordinary bank card into a test method: it may cause a real charge. Creating a Console product does not make it purchasable in the game.
+			123 text We use HTTPS, protected device storage and server-side credential hashes. Hostland hosts the service; email providers process support correspondence. Providers may process data outside your country. Profile data remains until a verified deletion request is fulfilled. We delete live database data within 30 calendar days after ownership verification. Uninstalling does not delete the server profile. Once payments are enabled, a deletion request also covers linked purchase records. If specific minimal records must be retained on a concrete lawful basis, support will explain the data, purpose and retention period; this is not permission to keep the whole history indefinitely. Residual hosting backups and logs may remain temporarily; Hostland describes a standard 14-day backup history. Actual backup/log retention and any justified exceptions will be explained when handling your request. Backups are not used to return a deleted profile to normal service.
+			124 container
+				125 text You may request access, correction or deletion at support@untouch.fun. We may verify ownership but never ask for passwords, login codes, installation secrets or bank details. Contact us if a child has supplied personal information. Read
+				126 link Description: account and data deletion instructions, Value: untouch.fun/delete-account/#english
+				127 text . Updated: 15 October 2026.
+		128 container
+			129 link Description: На главную, Value: untouch.fun/
+			130 link Description: Удаление аккаунта и данных, Value: untouch.fun/delete-account/
+			131 link Description: Поддержка, Value: mailto:support@untouch.fun
+	132 container
+		133 button logo icon
+			134 image logo icon
+			135 image
+		136 container
+			137 button
+
+The focused UI element is 0 AXWebArea Политика конфиденциальности Untouch — Best4U, URL: untouch.fun/privacy/

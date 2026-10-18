@@ -1,0 +1,15 @@
+{
+  "localLinksChecked": 24,
+  "missing": [],
+  "evidence": {
+    "privacy-policy-console.txt": true,
+    "custom-privacy-browser.txt": true,
+    "app-access.txt": true,
+    "target-audience.txt": true,
+    "data-collection.txt": true,
+    "data-safety-preview.txt": true,
+    "publication-final.txt": true
+  },
+  "codeChanged": false,
+  "appExecuted": false
+}

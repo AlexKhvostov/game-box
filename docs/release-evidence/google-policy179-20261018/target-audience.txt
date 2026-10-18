@@ -1,0 +1,146 @@
+Browser tab: 1941752202, Title: "Целевая аудитория и возрастные ограничения | Untouch", URL: "https://play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/app-content/target-audience-content".
+1 AXWebArea Целевая аудитория и возрастные ограничения | Untouch, URL: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/app-content/target-audience-content
+	2 container
+		3 text Загрузка Google Play Console
+		4 container
+			5 container
+				6 link Description: Логотип Google Play Console, Value: play.google.com/console/u/0/developers/7352115345592950495/app-list
+				7 button Непрочитанные уведомления Открыть центр уведомлений
+					8 text Непрочитанные уведомления
+				9 button Untouch
+					10 text Untouch
+				11 button Сменить аккаунт разработчика
+					12 image Сменить аккаунт разработчика
+			13 container
+				14 link Description: Все приложения, Value: play.google.com/console/u/0/developers/7352115345592950495/app-list
+				15 content list
+					16 container Панель управления
+						17 button Панель управления
+							18 text Панель управления
+					19 container Статистика
+						20 button Статистика
+							21 text Статистика
+					22 container Обзор публикации
+						23 button Обзор публикации
+							24 text Обзор публикации
+					25 container Защищено Google Play
+						26 button Защищено Google Play
+							27 text Защищено Google Play
+					28 container (collapsed) Description: Тестирование и выпуск, Secondary Actions: Expand
+						29 button Тестирование и выпуск
+							30 text Тестирование и выпуск
+					31 container (expanded) Description: Мониторинг и улучшение, Secondary Actions: Collapse
+						32 button Мониторинг и улучшение
+							33 text Мониторинг и улучшение
+						34 content list
+							35 container
+								36 container (collapsed) Description: Охват и устройства, Secondary Actions: Expand
+									37 button Охват и устройства
+								38 container (collapsed) Description: Оценки и отзывы, Secondary Actions: Expand
+									39 button Оценки и отзывы
+								40 container (collapsed) Description: Android Vitals, Secondary Actions: Expand
+									41 button Android Vitals
+								42 container (expanded) Description: Правила и программы, Secondary Actions: Collapse
+									43 button Правила и программы
+									44 content list
+										45 container
+											46 container Соответствие правилам
+												47 button Соответствие правилам
+											48 container Контент приложения
+												49 button Контент приложения
+											50 container (collapsed) Description: Программы, Secondary Actions: Expand
+												51 button Программы
+					52 container (collapsed) Description: Привлечение пользователей, Secondary Actions: Expand
+						53 button Привлечение пользователей
+							54 text Привлечение пользователей
+					55 container (collapsed) Description: Монетизация с Google Play, Secondary Actions: Expand
+						56 button Монетизация с Google Play
+							57 text Монетизация с Google Play
+			58 container main-content
+				59 container
+					60 link Description: Вернуться на страницу "Контент приложения", Value: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/app-content/overview
+					61 heading Целевая аудитория и возрастные ограничения, Value: 1
+						62 text Целевая аудитория и возрастные ограничения
+					63 button (disabled) Не сохранять изменения
+						64 text Не сохранять изменения
+					65 tab group
+						66 tab (selected, settable, boolean) Description: Шаг 1 из 5: Возраст целевой группы, Value: 1
+1
+Возраст целевой группы
+						67 tab (selectable, disabled, settable, boolean) Description: Шаг 2 из 5: О приложении, Value: 0
+2
+О приложении
+						68 tab (selectable, disabled, settable, boolean) Description: Шаг 3 из 5: Реклама, Value: 0
+3
+Реклама
+						69 tab (selectable, disabled, settable, boolean) Description: Шаг 4 из 5: Страница приложения, Value: 0
+4
+Страница приложения
+						70 tab (selectable, disabled, settable, boolean) Description: Шаг 5 из 5: Сводка, Value: 0
+5
+Сводка
+					71 container a52FABCA8-C149-498A-B7EC-DC9BA9267311--0
+						72 heading Возраст целевой группы, Value: 2
+							73 text Возраст целевой группы
+						74 container Целевая возрастная группа
+							75 text Целевая возрастная группа
+							76 text Какие целевые возрастные группы у вашего приложения?
+							77 text Основываясь на вашем ответе, мы сообщим о необходимых действиях и правилах, которым нужно следовать.
+							78 text При выборе определенных целевых возрастных групп, например только пользователей старше 18 лет, вы можете устанавливать дополнительные ограничения доступности приложения в Google Play.
+							79 container
+								80 text Прежде чем опубликовать приложение, обязательно ознакомьтесь с
+								81 link Description: правилами для разработчиков, Value: play.google.com/about/developer-content-policy/
+								82 text . Приложения, которые не соответствуют этим правилам, могут быть удалены из Google Play.
+								83 link Description: Подробнее о целевых возрастных группах вашего приложения., Откроется на новой вкладке, Value: support.google.com/googleplay/android-developer/answer/9285070#age-groups
+							84 text Выбрать группы пользователей младше 18 лет нельзя, поскольку вы запретили несовершеннолетним находить и скачивать ваше приложение.
+							85 container
+								86 checkbox (disabled, settable, integer) Description: До 5 лет, Value: 0
+								87 text До 5 лет
+							88 container
+								89 checkbox (disabled, settable, integer) Description: 6–8, Value: 0
+								90 text 6–8
+							91 container
+								92 checkbox (disabled, settable, integer) Description: 9–12, Value: 0
+								93 text 9–12
+							94 container
+								95 checkbox (disabled, settable, integer) Description: 13–15, Value: 0
+								96 text 13–15
+							97 container
+								98 checkbox (disabled, settable, integer) Description: 16–17, Value: 0
+								99 text 16–17
+							100 container
+								101 checkbox (settable, integer) Description: От 18 лет, Value: 1
+								102 text От 18 лет
+							103 container
+								104 checkbox (settable, integer) Value: 1, Description: Запретить доступ к моему приложению пользователям, которые указали в аккаунте Google, что они несовершеннолетние (необязательно) Я подтверждаю, что хочу, чтобы пользователи Google Play, которые указали, что они несовершеннолетние, не могли выполнять следующие действия: находить и скачивать мое приложение в Google Play; совершать покупки в приложении, в том числе оформлять новые подписки и продлевать действующие. Я понимаю, что Google Play может не применять эти ограничения к пользователям, которые не указали, что им меньше 18 лет.
+								105 container aCDFCA272-4118-4D07-B71F-BABC8AEF6F4F--39
+									106 text Запретить доступ к моему приложению пользователям, которые указали в аккаунте Google, что они несовершеннолетние (необязательно)
+									107 text Я подтверждаю, что хочу, чтобы пользователи Google Play, которые указали, что они несовершеннолетние, не могли выполнять следующие действия:
+									108 content list
+										109 container
+											110 AXListMarker •
+											111 text находить и скачивать мое приложение в Google Play;
+										112 container
+											113 AXListMarker •
+											114 text совершать покупки в приложении, в том числе оформлять новые подписки и продлевать действующие.
+									115 text Я понимаю, что Google Play может не применять эти ограничения к пользователям, которые не указали, что им меньше 18 лет.
+					116 container
+						117 button Далее
+							118 text Далее
+						119 button (disabled) Назад
+							120 text Назад
+				121 link Description: Информация об обновлениях, Value: play.google.com/console/about/whats-new/
+				122 link Description: Панель мониторинга, Value: status.play.google.com/
+				123 link Description: Справка, Value: play.google.com/console/u/0/developers/7352115345592950495/help-and-support?app=4976408092958094737
+				124 text © Google, 2026
+				125 link Description: Конфиденциальность, Value: google.com/policies/privacy/
+				126 link Description: Соглашение о распространении ПО, Value: play.google.com/about/developer-distribution-agreement.html
+				127 link Description: Условия использования, Value: play.google.com/about/console/terms-of-service/
+	128 container
+		129 button logo icon
+			130 image logo icon
+			131 image
+		132 container
+			133 button
+
+The focused UI element is 1 AXWebArea Целевая аудитория и возрастные ограничения | Untouch, URL: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/app-content/target-audience-content
