@@ -121,7 +121,12 @@ class InstantRoundJournal {
     return _binding;
   }
 
-  String? begin({required bool helmet, required bool jump, required int cost}) {
+  String? begin({
+    required bool helmet,
+    required bool jump,
+    required int cost,
+    String? preparedKey,
+  }) {
     final owner = _owner;
     if (!ready ||
         rulesUpdateRequired ||
@@ -134,7 +139,11 @@ class InstantRoundJournal {
         account.googleStage != null) {
       return null;
     }
-    final requestId = account.operationId();
+    final requestId = preparedKey ?? account.operationId();
+    if (!RegExp(r'^[a-f0-9]{64}$').hasMatch(requestId) ||
+        _rows.any((row) => row['requestId'] == requestId)) {
+      return null;
+    }
     _rows.add({
       'owner': owner,
       'requestId': requestId,

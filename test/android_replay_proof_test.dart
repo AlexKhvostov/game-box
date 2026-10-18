@@ -32,6 +32,15 @@ void main() {
             rng: ReplayRandom(key),
             wallInset: ArcadeRules.wallInset(config.borderWidth),
           )..resetLayout();
+          // Mix old transcripts and real visible poses after waiting on home.
+          List<List<double>>? startPose;
+          if (seed.isEven) {
+            for (var idle = 0; idle < seed * 3 + 8; idle++) {
+              world.tickIdle(.016);
+            }
+            world.startFromIdle();
+            startPose = world.startPose;
+          }
           var helmet = loadout & 1 != 0, dead = false;
           final jump = loadout & 2 != 0, events = <List<num>>[];
           double elapsed = 0, startLeft = config.startInvulnSec, helmetLeft = 0;
@@ -88,7 +97,11 @@ void main() {
             'requestId': key,
             'hadJump': jump,
             'hadHelmet': loadout & 1 != 0,
-            'proof': {'version': 1, 'events': events},
+            'proof': {
+              'version': 1,
+              'events': events,
+              'startPose': ?startPose,
+            },
             'timeMs': elapsed.floor(),
             'runDistance': ArcadeRules.runSteps(
               world.playerDistance,

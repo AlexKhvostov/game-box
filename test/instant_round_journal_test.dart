@@ -11,6 +11,7 @@ import 'package:game_box/data/mobile_account.dart';
 import 'package:game_box/data/scores_store.dart';
 import 'package:game_box/domain/gameplay_config.dart';
 import 'package:game_box/features/game/arcade_hud.dart';
+import 'package:game_box/features/game/game_field_painter.dart';
 import 'simple_energy_test.dart' as energy_fixture;
 import 'mobile_account_test.dart' show MemoryVault;
 
@@ -363,6 +364,46 @@ void main() {
     return e;
   }
 
+  test(
+    'prepared preview ID is used once without charging invalid or duplicate IDs',
+    () async {
+      final server = RunServer()..offline = true;
+      final e = await economy(server), a = RunAccount(server);
+      final journal = InstantRoundJournal(
+        account: a,
+        economy: e,
+        published: (_, _) async {},
+        recoverResult: (_) => null,
+        changed: () {},
+      );
+      await journal.bindOwner();
+      expect(
+        journal.begin(
+          helmet: false,
+          jump: false,
+          cost: 1,
+          preparedKey: 'invalid',
+        ),
+        isNull,
+      );
+      expect(e.energy, 50);
+      final key = 'a' * 64;
+      expect(
+        journal.begin(helmet: false, jump: false, cost: 1, preparedKey: key),
+        key,
+      );
+      await journal.complete(key, result);
+      expect(e.energy, 49);
+      expect(
+        journal.begin(helmet: false, jump: false, cost: 1, preparedKey: key),
+        isNull,
+      );
+      expect(e.energy, 49);
+      journal.dispose();
+      a.dispose();
+      e.dispose();
+    },
+  );
   for (final cost in [1, 2, 3]) {
     test(
       'last offline attempt costs $cost, zero survives restart and replay',
@@ -701,58 +742,87 @@ void main() {
       e.dispose();
     },
   );
-  testWidgets(
-    'touch enters playing on first frame while HTTP is unresolved, without preparing text',
-    (t) async {
-      t.view.physicalSize = const Size(412, 900);
-      t.view.devicePixelRatio = 1;
-      addTearDown(t.view.resetPhysicalSize);
-      addTearDown(t.view.resetDevicePixelRatio);
-      final server = RunServer()..gate = Completer<void>();
-      final e = await economy(server), a = RunAccount(server);
-      final scores = ScoresStore(
-        account: a,
-        instantEconomy: e,
-        storagePrefix: 'instant_widget_',
-      );
-      await scores.loadLocal();
-      await t.pumpWidget(
-        MultiProvider(
-          providers: [
-            ChangeNotifierProvider.value(value: e),
-            ChangeNotifierProvider.value(value: scores),
-            Provider.value(
-              value: const GameplayConfig(game: GameConfig(startInvulnSec: 60)),
-            ),
-          ],
-          child: const GameBoxApp(forceLocale: 'ru'),
-        ),
-      );
-      await t.pump();
-      await t.tap(find.byKey(const ValueKey('arcade-game-field')));
-      await t.pump();
-      expect(t.widget<ArcadeHud>(find.byType(ArcadeHud)).isPlaying, true);
-      await t.pump(const Duration(milliseconds: 32));
-      await t.pump(const Duration(milliseconds: 16));
-      expect(
-        t.widget<ArcadeHud>(find.byType(ArcadeHud)).timeMs(),
-        greaterThan(0),
-      );
-      expect(e.energy, 49);
-      expect(find.textContaining('Подготавливаем'), findsNothing);
-      expect(find.byType(CircularProgressIndicator), findsNothing);
-      t.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
-      await t.pump();
-      final paused = t.widget<ArcadeHud>(find.byType(ArcadeHud)).timeMs();
-      server.gate!.complete();
-      await t.pump();
-      await t.pump(const Duration(seconds: 1));
-      expect(t.widget<ArcadeHud>(find.byType(ArcadeHud)).timeMs(), paused);
-      await t.pumpWidget(const SizedBox());
-      scores.dispose();
-      a.dispose();
-      e.dispose();
-      t.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
-    },
-  );
+  for (final movingIdle in [false, true]) {
+    testWidgets(
+      'touch keeps visible enemies and enters playing while HTTP is unresolved: idleMove=$movingIdle',
+      (t) async {
+        t.view.physicalSize = const Size(412, 900);
+        t.view.devicePixelRatio = 1;
+        addTearDown(t.view.resetPhysicalSize);
+        addTearDown(t.view.resetDevicePixelRatio);
+        final server = RunServer()..gate = Completer<void>();
+        final e = await economy(server), a = RunAccount(server);
+        final scores = ScoresStore(
+          account: a,
+          instantEconomy: e,
+          storagePrefix: 'instant_widget_',
+        );
+        await scores.loadLocal();
+        await t.pumpWidget(
+          MultiProvider(
+            providers: [
+              ChangeNotifierProvider.value(value: e),
+              ChangeNotifierProvider.value(value: scores),
+              Provider.value(
+                value: GameplayConfig(
+                  game: GameConfig(
+                    startInvulnSec: 60,
+                    idleEnemiesMove: movingIdle,
+                  ),
+                  enemies: const EnemiesConfig(spinDegPerSec: 75),
+                ),
+              ),
+            ],
+            child: const GameBoxApp(forceLocale: 'ru'),
+          ),
+        );
+        await t.pump();
+        for (var i = 0; i < 40; i++) {
+          await t.pump(const Duration(milliseconds: 16));
+        }
+        GameFieldPainter painter() =>
+            t
+                    .widget<CustomPaint>(
+                      find.byKey(const ValueKey('arcade-game-field')),
+                    )
+                    .painter
+                as GameFieldPainter;
+        final preview = painter().world;
+        final positions = [for (final enemy in preview.enemies) enemy.pos];
+        final angles = [for (final enemy in preview.enemies) enemy.orientDeg];
+        expect(
+          preview.enemies.any((enemy) => enemy.pos != enemy.homePos),
+          true,
+        );
+        await t.tap(find.byKey(const ValueKey('arcade-game-field')));
+        await t.pump();
+        expect(painter().world, same(preview));
+        expect([for (final enemy in preview.enemies) enemy.pos], positions);
+        expect([for (final enemy in preview.enemies) enemy.orientDeg], angles);
+        expect(scores.activeInstantRoundKey, isNotNull);
+        expect(t.widget<ArcadeHud>(find.byType(ArcadeHud)).isPlaying, true);
+        await t.pump(const Duration(milliseconds: 32));
+        await t.pump(const Duration(milliseconds: 16));
+        expect(
+          t.widget<ArcadeHud>(find.byType(ArcadeHud)).timeMs(),
+          greaterThan(0),
+        );
+        expect(e.energy, 49);
+        expect(find.textContaining('Подготавливаем'), findsNothing);
+        expect(find.byType(CircularProgressIndicator), findsNothing);
+        t.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+        await t.pump();
+        final paused = t.widget<ArcadeHud>(find.byType(ArcadeHud)).timeMs();
+        server.gate!.complete();
+        await t.pump();
+        await t.pump(const Duration(seconds: 1));
+        expect(t.widget<ArcadeHud>(find.byType(ArcadeHud)).timeMs(), paused);
+        await t.pumpWidget(const SizedBox());
+        scores.dispose();
+        a.dispose();
+        e.dispose();
+        t.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      },
+    );
+  }
 }

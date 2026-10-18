@@ -43,7 +43,11 @@ android {
                 else -> "com.best4u.untouch.uiprobe"
             }
         } else "com.best4u.untouch"
-        resValue("string", "app_name", if (System.getenv("UNTOUCH_UI_PROBE") == "true") "Untouch · Энергия" else "Untouch")
+        // Keep every phone installation identifiable without opening settings.
+        val phoneLabel = if (System.getenv("UNTOUCH_UI_PROBE") == "true") {
+            "QA${flutter.versionCode} Untouch"
+        } else "Untouch ${flutter.versionCode}"
+        resValue("string", "app_name", phoneLabel)
         // Optional local UI probe: isolated storage and no production API calls.
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.

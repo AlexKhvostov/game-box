@@ -66,6 +66,8 @@ class _GameHomeScreenState extends State<GameHomeScreen>
   late final ValueNotifier<int> _hudFrame;
   double _hudAccumMs = 0;
   GameWorld? _world;
+  String? _preparedRoundKey;
+  List<List<double>>? _proofStartPose;
   Size _fieldSize = Size.zero;
   double _visualFieldSide = GameViewport.referenceFieldSide;
   GameplayConfig? _boundConfig;
@@ -248,9 +250,19 @@ class _GameHomeScreenState extends State<GameHomeScreen>
     }
     _fieldSize = field;
     _boundConfig = config;
-    _world = GameWorld(
+    _world = _createIdleWorld(field, config);
+  }
+
+  GameWorld _createIdleWorld(Size field, GameplayConfig config) {
+    final scores = context.read<ScoresStore>();
+    _preparedRoundKey = scores.instantRoundsEnabled
+        ? scores.account?.operationId()
+        : null;
+    _proofStartPose = null;
+    return GameWorld(
       config: config,
       field: field,
+      rng: _preparedRoundKey == null ? null : ReplayRandom(_preparedRoundKey!),
       wallInset: ArcadeRules.wallInset(config.borderWidth),
     )..resetLayout();
   }
@@ -295,11 +307,7 @@ class _GameHomeScreenState extends State<GameHomeScreen>
       _idleSpeedWobbleTarget = 0;
       _runEarnUnlocks.clear();
       if (config != null && field != Size.zero) {
-        _world = GameWorld(
-          config: config,
-          field: field,
-          wallInset: ArcadeRules.wallInset(config.borderWidth),
-        )..resetLayout();
+        _world = _createIdleWorld(field, config);
       }
     });
     if (!_ticker.isActive) _ticker.start();
@@ -606,7 +614,11 @@ class _GameHomeScreenState extends State<GameHomeScreen>
       hadHelmet: _runHadHelmet,
       replayProof: _proofEvents == null
           ? null
-          : {'version': 1, 'events': _proofEvents},
+          : {
+              'version': 1,
+              'events': _proofEvents,
+              if (_proofStartPose != null) 'startPose': _proofStartPose,
+            },
     );
     _interstitialTimer?.cancel();
     final resultSession = _session;
@@ -870,6 +882,7 @@ class _GameHomeScreenState extends State<GameHomeScreen>
         helmet: selectedHelmet,
         jump: selectedJump,
         cost: cost,
+        preparedKey: _preparedRoundKey,
       );
       if (key == null) {
         _clearPointers();
@@ -1042,14 +1055,10 @@ class _GameHomeScreenState extends State<GameHomeScreen>
     final gameplay = context.read<GameplayConfig>();
     final proofKey = context.read<ScoresStore>().activeInstantRoundKey;
     _proofEvents = proofKey == null ? null : [];
-    if (proofKey != null) {
-      _world = GameWorld(
-        config: gameplay,
-        field: const Size(380, 380),
-        rng: ReplayRandom(proofKey),
-        wallInset: ArcadeRules.wallInset(gameplay.borderWidth),
-      )..resetLayout();
-    }
+    // The field already owns this run's seeded layout. Continue its visible
+    // pose instead of respawning enemies or snapping them back to their homes.
+    _world?.startFromIdle();
+    _proofStartPose = proofKey == null ? null : _world?.startPose;
     setState(() {
       _waitingEnergyRound = null;
       _startingRound = false;
@@ -1065,7 +1074,6 @@ class _GameHomeScreenState extends State<GameHomeScreen>
       _runHelmetActive = _runHadHelmet;
       _helmetInvulnLeft = 0;
       _startInvulnLeft = max(0.0, gameplay.startInvulnSec);
-      _world?.snapEnemiesToHome();
     });
     if (!_ticker.isActive) _ticker.start();
   }

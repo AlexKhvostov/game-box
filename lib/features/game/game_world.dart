@@ -412,12 +412,60 @@ class GameWorld {
     return BounceReport(wall: wall, enemy: enemy);
   }
 
-  void snapEnemiesToHome() {
-    for (final e in enemies) {
-      e.pos = e.homePos;
-      final length = e.homeVel.distance;
-      final direction = length < 1e-6 ? const Offset(1, 1) : e.homeVel / length;
-      e.vel = direction * e.initialSpeed;
+  /// Begin from the pose the player is looking at, including idle wall bounces.
+  /// Only restore play speed; positions and orientation must remain continuous.
+  void startFromIdle() {
+    for (final enemy in enemies) {
+      final direction = enemy.vel.distance > 1e-6
+          ? enemy.vel / enemy.vel.distance
+          : enemy.homeVel.distance > 1e-6
+          ? enemy.homeVel / enemy.homeVel.distance
+          : const Offset(1, 0);
+      enemy.vel = direction * enemy.initialSpeed;
+    }
+  }
+
+  /// Compact replay header. Shapes, speed, acceleration and spin remain seeded
+  /// server rules; the header carries only the visible pose at the first touch.
+  List<List<double>> get startPose => [
+    for (final enemy in enemies)
+      [enemy.pos.dx, enemy.pos.dy, enemy.vel.dx, enemy.vel.dy, enemy.orientDeg],
+  ];
+
+  void restoreStartPose(Object? pose) {
+    if (pose is! List || pose.length != enemies.length) {
+      throw const FormatException('start pose count');
+    }
+    for (var i = 0; i < enemies.length; i++) {
+      final row = pose[i];
+      if (row is! List ||
+          row.length != 5 ||
+          row.any((v) => v is! num || !v.isFinite)) {
+        throw const FormatException('start pose values');
+      }
+      final enemy = enemies[i];
+      final x = (row[0] as num).toDouble();
+      final y = (row[1] as num).toDouble();
+      final velocity = Offset(
+        (row[2] as num).toDouble(),
+        (row[3] as num).toDouble(),
+      );
+      final angle = (row[4] as num).toDouble();
+      if ((velocity.distance - enemy.initialSpeed).abs() >
+              max(1e-4, enemy.initialSpeed * 1e-6) ||
+          angle.abs() > 1e9) {
+        throw const FormatException('start pose speed');
+      }
+      enemy.pos = Offset(x, y);
+      enemy.vel = velocity;
+      enemy.orientDeg = angle;
+      final bounds = enemy.rect;
+      if (bounds.left < -1e-4 ||
+          bounds.top < -1e-4 ||
+          bounds.right > field.width + 1e-4 ||
+          bounds.bottom > field.height + 1e-4) {
+        throw const FormatException('start pose bounds');
+      }
     }
   }
 

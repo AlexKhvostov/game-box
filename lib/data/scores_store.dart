@@ -155,8 +155,14 @@ class ScoresStore extends ChangeNotifier {
     required bool helmet,
     required bool jump,
     required int cost,
+    String? preparedKey,
   }) => _historyWritable
-      ? _instant?.begin(helmet: helmet, jump: jump, cost: cost)
+      ? _instant?.begin(
+          helmet: helmet,
+          jump: jump,
+          cost: cost,
+          preparedKey: preparedKey,
+        )
       : null;
   Map<String, dynamic> _attemptResult(LocalAttempt a) => {
     'timeMs': a.timeMs,

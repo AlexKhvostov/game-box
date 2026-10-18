@@ -99,6 +99,7 @@ $config = Get-Content -Raw -LiteralPath (Join-Path $root $configPath) | ConvertF
 $manifest = [ordered]@{
   buildId=$buildId; versionName=$version; versionCode=$code
   package='com.best4u.untouch'; target='mobile-arcade'
+  applicationLabel="Untouch $code"
   sha256=(Get-FileHash -LiteralPath $dest -Algorithm SHA256).Hash.ToLowerInvariant()
   configRevision=$config.revision; adMode=$(if ($LiveAds) {'yandex-publisher-units-adult-session-opt-in'} elseif ($DemoAds) {'yandex-demo-adult-session-opt-in-internal-only'} else {'off'}); signing=$(if ($env:UNTOUCH_SIGNING_PROPERTIES) {'private-release-key'} else {'development-debug-key'})
   yandexLiveAds=$LiveAds.IsPresent

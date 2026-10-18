@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:game_box/domain/gameplay_config.dart';
 import 'package:game_box/features/game/game_world.dart';
+import 'package:game_box/domain/replay_random.dart';
 
 void main() {
   test(
@@ -49,25 +50,67 @@ void main() {
     },
   );
 
-  test('drowsy enemies stay near home and start from original spawn', () {
-    final world = GameWorld(
-      config: const GameplayConfig(game: GameConfig(idleEnemiesMove: false)),
-      field: const Size(300, 300),
-    )..resetLayout();
-    for (var i = 0; i < 1200; i++) {
-      world.tickIdle(1 / 60);
-    }
-    world.snapEnemiesToHome();
-    for (final enemy in world.enemies) {
-      expect(enemy.pos, enemy.homePos);
-      expect(enemy.vel.distance, closeTo(enemy.initialSpeed, 1e-9));
-    }
-    final before = world.enemies.map((e) => e.pos).toList();
-    world.tickPlay(1 / 60, 0, speedMult: 0);
-    for (var i = 0; i < before.length; i++) {
-      expect((world.enemies[i].pos - before[i]).distance, closeTo(0, 1e-9));
-    }
-  });
+  test(
+    'drowsy enemies start from their visible pose without snapping home',
+    () {
+      final world = GameWorld(
+        config: const GameplayConfig(game: GameConfig(idleEnemiesMove: false)),
+        field: const Size(300, 300),
+      )..resetLayout();
+      for (var i = 0; i < 1200; i++) {
+        world.tickIdle(1 / 60);
+      }
+      final before = world.enemies.map((e) => e.pos).toList();
+      world.startFromIdle();
+      expect(world.enemies.map((e) => e.pos).toList(), before);
+      for (final enemy in world.enemies) {
+        expect(enemy.vel.distance, closeTo(enemy.initialSpeed, 1e-9));
+      }
+      world.tickPlay(1 / 60, 0, speedMult: 0);
+      for (var i = 0; i < before.length; i++) {
+        expect((world.enemies[i].pos - before[i]).distance, closeTo(0, 1e-9));
+      }
+    },
+  );
+  test(
+    'replay restores visible pose but cannot replace seeded speed or geometry',
+    () {
+      GameWorld create() => GameWorld(
+        config: const GameplayConfig(
+          game: GameConfig(idleEnemiesMove: false),
+          enemies: EnemiesConfig(spinDegPerSec: 65),
+        ),
+        field: const Size(380, 380),
+        rng: ReplayRandom('pose-test'),
+        wallInset: 3,
+      )..resetLayout();
+      final preview = create();
+      for (var i = 0; i < 137; i++) {
+        preview.tickIdle(.017);
+      }
+      final positions = preview.enemies.map((e) => e.pos).toList();
+      final angles = preview.enemies.map((e) => e.orientDeg).toList();
+      preview.startFromIdle();
+      expect(preview.enemies.map((e) => e.pos).toList(), positions);
+      expect(preview.enemies.map((e) => e.orientDeg).toList(), angles);
+      final replay = create()..restoreStartPose(preview.startPose);
+      expect(replay.startPose, preview.startPose);
+      preview.tickPlay(.016, .016, checkPlayerHits: false);
+      replay.tickPlay(.016, .016, checkPlayerHits: false);
+      expect(replay.startPose, preview.startPose);
+      for (final mutate in <void Function(List<List<double>>)>[
+        (p) => p.removeLast(),
+        (p) => p[0][0] = double.nan,
+        (p) => p[0][0] = -1000,
+        (p) => p[0][2] = 1e6,
+        (p) => p[0][4] = 1e12,
+      ]) {
+        final pose = create().startPose;
+        mutate(pose);
+        expect(() => create().restoreStartPose(pose), throwsFormatException);
+      }
+    },
+  );
   test('jump matches Mini App cooldown and resets between rounds', () {
     final world = GameWorld(
       config: const GameplayConfig(),

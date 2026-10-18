@@ -55,3 +55,17 @@ test('new server attempts require proof before debit; accepted result is idempot
  assert.equal((await db.collection('players').doc(uid).get()).data().completedGames,1);
  await assert.rejects(engine.execute('wrong-owner',input),e=>e.code==='round_not_found');
 });
+
+test('visible start poses replay while malformed, off-field or altered-speed headers are refused',()=>{
+ const f=fixtures.find(f=>f.proof.startPose);
+ assert.ok(f);
+ const round={proofVersion:1,requestId:f.requestId,policy:{config:f.config},hadJump:f.hadJump,hadHelmet:f.hadHelmet};
+ androidRoundProof.finish(f,round);
+ for(const mutate of [p=>p.pop(),p=>p[0].push(7),p=>p[0][0]=-1000,
+  p=>p[0][0]=null,p=>p[0][2]=1e6,p=>p[0][4]=1e12]) {
+  const changed=structuredClone(f);mutate(changed.proof.startPose);
+  assert.throws(()=>androidRoundProof.finish(changed,round),e=>e.code==='result_proof_invalid');
+ }
+ assert.equal(fixtures.filter(f=>f.proof.startPose).length,128);
+ assert.equal(fixtures.filter(f=>!f.proof.startPose).length,128);
+});

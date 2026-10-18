@@ -49,6 +49,8 @@ Map<String, dynamic> replay(Map<String, dynamic> input) {
     rng: ReplayRandom(input['requestId']),
     wallInset: inset,
   )..resetLayout();
+  final startPose = input['proof']['startPose'];
+  if (startPose != null) world.restoreStartPose(startPose);
   var helmet = input['hadHelmet'] == true, dead = false;
   final hasJump = input['hadJump'] == true;
   double startLeft = max(0, config.startInvulnSec), helmetLeft = 0, elapsed = 0;

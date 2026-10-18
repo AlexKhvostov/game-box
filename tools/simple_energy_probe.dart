@@ -422,7 +422,7 @@ class Fixture {
 
 /// Deterministic native UI data only. Production scoring/store code is unchanged.
 class AccountHudProbeScores extends ScoresStore {
-  AccountHudProbeScores(MobileAccount owner)
+  AccountHudProbeScores(MobileAccount owner, {super.instantEconomy})
     : super(
         account: owner,
         storagePrefix: qaPrefix,
@@ -504,7 +504,12 @@ Future<void> main() async {
   await preferences.load();
   await preferences.setSound(false);
   await preferences.setMusic(false);
-  scores = AccountHudProbeScores(account);
+  scores = AccountHudProbeScores(
+    account,
+    instantEconomy: const bool.fromEnvironment('PROBE_INSTANT_ROUNDS')
+        ? economy
+        : null,
+  );
   await scores.loadLocal();
   invites = MobileInvites(
     account: account,
@@ -773,6 +778,12 @@ class ProbeState extends State<ProbeApp> {
                 ((element.widget as CustomPaint).painter as GameFieldPainter)
                     .world;
             gameplayState.addAll({
+              'worldIdentity': identityHashCode(world),
+              'enemies': world.startPose,
+              'initialSpeeds': [
+                for (final enemy in world.enemies) enemy.initialSpeed,
+              ],
+              'activeInstantKey': scores.activeInstantRoundKey,
               'drawGrid': painter.drawGrid,
               'fieldColor': painter.fieldColor.toARGB32(),
               'isJumping': world.isJumping,
