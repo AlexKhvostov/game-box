@@ -1,0 +1,537 @@
+Browser tab: 1941752185, Title: "Activity log", URL: "https://play.google.com/console/u/0/developers/7352115345592950495/activity-log?from=2026-09-19&to=2026-10-18".
+1 AXWebArea Activity log, URL: play.google.com/console/u/0/developers/7352115345592950495/activity-log?from=2026-09-19&to=2026-10-18
+	2 container
+		3 text Loading Google Play Console
+		4 container
+			5 container
+				6 link Description: Google Play Console logo, Value: play.google.com/console/u/0/developers/7352115345592950495/app-list
+				23 button Unread notifications Open notification center
+					24 text Unread notifications
+				7 button Switch developer accounts
+					8 image Switch developer accounts
+			55 content list
+				74 container Home
+					75 button Home
+						76 text Home
+				77 container Policy status
+					78 button Policy status
+						79 text Policy status
+				80 container Users and permissions
+					81 button Users and permissions
+						82 text Users and permissions
+				83 container Order management
+					84 button Order management
+						85 text Order management
+				86 container (collapsed) Description: Download reports, Secondary Actions: Expand
+					87 button Download reports
+						88 text Download reports
+				89 container Developer account
+					90 button Developer account
+						91 text Developer account
+				92 container Activity log
+					93 button Activity log
+						94 text Activity log
+				95 container Settings
+					96 button Settings
+						97 text Settings
+				98 container Help
+					99 button Help
+						100 text Help
+				101 container Android developer verification
+					102 button Android developer verification
+						103 text Android developer verification
+			9 container main-content
+				54 container
+					104 heading Activity log, Value: 1
+						105 text Activity log
+					106 link Description: Download all items, Value: takeout.google.com/
+					107 container
+						108 text View changes that team members have made to your apps and account.
+						109 link Description: Learn more about Activity Log, Opens in a new tab, Value: support.google.com/googleplay/android-developer/answer/6053184?hl=en
+					110 table
+						111 row Add filter
+							112 cell
+								113 combo box (collapsed, settable) Description: Add filter, Secondary Actions: Expand
+					114 pop up button (collapsed) Description: 30 days to today Select a date range, ID: aFEA99CC0-F541-4D43-B0B9-81C18AEE781D--8, Secondary Actions: Expand
+						115 text date_range
+						116 text 30 days to today
+					117 table Activity logs
+						118 row App / developer account Item Change User Date / Time
+							119 cell
+								120 text App / developer account
+							121 cell
+								122 text Item
+							123 cell
+								124 text Change
+							125 cell
+								126 text User
+							127 cell
+								128 text Date / Time
+						129 row Expand row Untouch com.best4u.untouch App releases Release rollout percentage changed 1 change [account email omitted] Oct 18, 2026 18:04
+							130 cell
+								131 button (collapsed) Description: Expand row, Secondary Actions: Expand
+								132 container
+									133 text Untouch com.best4u.untouch
+							134 cell
+								135 text App releases
+								136 text Release rollout percentage changed
+							137 cell
+								138 text 1 change
+							139 cell
+								140 text [account email omitted]
+							141 cell
+								142 text Oct 18, 2026
+								143 text 18:04
+						144 row Expand row Untouch com.best4u.untouch Store listing Full description 2 changes [account email omitted] Oct 18, 2026 17:59
+							145 cell
+								146 button (collapsed) Description: Expand row, Secondary Actions: Expand
+								147 container
+									148 text Untouch com.best4u.untouch
+							149 cell
+								150 text Store listing
+								151 text Full description
+							152 cell
+								153 text 2 changes
+							154 cell
+								155 text [account email omitted]
+							156 cell
+								157 text Oct 18, 2026
+								158 text 17:59
+						159 row Expand row Untouch com.best4u.untouch Store listing Short description 2 changes [account email omitted] Oct 18, 2026 17:59
+							160 cell
+								161 button (collapsed) Description: Expand row, Secondary Actions: Expand
+								162 container
+									163 text Untouch com.best4u.untouch
+							164 cell
+								165 text Store listing
+								166 text Short description
+							167 cell
+								168 text 2 changes
+							169 cell
+								170 text [account email omitted]
+							171 cell
+								172 text Oct 18, 2026
+								173 text 17:59
+						174 row Expand row Untouch com.best4u.untouch Subscriptions Subscription updated 2 changes [account email omitted] Oct 16, 2026 23:22
+							175 cell
+								176 button (collapsed) Description: Expand row, Secondary Actions: Expand
+								177 container
+									178 text Untouch com.best4u.untouch
+							179 cell
+								180 text Subscriptions
+								181 text Subscription updated
+							182 cell
+								183 text 2 changes
+							184 cell
+								185 text [account email omitted]
+							186 cell
+								187 text Oct 16, 2026
+								188 text 23:22
+						189 row Expand row Untouch com.best4u.untouch Subscriptions Subscription updated 2 changes [account email omitted] Oct 16, 2026 23:17
+							190 cell
+								191 button (collapsed) Description: Expand row, Secondary Actions: Expand
+								192 container
+									193 text Untouch com.best4u.untouch
+							194 cell
+								195 text Subscriptions
+								196 text Subscription updated
+							197 cell
+								198 text 2 changes
+							199 cell
+								200 text [account email omitted]
+							201 cell
+								202 text Oct 16, 2026
+								203 text 23:17
+						204 row Expand row Untouch com.best4u.untouch Publishing overview Changes sent for review 1 change [account email omitted] Oct 15, 2026 19:43
+							205 cell
+								206 button (collapsed) Description: Expand row, Secondary Actions: Expand
+								207 container
+									208 text Untouch com.best4u.untouch
+							209 cell
+								210 text Publishing overview
+								211 text Changes sent for review
+							212 cell
+								213 text 1 change
+							214 cell
+								215 text [account email omitted]
+							216 cell
+								217 text Oct 15, 2026
+								218 text 19:43
+						219 row Expand row Untouch com.best4u.untouch App releases Release rollout percentage changed 1 change [account email omitted] Oct 15, 2026 18:54
+							220 cell
+								221 button (collapsed) Description: Expand row, Secondary Actions: Expand
+								222 container
+									223 text Untouch com.best4u.untouch
+							224 cell
+								225 text App releases
+								226 text Release rollout percentage changed
+							227 cell
+								228 text 1 change
+							229 cell
+								230 text [account email omitted]
+							231 cell
+								232 text Oct 15, 2026
+								233 text 18:54
+						234 row Expand row Untouch com.best4u.untouch Subscriptions Subscription updated 2 changes [account email omitted] Oct 15, 2026 18:43
+							235 cell
+								236 button (collapsed) Description: Expand row, Secondary Actions: Expand
+								237 container
+									238 text Untouch com.best4u.untouch
+							239 cell
+								240 text Subscriptions
+								241 text Subscription updated
+							242 cell
+								243 text 2 changes
+							244 cell
+								245 text [account email omitted]
+							246 cell
+								247 text Oct 15, 2026
+								248 text 18:43
+						249 row Expand row Untouch com.best4u.untouch Subscriptions Subscription updated 2 changes [account email omitted] Oct 15, 2026 18:42
+							250 cell
+								251 button (collapsed) Description: Expand row, Secondary Actions: Expand
+								252 container
+									253 text Untouch com.best4u.untouch
+							254 cell
+								255 text Subscriptions
+								256 text Subscription updated
+							257 cell
+								258 text 2 changes
+							259 cell
+								260 text [account email omitted]
+							261 cell
+								262 text Oct 15, 2026
+								263 text 18:42
+						264 row Expand row Untouch com.best4u.untouch App releases Release rollout percentage changed 1 change [account email omitted] Oct 15, 2026 18:29
+							265 cell
+								266 button (collapsed) Description: Expand row, Secondary Actions: Expand
+								267 container
+									268 text Untouch com.best4u.untouch
+							269 cell
+								270 text App releases
+								271 text Release rollout percentage changed
+							272 cell
+								273 text 1 change
+							274 cell
+								275 text [account email omitted]
+							276 cell
+								277 text Oct 15, 2026
+								278 text 18:29
+						279 row Expand row Untouch com.best4u.untouch App content Data Safety 1 change [account email omitted] Oct 15, 2026 18:01
+							280 cell
+								281 button (collapsed) Description: Expand row, Secondary Actions: Expand
+								282 container
+									283 text Untouch com.best4u.untouch
+							284 cell
+								285 text App content
+								286 text Data Safety
+							287 cell
+								288 text 1 change
+							289 cell
+								290 text [account email omitted]
+							291 cell
+								292 text Oct 15, 2026
+								293 text 18:01
+						294 row Expand row Untouch com.best4u.untouch App content Data Safety 1 change [account email omitted] Oct 15, 2026 17:54
+							295 cell
+								296 button (collapsed) Description: Expand row, Secondary Actions: Expand
+								297 container
+									298 text Untouch com.best4u.untouch
+							299 cell
+								300 text App content
+								301 text Data Safety
+							302 cell
+								303 text 1 change
+							304 cell
+								305 text [account email omitted]
+							306 cell
+								307 text Oct 15, 2026
+								308 text 17:54
+						309 row Expand row Untouch com.best4u.untouch App content Contains ads 1 change [account email omitted] Oct 15, 2026 17:48
+							310 cell
+								311 button (collapsed) Description: Expand row, Secondary Actions: Expand
+								312 container
+									313 text Untouch com.best4u.untouch
+							314 cell
+								315 text App content
+								316 text Contains ads
+							317 cell
+								318 text 1 change
+							319 cell
+								320 text [account email omitted]
+							321 cell
+								322 text Oct 15, 2026
+								323 text 17:48
+						324 row Expand row Untouch com.best4u.untouch App releases Release rollout percentage changed 1 change [account email omitted] Oct 15, 2026 17:46
+							325 cell
+								326 button (collapsed) Description: Expand row, Secondary Actions: Expand
+								327 container
+									328 text Untouch com.best4u.untouch
+							329 cell
+								330 text App releases
+								331 text Release rollout percentage changed
+							332 cell
+								333 text 1 change
+							334 cell
+								335 text [account email omitted]
+							336 cell
+								337 text Oct 15, 2026
+								338 text 17:46
+						339 row Expand row Account details License Testers 1 change [account email omitted] Oct 15, 2026 17:39
+							340 cell
+								341 button (collapsed) Description: Expand row, Secondary Actions: Expand
+							342 cell
+								343 text Account details
+								344 text License Testers
+							345 cell
+								346 text 1 change
+							347 cell
+								348 text [account email omitted]
+							349 cell
+								350 text Oct 15, 2026
+								351 text 17:39
+						352 row Expand row Best4U Developer Account Users and permissions Account permissions 5 changes [account email omitted] Oct 15, 2026 17:24
+							353 cell
+								354 button (collapsed) Description: Expand row, Secondary Actions: Expand
+								355 container
+									356 text Best4U Developer Account
+							357 cell
+								358 text Users and permissions
+								359 text Account permissions
+							360 cell
+								361 text 5 changes
+							362 cell
+								363 text [account email omitted]
+							364 cell
+								365 text Oct 15, 2026
+								366 text 17:24
+						367 row Expand row Untouch com.best4u.untouch Users and permissions App permissions 3 changes [account email omitted] Oct 15, 2026 17:24
+							368 cell
+								369 button (collapsed) Description: Expand row, Secondary Actions: Expand
+								370 container
+									371 text Untouch com.best4u.untouch
+							372 cell
+								373 text Users and permissions
+								374 text App permissions
+							375 cell
+								376 text 3 changes
+							377 cell
+								378 text [account email omitted]
+							379 cell
+								380 text Oct 15, 2026
+								381 text 17:24
+						382 row Expand row Untouch com.best4u.untouch Subscriptions Base Plan updated 2 changes [account email omitted] Oct 15, 2026 17:16
+							383 cell
+								384 button (collapsed) Description: Expand row, Secondary Actions: Expand
+								385 container
+									386 text Untouch com.best4u.untouch
+							387 cell
+								388 text Subscriptions
+								389 text Base Plan updated
+							390 cell
+								391 text 2 changes
+							392 cell
+								393 text [account email omitted]
+							394 cell
+								395 text Oct 15, 2026
+								396 text 17:16
+						397 row Expand row Untouch com.best4u.untouch Subscriptions Base Plan created 10 changes [account email omitted] Oct 15, 2026 17:16
+							398 cell
+								399 button (collapsed) Description: Expand row, Secondary Actions: Expand
+								400 container
+									401 text Untouch com.best4u.untouch
+							402 cell
+								403 text Subscriptions
+								404 text Base Plan created
+							405 cell
+								406 text 10 changes
+							407 cell
+								408 text [account email omitted]
+							409 cell
+								410 text Oct 15, 2026
+								411 text 17:16
+						412 row Expand row Untouch com.best4u.untouch Subscriptions Subscription updated 2 changes [account email omitted] Oct 15, 2026 17:14
+							413 cell
+								414 button (collapsed) Description: Expand row, Secondary Actions: Expand
+								415 container
+									416 text Untouch com.best4u.untouch
+							417 cell
+								418 text Subscriptions
+								419 text Subscription updated
+							420 cell
+								421 text 2 changes
+							422 cell
+								423 text [account email omitted]
+							424 cell
+								425 text Oct 15, 2026
+								426 text 17:14
+						427 row Expand row Untouch com.best4u.untouch Subscriptions Subscription created 3 changes [account email omitted] Oct 15, 2026 17:14
+							428 cell
+								429 button (collapsed) Description: Expand row, Secondary Actions: Expand
+								430 container
+									431 text Untouch com.best4u.untouch
+							432 cell
+								433 text Subscriptions
+								434 text Subscription created
+							435 cell
+								436 text 3 changes
+							437 cell
+								438 text [account email omitted]
+							439 cell
+								440 text Oct 15, 2026
+								441 text 17:14
+						442 row Expand row Untouch com.best4u.untouch Subscriptions Base Plan updated 2 changes [account email omitted] Oct 15, 2026 17:13
+							443 cell
+								444 button (collapsed) Description: Expand row, Secondary Actions: Expand
+								445 container
+									446 text Untouch com.best4u.untouch
+							447 cell
+								448 text Subscriptions
+								449 text Base Plan updated
+							450 cell
+								451 text 2 changes
+							452 cell
+								453 text [account email omitted]
+							454 cell
+								455 text Oct 15, 2026
+								456 text 17:13
+						457 row Expand row Untouch com.best4u.untouch Subscriptions Base Plan created 10 changes [account email omitted] Oct 15, 2026 17:13
+							458 cell
+								459 button (collapsed) Description: Expand row, Secondary Actions: Expand
+								460 container
+									461 text Untouch com.best4u.untouch
+							462 cell
+								463 text Subscriptions
+								464 text Base Plan created
+							465 cell
+								466 text 10 changes
+							467 cell
+								468 text [account email omitted]
+							469 cell
+								470 text Oct 15, 2026
+								471 text 17:13
+						472 row Expand row Untouch com.best4u.untouch Subscriptions Subscription updated 2 changes [account email omitted] Oct 15, 2026 17:06
+							473 cell
+								474 button (collapsed) Description: Expand row, Secondary Actions: Expand
+								475 container
+									476 text Untouch com.best4u.untouch
+							477 cell
+								478 text Subscriptions
+								479 text Subscription updated
+							480 cell
+								481 text 2 changes
+							482 cell
+								483 text [account email omitted]
+							484 cell
+								485 text Oct 15, 2026
+								486 text 17:06
+						487 row Expand row Untouch com.best4u.untouch Subscriptions Subscription created 3 changes [account email omitted] Oct 15, 2026 17:06
+							488 cell
+								489 button (collapsed) Description: Expand row, Secondary Actions: Expand
+								490 container
+									491 text Untouch com.best4u.untouch
+							492 cell
+								493 text Subscriptions
+								494 text Subscription created
+							495 cell
+								496 text 3 changes
+							497 cell
+								498 text [account email omitted]
+							499 cell
+								500 text Oct 15, 2026
+								501 text 17:06
+						502 row Expand row Untouch com.best4u.untouch One-time product: "energy_1000_v1" One-time product created 1 change [account email omitted] Oct 15, 2026 17:05
+							503 cell
+								504 button (collapsed) Description: Expand row, Secondary Actions: Expand
+								505 container
+									506 text Untouch com.best4u.untouch
+							507 cell
+								508 text One-time product: "energy_1000_v1"
+								509 text One-time product created
+							510 cell
+								511 text 1 change
+							512 cell
+								513 text [account email omitted]
+							514 cell
+								515 text Oct 15, 2026
+								516 text 17:05
+						517 row Expand row Untouch com.best4u.untouch One-time product: "energy_1000_v1" Purchase option created: buy 1 change [account email omitted] Oct 15, 2026 17:05
+							518 cell
+								519 button (collapsed) Description: Expand row, Secondary Actions: Expand
+								520 container
+									521 text Untouch com.best4u.untouch
+							522 cell
+								523 text One-time product: "energy_1000_v1"
+								524 text Purchase option created: buy
+							525 cell
+								526 text 1 change
+							527 cell
+								528 text [account email omitted]
+							529 cell
+								530 text Oct 15, 2026
+								531 text 17:05
+						532 row Expand row Untouch com.best4u.untouch One-time product: "energy_500_v1" One-time product created 1 change [account email omitted] Oct 15, 2026 17:04
+							533 cell
+								534 button (collapsed) Description: Expand row, Secondary Actions: Expand
+								535 container
+									536 text Untouch com.best4u.untouch
+							537 cell
+								538 text One-time product: "energy_500_v1"
+								539 text One-time product created
+							540 cell
+								541 text 1 change
+							542 cell
+								543 text [account email omitted]
+							544 cell
+								545 text Oct 15, 2026
+								546 text 17:04
+						547 row Expand row Untouch com.best4u.untouch One-time product: "energy_500_v1" Purchase option created: buy 1 change [account email omitted] Oct 15, 2026 17:04
+							548 cell
+								549 button (collapsed) Description: Expand row, Secondary Actions: Expand
+								550 container
+									551 text Untouch com.best4u.untouch
+							552 cell
+								553 text One-time product: "energy_500_v1"
+								554 text Purchase option created: buy
+							555 cell
+								556 text 1 change
+							557 cell
+								558 text [account email omitted]
+							559 cell
+								560 text Oct 15, 2026
+								561 text 17:04
+						562 row Expand row Untouch com.best4u.untouch One-time product: "energy_250_v1" One-time product created 1 change [account email omitted] Oct 15, 2026 16:50
+							563 cell
+								564 button (collapsed) Description: Expand row, Secondary Actions: Expand
+								565 container
+									566 text Untouch com.best4u.untouch
+							567 cell
+								568 text One-time product: "energy_250_v1"
+								569 text One-time product created
+							570 cell
+								571 text 1 change
+							572 cell
+								573 text [account email omitted]
+							574 cell
+								575 text Oct 15, 2026
+								576 text 16:50
+					577 text Show rows:
+					578 pop up button (collapsed) Description: Show rows: 30 selected., ID: aFEA99CC0-F541-4D43-B0B9-81C18AEE781D--10, Secondary Actions: Expand
+					579 text 1 - 30 of many
+					580 button (disabled) Go to the previous page
+					581 button Go to the next page
+				582 link Description: Product updates, Value: play.google.com/console/about/whats-new/
+				583 link Description: Status dashboard, Value: status.play.google.com/
+				584 link Description: Help, Value: play.google.com/console/u/0/developers/7352115345592950495/help-and-support
+				585 text © 2026 Google
+				586 link Description: Privacy, Value: google.com/policies/privacy/
+				587 link Description: Developer Distribution Agreement, Value: play.google.com/about/developer-distribution-agreement.html
+				588 link Description: Terms of Service, Value: play.google.com/about/console/terms-of-service/
+	17 container
+		18 button logo icon
+			19 image logo icon
+			20 image
+		21 container
+			22 button
+
+The focused UI element is 93 button Activity log

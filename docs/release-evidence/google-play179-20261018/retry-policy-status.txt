@@ -1,0 +1,81 @@
+Browser tab: 1941752185, Title: "Policy status | Untouch", URL: "https://play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/policy-center".
+1 AXWebArea Policy status | Untouch, URL: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/policy-center
+	2 container
+		3 text Loading Google Play Console
+		4 container
+			5 container
+				6 link Description: Google Play Console logo, Value: play.google.com/console/u/0/developers/7352115345592950495/app-list
+				23 button Unread notifications Open notification center
+					24 text Unread notifications
+				25 button Untouch
+					26 text Untouch
+				7 button Switch developer accounts
+					8 image Switch developer accounts
+			27 container
+				28 link Description: All apps, Value: play.google.com/console/u/0/developers/7352115345592950495/app-list
+				29 content list
+					30 container Dashboard
+						31 button Dashboard
+							32 text Dashboard
+					33 container Statistics
+						34 button Statistics
+							35 text Statistics
+					36 container Publishing overview
+						37 button Publishing overview
+							38 text Publishing overview
+					39 container Protected with Play
+						40 button Protected with Play
+							41 text Protected with Play
+					42 container (collapsed) Description: Test and release, Secondary Actions: Expand
+						43 button Test and release
+							44 text Test and release
+					45 container (expanded) Description: Monitor and improve, Secondary Actions: Collapse
+						46 button Monitor and improve
+							47 text Monitor and improve
+						48 content list
+							49 container
+								50 container (collapsed) Description: Reach and devices, Secondary Actions: Expand
+									51 button Reach and devices
+								52 container (collapsed) Description: Ratings and reviews, Secondary Actions: Expand
+									53 button Ratings and reviews
+								54 container (collapsed) Description: Android vitals, Secondary Actions: Expand
+									55 button Android vitals
+								56 container (expanded) Description: Policy and programs, Secondary Actions: Collapse
+									57 button Policy and programs
+									58 content list
+										59 container
+											60 container Policy status
+												61 button Policy status
+											62 container App content
+												63 button App content
+											64 container (collapsed) Description: Programs, Secondary Actions: Expand
+												65 button Programs
+					66 container (collapsed) Description: Grow users, Secondary Actions: Expand
+						67 button Grow users
+							68 text Grow users
+					69 container (collapsed) Description: Monetize with Play, Secondary Actions: Expand
+						70 button Monetize with Play
+							71 text Monetize with Play
+			9 container main-content
+				72 container
+					73 heading Policy status, Value: 1
+						85 text Policy status
+					74 container
+						75 text Manage your compliance with Google Play Developer Program policies.
+						76 link Description: Learn more about Policy status (opens in a new tab), Value: play.google.com/console/about/policystatus
+					77 text No issues found
+				78 link Description: Product updates, Value: play.google.com/console/about/whats-new/
+				79 link Description: Status dashboard, Value: status.play.google.com/
+				80 link Description: Help, Value: play.google.com/console/u/0/developers/7352115345592950495/help-and-support?app=4976408092958094737
+				81 text © 2026 Google
+				82 link Description: Privacy, Value: google.com/policies/privacy/
+				83 link Description: Developer Distribution Agreement, Value: play.google.com/about/developer-distribution-agreement.html
+				84 link Description: Terms of Service, Value: play.google.com/about/console/terms-of-service/
+	17 container
+		18 button logo icon
+			19 image logo icon
+			20 image
+		21 container
+			22 button
+
+The focused UI element is 1 AXWebArea Policy status | Untouch, URL: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/policy-center

@@ -1,0 +1,137 @@
+Browser tab: 1941752185, Title: "Publishing overview | Untouch", URL: "https://play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/publishing".
+1 AXWebArea Publishing overview | Untouch, URL: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/publishing
+	2 container
+		3 text Loading Google Play Console
+		4 container
+			5 container
+				6 link Description: Google Play Console logo, Value: play.google.com/console/u/0/developers/7352115345592950495/app-list
+				23 button Unread notifications Open notification center
+					24 text Unread notifications
+				25 button Untouch
+					26 text Untouch
+				7 button Switch developer accounts
+					8 image Switch developer accounts
+			27 container
+				28 link Description: All apps, Value: play.google.com/console/u/0/developers/7352115345592950495/app-list
+				29 content list
+					30 container Dashboard
+						31 button Dashboard
+							32 text Dashboard
+					33 container Statistics
+						34 button Statistics
+							35 text Statistics
+					36 container Publishing overview
+						37 button Publishing overview
+							38 text Publishing overview
+					39 container Protected with Play
+						40 button Protected with Play
+							41 text Protected with Play
+					42 container (collapsed) Description: Test and release, Secondary Actions: Expand
+						43 button Test and release
+							44 text Test and release
+					45 container (collapsed) Description: Monitor and improve, Secondary Actions: Expand
+						46 button Monitor and improve
+							47 text Monitor and improve
+					66 container (collapsed) Description: Grow users, Secondary Actions: Expand
+						67 button Grow users
+							68 text Grow users
+					69 container (collapsed) Description: Monetize with Play, Secondary Actions: Expand
+						70 button Monetize with Play
+							71 text Monetize with Play
+			9 container main-content
+				72 container
+					108 heading Publishing overview, Value: 1
+						109 text Publishing overview
+					110 container
+						111 text See an overview of the changes made to your app, and control when changes are sent for review or published.
+						112 button Show more details about Publishing overview
+					113 pop up button (collapsed) Managed publishing off, ID: aFEA99CC0-F541-4D43-B0B9-81C18AEE781D--14, Secondary Actions: Expand
+					114 text Last published on October 15, 2026
+					115 link Description: Submission activity, Value: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/publishing/submission-activity
+					116 heading Changes not yet submitted for review, Value: 2
+						117 text Changes not yet submitted for review
+					118 button (collapsed) Description: More information about "Changes not yet submitted for review", Secondary Actions: Expand
+					119 button Submit 5 changes for review
+						120 text Submit 5 changes for review
+					121 button (expanded) Description: Hide content: Changes not yet submitted for review, Secondary Actions: Collapse
+						122 text Hide
+					123 text Your changes can now be sent for review. We may find additional issues when reviewing your app.
+					124 link Value: support.google.com/googleplay/android-developer/answer/14807773, Description: Go to the Help center to learn more about the automated checks we run to detect issues before you send your changes for review
+					125 table Changes
+						126 row Item changed Description
+							127 cell
+								128 text Item changed
+							129 cell
+								130 text Description
+							131 cell
+						132 row Closed testing - Alpha button
+							133 cell
+								134 text Closed testing - Alpha
+							135 button button
+								136 container button
+									137 text Save for later
+						138 row 1.0.178 (179) — 18.10.2026 Start full rollout More actions
+							139 cell
+								140 text 1.0.178 (179) — 18.10.2026
+							141 cell
+								142 text Start full rollout
+							143 cell
+								144 list More actions
+									145 pop up button (collapsed) Description: More actions, Secondary Actions: Expand
+						146 row Store listings button
+							147 cell
+								148 text Store listings
+							149 button button
+								150 container button
+									151 text Save for later
+						152 row English (United States) – en-US Default store listing Change short description to 'Version 1.0.178 (179) • 18.10.2026. Guide the cube and dodge obstacles.' More actions
+							153 cell
+								154 text English (United States) – en-US
+								155 text Default store listing
+							156 cell
+								157 text Change short description to 'Version 1.0.178 (179) • 18.10.2026. Guide the cube and dodge obstacles.'
+							158 cell
+								159 list More actions
+									160 pop up button (collapsed) Description: More actions, Secondary Actions: Expand
+						161 row English (United States) – en-US Default store listing Change full description More actions
+							162 cell
+								163 text English (United States) – en-US
+								164 text Default store listing
+							165 cell
+								166 text Change full description
+							167 cell
+								168 list More actions
+									169 pop up button (collapsed) Description: More actions, Secondary Actions: Expand
+						170 row Russian – ru-RU Default store listing Change short description to 'Версия 1.0.178 (179) • 18.10.2026. Управляйте кубиком и избегайте врагов.' More actions
+							171 cell
+								172 text Russian – ru-RU
+								173 text Default store listing
+							174 cell
+								175 text Change short description to 'Версия 1.0.178 (179) • 18.10.2026. Управляйте кубиком и избегайте врагов.'
+							176 cell
+								177 list More actions
+									178 pop up button (collapsed) Description: More actions, Secondary Actions: Expand
+						179 row Russian – ru-RU Default store listing Change full description More actions
+							180 cell
+								181 text Russian – ru-RU
+								182 text Default store listing
+							183 cell
+								184 text Change full description
+							185 cell
+								186 list More actions
+									187 pop up button (collapsed) Description: More actions, Secondary Actions: Expand
+				101 link Description: Product updates, Value: play.google.com/console/about/whats-new/
+				102 link Description: Status dashboard, Value: status.play.google.com/
+				103 link Description: Help, Value: play.google.com/console/u/0/developers/7352115345592950495/help-and-support?app=4976408092958094737
+				104 text © 2026 Google
+				105 link Description: Privacy, Value: google.com/policies/privacy/
+				106 link Description: Developer Distribution Agreement, Value: play.google.com/about/developer-distribution-agreement.html
+				107 link Description: Terms of Service, Value: play.google.com/about/console/terms-of-service/
+	17 container
+		18 button logo icon
+			19 image logo icon
+			20 image
+		21 container
+			22 button
+
+The focused UI element is 1 AXWebArea Publishing overview | Untouch, URL: play.google.com/console/u/0/developers/7352115345592950495/app/4976408092958094737/publishing

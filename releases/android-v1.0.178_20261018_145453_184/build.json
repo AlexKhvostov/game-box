@@ -38,7 +38,7 @@
   "codeAndAssetsMatchDeviceApk": true,
   "matchedCodeAndAssetFiles": 69,
   "localVerification": "docs/release-evidence/google-play179-20261018/aab-verification.json",
-  "playStatus": "uploaded-saved-submission-not-registered",
+  "playStatus": "uploaded-saved-retry-submission-not-registered",
   "playTrack": "Alpha",
   "playReleaseId": 10,
   "playSubmitted": false,
@@ -46,7 +46,10 @@
   "googleReleaseReview": "ready-for-release-no-blocking-errors",
   "googleNewInstallSizeMb": 32.5,
   "googleUnsupportedDevicesDelta": 0,
-  "googlePreReviewChecks": "complete-no-blocking-issues",
+  "googlePreReviewChecks": "complete-no-blocking-issues-after-resave",
   "playSubmissionBlocker": "Final confirmation closes but Console retains five changes not yet sent for review; repeats in fresh tab, no visible error",
-  "reviewEvidence": "docs/release-evidence/google-play179-20261018/README.md"
+  "reviewEvidence": "docs/release-evidence/google-play179-20261018/README.md",
+  "playReleaseName": "179 - 1.0.178 - 18.10.2026",
+  "supportRequestStatus": "draft-awaiting-user-authorization",
+  "retryEvidence": "docs/release-evidence/google-play179-20261018/retry-final-state.txt"
 }
