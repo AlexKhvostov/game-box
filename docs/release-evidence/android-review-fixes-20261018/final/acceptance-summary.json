@@ -1,0 +1,59 @@
+{
+  "physical": [
+    {
+      "block": "block1",
+      "passed": 7,
+      "cloudCalls": 0
+    },
+    {
+      "block": "block2",
+      "passed": 9,
+      "cloudCalls": 0
+    },
+    {
+      "block": "block3",
+      "passed": 10,
+      "cloudCalls": 0
+    },
+    {
+      "block": "block4",
+      "passed": 10,
+      "cloudCalls": 0
+    },
+    {
+      "block": "block5",
+      "passed": 12,
+      "cloudCalls": 0
+    },
+    {
+      "block": "final-release",
+      "passed": 12,
+      "cloudCalls": 0
+    }
+  ],
+  "flutter": {
+    "passed": 975,
+    "skipped": 16,
+    "failed": 0
+  },
+  "server": {
+    "passed": 84,
+    "failed": 0
+  },
+  "artifact": {
+    "apk": "releases\\android-v1.0.172_20261018_073236_896\\Untouch-1.0.172+173.apk",
+    "versionCode": 173,
+    "sha256": "b5b5555adc505256d065dd43120731b3a8aacadf5a606f0db65eb5c855c59ad6",
+    "bytes": 88594541,
+    "signatureV2": true,
+    "sameReleaseCertificateAs172": true,
+    "zipCrc": true,
+    "zipAlignment16KiB": true,
+    "native64LibrariesVerified": 8,
+    "oauthPreserved": true,
+    "installed": false
+  },
+  "mainInstalled": false,
+  "productionDeployed": false,
+  "sourceCommit": "00cfd44"
+}

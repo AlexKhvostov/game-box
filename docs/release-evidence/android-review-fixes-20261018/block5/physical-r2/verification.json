@@ -1,0 +1,618 @@
+{
+  "scenarios": [
+    {
+      "scenario": "01-home",
+      "phase": "idle",
+      "energy": 50,
+      "rulesUpdateRequired": false,
+      "attempts": [],
+      "commands": [
+        "guest"
+      ],
+      "texts": [
+        "Untouch",
+        "Попытка: 1 ⚡ · коснитесь поля",
+        "50",
+        "—",
+        "Топ дня",
+        "0.000",
+        "Мой рекорд",
+        "Выкл.",
+        "00:00.000",
+        "Риск 0 · Пробег 0",
+        "Выкл."
+      ],
+      "errors": [],
+      "startupConfigMs": 3676,
+      "configRemoteWaitMs": 756,
+      "player": [
+        168.4,
+        168.4,
+        43.199999999999996
+      ],
+      "field": [
+        41.94174757281553,
+        374.5922330097087,
+        1038.0582524271845,
+        1370.7087378640776
+      ]
+    },
+    {
+      "scenario": "02-playing",
+      "phase": "playing",
+      "energy": 49,
+      "rulesUpdateRequired": false,
+      "attempts": [],
+      "commands": [
+        "guest",
+        "round_start",
+        "round_activate"
+      ],
+      "texts": [
+        "49",
+        "—",
+        "Топ дня",
+        "0.000",
+        "Мой рекорд",
+        "Выкл.",
+        "00:00.133",
+        "Риск 0 · Пробег 0",
+        "Выкл."
+      ],
+      "errors": [],
+      "startupConfigMs": 3676,
+      "configRemoteWaitMs": 756,
+      "player": [
+        168.4,
+        168.4,
+        43.199999999999996
+      ],
+      "field": [
+        41.94174757281553,
+        374.5922330097087,
+        1038.0582524271845,
+        1370.7087378640776
+      ]
+    },
+    {
+      "scenario": "03-result-confirmed",
+      "phase": "result",
+      "energy": 49,
+      "rulesUpdateRequired": false,
+      "attempts": [
+        {
+          "shared": true,
+          "pending": false,
+          "error": null,
+          "timeMs": 565
+        }
+      ],
+      "commands": [
+        "guest",
+        "round_start",
+        "round_activate",
+        "round_finish",
+        "scores",
+        "scores"
+      ],
+      "texts": [
+        "49",
+        "0.565",
+        "Топ дня",
+        "0.565",
+        "Мой рекорд",
+        "Выкл.",
+        "00:00.565",
+        "Риск 0 · Пробег 0",
+        "Выкл.",
+        "Результат попытки",
+        "Новый рекорд!",
+        "0.565 с",
+        "Ваш рекорд: 0.565 с",
+        "Риск",
+        "0",
+        "Шаги",
+        "0",
+        "Сохранено в общем рейтинге",
+        "Рейтинг",
+        "Поделиться",
+        "Ещё раз"
+      ],
+      "errors": [],
+      "startupConfigMs": 3676,
+      "configRemoteWaitMs": 756,
+      "player": [
+        168.4,
+        168.4,
+        43.199999999999996
+      ],
+      "field": [
+        41.94174757281553,
+        374.5922330097087,
+        1038.0582524271845,
+        1370.7087378640776
+      ]
+    },
+    {
+      "scenario": "04-rules-blocked",
+      "phase": "idle",
+      "energy": 49,
+      "rulesUpdateRequired": true,
+      "attempts": [
+        {
+          "shared": false,
+          "pending": false,
+          "error": "rules_changed",
+          "timeMs": 1
+        },
+        {
+          "shared": true,
+          "pending": false,
+          "error": null,
+          "timeMs": 565
+        }
+      ],
+      "commands": [
+        "guest",
+        "round_start",
+        "round_activate",
+        "round_finish",
+        "scores",
+        "scores",
+        "round_start"
+      ],
+      "texts": [
+        "Untouch",
+        "Попытка: 1 ⚡ · коснитесь поля",
+        "49",
+        "0.565",
+        "Топ дня",
+        "0.565",
+        "Мой рекорд",
+        "Выкл.",
+        "00:00.000",
+        "Риск 0 · Пробег 0",
+        "Выкл.",
+        "Правила обновились. Перезапустите игру."
+      ],
+      "errors": [],
+      "startupConfigMs": 3676,
+      "configRemoteWaitMs": 756,
+      "player": [
+        168.4,
+        168.4,
+        43.199999999999996
+      ],
+      "field": [
+        41.94174757281553,
+        374.5922330097087,
+        1038.0582524271845,
+        1370.7087378640776
+      ]
+    },
+    {
+      "scenario": "05-offline-pending",
+      "phase": "idle",
+      "energy": 49,
+      "rulesUpdateRequired": false,
+      "attempts": [
+        {
+          "shared": false,
+          "pending": true,
+          "error": null,
+          "timeMs": 1
+        }
+      ],
+      "commands": [
+        "guest",
+        "round_start",
+        "round_start"
+      ],
+      "texts": [
+        "Untouch",
+        "Попытка: 1 ⚡ · коснитесь поля",
+        "49",
+        "—",
+        "Топ дня",
+        "0.000",
+        "Мой рекорд",
+        "Выкл.",
+        "00:00.000",
+        "Риск 0 · Пробег 0",
+        "Выкл."
+      ],
+      "errors": [],
+      "startupConfigMs": 933,
+      "configRemoteWaitMs": 752,
+      "player": [
+        168.4,
+        168.4,
+        43.199999999999996
+      ],
+      "field": [
+        41.94174757281553,
+        374.5922330097087,
+        1038.0582524271845,
+        1370.7087378640776
+      ]
+    },
+    {
+      "scenario": "06-reconnected-once",
+      "phase": "idle",
+      "energy": 49,
+      "rulesUpdateRequired": false,
+      "attempts": [
+        {
+          "shared": true,
+          "pending": true,
+          "error": null,
+          "timeMs": 1
+        }
+      ],
+      "commands": [
+        "guest",
+        "round_start",
+        "round_start",
+        "round_start",
+        "round_activate",
+        "round_finish"
+      ],
+      "texts": [
+        "Untouch",
+        "Попытка: 1 ⚡ · коснитесь поля",
+        "49",
+        "—",
+        "Топ дня",
+        "0.001",
+        "Мой рекорд",
+        "Выкл.",
+        "00:00.000",
+        "Риск 0 · Пробег 0",
+        "Выкл."
+      ],
+      "errors": [],
+      "startupConfigMs": 933,
+      "configRemoteWaitMs": 752,
+      "player": [
+        168.4,
+        168.4,
+        43.199999999999996
+      ],
+      "field": [
+        41.94174757281553,
+        374.5922330097087,
+        1038.0582524271845,
+        1370.7087378640776
+      ]
+    },
+    {
+      "scenario": "07-finish-recovered",
+      "phase": "idle",
+      "energy": 49,
+      "rulesUpdateRequired": false,
+      "attempts": [
+        {
+          "shared": true,
+          "pending": false,
+          "error": null,
+          "timeMs": 1
+        }
+      ],
+      "commands": [
+        "guest",
+        "round_start",
+        "round_activate",
+        "round_finish",
+        "round_finish"
+      ],
+      "texts": [
+        "Untouch",
+        "Попытка: 1 ⚡ · коснитесь поля",
+        "49",
+        "—",
+        "Топ дня",
+        "0.001",
+        "Мой рекорд",
+        "Выкл.",
+        "00:00.000",
+        "Риск 0 · Пробег 0",
+        "Выкл."
+      ],
+      "errors": [],
+      "startupConfigMs": 921,
+      "configRemoteWaitMs": 752,
+      "player": [
+        168.4,
+        168.4,
+        43.199999999999996
+      ],
+      "field": [
+        41.94174757281553,
+        374.5922330097087,
+        1038.0582524271845,
+        1370.7087378640776
+      ]
+    },
+    {
+      "scenario": "08-reward-awaiting-ack",
+      "phase": "result",
+      "energy": 49,
+      "rulesUpdateRequired": false,
+      "attempts": [
+        {
+          "shared": false,
+          "pending": true,
+          "error": null,
+          "timeMs": 1000
+        }
+      ],
+      "commands": [
+        "guest",
+        "round_start",
+        "round_start"
+      ],
+      "texts": [
+        "Untouch",
+        "Попытка: 1 ⚡ · коснитесь поля",
+        "49",
+        "—",
+        "Топ дня",
+        "0.000",
+        "Мой рекорд",
+        "Выкл.",
+        "00:00.000",
+        "Риск 0 · Пробег 0",
+        "Выкл.",
+        "Результат попытки",
+        "Новый рекорд!",
+        "1.000 с",
+        "Ваш рекорд: 1.000 с",
+        "Риск",
+        "10",
+        "+1 бонус",
+        "Шаги",
+        "1000",
+        "+1 бонус",
+        "Сохранено на устройстве · отправим автоматически",
+        "Рейтинг",
+        "Поделиться",
+        "Ещё раз"
+      ],
+      "errors": [],
+      "startupConfigMs": 900,
+      "configRemoteWaitMs": 752,
+      "player": [
+        168.4,
+        168.4,
+        43.199999999999996
+      ],
+      "field": [
+        41.94174757281553,
+        374.5922330097087,
+        1038.0582524271845,
+        1370.7087378640776
+      ]
+    },
+    {
+      "scenario": "09-reward-confirmed",
+      "phase": "result",
+      "energy": 51,
+      "rulesUpdateRequired": false,
+      "attempts": [
+        {
+          "shared": true,
+          "pending": false,
+          "error": null,
+          "timeMs": 1000
+        }
+      ],
+      "commands": [
+        "guest",
+        "round_start",
+        "round_start",
+        "scores",
+        "round_start",
+        "round_start",
+        "round_activate",
+        "round_finish"
+      ],
+      "texts": [
+        "Untouch",
+        "Попытка: 1 ⚡ · коснитесь поля",
+        "49",
+        "—",
+        "Топ дня",
+        "1.000",
+        "Мой рекорд",
+        "Выкл.",
+        "00:00.000",
+        "Риск 0 · Пробег 0",
+        "Выкл.",
+        "Результат попытки",
+        "Ваш результат",
+        "1.000 с",
+        "Ваш рекорд: 1.000 с",
+        "Риск",
+        "10",
+        "+1 получено",
+        "Шаги",
+        "1000",
+        "+1 получено",
+        "Сохранено в общем рейтинге",
+        "Рейтинг",
+        "Поделиться",
+        "Ещё раз",
+        "Энергия получена!",
+        "+2",
+        "энергии"
+      ],
+      "errors": [],
+      "startupConfigMs": 900,
+      "configRemoteWaitMs": 752,
+      "player": [
+        168.4,
+        168.4,
+        43.199999999999996
+      ],
+      "field": [
+        41.94174757281553,
+        374.5922330097087,
+        1038.0582524271845,
+        1370.7087378640776
+      ]
+    },
+    {
+      "scenario": "10-fast-swipe-collision",
+      "phase": "result",
+      "energy": 49,
+      "rulesUpdateRequired": false,
+      "attempts": [
+        {
+          "shared": false,
+          "pending": true,
+          "error": null,
+          "timeMs": 1330
+        }
+      ],
+      "commands": [
+        "guest",
+        "round_start",
+        "round_activate"
+      ],
+      "texts": [
+        "49",
+        "—",
+        "Топ дня",
+        "1.330",
+        "Мой рекорд",
+        "Выкл.",
+        "00:01.330",
+        "Риск 0 · Пробег 18",
+        "Выкл.",
+        "Результат попытки",
+        "Новый рекорд!",
+        "1.330 с",
+        "Ваш рекорд: 1.330 с",
+        "Риск",
+        "0",
+        "Шаги",
+        "18",
+        "Сохранено на устройстве · отправим автоматически",
+        "Рейтинг",
+        "Поделиться",
+        "Ещё раз"
+      ],
+      "errors": [],
+      "startupConfigMs": 890,
+      "configRemoteWaitMs": 752,
+      "player": [
+        126.80001501511019,
+        120.0,
+        43.199999999999996
+      ],
+      "field": [
+        41.94174757281553,
+        374.5922330097087,
+        1038.0582524271845,
+        1370.7087378640776
+      ]
+    },
+    {
+      "scenario": "11-feedback-shared-services",
+      "phase": "idle",
+      "energy": 50,
+      "rulesUpdateRequired": false,
+      "attempts": [],
+      "commands": [
+        "guest"
+      ],
+      "texts": [
+        "Untouch",
+        "Попытка: 1 ⚡ · коснитесь поля",
+        "50",
+        "—",
+        "Топ дня",
+        "0.000",
+        "Мой рекорд",
+        "Выкл.",
+        "00:00.000",
+        "Риск 0 · Пробег 0",
+        "Выкл.",
+        "Обратная связь",
+        "Сначала познакомьтесь с игрой",
+        "Расскажите нам о своём опыте после того, как потратите 100 энергии в игре. За первый рассказ — 50 энергии. Любое честное мнение одинаково ценно.",
+        "Потрачено: 0 из 100"
+      ],
+      "errors": [],
+      "startupConfigMs": 898,
+      "configRemoteWaitMs": 753,
+      "player": [
+        168.4,
+        168.4,
+        43.199999999999996
+      ],
+      "field": [
+        41.94174757281553,
+        374.5922330097087,
+        1038.0582524271845,
+        1370.7087378640776
+      ]
+    },
+    {
+      "scenario": "12-subscription-shared-services",
+      "phase": "idle",
+      "energy": 50,
+      "rulesUpdateRequired": false,
+      "attempts": [],
+      "commands": [
+        "guest"
+      ],
+      "texts": [
+        "Untouch",
+        "Попытка: 1 ⚡ · коснитесь поля",
+        "50",
+        "—",
+        "Топ дня",
+        "0.000",
+        "Мой рекорд",
+        "Выкл.",
+        "00:00.000",
+        "Риск 0 · Пробег 0",
+        "Выкл.",
+        "Увеличить размер бонуса",
+        "Бонус с одной кнопки каждые 8 часов",
+        "×2",
+        "60 ⚡",
+        "за один бонус",
+        "Недоступно\n/ 7 дней",
+        "×5",
+        "150 ⚡",
+        "за один бонус",
+        "Недоступно\n/ 7 дней",
+        "Без автоматической рекламы",
+        "Видео за энергию остаётся доступным.",
+        "Подключить ×5",
+        "Автопродление. Отмена в Google Play.\nСумма и условия подтверждаются в магазине.",
+        "Восстановить",
+        "Управлять"
+      ],
+      "errors": [],
+      "startupConfigMs": 902,
+      "configRemoteWaitMs": 754,
+      "player": [
+        168.4,
+        168.4,
+        43.199999999999996
+      ],
+      "field": [
+        41.94174757281553,
+        374.5922330097087,
+        1038.0582524271845,
+        1370.7087378640776
+      ]
+    }
+  ],
+  "allPassed": true,
+  "cloudCalls": 0,
+  "package": "com.best4u.untouch.uiprobe.review"
+}
