@@ -283,7 +283,7 @@ void main() {
     await saveFrame(tester, 'help-privacy', find.byKey(profile.boundary));
     await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();
-    if (const bool.fromEnvironment('YANDEX_DEMO_ADS')) {
+    if (AudiencePolicy.adsBuildEnabled) {
       // The public consent function only asks. Decline never starts an SDK.
       await context.read<AudiencePolicy>().select(AgeBand.adult18plus);
       await tester.ensureVisible(

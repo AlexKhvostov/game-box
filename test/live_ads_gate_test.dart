@@ -5,15 +5,42 @@ import 'package:game_box/data/yandex_ads_driver.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  test('live flag alone cannot activate unreviewed production ads', () async {
-    SharedPreferences.setMockInitialValues({});
-    final policy = AudiencePolicy();
-    await policy.load();
-    await policy.select(AgeBand.age21plus);
-    policy.allowAdsForSession();
-    const live = bool.fromEnvironment('YANDEX_LIVE_ADS');
-    const demo = bool.fromEnvironment('YANDEX_DEMO_ADS');
-    expect(policy.adsEnabled, demo && !live);
-    expect(YandexAdsDriver(audience: policy).allowed, demo && !live);
-  });
+  test(
+    'explicit demo or publisher mode admits only opted-in adult ads',
+    () async {
+      SharedPreferences.setMockInitialValues({});
+      final policy = AudiencePolicy();
+      await policy.load();
+      await policy.select(AgeBand.age21plus);
+      const live = bool.fromEnvironment('YANDEX_LIVE_ADS');
+      const demo = bool.fromEnvironment('YANDEX_DEMO_ADS');
+      final driver = YandexAdsDriver(audience: policy);
+      expect(policy.rewardedAdsEnabled, false);
+      expect(driver.allowed, false);
+      policy.requestRewardedAdsForSession();
+      expect(policy.rewardedAdsEnabled, demo != live);
+      expect(
+        policy.adsEnabled,
+        false,
+      ); // Reward tap never opts into interstitials.
+      expect(driver.allowed, demo != live);
+      expect(
+        YandexAdUnits.rewarded,
+        live ? 'R-M-20184253-1' : 'demo-rewarded-yandex',
+      );
+      expect(
+        YandexAdUnits.interstitial,
+        live ? 'R-M-20184253-2' : 'demo-interstitial-yandex',
+      );
+      policy.allowAdsForSession();
+      expect(policy.adsEnabled, demo != live);
+      policy.revokeAdsForSession();
+      expect(driver.allowed, false);
+      policy.requestRewardedAdsForSession();
+      expect(driver.allowed, false);
+      await policy.correct(AgeBand.under18);
+      expect(driver.allowed, false);
+      policy.dispose();
+    },
+  );
 }

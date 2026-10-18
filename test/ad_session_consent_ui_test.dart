@@ -164,7 +164,7 @@ void main() {
   );
 
   testWidgets(
-    'No demo build cannot prompt or invoke advertising SDK',
+    'Ads-off build cannot prompt or invoke advertising SDK',
     (t) async {
       final (policy, driver, _) = await _mount(t);
       await t.tap(find.text('two prompts'));

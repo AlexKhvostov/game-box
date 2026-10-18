@@ -8,8 +8,8 @@ import 'ad_presentation_lease.dart';
 import 'audience_policy.dart';
 
 abstract final class YandexAdUnits {
-  // Live activation requires store publication, moderation and AP4 wallet checks.
-  static const live = bool.fromEnvironment('YANDEX_LIVE_ADS');
+  // The publisher's units also serve test ads until Yandex approves the app.
+  static const live = AudiencePolicy.liveAds;
   static const rewarded = live ? 'R-M-20184253-1' : 'demo-rewarded-yandex';
   static const interstitial = live
       ? 'R-M-20184253-2'
@@ -19,11 +19,8 @@ abstract final class YandexAdUnits {
 class YandexAdsDriver implements AdsDriver {
   YandexAdsDriver({required this.audience});
   final AudiencePolicy audience;
-  // Live ads stay blocked until content filters, regions and privacy are reviewed.
   bool get allowed =>
-      AudiencePolicy.adsBuildEnabled &&
-      audience.rewardedAdsEnabled &&
-      !YandexAdUnits.live;
+      AudiencePolicy.adsBuildEnabled && audience.rewardedAdsEnabled;
   bool get supported =>
       !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
   Future<void>? _initializing;
@@ -49,7 +46,7 @@ class YandexAdsDriver implements AdsDriver {
   }
 
   Future<void> _init() async {
-    // Explicit reward tap starts contextual demo ads, never personalization.
+    // Explicit reward tap starts contextual ads, never personalization.
     await YandexAds.setUserConsent(false);
     await YandexAds.setLocationTracking(false);
     await YandexAds.setAgeRestricted(false); // Only declared adults reach here.

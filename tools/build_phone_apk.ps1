@@ -3,6 +3,7 @@ param(
   [switch]$AppBundle,
   [switch]$GooglePlayBilling,
   [switch]$DemoAds,
+  [switch]$LiveAds,
   [switch]$TestTools,
   [switch]$GameplayDebug,
   [switch]$TestServicePreview,
@@ -12,10 +13,11 @@ param(
   [string]$FlutterRoot = 'C:\Users\alexe\develop\flutter'
 )
 $ErrorActionPreference = 'Stop'
+if ($DemoAds -and $LiveAds) { throw 'Choose either DemoAds or LiveAds, not both' }
 if ($ProductionRelease -and ($TestServicePreview -or $TestTools -or $GameplayDebug -or $DemoAds)) {
   throw 'Production release cannot contain free test grants, preview services, debug tools or demo ads'
 }
-if ($TestTools -and ($AppBundle -or $GooglePlayBilling -or $DemoAds)) {
+if ($TestTools -and ($AppBundle -or $GooglePlayBilling -or $DemoAds -or $LiveAds)) {
   throw 'Test wallet APK cannot enable AAB, real billing or ads'
 }
 if ($env:UNTOUCH_UI_PROBE -eq 'true') { throw 'Disable the isolated UI probe before building a user release' }
@@ -69,6 +71,7 @@ $buildArgs += "--dart-define=TEST_TOOLS=$($TestTools.IsPresent.ToString().ToLowe
 $buildArgs += "--dart-define=GAMEPLAY_DEBUG=$($GameplayDebug.IsPresent.ToString().ToLowerInvariant())"
 $buildArgs += "--dart-define=TEST_SERVICE_PREVIEW=$($TestServicePreview.IsPresent.ToString().ToLowerInvariant())"
 $buildArgs += "--dart-define=YANDEX_DEMO_ADS=$($DemoAds.IsPresent.ToString().ToLowerInvariant())"
+$buildArgs += "--dart-define=YANDEX_LIVE_ADS=$($LiveAds.IsPresent.ToString().ToLowerInvariant())"
 if ($GoogleWebClientId) { $buildArgs += "--dart-define=GOOGLE_WEB_CLIENT_ID=$GoogleWebClientId" }
 if ($GooglePlayBilling) { $buildArgs += '--dart-define=GOOGLE_PLAY_BILLING=true' }
 try {
@@ -97,7 +100,10 @@ $manifest = [ordered]@{
   buildId=$buildId; versionName=$version; versionCode=$code
   package='com.best4u.untouch'; target='mobile-arcade'
   sha256=(Get-FileHash -LiteralPath $dest -Algorithm SHA256).Hash.ToLowerInvariant()
-  configRevision=$config.revision; adMode=$(if ($DemoAds) {'yandex-demo-adult-session-opt-in-internal-only'} else {'off'}); signing=$(if ($env:UNTOUCH_SIGNING_PROPERTIES) {'private-release-key'} else {'development-debug-key'})
+  configRevision=$config.revision; adMode=$(if ($LiveAds) {'yandex-publisher-units-adult-session-opt-in'} elseif ($DemoAds) {'yandex-demo-adult-session-opt-in-internal-only'} else {'off'}); signing=$(if ($env:UNTOUCH_SIGNING_PROPERTIES) {'private-release-key'} else {'development-debug-key'})
+  yandexLiveAds=$LiveAds.IsPresent
+  yandexRewardedUnit=$(if ($LiveAds) {'R-M-20184253-1'} elseif ($DemoAds) {'demo-rewarded-yandex'} else {$null})
+  yandexInterstitialUnit=$(if ($LiveAds) {'R-M-20184253-2'} elseif ($DemoAds) {'demo-interstitial-yandex'} else {$null})
   audiencePolicy='game-and-autoscore-all-ages-ads18plus-session-opt-in'; advertisingIdPermission=$false
   googleIdentityConfigured=[bool]$GoogleWebClientId; googlePlayBilling=[bool]$GooglePlayBilling
   published=$false; deviceTested=$false
@@ -110,7 +116,7 @@ $manifest = [ordered]@{
   gameplayDebug=$GameplayDebug.IsPresent
   testServicePreview=$TestServicePreview.IsPresent
   productionRelease=$ProductionRelease.IsPresent
-  limitations=@('Physical Android acceptance pending', 'Google Play publication of this build pending', 'Live ads and Play purchases require separate approval and device verification')
+  limitations=@('Physical Android acceptance pending', 'Google Play publication of this build pending', 'Commercial Yandex ads depend on app moderation; Play purchases need separate device verification')
 }
 $manifest | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $outDir 'build.json') -Encoding UTF8
 Write-Host "Artifact: $dest"

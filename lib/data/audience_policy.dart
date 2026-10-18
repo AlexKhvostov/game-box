@@ -19,10 +19,10 @@ enum AgeBand {
 /// No birthday is collected. The declaration admits client resource actions. Gameplay,
 /// account recovery and automatic scores do not depend on this declaration.
 class AudiencePolicy extends ChangeNotifier {
-  // Demo ads require an intentional internal test build. Store candidates are off.
-  static const adsBuildEnabled =
-      bool.fromEnvironment('YANDEX_DEMO_ADS') &&
-      !bool.fromEnvironment('YANDEX_LIVE_ADS');
+  // Choose exactly one explicit ad mode. An ordinary build remains ads-off.
+  static const demoAds = bool.fromEnvironment('YANDEX_DEMO_ADS');
+  static const liveAds = bool.fromEnvironment('YANDEX_LIVE_ADS');
+  static const adsBuildEnabled = demoAds != liveAds;
   static const storageKey = 'audience_age_band_v1';
   SharedPreferences? _prefs;
   AgeBand? _band;

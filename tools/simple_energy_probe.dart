@@ -1,5 +1,6 @@
 // Isolated native acceptance. Wallet HTTP is intercepted, prices synthetic,
-// purchases/messages prohibited. PROBE_YANDEX permits real demo-SDK traffic.
+// purchases/messages prohibited. PROBE_YANDEX permits real Yandex SDK traffic;
+// YANDEX_DEMO_ADS / YANDEX_LIVE_ADS choose demo / publisher units explicitly.
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
