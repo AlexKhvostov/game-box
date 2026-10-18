@@ -1,0 +1,1 @@
+{"protectedDataUnchangedExceptAdReward":true,"grants":[{"before":929,"after":969,"amount":40}],"newOperations":2,"newSessions":1,"realGameStarts":0,"newScores":0,"remoteConfigUnchanged":true,"purchasesUnchangedExceptReconcileTimestamp":true,"players":2,"scores":37}

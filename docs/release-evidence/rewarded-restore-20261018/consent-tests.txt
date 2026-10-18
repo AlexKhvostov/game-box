@@ -1,0 +1,15 @@
+00:00 +0: loading D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart
+00:00 +0: Compact privacy opens consent and preserves cancel, revoke and session lock
+00:01 +1: No demo build cannot prompt or invoke advertising SDK
+00:01 +1 ~1: Ineligible AgeBand.under6 never starts SDK or consents implicitly
+00:01 +2 ~1: Ineligible AgeBand.under18 never starts SDK or consents implicitly
+00:01 +3 ~1: Ineligible AgeBand.age13to15 never starts SDK or consents implicitly
+00:01 +4 ~1: Ineligible AgeBand.age16to17 never starts SDK or consents implicitly
+00:01 +5 ~1: Ineligible AgeBand.unknown never starts SDK or consents implicitly
+00:01 +6 ~1: Reward button directly invokes SDK without a second dialog or interstitial opt-in
+00:01 +7 ~1: Decline or cancel explicit settings consent never starts SDK: cancel=false
+00:01 +8 ~1: Decline or cancel explicit settings consent never starts SDK: cancel=true
+00:01 +9 ~1: Session revoke prevents a new request or new consent
+00:01 +10 ~1: Concurrent helpers share one voluntary dialog
+00:01 +11 ~1: Account switch uses same consent and energy wording
+00:02 +12 ~1: All tests passed!

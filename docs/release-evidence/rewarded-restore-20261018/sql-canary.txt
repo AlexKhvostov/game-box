@@ -1,0 +1,17 @@
+(node:36460) ExperimentalWarning: Importing JSON modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+file:///D:/_P_R_O_J_E_C_T/game/square/Untouch/supabase/functions/_shared/core/policy.mjs:9
+const requireThat = (condition, code, status) => { if (!condition) throw new ApiError(code, status); };
+                                                                         ^
+
+ApiError: policy_invalid
+    at requireThat (file:///D:/_P_R_O_J_E_C_T/game/square/Untouch/supabase/functions/_shared/core/policy.mjs:9:74)
+    at validatePolicy (file:///D:/_P_R_O_J_E_C_T/game/square/Untouch/supabase/functions/_shared/core/policy.mjs:15:3)
+    at Object.execute (file:///D:/_P_R_O_J_E_C_T/game/square/Untouch/supabase/functions/_shared/core/engine.mjs:50:20)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async file:///D:/_P_R_O_J_E_C_T/game/square/Untouch/.private/canary_rewarded_restore.mjs:19:16 {
+  code: 'policy_invalid',
+  status: 503
+}
+
+Node.js v22.11.0

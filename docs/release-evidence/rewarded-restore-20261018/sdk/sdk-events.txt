@@ -1,0 +1,5 @@
+UNTOUCH_AD rewarded loading SDK8.6.0
+UNTOUCH_AD rewarded loaded
+UNTOUCH_AD rewarded shown
+UNTOUCH_AD rewarded earned
+UNTOUCH_AD rewarded dismissed earned=true

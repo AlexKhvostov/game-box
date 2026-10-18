@@ -1,0 +1,1046 @@
+00:00 +0: loading D:/_P_R_O_J_E_C_T/game/square/Untouch/test/admin_config_consumption_test.dart
+00:00 +0: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/admin_config_consumption_test.dart: Remote Config color reaches the actual mobile painter instead of fixed design override
+00:00 +1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/admin_config_consumption_test.dart: Remote Config color reaches the actual mobile painter instead of fixed design override
+00:00 +2: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/admin_config_consumption_test.dart: Remote Config color reaches the actual mobile painter instead of fixed design override
+00:00 +3: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/admin_config_consumption_test.dart: Remote Config color reaches the actual mobile painter instead of fixed design override
+00:00 +4: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/admin_config_consumption_test.dart: Remote Config color reaches the actual mobile painter instead of fixed design override
+00:00 +5: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/admin_config_consumption_test.dart: Remote Config color reaches the actual mobile painter instead of fixed design override
+00:01 +5 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/admin_config_consumption_test.dart: Remote Config color reaches the actual mobile painter instead of fixed design override
+00:01 +6 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +7 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +8 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +9 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +10 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +11 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +12 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +13 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +14 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +15 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +16 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +17 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +18 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +19 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +20 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +21 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +22 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +23 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +24 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +25 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +26 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +27 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +28 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +29 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +30 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +31 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +32 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +33 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +34 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +35 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +36 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +37 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +38 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +39 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +40 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +41 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +42 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +43 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +44 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +45 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +46 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +47 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +48 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +49 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +50 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +51 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +52 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +53 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +54 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:01 +55 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ad_session_consent_ui_test.dart: No demo build cannot prompt or invoke advertising SDK
+00:02 +56 ~1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: startup service isolation for saved age null
+00:02 +56 ~2: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: startup service isolation for saved age null
+00:02 +56 ~3: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: startup service isolation for saved age null
+00:02 +56 ~4: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: startup service isolation for saved age null
+00:02 +56 ~5: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: startup service isolation for saved age null
+00:02 +56 ~6: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: startup service isolation for saved age null
+00:02 +56 ~7: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: startup service isolation for saved age null
+00:02 +56 ~8: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: startup service isolation for saved age null
+00:02 +56 ~9: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: startup service isolation for saved age null
+00:02 +56 ~10: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: startup service isolation for saved age null
+00:02 +56 ~11: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: startup service isolation for saved age null
+00:02 +56 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: startup service isolation for saved age null
+00:02 +57 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: startup service isolation for saved age null
+00:02 +58 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: startup service isolation for saved age null
+00:02 +59 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: startup service isolation for saved age null
+00:02 +60 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: startup service isolation for saved age null
+00:02 +61 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: startup service isolation for saved age null
+00:02 +62 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: startup service isolation for saved age null
+00:02 +63 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: startup service isolation for saved age null
+00:02 +64 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: startup service isolation for saved age null
+00:02 +65 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: startup service isolation for saved age null
+00:02 +66 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: startup service isolation for saved age null
+00:02 +67 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: startup service isolation for saved age null
+00:02 +68 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: startup service isolation for saved age null
+00:02 +69 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: startup service isolation for saved age null
+00:02 +70 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: startup service isolation for saved age null
+00:02 +71 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: startup service isolation for saved age null
+00:02 +72 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: startup service isolation for saved age null
+00:02 +73 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: startup service isolation for saved age null
+00:02 +74 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: startup service isolation for saved age null
+00:02 +75 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: startup service isolation for saved age null
+00:02 +76 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: startup service isolation for saved age under6
+00:02 +77 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: startup service isolation for saved age age6to8
+00:02 +78 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: startup service isolation for saved age age9to12
+00:02 +79 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: startup service isolation for saved age age13to15
+00:02 +80 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: startup service isolation for saved age age16to17
+00:02 +81 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: startup service isolation for saved age age18to20
+00:02 +82 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: startup service isolation for saved age age21plus
+00:02 +83 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: false journal persistence never posts, even after preferences cache mutated
+00:02 +84 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: false journal persistence never posts, even after preferences cache mutated
+00:02 +85 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: false journal persistence never posts, even after preferences cache mutated
+00:02 +86 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: startup service isolation for saved age adult18plus
+00:02 +87 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: startup service isolation for saved age adult18plus
+00:02 +88 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: false archive persistence never removes deferred legacy operation
+00:02 +89 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: startup service isolation for saved age invalid
+00:02 +90 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: startup service isolation for saved age invalid
+00:03 +91 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: retired pending video claim is archived and cannot block the next bonus
+00:03 +92 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: startup service isolation for saved age 18
+00:03 +93 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: startup service isolation for saved age 18
+00:03 +94 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: atomic cache owner cannot be reattributed by a split legacy pointer
+00:03 +95 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: choosing AgeBand.under18 only changes advertising, not the game session
+00:03 +96 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: choosing AgeBand.under18 only changes advertising, not the game session
+00:03 +97 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: choosing AgeBand.under18 only changes advertising, not the game session
+00:03 +98 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: choosing AgeBand.under18 only changes advertising, not the game session
+00:03 +99 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: choosing AgeBand.under18 only changes advertising, not the game session
+00:03 +100 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: choosing AgeBand.under18 only changes advertising, not the game session
+00:03 +101 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: choosing AgeBand.under18 only changes advertising, not the game session
+00:03 +102 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: choosing AgeBand.under18 only changes advertising, not the game session
+00:03 +103 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_audience_startup_test.dart: choosing AgeBand.adult18plus only changes advertising, not the game session
+00:03 +104 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_game_transition_test.dart: last-energy paid pending receipt can be retried with zero wallet
+00:04 +105 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_game_transition_test.dart: last-energy paid pending receipt can be retried with zero wallet
+00:04 +106 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_game_transition_test.dart: last-energy paid pending receipt can be retried with zero wallet
+00:04 +107 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_game_transition_test.dart: last-energy paid pending receipt can be retried with zero wallet
+00:04 +108 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_game_transition_test.dart: last-energy paid pending receipt can be retried with zero wallet
+00:04 +109 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_game_transition_test.dart: last-energy paid pending receipt can be retried with zero wallet
+00:04 +110 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_game_transition_test.dart: last-energy paid pending receipt can be retried with zero wallet
+00:04 +111 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_rendering_performance_test.dart: jump progress samples subsecond changes without HUD rebuild
+00:05 +112 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_rendering_performance_test.dart: jump progress samples subsecond changes without HUD rebuild
+00:05 +113 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_rendering_performance_test.dart: jump progress samples subsecond changes without HUD rebuild
+00:05 +114 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_rendering_performance_test.dart: jump progress samples subsecond changes without HUD rebuild
+00:05 +115 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_rendering_performance_test.dart: jump progress samples subsecond changes without HUD rebuild
+00:05 +116 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_game_transition_test.dart: field touch confirms one debit 2 and freezes equipment
+00:05 +117 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_game_transition_test.dart: field touch confirms one debit 2 and freezes equipment
+00:05 +118 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_game_transition_test.dart: field touch confirms one debit 2 and freezes equipment
+00:05 +119 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_game_transition_test.dart: field touch confirms one debit 2 and freezes equipment
+00:05 +120 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_game_transition_test.dart: field touch confirms one debit 2 and freezes equipment
+00:05 +121 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_review_cleanup_test.dart: zero feedback spend has zero progress and a distinct track
+00:05 +122 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_review_cleanup_test.dart: zero feedback spend has zero progress and a distinct track
+00:05 +123 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_review_cleanup_test.dart: zero feedback spend has zero progress and a distinct track
+00:05 +124 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_review_cleanup_test.dart: zero feedback spend has zero progress and a distinct track
+00:05 +125 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_review_cleanup_test.dart: zero feedback spend has zero progress and a distinct track
+00:05 +126 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_review_cleanup_test.dart: zero feedback spend has zero progress and a distinct track
+00:05 +127 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_review_cleanup_test.dart: zero feedback spend has zero progress and a distinct track
+00:05 +128 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_review_cleanup_test.dart: zero feedback spend has zero progress and a distinct track
+00:05 +129 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_review_cleanup_test.dart: zero feedback spend has zero progress and a distinct track
+00:05 +130 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_review_cleanup_test.dart: zero feedback spend has zero progress and a distinct track
+00:05 +131 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_review_cleanup_test.dart: zero feedback spend has zero progress and a distinct track
+00:06 +132 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_review_cleanup_test.dart: zero feedback spend has zero progress and a distinct track
+00:06 +133 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_game_transition_test.dart: insufficient_energy cannot fall back to cached practice
+00:06 +134 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_game_transition_test.dart: rules_changed cannot fall back to cached practice
+00:06 +135 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_review_delivery_test.dart: real own place survives top200 truncation; an unavailable global percentage is explicit
+00:06 +136 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_game_transition_test.dart: update_required cannot fall back to cached practice
+00:06 +137 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_review_delivery_test.dart: publication refreshes an already loaded board without reopening it
+00:06 +137 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_game_transition_test.dart: bad geometry after confirmation is cancelled before activation
+Arcade start blocked: enemy_count
+00:06 +138 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_review_delivery_test.dart: publication refreshes an already loaded board without reopening it
+00:06 +139 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_review_delivery_test.dart: publication refreshes an already loaded board without reopening it
+00:06 +140 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_review_delivery_test.dart: publication refreshes an already loaded board without reopening it
+00:06 +141 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_review_delivery_test.dart: publication refreshes an already loaded board without reopening it
+00:07 +142 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_review_delivery_test.dart: bad ranking cache is ignored, while an unreadable valuable journal is preserved and never overwritten
+Ignoring unreadable ranking cache
+Local result journal needs recovery
+Ignoring unreadable ranking cache
+00:07 +143 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_review_delivery_test.dart: energy result says earned only after ACK and never offers an already automatic second grant
+00:07 +144 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_review_delivery_test.dart: energy result says earned only after ACK and never offers an already automatic second grant
+00:07 +145 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_review_delivery_test.dart: energy result says earned only after ACK and never offers an already automatic second grant
+00:07 +146 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_review_delivery_test.dart: pending purchased token retries automatically after connection recovers; no store/purchase UI is called
+00:07 +147 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_review_delivery_test.dart: purchase retries pause in background and resume when foreground returns
+00:08 +148 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_review_delivery_test.dart: another owner cannot verify or discard a pending purchase
+00:08 +149 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_supabase_transition_test.dart: replaying an owned run cannot create a replacement anonymous account
+00:08 +150 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/arcade_hud_layout_test.dart: Energy plus remains inside its card for an eight-digit balance
+00:08 +151 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/arcade_hud_layout_test.dart: Energy plus remains inside its card for an eight-digit balance
+00:08 +152 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/arcade_hud_layout_test.dart: Energy plus remains inside its card for an eight-digit balance
+00:08 +153 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/arcade_hud_layout_test.dart: Energy plus remains inside its card for an eight-digit balance
+00:08 +154 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/arcade_hud_layout_test.dart: Energy plus remains inside its card for an eight-digit balance
+00:08 +155 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/arcade_hud_layout_test.dart: Energy plus remains inside its card for an eight-digit balance
+00:09 +156 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/arcade_hud_layout_test.dart: Energy plus remains inside its card for an eight-digit balance
+00:09 +157 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/arcade_hud_layout_test.dart: Energy plus remains inside its card for an eight-digit balance
+00:09 +158 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/arcade_hud_layout_test.dart: Energy plus remains inside its card for an eight-digit balance
+00:09 +159 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/arcade_hud_layout_test.dart: Energy plus remains inside its card for an eight-digit balance
+00:09 +160 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/arcade_hud_layout_test.dart: Energy plus remains inside its card for an eight-digit balance
+00:09 +161 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/arcade_hud_layout_test.dart: Energy plus remains inside its card for an eight-digit balance
+00:09 +162 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: AgeBand.age6to8 has no ad switch or reward button; daily rewards remain
+00:09 +163 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: AgeBand.age6to8 has no ad switch or reward button; daily rewards remain
+00:09 +164 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: AgeBand.age6to8 has no ad switch or reward button; daily rewards remain
+00:09 +165 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: AgeBand.age6to8 has no ad switch or reward button; daily rewards remain
+00:09 +166 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: AgeBand.age6to8 has no ad switch or reward button; daily rewards remain
+00:09 +167 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: AgeBand.age6to8 has no ad switch or reward button; daily rewards remain
+00:09 +168 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: AgeBand.age6to8 has no ad switch or reward button; daily rewards remain
+00:09 +169 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: AgeBand.age6to8 has no ad switch or reward button; daily rewards remain
+00:10 +170 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: AgeBand.age6to8 has no ad switch or reward button; daily rewards remain
+00:10 +171 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/audience_policy_test.dart: AgeBand.age6to8 has no ad switch or reward button; daily rewards remain
+00:10 +172 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_ranking_test.dart: average tab Size(360.0, 720.0) scale1.0 handles own/provisional/offline/empty states
+00:10 +173 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_ranking_test.dart: average tab Size(360.0, 720.0) scale1.0 handles own/provisional/offline/empty states
+00:10 +174 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_ranking_test.dart: average tab Size(360.0, 720.0) scale1.0 handles own/provisional/offline/empty states
+00:10 +175 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_ranking_test.dart: average tab Size(360.0, 720.0) scale1.0 handles own/provisional/offline/empty states
+00:10 +176 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_ranking_test.dart: average tab Size(360.0, 720.0) scale1.0 handles own/provisional/offline/empty states
+00:10 +177 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_ranking_test.dart: average tab Size(360.0, 720.0) scale1.0 handles own/provisional/offline/empty states
+00:10 +178 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_ranking_test.dart: average tab Size(360.0, 720.0) scale1.0 handles own/provisional/offline/empty states
+00:10 +179 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_ranking_test.dart: average tab Size(360.0, 720.0) scale1.0 handles own/provisional/offline/empty states
+00:10 +180 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_ranking_test.dart: average tab Size(360.0, 720.0) scale1.0 handles own/provisional/offline/empty states
+00:10 +181 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_ranking_test.dart: average tab Size(360.0, 720.0) scale1.0 handles own/provisional/offline/empty states
+00:10 +182 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_ranking_test.dart: average tab Size(360.0, 720.0) scale1.0 handles own/provisional/offline/empty states
+00:10 +183 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_ranking_test.dart: average tab Size(360.0, 720.0) scale1.0 handles own/provisional/offline/empty states
+00:10 +184 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_ranking_test.dart: average tab Size(360.0, 720.0) scale1.0 handles own/provisional/offline/empty states
+00:10 +185 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_ranking_test.dart: average tab Size(360.0, 720.0) scale1.0 handles own/provisional/offline/empty states
+00:10 +186 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_ranking_test.dart: average tab Size(360.0, 720.0) scale1.0 handles own/provisional/offline/empty states
+00:10 +187 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_ranking_test.dart: average tab Size(360.0, 720.0) scale1.0 handles own/provisional/offline/empty states
+00:10 +188 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_ranking_test.dart: average tab Size(360.0, 720.0) scale1.0 handles own/provisional/offline/empty states
+00:10 +189 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_ranking_test.dart: average tab Size(360.0, 720.0) scale1.0 handles own/provisional/offline/empty states
+00:10 +190 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_ranking_test.dart: average tab Size(360.0, 720.0) scale1.0 handles own/provisional/offline/empty states
+00:10 +191 ~12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_ranking_test.dart: average tab Size(360.0, 720.0) scale1.0 handles own/provisional/offline/empty states
+00:10 +191 ~13: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_ranking_test.dart: average tab Size(360.0, 720.0) scale1.0 handles own/provisional/offline/empty states
+00:10 +191 ~14: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_ranking_test.dart: average tab Size(360.0, 720.0) scale1.0 handles own/provisional/offline/empty states
+00:11 +192 ~14: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_ranking_test.dart: average tab Size(360.0, 720.0) scale1.0 handles own/provisional/offline/empty states
+00:11 +193 ~14: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_ranking_test.dart: average tab Size(360.0, 720.0) scale1.0 handles own/provisional/offline/empty states
+00:11 +194 ~14: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_ranking_test.dart: average tab Size(360.0, 720.0) scale1.0 handles own/provisional/offline/empty states
+00:11 +194 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_ranking_test.dart: average tab Size(360.0, 720.0) scale1.0 handles own/provisional/offline/empty states
+00:12 +195 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/blue_glass_profile_test.dart: short profile reports connection before preparation and success
+00:12 +196 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/blue_glass_ranking_test.dart: ranking ru Size(320.0, 560.0) scale 1.0 layout and filters
+00:12 +197 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/blue_glass_ranking_test.dart: ranking ru Size(320.0, 560.0) scale 1.0 layout and filters
+00:12 +198 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/blue_glass_ranking_test.dart: ranking ru Size(320.0, 560.0) scale 1.0 layout and filters
+00:13 +199 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/blue_glass_ranking_test.dart: ranking ru Size(320.0, 560.0) scale 1.0 layout and filters
+00:13 +200 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/blue_glass_ranking_test.dart: ranking ru Size(320.0, 560.0) scale 1.0 layout and filters
+00:13 +201 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/blue_glass_ranking_test.dart: ranking ru Size(320.0, 560.0) scale 1.0 layout and filters
+00:13 +202 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/blue_glass_ranking_test.dart: ranking ru Size(320.0, 560.0) scale 1.0 layout and filters
+00:13 +203 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/blue_glass_ranking_test.dart: ranking ru Size(320.0, 560.0) scale 1.0 layout and filters
+00:13 +204 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/blue_glass_ranking_test.dart: ranking ru Size(320.0, 560.0) scale 1.0 layout and filters
+00:13 +205 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/blue_glass_ranking_test.dart: ranking ru Size(320.0, 560.0) scale 1.0 layout and filters
+00:13 +206 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/blue_glass_ranking_test.dart: ranking ru Size(320.0, 560.0) scale 1.0 layout and filters
+00:13 +207 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/bonus_celebration_test.dart: Pending double tap waits for ACK; one credit and finite effect
+00:13 +208 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/bonus_celebration_test.dart: Pending double tap waits for ACK; one credit and finite effect
+00:14 +209 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/bonus_celebration_test.dart: Pending double tap waits for ACK; one credit and finite effect
+00:14 +210 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/bonus_celebration_test.dart: Pending double tap waits for ACK; one credit and finite effect
+00:14 +211 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/bonus_celebration_test.dart: Pending double tap waits for ACK; one credit and finite effect
+00:14 +212 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/bonus_celebration_test.dart: Pending double tap waits for ACK; one credit and finite effect
+00:14 +213 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/bonus_celebration_test.dart: Pending double tap waits for ACK; one credit and finite effect
+00:14 +214 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/bonus_celebration_test.dart: Pending double tap waits for ACK; one credit and finite effect
+00:14 +215 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/bonus_celebration_test.dart: Pending double tap waits for ACK; one credit and finite effect
+00:14 +216 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/bonus_reference_capture_test.dart: Reference states and confirmed reward frames at real width
+00:14 +217 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/bonus_reference_capture_test.dart: Reference states and confirmed reward frames at real width
+00:14 +218 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/bonus_reference_capture_test.dart: Reference states and confirmed reward frames at real width
+00:14 +219 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/bonus_reference_capture_test.dart: Reference states and confirmed reward frames at real width
+00:14 +220 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/bonus_reference_capture_test.dart: Reference states and confirmed reward frames at real width
+00:14 +221 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/bonus_reference_capture_test.dart: Reference states and confirmed reward frames at real width
+00:14 +222 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/bonus_reference_capture_test.dart: Reference states and confirmed reward frames at real width
+00:14 +223 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/bonus_reference_capture_test.dart: Reference states and confirmed reward frames at real width
+00:14 +224 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/bonus_reference_capture_test.dart: Reference states and confirmed reward frames at real width
+00:15 +225 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/bonus_reference_capture_test.dart: Reference states and confirmed reward frames at real width
+00:15 +226 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/bonus_reference_capture_test.dart: Reference states and confirmed reward frames at real width
+00:15 +227 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/bonus_reference_capture_test.dart: Reference states and confirmed reward frames at real width
+00:15 +228 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_ability_button_test.dart: six states keep geometry and use the supplied game clock
+00:15 +229 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_ability_button_test.dart: six states keep geometry and use the supplied game clock
+00:15 +230 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/blue_glass_ranking_test.dart: ranking ru Size(390.0, 844.0) scale 1.0 layout and filters
+00:15 +231 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/blue_glass_ranking_test.dart: ranking ru Size(390.0, 844.0) scale 1.0 layout and filters
+00:15 +232 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/blue_glass_ranking_test.dart: ranking ru Size(390.0, 844.0) scale 1.0 layout and filters
+00:15 +233 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/blue_glass_ranking_test.dart: ranking ru Size(390.0, 844.0) scale 1.0 layout and filters
+00:15 +234 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/blue_glass_ranking_test.dart: ranking ru Size(390.0, 844.0) scale 1.0 layout and filters
+00:15 +235 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/blue_glass_ranking_test.dart: ranking ru Size(390.0, 844.0) scale 1.0 layout and filters
+00:15 +236 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/blue_glass_ranking_test.dart: ranking ru Size(390.0, 844.0) scale 1.0 layout and filters
+00:15 +237 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/blue_glass_ranking_test.dart: ranking ru Size(390.0, 844.0) scale 1.0 layout and filters
+00:15 +238 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/blue_glass_ranking_test.dart: ranking ru Size(390.0, 844.0) scale 1.0 layout and filters
+00:15 +239 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/blue_glass_ranking_test.dart: ranking ru Size(390.0, 844.0) scale 1.0 layout and filters
+00:15 +240 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/blue_glass_ranking_test.dart: ranking ru Size(390.0, 844.0) scale 1.0 layout and filters
+00:15 +241 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/blue_glass_ranking_test.dart: ranking ru Size(390.0, 844.0) scale 1.0 layout and filters
+00:15 +242 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/blue_glass_ranking_test.dart: ranking ru Size(390.0, 844.0) scale 1.0 layout and filters
+00:15 +243 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/blue_glass_ranking_test.dart: ranking ru Size(390.0, 844.0) scale 1.0 layout and filters
+00:15 +244 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/blue_glass_ranking_test.dart: ranking ru Size(390.0, 844.0) scale 1.0 layout and filters
+00:15 +245 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/blue_glass_ranking_test.dart: ranking ru Size(390.0, 844.0) scale 1.0 layout and filters
+00:15 +246 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/blue_glass_ranking_test.dart: ranking ru Size(390.0, 844.0) scale 1.0 layout and filters
+00:16 +247 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/blue_glass_ranking_test.dart: ranking ru Size(390.0, 844.0) scale 1.0 layout and filters
+00:16 +248 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/blue_glass_ranking_test.dart: ranking ru Size(390.0, 844.0) scale 1.0 layout and filters
+00:16 +249 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/blue_glass_resources_test.dart: unknown-age local round saves freely; claim cancel and replay never pay twice
+00:16 +250 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/blue_glass_resources_test.dart: unknown-age local round saves freely; claim cancel and replay never pay twice
+00:16 +251 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/blue_glass_resources_test.dart: unknown-age local round saves freely; claim cancel and replay never pay twice
+00:16 +252 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/blue_glass_resources_test.dart: unknown-age local round saves freely; claim cancel and replay never pay twice
+00:16 +253 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/blue_glass_resources_test.dart: unknown-age local round saves freely; claim cancel and replay never pay twice
+00:16 +254 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:16 +255 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:16 +256 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:16 +257 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:17 +258 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:17 +259 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:17 +260 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:17 +261 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:17 +262 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:17 +263 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:17 +264 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:17 +264 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/blue_glass_result_test.dart: share preparation error is visible and retry remains enabled
+ShareSocialSheet: MissingPluginException(No implementation found for method getTemporaryDirectory on channel plugins.flutter.io/path_provider)
+00:17 +265 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:18 +266 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:18 +266 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/blue_glass_result_test.dart: share preparation error is visible and retry remains enabled
+ShareSocialSheet: MissingPluginException(No implementation found for method getTemporaryDirectory on channel plugins.flutter.io/path_provider)
+00:18 +267 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:18 +268 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:18 +269 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:18 +270 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:18 +271 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:18 +272 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:18 +273 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:18 +274 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:18 +275 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:18 +276 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:18 +277 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:18 +278 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:18 +279 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:18 +280 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:18 +281 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:18 +282 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:18 +283 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:18 +284 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:18 +285 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:18 +286 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:18 +287 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:18 +288 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:18 +289 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:18 +290 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:18 +291 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:19 +292 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:19 +293 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:19 +294 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:19 +295 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:19 +296 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:19 +297 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:19 +298 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:19 +299 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:19 +300 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:19 +301 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:19 +302 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:19 +303 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:19 +304 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:19 +305 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:20 +306 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:20 +307 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:20 +308 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:20 +309 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:20 +310 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:20 +311 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:20 +312 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:20 +313 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:20 +314 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:20 +315 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.0
+00:20 +316 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/deferred_age_test.dart: resource actions cancel safely and continue once after age choice (ru, null)
+00:21 +317 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/deferred_age_test.dart: resource actions cancel safely and continue once after age choice (ru, null)
+00:21 +318 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/deferred_age_test.dart: resource actions cancel safely and continue once after age choice (ru, null)
+00:21 +319 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/deferred_age_test.dart: resource actions cancel safely and continue once after age choice (ru, null)
+00:21 +320 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/deferred_age_test.dart: resource actions cancel safely and continue once after age choice (ru, null)
+00:22 +321 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/deferred_age_test.dart: resource actions cancel safely and continue once after age choice (ru, null)
+00:22 +322 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.3
+00:22 +323 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.3
+00:22 +324 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.3
+00:22 +325 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.3
+00:22 +326 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.3
+00:22 +327 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.3
+00:22 +328 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.3
+00:22 +329 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.3
+00:22 +330 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.3
+00:22 +331 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.3
+00:22 +332 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.3
+00:22 +333 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.3
+00:22 +334 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.3
+00:22 +335 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.3
+00:23 +336 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.3
+00:23 +337 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 1.3
+00:23 +338 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/deferred_age_test.dart: resource actions cancel safely and continue once after age choice (ru, age6to8)
+00:23 +339 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/deferred_age_test.dart: resource actions cancel safely and continue once after age choice (ru, age6to8)
+00:23 +340 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/deferred_age_test.dart: resource actions cancel safely and continue once after age choice (ru, age6to8)
+00:23 +341 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/deferred_age_test.dart: resource actions cancel safely and continue once after age choice (ru, age6to8)
+00:23 +342 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/deferred_age_test.dart: resource actions cancel safely and continue once after age choice (ru, age6to8)
+00:23 +343 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/deferred_age_test.dart: resource actions cancel safely and continue once after age choice (ru, age6to8)
+00:23 +344 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/deferred_age_test.dart: resource actions cancel safely and continue once after age choice (ru, age6to8)
+00:23 +345 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_feedback_current_test.dart: Current energy menu shows feedback and keeps form locked below100
+00:23 +346 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_feedback_current_test.dart: Current energy menu shows feedback and keeps form locked below100
+00:23 +347 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_feedback_current_test.dart: Current energy menu shows feedback and keeps form locked below100
+00:23 +348 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_feedback_current_test.dart: Current energy menu shows feedback and keeps form locked below100
+00:23 +349 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_feedback_current_test.dart: Current energy menu shows feedback and keeps form locked below100
+00:23 +350 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_feedback_current_test.dart: Current energy menu shows feedback and keeps form locked below100
+00:23 +351 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_feedback_current_test.dart: Current energy menu shows feedback and keeps form locked below100
+00:23 +352 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_feedback_current_test.dart: Current energy menu shows feedback and keeps form locked below100
+00:23 +353 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_feedback_current_test.dart: Current energy menu shows feedback and keeps form locked below100
+00:23 +354 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_feedback_current_test.dart: Current energy menu shows feedback and keeps form locked below100
+00:23 +355 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_feedback_current_test.dart: Current energy menu shows feedback and keeps form locked below100
+00:23 +356 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_feedback_current_test.dart: Current energy menu shows feedback and keeps form locked below100
+00:23 +357 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_header_balance_test.dart: Energy header 1974 at 320.0 / font1.0
+00:24 +358 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_header_balance_test.dart: Energy header 1974 at 320.0 / font1.0
+00:24 +359 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_header_balance_test.dart: Energy header 1974 at 320.0 / font1.0
+00:24 +360 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_header_balance_test.dart: Energy header 1974 at 320.0 / font1.0
+00:24 +361 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_header_balance_test.dart: Energy header 1974 at 320.0 / font1.0
+00:24 +362 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 2.0
+00:24 +363 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 2.0
+00:24 +364 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 2.0
+00:24 +365 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 2.0
+00:24 +366 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x480.0 text 2.0
+00:24 +367 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/blue_glass_ranking_test.dart: player result ru Size(320.0, 560.0) scale 2.0 actual entry, tips and Back
+00:24 +368 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/blue_glass_ranking_test.dart: player result ru Size(320.0, 560.0) scale 2.0 actual entry, tips and Back
+00:24 +369 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/deferred_age_test.dart: resource actions cancel safely and continue once after age choice (en, null)
+00:25 +370 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/deferred_age_test.dart: resource actions cancel safely and continue once after age choice (en, null)
+00:25 +371 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/deferred_age_test.dart: resource actions cancel safely and continue once after age choice (en, null)
+00:25 +372 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/deferred_age_test.dart: resource actions cancel safely and continue once after age choice (en, null)
+00:25 +373 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/deferred_age_test.dart: resource actions cancel safely and continue once after age choice (en, null)
+00:25 +374 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/deferred_age_test.dart: resource actions cancel safely and continue once after age choice (en, null)
+00:25 +375 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/deferred_age_test.dart: resource actions cancel safely and continue once after age choice (en, null)
+00:25 +376 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/deferred_age_test.dart: resource actions cancel safely and continue once after age choice (en, null)
+00:25 +377 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/deferred_age_test.dart: resource actions cancel safely and continue once after age choice (en, null)
+00:26 +378 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_rewards_main_hud_test.dart: Rolling balance keeps confirmed wallet correct during close
+00:26 +379 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_rewards_main_hud_test.dart: Rolling balance keeps confirmed wallet correct during close
+00:26 +380 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_rewards_main_hud_test.dart: Rolling balance keeps confirmed wallet correct during close
+00:26 +381 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_rewards_main_hud_test.dart: Rolling balance keeps confirmed wallet correct during close
+00:26 +382 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_rewards_main_hud_test.dart: Rolling balance keeps confirmed wallet correct during close
+00:26 +383 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_rewards_main_hud_test.dart: Rolling balance keeps confirmed wallet correct during close
+00:26 +384 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_rewards_main_hud_test.dart: Rolling balance keeps confirmed wallet correct during close
+00:26 +385 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_rewards_main_hud_test.dart: Rolling balance keeps confirmed wallet correct during close
+00:26 +386 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_rewards_main_hud_test.dart: Rolling balance keeps confirmed wallet correct during close
+00:26 +387 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_rewards_main_hud_test.dart: Rolling balance keeps confirmed wallet correct during close
+00:26 +388 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_rewards_main_hud_test.dart: Rolling balance keeps confirmed wallet correct during close
+00:27 +389 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_rewards_main_hud_test.dart: Rolling balance keeps confirmed wallet correct during close
+00:27 +390 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_rewards_main_hud_test.dart: Rolling balance keeps confirmed wallet correct during close
+00:27 +391 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_rewards_main_hud_test.dart: Rolling balance keeps confirmed wallet correct during close
+00:27 +392 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_capture_test.dart: Final1600ms Energy Burst capture bonus30
+00:27 +393 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_capture_test.dart: Final1600ms Energy Burst capture bonus30
+00:27 +394 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_capture_test.dart: Final1600ms Energy Burst capture bonus30
+00:27 +395 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_capture_test.dart: Final1600ms Energy Burst capture bonus30
+00:27 +396 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_capture_test.dart: Final1600ms Energy Burst capture bonus30
+00:27 +397 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Video AdOutcome.rewarded: only SDK reward plus ACK returns to energy and celebrates once
+00:27 +398 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Video AdOutcome.rewarded: only SDK reward plus ACK returns to energy and celebrates once
+00:27 +399 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Video AdOutcome.rewarded: only SDK reward plus ACK returns to energy and celebrates once
+00:28 +400 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Video AdOutcome.rewarded: only SDK reward plus ACK returns to energy and celebrates once
+00:28 +401 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Video AdOutcome.rewarded: only SDK reward plus ACK returns to energy and celebrates once
+00:28 +402 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Video AdOutcome.rewarded: only SDK reward plus ACK returns to energy and celebrates once
+00:28 +403 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Video AdOutcome.rewarded: only SDK reward plus ACK returns to energy and celebrates once
+00:28 +404 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Video AdOutcome.rewarded: only SDK reward plus ACK returns to energy and celebrates once
+00:28 +405 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Video AdOutcome.rewarded: only SDK reward plus ACK returns to energy and celebrates once
+00:28 +406 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x560.0 text 1.3
+00:28 +407 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x560.0 text 1.3
+00:28 +408 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x560.0 text 1.3
+00:28 +409 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/blue_glass_ranking_test.dart: player result en Size(390.0, 844.0) scale 2.0 actual entry, tips and Back
+00:28 +410 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_rewards_main_hud_test.dart: Open real modal: ACK holds both balances until arrival, then rolls them together; burst escapes dialog to main HUD
+00:28 +411 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_rewards_main_hud_test.dart: Open real modal: ACK holds both balances until arrival, then rolls them together; burst escapes dialog to main HUD
+00:28 +412 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_rewards_main_hud_test.dart: Open real modal: ACK holds both balances until arrival, then rolls them together; burst escapes dialog to main HUD
+00:28 +413 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x560.0 text 2.0
+00:28 +414 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x560.0 text 2.0
+00:28 +415 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x560.0 text 2.0
+00:29 +416 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x560.0 text 2.0
+00:29 +417 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x560.0 text 2.0
+00:29 +418 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x560.0 text 2.0
+00:29 +419 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x560.0 text 2.0
+00:29 +420 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x560.0 text 2.0
+00:29 +421 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x560.0 text 2.0
+00:29 +422 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x560.0 text 2.0
+00:29 +423 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x560.0 text 2.0
+00:29 +424 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x560.0 text 2.0
+00:29 +425 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x560.0 text 2.0
+00:29 +426 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x560.0 text 2.0
+00:29 +427 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x560.0 text 2.0
+00:29 +428 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x560.0 text 2.0
+00:29 +429 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x560.0 text 2.0
+00:29 +430 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x560.0 text 2.0
+00:29 +431 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x560.0 text 2.0
+00:29 +432 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x560.0 text 2.0
+00:29 +433 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x560.0 text 2.0
+00:30 +434 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 320.0x560.0 text 2.0
+00:30 +435 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_sheet_layout_test.dart: Energy tabs keep one geometry Size(320.0, 480.0)/1.0
+00:30 +436 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_sheet_layout_test.dart: Energy tabs keep one geometry Size(320.0, 480.0)/1.0
+00:30 +437 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_sheet_layout_test.dart: Energy tabs keep one geometry Size(320.0, 480.0)/1.0
+00:30 +438 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_sheet_layout_test.dart: Energy tabs keep one geometry Size(320.0, 480.0)/1.0
+00:30 +439 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_sheet_layout_test.dart: Energy tabs keep one geometry Size(320.0, 480.0)/1.0
+00:30 +440 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_sheet_layout_test.dart: Energy tabs keep one geometry Size(320.0, 480.0)/1.0
+00:30 +441 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_sheet_layout_test.dart: Energy tabs keep one geometry Size(320.0, 480.0)/1.0
+00:30 +442 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_sheet_layout_test.dart: Energy tabs keep one geometry Size(320.0, 480.0)/1.0
+00:30 +443 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_test_service_preview_test.dart: Test purchase cards show prices and warn without purchase or credit
+00:30 +444 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_test_service_preview_test.dart: Test purchase cards show prices and warn without purchase or credit
+00:30 +445 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_test_service_preview_test.dart: Test purchase cards show prices and warn without purchase or credit
+00:30 +446 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_test_service_preview_test.dart: Test purchase cards show prices and warn without purchase or credit
+00:30 +447 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_test_service_preview_test.dart: Test purchase cards show prices and warn without purchase or credit
+00:30 +448 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_test_service_preview_test.dart: Test purchase cards show prices and warn without purchase or credit
+00:31 +449 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_test_service_preview_test.dart: Test purchase cards show prices and warn without purchase or credit
+00:31 +450 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_test_service_preview_test.dart: Test purchase cards show prices and warn without purchase or credit
+00:31 +451 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_test_service_preview_test.dart: Test purchase cards show prices and warn without purchase or credit
+00:31 +452 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_test_service_preview_test.dart: Test purchase cards show prices and warn without purchase or credit
+00:31 +453 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_test_service_preview_test.dart: Test purchase cards show prices and warn without purchase or credit
+00:31 +454 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_test_service_preview_test.dart: Test purchase cards show prices and warn without purchase or credit
+00:31 +455 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_test_service_preview_test.dart: Test purchase cards show prices and warn without purchase or credit
+00:31 +456 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_test_service_preview_test.dart: Test purchase cards show prices and warn without purchase or credit
+00:31 +457 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_test_service_preview_test.dart: Test purchase cards show prices and warn without purchase or credit
+00:31 +458 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_test_service_preview_test.dart: Test purchase cards show prices and warn without purchase or credit
+00:31 +459 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_test_service_preview_test.dart: Test purchase cards show prices and warn without purchase or credit
+00:31 +460 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_test_service_preview_test.dart: Test purchase cards show prices and warn without purchase or credit
+00:31 +461 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_test_service_preview_test.dart: Test purchase cards show prices and warn without purchase or credit
+00:31 +462 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_test_service_preview_test.dart: Test purchase cards show prices and warn without purchase or credit
+00:31 +463 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_test_service_preview_test.dart: Test purchase cards show prices and warn without purchase or credit
+00:31 +464 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_test_service_preview_test.dart: Test purchase cards show prices and warn without purchase or credit
+00:31 +465 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_test_service_preview_test.dart: Test purchase cards show prices and warn without purchase or credit
+00:31 +466 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_test_service_preview_test.dart: Test purchase cards show prices and warn without purchase or credit
+00:31 +467 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_test_service_preview_test.dart: Test purchase cards show prices and warn without purchase or credit
+00:31 +468 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_test_service_preview_test.dart: Test purchase cards show prices and warn without purchase or credit
+00:31 +469 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_test_service_preview_test.dart: Test purchase cards show prices and warn without purchase or credit
+00:31 +470 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_test_service_preview_test.dart: Test purchase cards show prices and warn without purchase or credit
+00:31 +471 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_test_service_preview_test.dart: Test purchase cards show prices and warn without purchase or credit
+00:31 +472 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_test_service_preview_test.dart: Test purchase cards show prices and warn without purchase or credit
+00:31 +473 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_test_service_preview_test.dart: Test purchase cards show prices and warn without purchase or credit
+00:31 +474 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_test_service_preview_test.dart: Test purchase cards show prices and warn without purchase or credit
+00:31 +475 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_test_service_preview_test.dart: Test purchase cards show prices and warn without purchase or credit
+00:31 +476 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_test_service_preview_test.dart: Test purchase cards show prices and warn without purchase or credit
+00:31 +477 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_test_service_preview_test.dart: Test purchase cards show prices and warn without purchase or credit
+00:31 +478 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_test_service_preview_test.dart: Test purchase cards show prices and warn without purchase or credit
+00:31 +479 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_ui_confirmation_test.dart: Subscription offers display8hours and120/300 per day
+00:31 +480 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/friend_invites_delivery_test.dart: startup signal waits for actual chooser completion
+00:31 +481 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/friend_invites_delivery_test.dart: startup signal waits for actual chooser completion
+00:31 +482 ~15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 360.0x740.0 text 1.3
+00:31 +482 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 360.0x740.0 text 1.3
+00:31 +483 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 360.0x740.0 text 1.3
+00:31 +484 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 360.0x740.0 text 1.3
+00:31 +485 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 360.0x740.0 text 1.3
+00:32 +486 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 360.0x740.0 text 1.3
+00:32 +487 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 360.0x740.0 text 1.3
+00:32 +488 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 360.0x740.0 text 1.3
+00:32 +489 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 360.0x740.0 text 1.3
+00:32 +490 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 360.0x740.0 text 1.3
+00:32 +491 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 360.0x740.0 text 1.3
+00:32 +492 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 360.0x740.0 text 1.3
+00:32 +493 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 360.0x740.0 text 1.3
+00:32 +494 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 360.0x740.0 text 1.3
+00:32 +495 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 360.0x740.0 text 1.3
+00:32 +496 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 360.0x740.0 text 1.3
+00:32 +497 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/friend_invites_dialog_test.dart: compact inline share and info ru smallfalse
+00:33 +498 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/friend_invites_dialog_test.dart: compact inline share and info ru smallfalse
+00:33 +499 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/friend_invites_dialog_test.dart: compact inline share and info ru smallfalse
+00:33 +500 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/friend_invites_dialog_test.dart: compact inline share and info ru smallfalse
+00:33 +501 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/friend_invites_dialog_test.dart: compact inline share and info ru smallfalse
+00:33 +502 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/friend_invites_dialog_test.dart: compact inline share and info ru smallfalse
+00:33 +503 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/friend_invites_dialog_test.dart: compact inline share and info ru smallfalse
+00:33 +504 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/friend_invites_dialog_test.dart: compact inline share and info ru smallfalse
+00:33 +505 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/friend_invites_profile_test.dart: null profile keeps editable draft and info ru smallfalse (variant: TargetPlatform.android)
+00:33 +506 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/friend_invites_profile_test.dart: null profile keeps editable draft and info ru smallfalse (variant: TargetPlatform.android)
+00:33 +507 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/friend_invites_profile_test.dart: null profile keeps editable draft and info ru smallfalse (variant: TargetPlatform.android)
+00:34 +508 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/friend_invites_profile_test.dart: null profile keeps editable draft and info ru smallfalse (variant: TargetPlatform.android)
+00:34 +509 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/friend_invites_profile_test.dart: null profile keeps editable draft and info ru smallfalse (variant: TargetPlatform.android)
+00:34 +510 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/friend_invites_profile_test.dart: null profile keeps editable draft and info ru smallfalse (variant: TargetPlatform.android)
+00:34 +511 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/friend_invites_profile_test.dart: null profile keeps editable draft and info ru smallfalse (variant: TargetPlatform.android)
+00:34 +512 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/friend_invites_profile_test.dart: null profile keeps editable draft and info ru smallfalse (variant: TargetPlatform.android)
+00:35 +513 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/friend_invites_profile_test.dart: null profile keeps editable draft and info ru smallfalse (variant: TargetPlatform.android)
+00:35 +514 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/friend_invites_profile_test.dart: null profile keeps editable draft and info ru smallfalse (variant: TargetPlatform.android)
+00:35 +515 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/friend_invites_profile_test.dart: null profile keeps editable draft and info ru smallfalse (variant: TargetPlatform.android)
+00:35 +516 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/friend_invites_profile_test.dart: null profile keeps editable draft and info ru smallfalse (variant: TargetPlatform.android)
+00:35 +517 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/friend_invites_profile_test.dart: null profile keeps editable draft and info ru smallfalse (variant: TargetPlatform.android)
+00:35 +518 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/friend_invites_profile_test.dart: null profile keeps editable draft and info ru smallfalse (variant: TargetPlatform.android)
+00:35 +519 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/friend_invites_profile_test.dart: null profile keeps editable draft and info ru smallfalse (variant: TargetPlatform.android)
+00:35 +520 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/friend_invites_profile_test.dart: null profile keeps editable draft and info ru smallfalse (variant: TargetPlatform.android)
+00:35 +521 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_start_guard_test.dart: geometry is rechecked after waiting for start confirmation
+00:35 +522 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_start_guard_test.dart: geometry is rechecked after waiting for start confirmation
+00:35 +523 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_start_guard_test.dart: geometry is rechecked after waiting for start confirmation
+Arcade start blocked: enemy_count
+00:35 +524 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_viewport_test.dart: modal buttons share the viewport scale
+00:35 +525 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_viewport_test.dart: modal buttons share the viewport scale
+00:35 +526 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_viewport_test.dart: modal buttons share the viewport scale
+00:35 +527 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_viewport_test.dart: modal buttons share the viewport scale
+00:35 +528 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_viewport_test.dart: modal buttons share the viewport scale
+00:35 +529 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_viewport_test.dart: modal buttons share the viewport scale
+00:35 +530 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_viewport_test.dart: modal buttons share the viewport scale
+00:35 +531 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_viewport_test.dart: modal buttons share the viewport scale
+00:36 +532 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_viewport_test.dart: modal buttons share the viewport scale
+00:36 +533 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_viewport_test.dart: modal buttons share the viewport scale
+00:36 +534 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_viewport_test.dart: modal buttons share the viewport scale
+00:36 +535 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_viewport_test.dart: modal buttons share the viewport scale
+00:36 +536 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_viewport_test.dart: modal buttons share the viewport scale
+00:36 +537 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_viewport_test.dart: modal buttons share the viewport scale
+00:36 +538 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_viewport_test.dart: modal buttons share the viewport scale
+00:36 +539 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_viewport_test.dart: modal buttons share the viewport scale
+00:36 +539 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_start_guard_test.dart: missing blocks before server, life debit and timer; repair allows retry
+Arcade start blocked: enemy_count
+00:36 +540 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_viewport_test.dart: modal buttons share the viewport scale
+00:36 +541 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_viewport_test.dart: modal buttons share the viewport scale
+00:36 +542 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_viewport_test.dart: modal buttons share the viewport scale
+00:36 +543 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_viewport_test.dart: modal buttons share the viewport scale
+00:36 +543 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_start_guard_test.dart: tiny blocks before server, life debit and timer; repair allows retry
+Arcade start blocked: enemy_scale
+00:36 +544 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_viewport_test.dart: modal buttons share the viewport scale
+00:36 +545 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_viewport_test.dart: modal buttons share the viewport scale
+00:36 +546 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_viewport_test.dart: modal buttons share the viewport scale
+00:36 +547 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 430.0x932.0 text 1.3
+00:36 +547 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/game_start_guard_test.dart: offscreen blocks before server, life debit and timer; repair allows retry
+Arcade start blocked: enemy_invisible
+00:36 +548 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 430.0x932.0 text 1.3
+00:36 +549 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 430.0x932.0 text 1.3
+00:36 +550 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 430.0x932.0 text 1.3
+00:36 +551 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows ru 430.0x932.0 text 1.3
+00:36 +552 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/google_disconnect_test.dart: Quiet text disconnect asks first, cancel is inert and confirm reconnects UI
+00:37 +553 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/google_disconnect_test.dart: Quiet text disconnect asks first, cancel is inert and confirm reconnects UI
+00:37 +554 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/google_disconnect_test.dart: Quiet text disconnect asks first, cancel is inert and confirm reconnects UI
+00:37 +555 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/google_disconnect_test.dart: Quiet text disconnect asks first, cancel is inert and confirm reconnects UI
+00:37 +556 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/google_disconnect_test.dart: Quiet text disconnect asks first, cancel is inert and confirm reconnects UI
+00:37 +557 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/google_disconnect_test.dart: Quiet text disconnect asks first, cancel is inert and confirm reconnects UI
+00:37 +558 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/google_disconnect_test.dart: Quiet text disconnect asks first, cancel is inert and confirm reconnects UI
+00:37 +559 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/google_disconnect_test.dart: Quiet text disconnect asks first, cancel is inert and confirm reconnects UI
+00:37 +560 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/google_disconnect_test.dart: Quiet text disconnect asks first, cancel is inert and confirm reconnects UI
+00:37 +561 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/google_disconnect_test.dart: Quiet text disconnect asks first, cancel is inert and confirm reconnects UI
+00:37 +562 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/google_disconnect_test.dart: Quiet text disconnect asks first, cancel is inert and confirm reconnects UI
+00:38 +563 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/google_disconnect_test.dart: Quiet text disconnect asks first, cancel is inert and confirm reconnects UI
+00:38 +564 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/google_disconnect_test.dart: Quiet text disconnect asks first, cancel is inert and confirm reconnects UI
+00:38 +565 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/google_disconnect_test.dart: Quiet text disconnect asks first, cancel is inert and confirm reconnects UI
+00:38 +566 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/google_disconnect_test.dart: Quiet text disconnect asks first, cancel is inert and confirm reconnects UI
+00:38 +567 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/google_disconnect_test.dart: Quiet text disconnect asks first, cancel is inert and confirm reconnects UI
+00:38 +568 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/google_disconnect_test.dart: Quiet text disconnect asks first, cancel is inert and confirm reconnects UI
+00:38 +569 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/google_disconnect_test.dart: Quiet text disconnect asks first, cancel is inert and confirm reconnects UI
+00:38 +570 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/google_disconnect_test.dart: Quiet text disconnect asks first, cancel is inert and confirm reconnects UI
+00:38 +571 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/google_disconnect_test.dart: Quiet text disconnect asks first, cancel is inert and confirm reconnects UI
+00:38 +572 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/google_disconnect_test.dart: Quiet text disconnect asks first, cancel is inert and confirm reconnects UI
+00:38 +573 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/google_disconnect_test.dart: Quiet text disconnect asks first, cancel is inert and confirm reconnects UI
+00:38 +574 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/google_disconnect_test.dart: Quiet text disconnect asks first, cancel is inert and confirm reconnects UI
+00:38 +575 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/google_disconnect_test.dart: Quiet text disconnect asks first, cancel is inert and confirm reconnects UI
+00:38 +576 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/google_disconnect_test.dart: Quiet text disconnect asks first, cancel is inert and confirm reconnects UI
+00:38 +577 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/google_disconnect_test.dart: Quiet text disconnect asks first, cancel is inert and confirm reconnects UI
+00:38 +578 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/google_profile_age_test.dart: linked owner details/private default and privacy save failure Size(360.0, 770.0)
+00:38 +579 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/google_profile_age_test.dart: linked owner details/private default and privacy save failure Size(360.0, 770.0)
+00:38 +580 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/google_profile_age_test.dart: linked owner details/private default and privacy save failure Size(360.0, 770.0)
+00:38 +581 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/google_profile_age_test.dart: linked owner details/private default and privacy save failure Size(360.0, 770.0)
+00:38 +582 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/google_profile_age_test.dart: linked owner details/private default and privacy save failure Size(360.0, 770.0)
+00:38 +583 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/google_profile_age_test.dart: linked owner details/private default and privacy save failure Size(360.0, 770.0)
+00:38 +584 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/google_profile_age_test.dart: linked owner details/private default and privacy save failure Size(360.0, 770.0)
+00:38 +585 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/google_profile_age_test.dart: linked owner details/private default and privacy save failure Size(360.0, 770.0)
+00:38 +586 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/google_profile_age_test.dart: linked owner details/private default and privacy save failure Size(360.0, 770.0)
+00:38 +587 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/google_profile_age_test.dart: linked owner details/private default and privacy save failure Size(360.0, 770.0)
+00:39 +588 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/google_profile_age_test.dart: linked owner details/private default and privacy save failure Size(360.0, 770.0)
+00:39 +589 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/google_profile_age_test.dart: linked owner details/private default and privacy save failure Size(360.0, 770.0)
+00:39 +590 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/google_profile_age_test.dart: linked owner details/private default and privacy save failure Size(360.0, 770.0)
+00:39 +591 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/google_profile_age_test.dart: linked owner details/private default and privacy save failure Size(360.0, 770.0)
+00:39 +592 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/google_profile_age_test.dart: linked owner details/private default and privacy save failure Size(360.0, 770.0)
+00:39 +593 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/google_profile_age_test.dart: linked owner details/private default and privacy save failure Size(360.0, 770.0)
+00:39 +594 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/google_profile_age_test.dart: linked owner details/private default and privacy save failure Size(360.0, 770.0)
+00:39 +595 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/google_profile_age_test.dart: linked owner details/private default and privacy save failure Size(360.0, 770.0)
+00:39 +596 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/google_profile_age_test.dart: linked owner details/private default and privacy save failure Size(360.0, 770.0)
+00:39 +597 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows en 320.0x480.0 text 1.0
+00:39 +598 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows en 320.0x480.0 text 1.0
+00:39 +599 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows en 320.0x480.0 text 1.0
+00:39 +600 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows en 320.0x480.0 text 1.0
+00:39 +601 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows en 320.0x480.0 text 1.0
+00:39 +602 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows en 320.0x480.0 text 1.0
+00:39 +603 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows en 320.0x480.0 text 1.0
+00:39 +604 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows en 320.0x480.0 text 1.0
+00:39 +605 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows en 320.0x480.0 text 1.0
+00:39 +606 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows en 320.0x480.0 text 1.0
+00:39 +607 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/hidden_energy_test.dart: four taps do nothing; each complete five grants confirmed20
+00:39 +608 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/hidden_energy_test.dart: four taps do nothing; each complete five grants confirmed20
+00:40 +609 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/hidden_energy_test.dart: four taps do nothing; each complete five grants confirmed20
+00:40 +610 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/hidden_energy_test.dart: four taps do nothing; each complete five grants confirmed20
+00:40 +611 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/hidden_energy_test.dart: four taps do nothing; each complete five grants confirmed20
+00:40 +612 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/hidden_energy_test.dart: four taps do nothing; each complete five grants confirmed20
+00:40 +613 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/hidden_energy_test.dart: four taps do nothing; each complete five grants confirmed20
+00:40 +614 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/hidden_energy_test.dart: four taps do nothing; each complete five grants confirmed20
+00:40 +615 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/hidden_energy_test.dart: four taps do nothing; each complete five grants confirmed20
+00:40 +616 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/hidden_energy_test.dart: four taps do nothing; each complete five grants confirmed20
+00:40 +617 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/hidden_energy_test.dart: four taps do nothing; each complete five grants confirmed20
+00:40 +618 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/hidden_energy_test.dart: four taps do nothing; each complete five grants confirmed20
+00:40 +619 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/hidden_energy_test.dart: four taps do nothing; each complete five grants confirmed20
+00:40 +620 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/hidden_energy_test.dart: four taps do nothing; each complete five grants confirmed20
+00:40 +621 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/hidden_energy_test.dart: four taps do nothing; each complete five grants confirmed20
+00:40 +622 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/hidden_energy_test.dart: four taps do nothing; each complete five grants confirmed20
+00:40 +623 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/hidden_energy_test.dart: four taps do nothing; each complete five grants confirmed20
+00:40 +624 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/hidden_energy_test.dart: four taps do nothing; each complete five grants confirmed20
+00:40 +625 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/hidden_energy_test.dart: four taps do nothing; each complete five grants confirmed20
+00:40 +626 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/hidden_energy_test.dart: four taps do nothing; each complete five grants confirmed20
+00:40 +627 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/hidden_energy_test.dart: four taps do nothing; each complete five grants confirmed20
+00:40 +628 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/hidden_energy_test.dart: four taps do nothing; each complete five grants confirmed20
+00:40 +629 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/hidden_energy_test.dart: four taps do nothing; each complete five grants confirmed20
+00:40 +630 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/hidden_energy_test.dart: four taps do nothing; each complete five grants confirmed20
+00:40 +631 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/hidden_energy_test.dart: four taps do nothing; each complete five grants confirmed20
+00:40 +632 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/hidden_energy_test.dart: four taps do nothing; each complete five grants confirmed20
+00:40 +633 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/hidden_energy_test.dart: four taps do nothing; each complete five grants confirmed20
+00:40 +634 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/hidden_energy_test.dart: four taps do nothing; each complete five grants confirmed20
+00:40 +635 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/hidden_energy_test.dart: four taps do nothing; each complete five grants confirmed20
+00:41 +636 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/hidden_energy_test.dart: four taps do nothing; each complete five grants confirmed20
+00:41 +637 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/hidden_energy_test.dart: four taps do nothing; each complete five grants confirmed20
+00:41 +638 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/hidden_energy_test.dart: four taps do nothing; each complete five grants confirmed20
+00:41 +639 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows en 320.0x480.0 text 1.3
+00:41 +640 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:41 +641 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:41 +642 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:41 +643 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:41 +644 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:42 +645 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:42 +646 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:42 +647 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:42 +648 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:42 +649 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:42 +650 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:42 +651 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:42 +652 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:42 +653 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:42 +654 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:42 +655 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_nested_navigation_test.dart: lives dialog uses game providers inside Android outer navigator
+00:42 +656 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_nested_navigation_test.dart: lives dialog uses game providers inside Android outer navigator
+00:42 +657 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_nested_navigation_test.dart: lives dialog uses game providers inside Android outer navigator
+00:43 +658 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_nested_navigation_test.dart: lives dialog uses game providers inside Android outer navigator
+00:43 +659 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_nested_navigation_test.dart: lives dialog uses game providers inside Android outer navigator
+00:43 +660 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_nested_navigation_test.dart: lives dialog uses game providers inside Android outer navigator
+00:43 +661 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_nested_navigation_test.dart: lives dialog uses game providers inside Android outer navigator
+00:43 +662 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_nested_navigation_test.dart: lives dialog uses game providers inside Android outer navigator
+00:43 +663 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_nested_navigation_test.dart: lives dialog uses game providers inside Android outer navigator
+00:43 +664 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_nested_navigation_test.dart: lives dialog uses game providers inside Android outer navigator
+00:43 +665 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_nested_navigation_test.dart: lives dialog uses game providers inside Android outer navigator
+00:43 +666 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_recovery_test.dart: recovery/gesture ru Size(320.0, 480.0) scale1.0 livesfalse
+00:43 +667 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_recovery_test.dart: recovery/gesture ru Size(320.0, 480.0) scale1.0 livesfalse
+00:44 +668 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_recovery_test.dart: recovery/gesture ru Size(320.0, 480.0) scale1.0 livesfalse
+00:44 +669 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_recovery_test.dart: recovery/gesture ru Size(320.0, 480.0) scale1.0 livesfalse
+00:44 +670 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_recovery_test.dart: recovery/gesture ru Size(320.0, 480.0) scale1.0 livesfalse
+00:44 +671 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_recovery_test.dart: recovery/gesture ru Size(320.0, 480.0) scale1.0 livesfalse
+00:44 +672 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_recovery_test.dart: recovery/gesture ru Size(320.0, 480.0) scale1.0 livesfalse
+00:44 +673 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_recovery_test.dart: recovery/gesture ru Size(320.0, 480.0) scale1.0 livesfalse
+00:44 +674 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_recovery_test.dart: recovery/gesture ru Size(320.0, 480.0) scale1.0 livesfalse
+00:44 +675 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_recovery_test.dart: recovery/gesture ru Size(320.0, 480.0) scale1.0 livesfalse
+00:44 +676 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_recovery_test.dart: recovery/gesture ru Size(320.0, 480.0) scale1.0 livesfalse
+00:44 +677 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_recovery_test.dart: recovery/gesture ru Size(320.0, 480.0) scale1.0 livesfalse
+00:44 +678 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_recovery_test.dart: recovery/gesture ru Size(320.0, 480.0) scale1.0 livesfalse
+00:44 +679 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_recovery_test.dart: recovery/gesture ru Size(320.0, 480.0) scale1.0 livesfalse
+00:44 +680 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_recovery_test.dart: recovery/gesture ru Size(320.0, 480.0) scale1.0 livesfalse
+00:44 +681 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_recovery_test.dart: recovery/gesture ru Size(320.0, 480.0) scale1.0 livesfalse
+00:44 +682 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_recovery_test.dart: recovery/gesture ru Size(320.0, 480.0) scale1.0 livesfalse
+00:45 +683 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_recovery_test.dart: recovery/gesture ru Size(320.0, 480.0) scale1.0 livesfalse
+00:45 +684 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_recovery_test.dart: recovery/gesture ru Size(320.0, 480.0) scale1.0 livesfalse
+00:45 +685 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_recovery_test.dart: recovery/gesture ru Size(320.0, 480.0) scale1.0 livesfalse
+00:45 +686 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_recovery_test.dart: recovery/gesture ru Size(320.0, 480.0) scale1.0 livesfalse
+00:45 +687 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_recovery_test.dart: recovery/gesture ru Size(320.0, 480.0) scale1.0 livesfalse
+00:45 +688 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_recovery_test.dart: recovery/gesture ru Size(320.0, 480.0) scale1.0 livesfalse
+00:45 +689 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_recovery_test.dart: recovery/gesture ru Size(320.0, 480.0) scale1.0 livesfalse
+00:45 +690 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_recovery_test.dart: recovery/gesture ru Size(320.0, 480.0) scale1.0 livesfalse
+00:45 +691 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_recovery_test.dart: recovery/gesture ru Size(320.0, 480.0) scale1.0 livesfalse
+00:45 +692 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_recovery_test.dart: recovery/gesture ru Size(320.0, 480.0) scale1.0 livesfalse
+00:45 +693 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_recovery_test.dart: recovery/gesture ru Size(320.0, 480.0) scale1.0 livesfalse
+00:45 +694 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_recovery_test.dart: recovery/gesture ru Size(320.0, 480.0) scale1.0 livesfalse
+00:45 +695 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_recovery_test.dart: recovery/gesture ru Size(320.0, 480.0) scale1.0 livesfalse
+00:45 +696 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_recovery_test.dart: recovery/gesture ru Size(320.0, 480.0) scale1.0 livesfalse
+00:45 +697 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_recovery_test.dart: recovery/gesture ru Size(320.0, 480.0) scale1.0 livesfalse
+00:45 +698 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_recovery_test.dart: recovery/gesture ru Size(320.0, 480.0) scale1.0 livesfalse
+00:45 +699 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_recovery_test.dart: recovery/gesture ru Size(320.0, 480.0) scale1.0 livesfalse
+00:45 +700 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_recovery_test.dart: recovery/gesture ru Size(320.0, 480.0) scale1.0 livesfalse
+00:45 +701 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_recovery_test.dart: recovery/gesture ru Size(320.0, 480.0) scale1.0 livesfalse
+00:45 +702 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_recovery_test.dart: recovery/gesture ru Size(320.0, 480.0) scale1.0 livesfalse
+00:45 +703 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_recovery_test.dart: recovery/gesture ru Size(320.0, 480.0) scale1.0 livesfalse
+00:45 +704 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_recovery_test.dart: recovery/gesture ru Size(320.0, 480.0) scale1.0 livesfalse
+00:45 +705 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/friend_invites_profile_test.dart: repeated button and keyboard submission dispatch one held bind (variant: TargetPlatform.android)
+00:45 +706 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows en 320.0x560.0 text 2.0
+00:45 +707 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows en 320.0x560.0 text 2.0
+00:46 +707 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/mobile_connection_test.dart: resume during Google preparation waits even before native busy
+Mobile connection: synchronized
+00:46 +708 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows en 320.0x560.0 text 2.0
+00:46 +708 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/mobile_connection_test.dart: failed startup reconnects when network returns without restart
+Mobile connection: retry pending
+Mobile connection: synchronized
+00:46 +709 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows en 320.0x560.0 text 2.0
+00:46 +709 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/mobile_connection_test.dart: pause stops retries and resume immediately reconnects
+Mobile connection: retry pending
+Mobile connection: retry pending
+00:46 +710 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows en 320.0x560.0 text 2.0
+00:46 +710 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/mobile_connection_test.dart: native Google resume waits until identity operation finishes
+Mobile connection: synchronized
+00:46 +711 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows en 320.0x560.0 text 2.0
+00:46 +711 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/mobile_connection_test.dart: resume signals never run parallel synchronization
+Mobile connection: synchronized
+Mobile connection: synchronized
+00:46 +712 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows en 320.0x560.0 text 2.0
+00:46 +712 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/mobile_connection_test.dart: disposing pending retry cannot reconnect
+Mobile connection: retry pending
+00:46 +713 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows en 320.0x560.0 text 2.0
+00:46 +714 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows en 320.0x560.0 text 2.0
+00:46 +715 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows en 320.0x560.0 text 2.0
+00:46 +716 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows en 320.0x560.0 text 2.0
+00:46 +717 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows en 320.0x560.0 text 2.0
+00:46 +718 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows en 320.0x560.0 text 2.0
+00:46 +719 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows en 320.0x560.0 text 2.0
+00:46 +720 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_recovery_test.dart: recovery/gesture ru Size(320.0, 480.0) scale2.0 livesfalse
+00:46 +721 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_recovery_test.dart: recovery/gesture ru Size(320.0, 480.0) scale2.0 livesfalse
+00:47 +722 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_recovery_test.dart: recovery/gesture ru Size(320.0, 480.0) scale2.0 livesfalse
+00:47 +723 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_recovery_test.dart: recovery/gesture ru Size(320.0, 480.0) scale2.0 livesfalse
+00:47 +724 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows en 360.0x740.0 text 1.0
+00:47 +725 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows en 360.0x740.0 text 1.0
+00:47 +726 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows en 360.0x740.0 text 1.0
+00:47 +727 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows en 360.0x740.0 text 1.0
+00:47 +728 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/compact_windows_test.dart: compact windows en 360.0x740.0 text 1.0
+00:47 +729 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_recovery_test.dart: recovery/gesture ru Size(390.0, 844.0) scale1.0 livesfalse
+00:48 +730 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/lives_recovery_test.dart: recovery/gesture ru Size(390.0, 844.0) scale1.0 livesfalse
+00:48 +731 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/modal_offer_states_test.dart: crystal costs stay upper-right; poor rentals cannot debit ru 1.0
+00:48 +732 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/modal_offer_states_test.dart: crystal costs stay upper-right; poor rentals cannot debit ru 1.0
+00:48 +733 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/modal_offer_states_test.dart: crystal costs stay upper-right; poor rentals cannot debit ru 1.0
+00:48 +734 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/modal_offer_states_test.dart: crystal costs stay upper-right; poor rentals cannot debit ru 1.0
+00:49 +735 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/modal_offer_states_test.dart: crystal costs stay upper-right; poor rentals cannot debit ru 1.0
+00:49 +736 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/modal_offer_states_test.dart: crystal costs stay upper-right; poor rentals cannot debit ru 1.0
+00:49 +737 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/modal_offer_states_test.dart: crystal costs stay upper-right; poor rentals cannot debit ru 1.0
+00:49 +738 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/modal_offer_states_test.dart: crystal costs stay upper-right; poor rentals cannot debit ru 1.0
+00:49 +739 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_account_hud_test.dart: approved account width320.0 text1.0 linkedfalse
+00:49 +740 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_account_hud_test.dart: approved account width320.0 text1.0 linkedfalse
+00:50 +741 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_account_hud_test.dart: approved account width320.0 text1.0 linkedfalse
+00:50 +742 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_account_hud_test.dart: approved account width320.0 text1.0 linkedfalse
+00:50 +743 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_account_hud_test.dart: approved account width320.0 text1.0 linkedfalse
+00:50 +744 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_account_hud_test.dart: approved account width320.0 text1.0 linkedfalse
+00:50 +745 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_account_hud_test.dart: approved account width320.0 text1.0 linkedfalse
+00:50 +746 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_account_hud_test.dart: approved account width320.0 text1.0 linkedfalse
+00:50 +747 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_account_hud_test.dart: approved account width320.0 text1.0 linkedfalse
+00:50 +748 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_account_hud_test.dart: approved account width320.0 text1.0 linkedfalse
+00:51 +749 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_account_hud_test.dart: approved account width320.0 text1.0 linkedfalse
+00:51 +750 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_account_hud_test.dart: approved account width320.0 text1.0 linkedfalse
+00:51 +751 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_hud_modal_test.dart: daily leader updates; account record has no visible caption; run navigation disabled
+00:51 +752 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_player_result_test.dart: native result 320.0 text1.0 both passive values and four tips
+00:51 +753 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_player_result_test.dart: native result 320.0 text1.0 both passive values and four tips
+00:51 +754 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_player_result_test.dart: native result 320.0 text1.0 both passive values and four tips
+00:51 +755 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_player_result_test.dart: native result 320.0 text1.0 both passive values and four tips
+00:51 +756 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_player_result_test.dart: native result 320.0 text1.0 both passive values and four tips
+00:51 +757 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_player_result_test.dart: native result 320.0 text1.0 both passive values and four tips
+00:52 +758 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_player_result_test.dart: native result 320.0 text1.0 both passive values and four tips
+00:52 +759 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_player_result_test.dart: native result 320.0 text1.0 both passive values and four tips
+00:52 +760 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_player_result_test.dart: native result 320.0 text1.0 both passive values and four tips
+00:53 +761 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_player_result_test.dart: native result 320.0 text1.0 both passive values and four tips
+00:53 +762 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_player_result_test.dart: native result 320.0 text1.0 both passive values and four tips
+00:53 +763 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_player_result_test.dart: native result 320.0 text1.0 both passive values and four tips
+00:53 +764 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_player_result_test.dart: native result 320.0 text1.0 both passive values and four tips
+00:53 +765 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_player_result_test.dart: native result 320.0 text1.0 both passive values and four tips
+00:53 +766 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_player_result_test.dart: native result 320.0 text1.0 both passive values and four tips
+00:53 +767 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_hud_modal_test.dart: real sheets/dialogs/nested confirmations use identical backdrop and block background input
+00:53 +768 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_hud_modal_test.dart: real sheets/dialogs/nested confirmations use identical backdrop and block background input
+00:53 +769 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_hud_modal_test.dart: real sheets/dialogs/nested confirmations use identical backdrop and block background input
+00:54 +770 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_hud_modal_test.dart: real sheets/dialogs/nested confirmations use identical backdrop and block background input
+00:54 +771 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_hud_modal_test.dart: real sheets/dialogs/nested confirmations use identical backdrop and block background input
+00:54 +772 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_hud_modal_test.dart: real sheets/dialogs/nested confirmations use identical backdrop and block background input
+00:54 +773 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_hud_modal_test.dart: real sheets/dialogs/nested confirmations use identical backdrop and block background input
+00:54 +774 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_hud_modal_test.dart: real sheets/dialogs/nested confirmations use identical backdrop and block background input
+00:54 +775 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_hud_modal_test.dart: real sheets/dialogs/nested confirmations use identical backdrop and block background input
+00:54 +776 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_hud_modal_test.dart: real sheets/dialogs/nested confirmations use identical backdrop and block background input
+00:54 +777 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_hud_modal_test.dart: real sheets/dialogs/nested confirmations use identical backdrop and block background input
+00:54 +778 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_ranking_test.dart: Mine retains date and status with seven compact rows width320.0
+00:54 +779 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_ranking_test.dart: Mine retains date and status with seven compact rows width320.0
+00:54 +780 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_ranking_test.dart: Mine retains date and status with seven compact rows width320.0
+00:54 +781 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_account_hud_test.dart: approved account width360.0 text1.0 linkedtrue
+00:55 +782 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_player_result_test.dart: native result 320.0 text1.0 none-long passive values and four tips
+00:55 +783 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_ranking_test.dart: Mine retains date and status with seven compact rows width360.0
+00:55 +784 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_ranking_test.dart: Mine retains date and status with seven compact rows width360.0
+00:55 +785 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_player_result_test.dart: native result 320.0 text2.0 both passive values and four tips
+00:55 +786 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_player_result_test.dart: native result 320.0 text2.0 both passive values and four tips
+00:55 +787 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/neon_player_result_test.dart: native result 320.0 text2.0 both passive values and four tips
+00:56 +788 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/plus_sheet_test.dart: Plus small-screen offer scrolls and does not invent a store price
+00:56 +789 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/plus_sheet_test.dart: Plus small-screen offer scrolls and does not invent a store price
+00:56 +790 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/plus_sheet_test.dart: Plus small-screen offer scrolls and does not invent a store price
+00:56 +791 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/plus_sheet_test.dart: Plus small-screen offer scrolls and does not invent a store price
+00:57 +792 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/plus_sheet_test.dart: Plus small-screen offer scrolls and does not invent a store price
+00:57 +793 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/plus_sheet_test.dart: Plus small-screen offer scrolls and does not invent a store price
+00:57 +794 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/plus_sheet_test.dart: Plus small-screen offer scrolls and does not invent a store price
+00:57 +795 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/profile_google_checkbox_layout_test.dart: Google right control ru Size(390.0, 844.0) linkedfalse hiddenfalse
+00:57 +796 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/profile_google_checkbox_layout_test.dart: Google right control ru Size(390.0, 844.0) linkedfalse hiddenfalse
+00:57 +797 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/profile_google_checkbox_layout_test.dart: Google right control ru Size(390.0, 844.0) linkedfalse hiddenfalse
+00:57 +798 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/profile_google_checkbox_layout_test.dart: Google right control ru Size(390.0, 844.0) linkedfalse hiddenfalse
+00:58 +799 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/profile_sheet_test.dart: profile fits small screen, edits nickname and persists sound
+00:58 +800 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/profile_sheet_test.dart: profile fits small screen, edits nickname and persists sound
+00:58 +801 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/profile_sheet_test.dart: profile fits small screen, edits nickname and persists sound
+00:58 +802 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/profile_sheet_test.dart: profile fits small screen, edits nickname and persists sound
+00:58 +803 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/profile_sheet_test.dart: profile fits small screen, edits nickname and persists sound
+00:58 +804 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/profile_sheet_test.dart: profile fits small screen, edits nickname and persists sound
+00:58 +805 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/profile_sheet_test.dart: profile fits small screen, edits nickname and persists sound
+00:59 +806 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/profile_sheet_test.dart: profile fits small screen, edits nickname and persists sound
+00:59 +807 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/profile_sheet_test.dart: profile fits small screen, edits nickname and persists sound
+00:59 +808 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/profile_sheet_test.dart: profile fits small screen, edits nickname and persists sound
+00:59 +809 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/profile_shop_motion_test.dart: modal background freezes through nested windows and resumes on close
+00:59 +810 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/profile_shop_motion_test.dart: modal background freezes through nested windows and resumes on close
+00:59 +811 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/profile_shop_motion_test.dart: modal background freezes through nested windows and resumes on close
+00:59 +812 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/profile_shop_motion_test.dart: modal background freezes through nested windows and resumes on close
+00:59 +813 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/profile_shop_motion_test.dart: modal background freezes through nested windows and resumes on close
+00:59 +814 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/profile_three_stats_test.dart: profile three statistics one row 320.0 scale1.0 ru
+00:59 +815 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/profile_three_stats_test.dart: profile three statistics one row 320.0 scale1.0 ru
+00:59 +816 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/profile_three_stats_test.dart: profile three statistics one row 320.0 scale1.0 ru
+00:59 +817 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/profile_three_stats_test.dart: profile three statistics one row 320.0 scale1.0 ru
+01:00 +818 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/profile_three_stats_test.dart: profile three statistics one row 320.0 scale1.0 ru
+01:00 +819 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/profile_three_stats_test.dart: profile three statistics one row 320.0 scale1.0 ru
+01:00 +820 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/profile_three_stats_test.dart: profile three statistics one row 320.0 scale1.0 ru
+01:00 +821 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/profile_three_stats_test.dart: profile three statistics one row 320.0 scale1.0 ru
+01:00 +822 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/profile_three_stats_test.dart: profile three statistics one row 320.0 scale1.0 ru
+01:00 +823 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/profile_three_stats_test.dart: profile three statistics one row 320.0 scale1.0 ru
+01:00 +824 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/profile_three_stats_test.dart: profile three statistics one row 320.0 scale1.0 ru
+01:00 +825 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/profile_three_stats_test.dart: profile three statistics one row 320.0 scale1.0 ru
+01:00 +826 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/profile_three_stats_test.dart: profile three statistics one row 320.0 scale1.0 ru
+01:00 +827 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/profile_three_stats_test.dart: profile three statistics one row 320.0 scale1.0 ru
+01:00 +828 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/profile_three_stats_test.dart: profile three statistics one row 320.0 scale1.0 ru
+01:00 +829 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/profile_three_stats_test.dart: profile three statistics one row 320.0 scale1.0 ru
+01:01 +830 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 1 keeps real place, one own row, divider only outside
+01:01 +831 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 1 keeps real place, one own row, divider only outside
+01:01 +832 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 1 keeps real place, one own row, divider only outside
+01:01 +833 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 1 keeps real place, one own row, divider only outside
+01:01 +834 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 1 keeps real place, one own row, divider only outside
+01:01 +835 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/profile_shop_motion_test.dart: ru shop retains pages/scroll and does not rebuild header after taps/swipes
+01:02 +836 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/profile_shop_motion_test.dart: ru shop retains pages/scroll and does not rebuild header after taps/swipes
+01:02 +837 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/profile_shop_motion_test.dart: ru shop retains pages/scroll and does not rebuild header after taps/swipes
+01:02 +838 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/profile_shop_motion_test.dart: ru shop retains pages/scroll and does not rebuild header after taps/swipes
+01:02 +839 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/profile_shop_motion_test.dart: ru shop retains pages/scroll and does not rebuild header after taps/swipes
+01:02 +840 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/profile_shop_motion_test.dart: ru shop retains pages/scroll and does not rebuild header after taps/swipes
+01:02 +841 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/profile_shop_motion_test.dart: ru shop retains pages/scroll and does not rebuild header after taps/swipes
+01:02 +842 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/profile_shop_motion_test.dart: ru shop retains pages/scroll and does not rebuild header after taps/swipes
+01:02 +843 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/profile_shop_motion_test.dart: ru shop retains pages/scroll and does not rebuild header after taps/swipes
+01:02 +844 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/profile_shop_motion_test.dart: ru shop retains pages/scroll and does not rebuild header after taps/swipes
+01:02 +845 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 50 keeps real place, one own row, divider only outside
+01:02 +846 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 50 keeps real place, one own row, divider only outside
+01:02 +847 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/responsive_text_test.dart: scaled windows ru Size(280.0, 480.0) system1.0
+01:02 +848 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/responsive_text_test.dart: scaled windows ru Size(280.0, 480.0) system1.0
+01:02 +849 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/responsive_text_test.dart: scaled windows ru Size(280.0, 480.0) system1.0
+01:02 +850 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/responsive_text_test.dart: scaled windows ru Size(280.0, 480.0) system1.0
+01:02 +851 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/responsive_text_test.dart: scaled windows ru Size(280.0, 480.0) system1.0
+01:02 +852 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/responsive_text_test.dart: scaled windows ru Size(280.0, 480.0) system1.0
+01:02 +853 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/responsive_text_test.dart: scaled windows ru Size(280.0, 480.0) system1.0
+01:02 +854 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/responsive_text_test.dart: scaled windows ru Size(280.0, 480.0) system1.0
+01:02 +855 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/responsive_text_test.dart: scaled windows ru Size(280.0, 480.0) system1.0
+01:03 +856 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/responsive_text_test.dart: scaled windows ru Size(280.0, 480.0) system1.0
+01:03 +857 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/responsive_text_test.dart: scaled windows ru Size(280.0, 480.0) system1.0
+01:03 +858 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/responsive_text_test.dart: scaled windows ru Size(280.0, 480.0) system1.0
+01:03 +859 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/responsive_text_test.dart: scaled windows ru Size(280.0, 480.0) system1.0
+01:03 +860 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/responsive_text_test.dart: scaled windows ru Size(280.0, 480.0) system1.0
+01:03 +861 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/responsive_text_test.dart: scaled windows ru Size(280.0, 480.0) system1.0
+01:04 +862 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/responsive_text_test.dart: scaled windows ru Size(280.0, 480.0) system1.0
+01:04 +863 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 201 keeps real place, one own row, divider only outside
+01:04 +864 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 201 keeps real place, one own row, divider only outside
+01:04 +865 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 201 keeps real place, one own row, divider only outside
+01:04 +866 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 201 keeps real place, one own row, divider only outside
+01:04 +867 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 201 keeps real place, one own row, divider only outside
+01:04 +868 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 201 keeps real place, one own row, divider only outside
+01:05 +869 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 201 keeps real place, one own row, divider only outside
+01:05 +870 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 201 keeps real place, one own row, divider only outside
+01:05 +871 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 201 keeps real place, one own row, divider only outside
+01:05 +872 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 201 keeps real place, one own row, divider only outside
+01:05 +873 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 201 keeps real place, one own row, divider only outside
+01:05 +874 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 201 keeps real place, one own row, divider only outside
+01:05 +875 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 201 keeps real place, one own row, divider only outside
+01:05 +876 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 201 keeps real place, one own row, divider only outside
+01:06 +877 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 201 keeps real place, one own row, divider only outside
+01:06 +878 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 201 keeps real place, one own row, divider only outside
+01:06 +879 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 201 keeps real place, one own row, divider only outside
+01:06 +880 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 201 keeps real place, one own row, divider only outside
+01:06 +881 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 201 keeps real place, one own row, divider only outside
+01:06 +882 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 201 keeps real place, one own row, divider only outside
+01:06 +883 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 201 keeps real place, one own row, divider only outside
+01:06 +884 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 201 keeps real place, one own row, divider only outside
+01:06 +885 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 201 keeps real place, one own row, divider only outside
+01:06 +886 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 201 keeps real place, one own row, divider only outside
+01:07 +887 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 201 keeps real place, one own row, divider only outside
+01:07 +888 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 201 keeps real place, one own row, divider only outside
+01:07 +889 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 201 keeps real place, one own row, divider only outside
+01:07 +890 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 201 keeps real place, one own row, divider only outside
+01:07 +891 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 201 keeps real place, one own row, divider only outside
+01:07 +892 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 201 keeps real place, one own row, divider only outside
+01:07 +893 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/test_wallet_tools_test.dart: former shop header shortcut is absent
+01:07 +894 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/test_wallet_tools_test.dart: former shop header shortcut is absent
+01:07 +895 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/test_wallet_tools_test.dart: former shop header shortcut is absent
+01:07 +896 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/test_wallet_tools_test.dart: former shop header shortcut is absent
+01:07 +897 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/test_wallet_tools_test.dart: former shop header shortcut is absent
+01:07 +898 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/test_wallet_tools_test.dart: former shop header shortcut is absent
+01:07 +899 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/test_wallet_tools_test.dart: former shop header shortcut is absent
+01:07 +900 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/test_wallet_tools_test.dart: former shop header shortcut is absent
+01:07 +901 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/test_wallet_tools_test.dart: former shop header shortcut is absent
+01:07 +902 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/test_wallet_tools_test.dart: former shop header shortcut is absent
+01:07 +903 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/test_wallet_tools_test.dart: former shop header shortcut is absent
+01:07 +904 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/test_wallet_tools_test.dart: former shop header shortcut is absent
+01:08 +905 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/test_wallet_tools_test.dart: former shop header shortcut is absent
+01:08 +906 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/test_wallet_tools_test.dart: former shop header shortcut is absent
+01:08 +907 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/test_wallet_tools_test.dart: former shop header shortcut is absent
+01:08 +908 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/test_wallet_tools_test.dart: former shop header shortcut is absent
+01:08 +909 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/shop_layout_test.dart: shop matches Telegram structure at 390.0 (en)
+01:08 +910 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/shop_layout_test.dart: shop matches Telegram structure at 390.0 (en)
+01:08 +911 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/shop_layout_test.dart: shop matches Telegram structure at 390.0 (en)
+01:08 +912 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/shop_layout_test.dart: shop matches Telegram structure at 390.0 (en)
+01:08 +913 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/shop_layout_test.dart: shop matches Telegram structure at 390.0 (en)
+01:08 +914 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/shop_layout_test.dart: shop matches Telegram structure at 390.0 (en)
+01:08 +915 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 520 keeps real place, one own row, divider only outside
+01:08 +916 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 520 keeps real place, one own row, divider only outside
+01:08 +917 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 520 keeps real place, one own row, divider only outside
+01:08 +918 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 520 keeps real place, one own row, divider only outside
+01:08 +919 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 520 keeps real place, one own row, divider only outside
+01:08 +920 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 520 keeps real place, one own row, divider only outside
+01:08 +921 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 520 keeps real place, one own row, divider only outside
+01:08 +922 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 520 keeps real place, one own row, divider only outside
+01:08 +923 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 520 keeps real place, one own row, divider only outside
+01:08 +924 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 520 keeps real place, one own row, divider only outside
+01:08 +925 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 520 keeps real place, one own row, divider only outside
+01:08 +926 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 520 keeps real place, one own row, divider only outside
+01:08 +927 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 520 keeps real place, one own row, divider only outside
+01:08 +928 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 520 keeps real place, one own row, divider only outside
+01:08 +929 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 520 keeps real place, one own row, divider only outside
+01:09 +930 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 520 keeps real place, one own row, divider only outside
+01:09 +931 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 520 keeps real place, one own row, divider only outside
+01:09 +932 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 520 keeps real place, one own row, divider only outside
+01:09 +933 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 520 keeps real place, one own row, divider only outside
+01:09 +934 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 520 keeps real place, one own row, divider only outside
+01:09 +935 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 520 keeps real place, one own row, divider only outside
+01:09 +936 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 520 keeps real place, one own row, divider only outside
+01:09 +937 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 520 keeps real place, one own row, divider only outside
+01:09 +938 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 520 keeps real place, one own row, divider only outside
+01:09 +939 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 520 keeps real place, one own row, divider only outside
+01:09 +940 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 520 keeps real place, one own row, divider only outside
+01:09 +941 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 520 keeps real place, one own row, divider only outside
+01:09 +942 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 520 keeps real place, one own row, divider only outside
+01:09 +943 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 520 keeps real place, one own row, divider only outside
+01:10 +944 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 520 keeps real place, one own row, divider only outside
+01:10 +945 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 520 keeps real place, one own row, divider only outside
+01:10 +946 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 520 keeps real place, one own row, divider only outside
+01:10 +947 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 520 keeps real place, one own row, divider only outside
+01:10 +948 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 520 keeps real place, one own row, divider only outside
+01:10 +949 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 520 keeps real place, one own row, divider only outside
+01:10 +950 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 520 keeps real place, one own row, divider only outside
+01:10 +951 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 520 keeps real place, one own row, divider only outside
+01:10 +952 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 520 keeps real place, one own row, divider only outside
+01:10 +953 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/uniform_pace_helmet_test.dart: jump cooldown progresses and blocked attempt flashes twice
+01:10 +954 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/uniform_pace_helmet_test.dart: jump cooldown progresses and blocked attempt flashes twice
+01:10 +955 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/uniform_pace_helmet_test.dart: jump cooldown progresses and blocked attempt flashes twice
+01:10 +956 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/uniform_pace_helmet_test.dart: jump cooldown progresses and blocked attempt flashes twice
+01:10 +957 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/uniform_pace_helmet_test.dart: jump cooldown progresses and blocked attempt flashes twice
+01:10 +958 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/uniform_pace_helmet_test.dart: jump cooldown progresses and blocked attempt flashes twice
+01:10 +959 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/uniform_pace_helmet_test.dart: jump cooldown progresses and blocked attempt flashes twice
+01:10 +960 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/uniform_pace_helmet_test.dart: jump cooldown progresses and blocked attempt flashes twice
+01:10 +961 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/uniform_pace_helmet_test.dart: jump cooldown progresses and blocked attempt flashes twice
+01:10 +962 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/uniform_pace_helmet_test.dart: jump cooldown progresses and blocked attempt flashes twice
+01:10 +963 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/uniform_pace_helmet_test.dart: jump cooldown progresses and blocked attempt flashes twice
+01:10 +964 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/uniform_pace_helmet_test.dart: jump cooldown progresses and blocked attempt flashes twice
+01:11 +965 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/uniform_pace_helmet_test.dart: jump cooldown progresses and blocked attempt flashes twice
+01:11 +966 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/uniform_pace_helmet_test.dart: jump cooldown progresses and blocked attempt flashes twice
+01:11 +967 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/uniform_pace_helmet_test.dart: jump cooldown progresses and blocked attempt flashes twice
+01:11 +968 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/uniform_pace_helmet_test.dart: jump cooldown progresses and blocked attempt flashes twice
+01:11 +969 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/uniform_pace_helmet_test.dart: jump cooldown progresses and blocked attempt flashes twice
+01:11 +970 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/uniform_pace_helmet_test.dart: jump cooldown progresses and blocked attempt flashes twice
+01:11 +971 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/uniform_pace_helmet_test.dart: jump cooldown progresses and blocked attempt flashes twice
+01:11 +972 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/uniform_pace_helmet_test.dart: jump cooldown progresses and blocked attempt flashes twice
+01:11 +973 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/uniform_pace_helmet_test.dart: jump cooldown progresses and blocked attempt flashes twice
+01:11 +974 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/widget_test.dart: helmet is one charge and respects configured protection duration
+01:11 +975 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/widget_test.dart: helmet is one charge and respects configured protection duration
+01:11 +976 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/widget_test.dart: helmet is one charge and respects configured protection duration
+01:11 +977 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/widget_test.dart: helmet is one charge and respects configured protection duration
+01:11 +978 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/widget_test.dart: helmet is one charge and respects configured protection duration
+01:11 +979 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/widget_test.dart: helmet is one charge and respects configured protection duration
+01:11 +980 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/widget_test.dart: helmet is one charge and respects configured protection duration
+01:11 +981 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/widget_test.dart: helmet is one charge and respects configured protection duration
+01:12 +982 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/widget_test.dart: helmet is one charge and respects configured protection duration
+01:12 +983 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/uniform_pace_helmet_test.dart: actual screen gains speed uniformly from first tick through10s
+01:13 +984 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/uniform_pace_helmet_test.dart: actual screen gains speed uniformly from first tick through10s
+01:13 +985 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/uniform_pace_helmet_test.dart: actual screen gains speed uniformly from first tick through10s
+01:13 +986 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/uniform_pace_helmet_test.dart: actual screen gains speed uniformly from first tick through10s
+01:13 +987 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/uniform_pace_helmet_test.dart: actual screen gains speed uniformly from first tick through10s
+01:13 +988 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/uniform_pace_helmet_test.dart: actual screen gains speed uniformly from first tick through10s
+01:14 +989 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/uniform_pace_helmet_test.dart: actual screen gains speed uniformly from first tick through10s
+01:14 +990 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/uniform_pace_helmet_test.dart: actual screen gains speed uniformly from first tick through10s
+01:14 +991 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/widget_test.dart: arcade timer preserves elapsed time at 120 FPS
+01:14 +992 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/widget_test.dart: arcade timer preserves elapsed time at 120 FPS
+01:15 +993 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/uniform_pace_helmet_test.dart: helmet hit reflects enemy, spends only current helmet, second hit kills
+01:15 +994 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/widget_test.dart: arcade timer preserves elapsed time at 144 FPS
+01:15 +995 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/widget_test.dart: arcade timer preserves elapsed time at 144 FPS
+01:15 +996 ~16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/widget_test.dart: Hypercasual home shows field hint
+01:15 +997 ~16: All tests passed!

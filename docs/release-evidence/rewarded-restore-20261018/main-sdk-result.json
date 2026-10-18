@@ -1,0 +1,20 @@
+{
+  "version": 176,
+  "actualReleaseApp": true,
+  "realYandexSdk": true,
+  "demoUnit": true,
+  "shown": true,
+  "earned": true,
+  "dismissed": true,
+  "actualProductionWallet": true,
+  "rewardVerifiedByDatabase": true,
+  "privateScreenshots": true,
+  "rewardAmount": 40,
+  "balanceBefore": 929,
+  "balanceAfter": 969,
+  "newOperations": 2,
+  "newSessions": 1,
+  "realGameStarts": 0,
+  "newScores": 0,
+  "accountSemanticsPreserved": true
+}

@@ -1,0 +1,13 @@
+{
+  "lib/data/ads_service.dart": "11bb1215537149c0b762afa479023b47b0678bedc319d93f48bfd28cd4b0983f",
+  "lib/data/mobile_wallet_bridge.dart": "bfc770fda7164c18ce885281d603f5957ae8ac7a87d46fe8bf2f034d96533c1d",
+  "lib/features/balance/simple_energy_sheet.dart": "e3fbb8c9c9bdf91225dbdb2d5cfc0fbb8cc50caea25ea123e78a1c929ced7496",
+  "lib/ui/watch_rewarded_ad.dart": "f306cfaf47d55ce69cf314afb5c84e375358d9dfed0389cecc31c605248aecf2",
+  "lib/data/yandex_ads_driver.dart": "9f11d37147a30e94617fdbd049e7ee308a95d5769ace37446201c765e3c5eb2d",
+  "lib/data/ad_presentation_lease.dart": "0bfa6ba4cd83b1ff8a908390d18df618eebb8d9a19452124f2ff06c9046add7c",
+  "lib/data/audience_policy.dart": "a3b491bcd0fce284b190c274816b511a390bd24c05f0d260b59b3714535cecf6",
+  "lib/data/economy_store.dart": "03afa067330575c71af1bdeb90e7715f6643b08b507acbaeaec0c200b9e18ab1",
+  "supabase/functions/_shared/core/engine.mjs": "f4f04b75b1811f83c3758432cf8721f73bdb5472dfba3e00a6087182df4dc0d3",
+  "pubspec.yaml": "8a1d755e3f61b6c236e22608c8494a60bff73f7e37eecd6886baade7a99e6d1d",
+  "pubspec.lock": "443874bb328b61c7200a3a6a73a02fff07adc65517b36884baeade9846728bd9"
+}

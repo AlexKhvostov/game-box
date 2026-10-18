@@ -1,0 +1,3 @@
+MAIN176 SDK shown
+MAIN176 SDK earned: close with native skip/X controls
+{"version": 176, "actualReleaseApp": true, "realYandexSdk": true, "demoUnit": true, "shown": true, "earned": true, "dismissed": true, "actualProductionWallet": true, "rewardVerifiedByDatabase": "pending separate data check", "privateScreenshots": true}

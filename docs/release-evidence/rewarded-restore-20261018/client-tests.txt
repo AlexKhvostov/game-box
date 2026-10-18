@@ -1,0 +1,98 @@
+00:00 +0: loading D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ads_service_test.dart
+00:00 +0: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ads_service_test.dart: rewarded request from a closed route does not load or credit
+00:00 +1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ads_service_test.dart: interstitial cannot load outside results
+00:00 +2: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ads_service_test.dart: late ad is discarded after replay or a different result
+00:00 +3: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ads_service_test.dart: ad can present while the same result remains visible
+00:00 +4: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ads_service_test.dart: SDK AdOutcome.rewarded grants only on completed reward
+00:00 +5: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ads_service_test.dart: SDK AdOutcome.dismissed grants only on completed reward
+00:00 +6: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ads_service_test.dart: SDK AdOutcome.unavailable grants only on completed reward
+00:00 +7: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ads_service_test.dart: loader failure preserves balance and allows a later retry
+00:00 +8: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ads_service_test.dart: old social and rewarded preview buttons cannot grant credits
+00:00 +9: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: false journal persistence never posts, even after preferences cache mutated
+00:00 +10: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: false dequeue persistence retains the ID and retries server receipt without double grant
+00:00 +11: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: false archive persistence never removes deferred legacy operation
+00:00 +12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: Denied server session never loads a rewarded ad or promises energy
+00:00 +13: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: retired pending video claim is archived and cannot block the next bonus
+00:00 +14: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: queued awaited operation quarantined after owner change fails its caller
+00:00 +15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: atomic cache owner cannot be reattributed by a split legacy pointer
+00:00 +16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: live server clock uses monotonic elapsed and ignores device date changes
+00:00 +17: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: offline restart freezes trusted saved charge until a fresh server anchor
+00:00 +18: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: failed monetary snapshot write is retried even if plugin memory already changed
+00:00 +19: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: restored tokens never inherit stale launch owner; purchased requires native owner proof
+00:00 +20: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: pending subscription claim is archived and cannot deadlock Play verification
+00:00 +21: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: lost Google restore acknowledgement requires resync and quarantines old-owner queue
+00:00 +22: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: a complete atomic snapshot survives missing legacy fields after process death
+00:04 +23: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_durability_test.dart: Lost bonus ACK reuses durable operationId; restart reconciles once
+00:04 +24: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_durability_test.dart: Cooldown rejection is terminal and cannot block game or Play sync
+00:04 +25: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_durability_test.dart: Phone clock changes cannot finish the anchored server cooldown
+00:04 +26: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_durability_test.dart: Subscriber SDK result AdOutcome.rewarded credits only completion
+00:04 +27: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_durability_test.dart: Subscriber SDK result AdOutcome.dismissed credits only completion
+00:04 +28: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_durability_test.dart: Subscriber SDK result AdOutcome.unavailable credits only completion
+00:04 +29: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Final JS choreography: read until640ms, arc midpoint960, counter rolls1280–1600
+00:04 +30: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Video AdOutcome.rewarded: only SDK reward plus ACK returns to energy and celebrates once
+00:06 +31: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Video AdOutcome.dismissed: only SDK reward plus ACK returns to energy and celebrates once
+00:06 +32: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Video AdOutcome.unavailable: only SDK reward plus ACK returns to energy and celebrates once
+00:06 +33: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: SDK success with failed ACK never celebrates/credits
+00:07 +34: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Reward from old profile does not submit a claim in new profile
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: <0>
+  Actual: <1>
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart:231:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart line 231
+The test description was:
+  Reward from old profile does not submit a claim in new profile
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:07 +34 -1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Reward from old profile does not submit a claim in new profile [E]
+  Test failed. See exception logs above.
+  The test description was: Reward from old profile does not submit a claim in new profile
+  
+00:07 +34 -1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: A dismissed window stays closed when rewarded ACK arrives
+00:07 +35 -1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Actual ACK amount replaces a stale configured advertisement amount
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: <37>
+  Actual: <0>
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart:296:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart line 296
+The test description was:
+  Actual ACK amount replaces a stale configured advertisement amount
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:07 +35 -2: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Actual ACK amount replaces a stale configured advertisement amount [E]
+  Test failed. See exception logs above.
+  The test description was: Actual ACK amount replaces a stale configured advertisement amount
+  
+00:07 +35 -2: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Reduced180ms has no flight painter, no scale, and ends on time
+00:07 +36 -2: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Cancel owner restores underlying UI and preserves settled value
+00:07 +37 -2: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Cancel background restores underlying UI and preserves settled value
+00:07 +38 -2: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Cancel resize restores underlying UI and preserves settled value
+00:07 +39 -2: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Cancel route restores underlying UI and preserves settled value
+00:07 +40 -2: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Cancel scroll restores underlying UI and preserves settled value
+00:07 +41 -2: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: 1600ms finish, replay is ignored; reduced180ms and one live region
+00:07 +42 -2: Some tests failed.
+
+Failing tests:
+  D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Actual ACK amount replaces a stale configured advertisement amount
+  D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Reward from old profile does not submit a claim in new profile

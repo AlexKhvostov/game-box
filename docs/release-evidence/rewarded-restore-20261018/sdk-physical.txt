@@ -1,0 +1,3 @@
+SDK shown
+SDK onRewarded: native Back to close
+{"realSdk": true, "mode": "official demo-rewarded-yandex", "build": "profile", "shown": true, "onRewarded": true, "dismissed": true, "energy": 90, "starts": 0, "interstitialEnabled": false, "errors": [], "walletSynthetic": true, "requests": {"guest": 1, "invites_state": 3, "profile": 4, "wallet_operation": 2}}

@@ -1,0 +1,53 @@
+00:00 +0: loading D:/_P_R_O_J_E_C_T/game/square/Untouch/test/rewarded_session_test.dart
+00:00 +0: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/rewarded_session_test.dart: server session precedes SDK; AdOutcome.rewarded only credits completed reward
+00:00 +1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/rewarded_session_test.dart: server session precedes SDK; AdOutcome.rewarded only credits completed reward
+00:00 +2: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/rewarded_session_test.dart: server session precedes SDK; AdOutcome.rewarded only credits completed reward
+00:00 +3: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/rewarded_session_test.dart: server session precedes SDK; AdOutcome.rewarded only credits completed reward
+00:00 +4: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/rewarded_session_test.dart: server session precedes SDK; AdOutcome.rewarded only credits completed reward
+00:00 +5: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ads_service_test.dart: SDK AdOutcome.rewarded grants only on completed reward
+00:00 +6: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/rewarded_session_test.dart: server session precedes SDK; AdOutcome.dismissed only credits completed reward
+00:00 +7: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ads_service_test.dart: SDK AdOutcome.dismissed grants only on completed reward
+00:00 +8: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/rewarded_session_test.dart: server session precedes SDK; AdOutcome.unavailable only credits completed reward
+00:00 +9: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ads_service_test.dart: SDK AdOutcome.unavailable grants only on completed reward
+00:00 +10: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/rewarded_session_test.dart: denied session never presents SDK; no balance change
+00:00 +11: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ads_service_test.dart: loader failure preserves balance and allows a later retry
+00:00 +12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/rewarded_session_test.dart: owner changed during session preparation prevents presentation
+00:00 +13: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ads_service_test.dart: old social and rewarded preview buttons cannot grant credits
+00:00 +14: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/rewarded_session_test.dart: route changed during session preparation prevents presentation
+00:00 +15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/rewarded_session_test.dart: consent changed during session preparation prevents presentation
+00:00 +16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: false journal persistence never posts, even after preferences cache mutated
+00:00 +17: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: false dequeue persistence retains the ID and retries server receipt without double grant
+00:00 +18: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: false archive persistence never removes deferred legacy operation
+00:00 +19: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: Denied server session never loads a rewarded ad or promises energy
+00:00 +20: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: retired pending video claim is archived and cannot block the next bonus
+00:00 +21: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: queued awaited operation quarantined after owner change fails its caller
+00:00 +22: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: atomic cache owner cannot be reattributed by a split legacy pointer
+00:00 +23: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: live server clock uses monotonic elapsed and ignores device date changes
+00:00 +24: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: offline restart freezes trusted saved charge until a fresh server anchor
+00:00 +25: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: failed monetary snapshot write is retried even if plugin memory already changed
+00:00 +26: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: restored tokens never inherit stale launch owner; purchased requires native owner proof
+00:00 +27: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: pending subscription claim is archived and cannot deadlock Play verification
+00:00 +28: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: lost Google restore acknowledgement requires resync and quarantines old-owner queue
+00:00 +29: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/android_energy_durability_test.dart: a complete atomic snapshot survives missing legacy fields after process death
+00:00 +30: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_durability_test.dart: Lost bonus ACK reuses durable operationId; restart reconciles once
+00:00 +31: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_durability_test.dart: Cooldown rejection is terminal and cannot block game or Play sync
+00:00 +32: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_durability_test.dart: Phone clock changes cannot finish the anchored server cooldown
+00:00 +33: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_durability_test.dart: Subscriber SDK result AdOutcome.rewarded credits only completion
+00:00 +34: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_durability_test.dart: Subscriber SDK result AdOutcome.dismissed credits only completion
+00:00 +35: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_durability_test.dart: Subscriber SDK result AdOutcome.unavailable credits only completion
+00:01 +36: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Final JS choreography: read until640ms, arc midpoint960, counter rolls1280–1600
+00:01 +37: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Video AdOutcome.rewarded: only SDK reward plus ACK returns to energy and celebrates once
+00:02 +38: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Video AdOutcome.dismissed: only SDK reward plus ACK returns to energy and celebrates once
+00:02 +39: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Video AdOutcome.unavailable: only SDK reward plus ACK returns to energy and celebrates once
+00:02 +40: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: SDK success with failed ACK never celebrates/credits
+00:02 +41: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Reward from old profile does not submit a claim in new profile
+00:02 +42: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: A dismissed window stays closed when rewarded ACK arrives
+00:02 +43: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Actual ACK amount replaces a stale configured advertisement amount
+00:02 +44: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Reduced180ms has no flight painter, no scale, and ends on time
+00:02 +45: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Cancel owner restores underlying UI and preserves settled value
+00:02 +46: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Cancel background restores underlying UI and preserves settled value
+00:02 +47: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Cancel resize restores underlying UI and preserves settled value
+00:02 +48: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Cancel route restores underlying UI and preserves settled value
+00:02 +49: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: Cancel scroll restores underlying UI and preserves settled value
+00:02 +50: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/energy_reward_motion_test.dart: 1600ms finish, replay is ignored; reduced180ms and one live region
+00:03 +51: All tests passed!

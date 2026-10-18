@@ -1,3 +1,7 @@
+## Rewarded работает — Android176, 18.10.2026 13:15 Europe/Minsk
+
+По прямому указанию Алексея восстановлена функция, отключённая ревью:один тап → настоящий Yandex SDK → награда → закрытие → server ACK. Основная176 установлена поверх175, реальный баланс929→969(+40),откат120с,2операции/1session,0новых игр/результатов;аккаунт/остальные данные/RCпрежние. API13;одноразовая owner-session и журнал,SSVнет:Yandex официально не поддерживает,подделка callback изменённым клиентом остаётся риском. Внутренняя demoреклама,неlive. Full997/16skip иadsOn1021/2skip,server93/analyze/APK/Huawei PASS. Все игры остановлены,USB2. Play/FTP/Telegram/push/оплаты нет. [Отчёт](../docs/release-evidence/rewarded-restore-20261018/README.md),[задача](tasks/2026-10-18-rewarded-ads-restore.md).
+
 - [Полное ревью Android172](tasks/2026-10-18-android-code-review.md) — завершено;16 замечаний/4риска,8целевых проб;отчёт без исправлений. Полная Flutter952/16skip/5fail;сервер78PASS.
 - [Аккаунт:переходы по3 показателям, Android172](tasks/2026-10-18-account-stat-navigation.md) — Record/All,Average,Mine и возврат;APK/Huawei/data PASS.
 - [Энергия: полёт в HUD и прокрутка обоих чисел, Android171](tasks/2026-10-18-energy-rewards-main-hud.md) — установлена/895→895;133Flutter и12физических сценариев PASS.

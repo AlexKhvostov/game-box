@@ -1,0 +1,9 @@
+{
+  "androidApiVersion": 13,
+  "active": true,
+  "remoteEngineMatchesLocal": true,
+  "canonicalSha256": "77d5ba3c1427035f9c84cfe7c60e18aa0d241dbb49b8d88c7edb07b0a18ad11c",
+  "unauthenticatedHttp": 401,
+  "otherFunctionsUnchanged": true,
+  "newSecurityAdvisorWarnings": 0
+}

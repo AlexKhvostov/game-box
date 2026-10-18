@@ -1,0 +1,6 @@
+Analyzing 6 items...                                            
+
+  error - The method 'showEnergyFeedbackSheet' isn't defined for the type 'ProbeState'. Try correcting the name to the name of an existing method, or defining a method named 'showEnergyFeedbackSheet' - tools\simple_energy_probe.dart:697:27 - undefined_method
+  error - The method 'showEnergyAchievementsSheet' isn't defined for the type 'ProbeState'. Try correcting the name to the name of an existing method, or defining a method named 'showEnergyAchievementsSheet' - tools\simple_energy_probe.dart:699:27 - undefined_method
+
+2 issues found. (ran in 5.2s)
