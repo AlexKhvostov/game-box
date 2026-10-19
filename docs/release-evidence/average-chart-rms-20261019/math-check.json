@@ -1,0 +1,1 @@
+{"ok":true,"points":100,"active":50,"weightedMs":9263.854161690324,"rmsMs":10995.868454706817,"deltaMs":1732.014293016493,"checks":["all-prefixes-independent-oracle","same-input","same-window","same-decay","old-baseline","short-attempts","threshold","equal-values","rms-monotonicity","linked-selection"]}

@@ -1,0 +1,97 @@
+{
+  "url": "http://127.0.0.1:8896/?v=average-chart-rms-1#average-chart",
+  "desktop": {
+    "viewport": 1100,
+    "pageWidth": 1085,
+    "cards": [
+      {
+        "active": 50,
+        "axis": [
+          "0:00",
+          "0:05",
+          "0:10",
+          "0:15",
+          "0:20"
+        ],
+        "barCount": 100,
+        "mode": "weighted",
+        "selection": "Попытка 100: 4,286 сСреднее 9,264 с",
+        "shortFill": "rgb(99, 124, 145)",
+        "title": "Текущее среднее",
+        "value": "⌁ 9,264 с"
+      },
+      {
+        "active": 50,
+        "axis": [
+          "0:00",
+          "0:05",
+          "0:10",
+          "0:15",
+          "0:20"
+        ],
+        "barCount": 100,
+        "mode": "rms",
+        "selection": "Попытка 100: 4,286 сСреднее 10,996 с",
+        "shortFill": "rgb(99, 124, 145)",
+        "title": "Среднее квадратичное",
+        "value": "⌁ 10,996 с"
+      }
+    ],
+    "sameBars": true,
+    "differentLines": true
+  },
+  "linkedSelection": {
+    "attempt": 80,
+    "timeMs": 10154,
+    "weightedLabel": "9,798 с",
+    "rmsLabel": "11,307 с",
+    "bothUpdated": true
+  },
+  "mobile": {
+    "cards": [
+      {
+        "active": 50,
+        "axis": "block",
+        "bars": 100,
+        "canvas": 233,
+        "mode": "weighted",
+        "right": 287.66668701171875,
+        "scrollable": 620,
+        "title": "Текущее среднее",
+        "width": 270.66668701171875
+      },
+      {
+        "active": 50,
+        "axis": "block",
+        "bars": 100,
+        "canvas": 233,
+        "mode": "rms",
+        "right": 287.66668701171875,
+        "scrollable": 620,
+        "title": "Среднее квадратичное",
+        "width": 270.66668701171875
+      }
+    ],
+    "pageWidth": 305,
+    "viewport": 320
+  },
+  "smallModal": {
+    "clientHeight": 616,
+    "close": {
+      "height": 44,
+      "width": 44,
+      "x": 214.1666717529297,
+      "y": 23.33333396911621
+    },
+    "mode": "rms",
+    "scrollHeight": 830,
+    "viewport": {
+      "height": 640,
+      "width": 320
+    }
+  },
+  "oldModalCorrect": true,
+  "newModalCorrect": true,
+  "errors": [],
+  "viewportReset": true
+}
