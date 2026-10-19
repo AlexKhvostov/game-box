@@ -1,0 +1,2 @@
+Version 1.0.186 (187). Updated October 19, 2026.
+Fixed the settings reload prompt at startup. Improved response to sharp movements and reduced interface work during play. Average ranking starts with the first confirmed attempt. Added a visual two-step rewarded-ad guide with softer arrows and clearer phone-corner illustrations.

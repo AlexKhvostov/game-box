@@ -1,0 +1,8 @@
+<en-US>
+Version 1.0.186 (187). Updated October 19, 2026.
+Fixed the settings reload prompt at startup. Improved response to sharp movements and reduced interface work during play. Average ranking starts with the first confirmed attempt. Added a visual two-step rewarded-ad guide with softer arrows and clearer phone-corner illustrations.
+</en-US>
+<ru-RU>
+Версия 1.0.186 (187). Обновлено 19.10.2026.
+Исправлено сообщение о перезагрузке при старте. Улучшен отклик на резкие движения и снижена нагрузка интерфейса во время игры. Средний рейтинг учитывается с первой подтверждённой попытки. Добавлена наглядная инструкция к рекламе: два шага, мягкие стрелки и понятные уголки телефона.
+</ru-RU>

@@ -1,0 +1,5 @@
+Untouch is a simple arcade game for a quick break. Guide the cube with one finger, dodge moving obstacles and last as long as you can.
+
+Put your reflexes, focus and persistence to the test, improve your personal record and compete with friends on the shared leaderboard.
+
+Version 1.0.186 (187). Updated 19.10.2026.
