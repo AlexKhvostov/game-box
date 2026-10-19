@@ -1,0 +1,32 @@
+{
+  "function": "android-api",
+  "version": 19,
+  "status": "ACTIVE",
+  "modules": [
+    {
+      "path": "core/engine.mjs",
+      "matchesIgnoringTerminalNewlines": true,
+      "sha256Lf": "e6a4604f8701bca43ef50965fec4aca72093cbe2dc65ea0bf642e8cb038976a4"
+    },
+    {
+      "path": "average-config.mjs",
+      "matchesIgnoringTerminalNewlines": true,
+      "sha256Lf": "118c2b9972f51ae4e5839b9d4b3cd5d2e003b22a76509697482e76d283f76f68"
+    },
+    {
+      "path": "android-constraints.mjs",
+      "matchesIgnoringTerminalNewlines": true,
+      "sha256Lf": "96189b550d5b1f0572bbbaa3dce5902c3fb33e0fdc4a922bdfd307786aade39d"
+    },
+    {
+      "path": "core/policy.mjs",
+      "matchesIgnoringTerminalNewlines": true,
+      "sha256Lf": "f655e769228b50bce9de733f24227ddee84aa22181c71198b93576c24063125f"
+    },
+    {
+      "path": "core/defaults.json",
+      "matchesIgnoringTerminalNewlines": true,
+      "sha256Lf": "76fbd454168a89c029270055076c40503e99887f8f6f0ed3bf8287e57c946b74"
+    }
+  ]
+}

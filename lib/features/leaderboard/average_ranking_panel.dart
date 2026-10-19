@@ -23,8 +23,16 @@ class AverageRankingPanel extends StatelessWidget {
               .toStringAsFixed(3)
               .replaceFirst(RegExp(r'\.?0+$'), '');
     final explanation = ru
-        ? '${board == null ? "Среднее время последних подходящих попыток." : "Среднее время последних ${board.windowSize} попыток дольше $threshold с."} Свежие результаты влияют сильнее, поэтому показатель отражает текущий уровень игры. Чем выше среднее, тем выше место.'
-        : '${board == null ? "Average time of your latest qualifying attempts." : "Average time of your last ${board.windowSize} attempts longer than $threshold s."} Recent results matter more, so this reflects your current skill. A higher average means a higher rank.';
+        ? '${board == null
+              ? "Среднее время последних попыток."
+              : board.minDurationMs == 0
+              ? "Среднее время последних ${board.windowSize} попыток, включая короткие. В рейтинге — с первой попытки."
+              : "Среднее время последних ${board.windowSize} попыток дольше $threshold с."} Свежие результаты влияют сильнее, поэтому показатель отражает текущий уровень игры. Чем выше среднее, тем выше место.'
+        : '${board == null
+              ? "Average time of your latest attempts."
+              : board.minDurationMs == 0
+              ? "Average time of your last ${board.windowSize} attempts, including short runs. Ranked from your first attempt."
+              : "Average time of your last ${board.windowSize} attempts longer than $threshold s."} Recent results matter more, so this reflects your current skill. A higher average means a higher rank.';
     final rows =
         board?.rows.where((r) => (r.place ?? 201) <= 200).take(200).toList() ??
         <AverageRankEntry>[];
@@ -71,7 +79,7 @@ class AverageRankingPanel extends StatelessWidget {
             '${ru ? "Попыток" : "Attempts"}: ${own.totalAttempts ?? "—"}',
           ],
         ),
-        if (own.place == null)
+        if (own.place == null && board.minAttempts > 1)
           Padding(
             padding: const EdgeInsets.fromLTRB(8, 0, 8, 6),
             child: Text(
@@ -115,7 +123,11 @@ class AverageRankingPanel extends StatelessWidget {
           padding: const EdgeInsets.all(18),
           child: Text(
             ru
-                ? 'Пока нет игроков с ${board.minAttempts} подходящими попытками'
+                ? board.minAttempts == 1
+                      ? 'Сыграйте первую попытку — здесь появится ваше среднее'
+                      : 'Пока нет игроков с ${board.minAttempts} подходящими попытками'
+                : board.minAttempts == 1
+                ? 'Play your first run to see your average here'
                 : 'No player has ${board.minAttempts} qualifying attempts yet',
             textAlign: TextAlign.center,
             style: TextStyle(color: muted),

@@ -1,0 +1,17 @@
+{
+  "ok": true,
+  "firstAttemptRanked": true,
+  "shortAttemptMs": 1,
+  "shortAttemptIncluded": true,
+  "existingScoreRecalculatedWithoutAnotherRun": true,
+  "rules": {
+    "windowSize": 50,
+    "previousWeightPercent": 92,
+    "minAttempts": 1,
+    "minDurationMs": 0
+  },
+  "qaCreated": 1,
+  "qaDeleted": 1,
+  "realPlayerWalletWrites": 0,
+  "realPayments": 0
+}

@@ -34,7 +34,9 @@ void main() {
         expect(text, contains('Яндекс'));
         expect(text, contains('идентификаторы устройства'));
         expect(text, contains('сеанс'));
-        expect(find.textContaining('После видео нажмите ▶|'), findsOneWidget);
+        expect(find.textContaining('Досмотрите видео → нажмите ▶|'), findsOneWidget);
+        expect(find.textContaining('На новом экране → нажмите ×'), findsOneWidget);
+        expect(find.byType(Image), findsNWidgets(2));
         expect(find.text('Включить рекламу?'), findsNothing);
         expect(t.takeException(), isNull);
       },
@@ -56,4 +58,14 @@ void main() {
       expect(find.byType(Checkbox), findsNothing);
     },
   );
+  for (final width in [320.0, 430.0]) {
+    testWidgets('two ad steps stay readable at width $width with large text', (t) async {
+      t.view.physicalSize=Size(width,600);t.view.devicePixelRatio=1;
+      addTearDown(t.view.resetPhysicalSize);addTearDown(t.view.resetDevicePixelRatio);
+      await t.pumpWidget(MaterialApp(home:MediaQuery(data:MediaQueryData(textScaler:TextScaler.linear(2)),
+        child:const Scaffold(body:SingleChildScrollView(child:Padding(padding:EdgeInsets.all(16),child:RewardedAdDisclosure()))))));
+      await t.pumpAndSettle();
+      expect(find.byType(Image),findsNWidgets(2));expect(t.takeException(),isNull);
+    });
+  }
 }

@@ -259,164 +259,166 @@ class _ArcadeHudState extends State<ArcadeHud> {
         ),
       ),
     );
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final height = constraints.hasBoundedHeight
-            ? math.min(104.0, constraints.maxHeight)
-            : 104.0;
-        return SizedBox(
-          key: const ValueKey('arcade-hud-content'),
-          height: height,
-          child: Column(
-            children: [
-              Expanded(
-                child: Row(
-                  children: [
-                    if (economy.energyEnabled) ...[
-                      EnergyRewardCounter(
-                        economy: economy,
-                        builder: (amount) => card(
-                          'energy',
-                          '${ru ? 'Энергия' : 'Energy'}: $amount',
-                          const NeonHudEnergy(),
-                          widget.onCrystalsTap,
-                          target: HudFlyTargets.energyKey,
-                          flex: 17,
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                    ] else ...[
-                      card(
-                        'lives',
-                        '${l10n.statLives}: ${economy.lives}',
-                        resource(
-                          const Icon(
-                            Icons.favorite,
-                            color: GameUi.heart,
-                            size: 18,
-                          ),
-                          '${economy.lives}',
-                          l10n.statLives,
-                        ),
-                        widget.onLivesTap,
-                        target: HudFlyTargets.livesKey,
-                      ),
-                      const SizedBox(width: 4),
-                      card(
-                        'crystals',
-                        '${l10n.crystals}: ${economy.tokens}',
-                        resource(
-                          const CrystalCubeIcon(size: 20, glow: false),
-                          '${economy.tokens}',
-                          l10n.crystals,
-                        ),
-                        widget.onCrystalsTap,
-                        target: HudFlyTargets.crystalsKey,
-                      ),
-                      const SizedBox(width: 4),
-                    ],
-                    card(
-                      'ranking',
-                      ru
-                          ? 'Рейтинг · лучший результат сегодня'
-                          : 'Leaderboard · best today',
-                      economy.energyEnabled
-                          ? NeonHudRecord(
-                              value: topDay == null
-                                  ? '—'
-                                  : (topDay / 1000).toStringAsFixed(3),
-                              label: ru ? 'Топ дня' : 'Today’s best',
-                            )
-                          : resource(
-                              const Icon(
-                                Icons.emoji_events_rounded,
-                                color: GameUi.yellow,
-                                size: 16,
-                              ),
-                              topDay == null
-                                  ? '—'
-                                  : (topDay / 1000).toStringAsFixed(3),
-                              ru ? 'Топ дня' : 'Today’s best',
-                            ),
-                      widget.onRecordTap,
-                      target: const ValueKey('hud-record-button'),
-                      flex: economy.energyEnabled ? 10 : 1,
-                    ),
-                    const SizedBox(width: 4),
-                    card(
-                      'account',
-                      '${ru ? 'Аккаунт · мой рекорд' : 'Account · my best'} ${(economy.bestTimeMs / 1000).toStringAsFixed(3)}',
-                      economy.energyEnabled
-                          ? NeonHudRecord(
-                              account: true,
-                              value: (economy.bestTimeMs / 1000)
-                                  .toStringAsFixed(3),
-                              label: ru ? 'Мой рекорд' : 'My best',
-                            )
-                          : Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Container(
-                                  key: const ValueKey('hud-player-icon'),
-                                  width: 34,
-                                  height: 34,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: GameUi.background,
-                                    border: Border.all(color: GameUi.cyan),
-                                  ),
-                                  clipBehavior: Clip.antiAlias,
-                                  child: Image.asset(
-                                    'assets/branding/ui/hud-player-portrait-v1.png',
-                                    cacheWidth: 128,
-                                    fit: BoxFit.contain,
-                                  ),
-                                ),
-                                amount(
-                                  (economy.bestTimeMs / 1000).toStringAsFixed(
-                                    3,
-                                  ),
-                                  size: 12,
-                                  key: const ValueKey('hud-account-record'),
-                                ),
-                              ],
-                            ),
-                      widget.onProfileTap,
-                      flex: economy.energyEnabled ? 10 : 1,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 4),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
+    return RepaintBoundary(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final height = constraints.hasBoundedHeight
+              ? math.min(104.0, constraints.maxHeight)
+              : 104.0;
+          return SizedBox(
+            key: const ValueKey('arcade-hud-content'),
+            height: height,
+            child: Column(
+              children: [
+                Expanded(
                   child: Row(
                     children: [
-                      if (widget.onLeave != null)
-                        IconButton(
-                          onPressed: widget.onLeave,
-                          icon: const Icon(Icons.arrow_back, size: 18),
+                      if (economy.energyEnabled) ...[
+                        EnergyRewardCounter(
+                          economy: economy,
+                          builder: (amount) => card(
+                            'energy',
+                            '${ru ? 'Энергия' : 'Energy'}: $amount',
+                            const NeonHudEnergy(),
+                            widget.onCrystalsTap,
+                            target: HudFlyTargets.energyKey,
+                            flex: 17,
+                          ),
                         ),
-                      SizedBox(
-                        width: 72,
-                        child: config.helmetEnabled ? boost(true) : null,
+                        const SizedBox(width: 4),
+                      ] else ...[
+                        card(
+                          'lives',
+                          '${l10n.statLives}: ${economy.lives}',
+                          resource(
+                            const Icon(
+                              Icons.favorite,
+                              color: GameUi.heart,
+                              size: 18,
+                            ),
+                            '${economy.lives}',
+                            l10n.statLives,
+                          ),
+                          widget.onLivesTap,
+                          target: HudFlyTargets.livesKey,
+                        ),
+                        const SizedBox(width: 4),
+                        card(
+                          'crystals',
+                          '${l10n.crystals}: ${economy.tokens}',
+                          resource(
+                            const CrystalCubeIcon(size: 20, glow: false),
+                            '${economy.tokens}',
+                            l10n.crystals,
+                          ),
+                          widget.onCrystalsTap,
+                          target: HudFlyTargets.crystalsKey,
+                        ),
+                        const SizedBox(width: 4),
+                      ],
+                      card(
+                        'ranking',
+                        ru
+                            ? 'Рейтинг · лучший результат сегодня'
+                            : 'Leaderboard · best today',
+                        economy.energyEnabled
+                            ? NeonHudRecord(
+                                value: topDay == null
+                                    ? '—'
+                                    : (topDay / 1000).toStringAsFixed(3),
+                                label: ru ? 'Топ дня' : 'Today’s best',
+                              )
+                            : resource(
+                                const Icon(
+                                  Icons.emoji_events_rounded,
+                                  color: GameUi.yellow,
+                                  size: 16,
+                                ),
+                                topDay == null
+                                    ? '—'
+                                    : (topDay / 1000).toStringAsFixed(3),
+                                ru ? 'Топ дня' : 'Today’s best',
+                              ),
+                        widget.onRecordTap,
+                        target: const ValueKey('hud-record-button'),
+                        flex: economy.energyEnabled ? 10 : 1,
                       ),
                       const SizedBox(width: 4),
-                      Expanded(child: clock),
-                      const SizedBox(width: 4),
-                      SizedBox(
-                        width: 72,
-                        child: config.jumpEnabled ? boost(false) : null,
+                      card(
+                        'account',
+                        '${ru ? 'Аккаунт · мой рекорд' : 'Account · my best'} ${(economy.bestTimeMs / 1000).toStringAsFixed(3)}',
+                        economy.energyEnabled
+                            ? NeonHudRecord(
+                                account: true,
+                                value: (economy.bestTimeMs / 1000)
+                                    .toStringAsFixed(3),
+                                label: ru ? 'Мой рекорд' : 'My best',
+                              )
+                            : Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(
+                                    key: const ValueKey('hud-player-icon'),
+                                    width: 34,
+                                    height: 34,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: GameUi.background,
+                                      border: Border.all(color: GameUi.cyan),
+                                    ),
+                                    clipBehavior: Clip.antiAlias,
+                                    child: Image.asset(
+                                      'assets/branding/ui/hud-player-portrait-v1.png',
+                                      cacheWidth: 128,
+                                      fit: BoxFit.contain,
+                                    ),
+                                  ),
+                                  amount(
+                                    (economy.bestTimeMs / 1000).toStringAsFixed(
+                                      3,
+                                    ),
+                                    size: 12,
+                                    key: const ValueKey('hud-account-record'),
+                                  ),
+                                ],
+                              ),
+                        widget.onProfileTap,
+                        flex: economy.energyEnabled ? 10 : 1,
                       ),
                     ],
                   ),
                 ),
-              ),
-            ],
-          ),
-        );
-      },
+                const SizedBox(height: 4),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Row(
+                      children: [
+                        if (widget.onLeave != null)
+                          IconButton(
+                            onPressed: widget.onLeave,
+                            icon: const Icon(Icons.arrow_back, size: 18),
+                          ),
+                        SizedBox(
+                          width: 72,
+                          child: config.helmetEnabled ? boost(true) : null,
+                        ),
+                        const SizedBox(width: 4),
+                        Expanded(child: clock),
+                        const SizedBox(width: 4),
+                        SizedBox(
+                          width: 72,
+                          child: config.jumpEnabled ? boost(false) : null,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }

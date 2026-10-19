@@ -34,10 +34,13 @@ class MobileAccount extends ChangeNotifier {
     AccountVault? vault,
     http.Client? client,
     Uri? endpoint,
-    this.rulesRevision = '',
+    String rulesRevision = '',
     this.mayUseOnline,
     this.storagePrefix = '',
-  }) : _vault = vault ?? SecureAccountVault(storagePrefix: storagePrefix),
+  // Preserve the named constructor argument while allowing a getter override.
+  // ignore: prefer_initializing_formals
+  }) : _rulesRevision = rulesRevision,
+       _vault = vault ?? SecureAccountVault(storagePrefix: storagePrefix),
        _client = client ?? http.Client(),
        endpoint =
            endpoint ??
@@ -45,7 +48,14 @@ class MobileAccount extends ChangeNotifier {
   final AccountVault _vault;
   final http.Client _client;
   final Uri endpoint;
-  final String rulesRevision;
+  String _rulesRevision;
+  String get rulesRevision => _rulesRevision;
+  Map<String, dynamic>? serverGameConfig;
+  void applyRulesRevision(String revision) {
+    _rulesRevision = revision;
+    notifyListeners();
+  }
+
   final String storagePrefix;
   static bool validOwner(String value) => RegExp(
     r'^(android:[1-9][0-9]*|firebase:[A-Za-z0-9_-]{1,128}|supabase:[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})$',
@@ -413,6 +423,10 @@ class MobileAccount extends ChangeNotifier {
           body: jsonEncode({
             'economyVersion': 2,
             'energyContract': 3,
+            if (storagePrefix.startsWith('supabase_') &&
+                (payload['action'] == 'guest' ||
+                    payload['action'] == 'profile'))
+              'includeGameConfig': true,
             ...payload,
           }),
         )
@@ -477,6 +491,9 @@ class MobileAccount extends ChangeNotifier {
       _walletVersion = version;
     }
     id = nextId;
+    if (data['gameConfig'] is Map) {
+      serverGameConfig = Map<String, dynamic>.from(data['gameConfig'] as Map);
+    }
     nickname = nextName;
     googleLinked = profile['googleLinked'] == true;
     if (!googleLinked) {

@@ -1,0 +1,18 @@
+{
+  "flutter": {
+    "passed": 1020,
+    "skipped": 16,
+    "failed": 0
+  },
+  "server": {
+    "passed": 104,
+    "failed": 0
+  },
+  "dartAnalyze": "No issues found",
+  "productionCandidate": "releases/android-v1.0.184_20261019_112618_336/Untouch-1.0.184+185.aab",
+  "sha256": "b71bf56f065b26eeb8c32df549133fde7395ed3f6cd8453f0fc13c2fdb75241e",
+  "obsoleteCandidateDoNotPublish": "releases/android-v1.0.184_20261019_112021_150/Untouch-1.0.184+185.aab",
+  "obsoleteReason": "Guide screenshot assets missing; final candidate includes both, verified on Huawei QA192",
+  "googleUploaded": false,
+  "perfectSmoothnessConfirmed": false
+}

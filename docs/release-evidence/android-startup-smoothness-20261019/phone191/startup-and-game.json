@@ -1,0 +1,13 @@
+{
+  "firstLaunchOldSnapshotUpdatedAutomatically": true,
+  "noRestartRequest": true,
+  "initialAttempts": 1,
+  "finalAttempts": 2,
+  "pending": 0,
+  "beforeEnergy": 49,
+  "afterEnergy": 48,
+  "realAndroidSharpSwipes": true,
+  "firstResultConfirmed": true,
+  "errors": [],
+  "mainPackageUntouched": true
+}

@@ -3,8 +3,8 @@ class AverageRanking {
   const AverageRanking({
     this.windowSize = 50,
     this.previousWeightPercent = 92,
-    this.minAttempts = 20,
-    this.minDurationMs = 1000,
+    this.minAttempts = 1,
+    this.minDurationMs = 0,
     this.rows = const [],
     this.mine = const AverageRankEntry(),
   });

@@ -1,0 +1,175 @@
+{
+  "ok": true,
+  "config": {
+    "theme": {
+      "bg": "#0E1419",
+      "surface": "#172028",
+      "primary": "#3DDC97",
+      "danger": "#ff0008",
+      "text": "#E8EEF4",
+      "muted": "#8B9AAB",
+      "cyan": "#7EE0FF"
+    },
+    "enemies": {
+      "areaMultiplier": 2,
+      "aspects": [
+        1,
+        0.25,
+        0.5,
+        3
+      ],
+      "angleMinDeg": 30,
+      "angleMaxDeg": 60,
+      "speedMin": 75,
+      "speedMax": 105,
+      "accelMin": 9,
+      "accelMax": 15,
+      "collideWithEachOther": false,
+      "spinDegPerSec": 0
+    },
+    "player": {
+      "size": 36,
+      "showFace": true
+    },
+    "field": {
+      "borderWidth": 3,
+      "brightness": 1,
+      "shadowBrightness": 1,
+      "colorHex": "#08253B",
+      "cornerRadius": 18,
+      "maxSide": 380
+    },
+    "game": {
+      "startHintEnabled": true,
+      "idleSpeedMultiplier": 0.5,
+      "idleEnemiesMove": false,
+      "speedRampSeconds": 0.5,
+      "jumpEnabled": true,
+      "jumpDurationSec": 0.38,
+      "jumpScale": 1.32,
+      "helmetEnabled": true,
+      "helmetInvulnSec": 0.3,
+      "startInvulnSec": 0,
+      "heartbeatHaptic": true,
+      "timerHaptic": true,
+      "timerHapticStyle": "warning",
+      "timerHapticStyle5": "warning",
+      "timerHapticStyle10": "warning",
+      "hudSpeedScaleMax": 400,
+      "wallsKillPlayer": false,
+      "jumpCooldownSec": 2
+    },
+    "audio": {
+      "music": true,
+      "musicVolume": 0.35,
+      "sfxVolume": 0.85,
+      "sfxMobWall": true,
+      "sfxMobCollide": false,
+      "sfxHeroMob": true,
+      "sfxHeroWall": true,
+      "sfxNearMiss": true,
+      "sfxHelmet": true,
+      "sfxJump": true,
+      "sfxStart": true
+    },
+    "economy": {
+      "androidEnergyV2": {
+        "enabled": true,
+        "revision": "firebase-energy-v1",
+        "initialEnergy": 50,
+        "batteryCapacity": 20,
+        "chargeHours": 8,
+        "baseAttemptCost": 1,
+        "helmetExtraCost": 1,
+        "jumpExtraCost": 1,
+        "rewards": {
+          "achievement": 10,
+          "ad": 40,
+          "google": 10,
+          "age": 10,
+          "feedback": 50,
+          "invite": 20
+        },
+        "packages": [
+          {
+            "id": "energy_100_v1",
+            "energy": 100
+          },
+          {
+            "id": "energy_250_v1",
+            "energy": 250
+          },
+          {
+            "id": "energy_500_v1",
+            "energy": 500
+          },
+          {
+            "id": "energy_1000_v1",
+            "energy": 1000
+          }
+        ],
+        "subscriptions": [
+          {
+            "id": "energy_batteries_2_v1",
+            "batteryCount": 2,
+            "basePlanId": "weekly",
+            "capacity": 20,
+            "chargeHours": 8,
+            "periodDays": 7
+          },
+          {
+            "id": "energy_batteries_5_v1",
+            "batteryCount": 5,
+            "basePlanId": "weekly",
+            "capacity": 20,
+            "chargeHours": 8,
+            "periodDays": 7
+          }
+        ],
+        "watchAdCooldownSec": 120,
+        "simpleBonus": {
+          "enabled": true,
+          "version": 1,
+          "initialEnergy": 50,
+          "reward": 30,
+          "periodSec": 28800,
+          "tier2Reward": 60,
+          "tier5Reward": 150,
+          "videoReward": 40,
+          "videoCooldownSec": 120,
+          "inviterReward": 60,
+          "videoDailyLimit": 20
+        }
+      },
+      "runRewardEvery": 999,
+      "riskRewardEvery": 8,
+      "earnSurviveSeconds": 10,
+      "earnRecordSeconds": 20,
+      "earnRisksInRun": 5,
+      "interstitialSessionGraceSec": 180,
+      "interstitialSessionFreeRounds": 10,
+      "interstitialGraceSec": 210,
+      "interstitialCooldownSec": 220,
+      "interstitialMinLives": 6,
+      "initialLives": 0,
+      "initialTokens": 0,
+      "installBonusAutoClaim": false
+    },
+    "yandexMetrikaId": "112365078",
+    "mobileEnemies": {
+      "startSpeedSteps": 20,
+      "accelerationSteps": 4,
+      "speedVariation": 0.05,
+      "accelerationVariation": 0.08
+    },
+    "ranking": {
+      "average": {
+        "windowSize": 50,
+        "previousWeightPercent": 92,
+        "minAttempts": 20,
+        "minDurationMs": 1000
+      }
+    }
+  },
+  "revision": "277c9215327288a4076309b17f12e742a0f9ba7aee277e2d66dc520f1319cd85"
+}

@@ -64,6 +64,10 @@ class GameSfx {
     return _preparing ??= _prepare();
   }
 
+  /// Load native effect sources before the game accepts its first gesture.
+  /// Otherwise ten SoundPool preparations can overlap the first few frames.
+  static Future<void> prepare() => _ensureReady();
+
   static Future<void> _prepare() async {
     try {
       if (!kIsWeb) {

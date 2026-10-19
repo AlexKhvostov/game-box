@@ -36,7 +36,7 @@ class CompactAbilityButton extends StatelessWidget {
         active: active,
         broken: broken,
         progress: helmet ? null : progress,
-        repaint: frame,
+        repaint: !helmet && active ? frame : null,
         hideReady: true,
       ),
       child: Opacity(
@@ -57,8 +57,11 @@ class CompactAbilityButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => RepaintBoundary(
-    child: ListenableBuilder(
-      listenable: frame,
+    child: _AbilityStatusBuilder(
+      frame: frame,
+      sample: () => helmet || !active
+          ? 'fixed'
+          : '${(remainingMs().clamp(0.0, double.infinity) / 100).round()}',
       child: _artwork(),
       builder: (context, artwork) {
         final ms = helmet || !active
@@ -131,7 +134,7 @@ class CompactAbilityButton extends StatelessWidget {
                         top: 1,
                         width: 32,
                         height: 32,
-                        child: artwork!,
+                        child: artwork,
                       ),
                       Positioned(
                         left: 33,
@@ -202,4 +205,55 @@ class CompactAbilityButton extends StatelessWidget {
       },
     ),
   );
+}
+
+/// The ring samples every frame in its painter. Text changes in tenths of a
+/// second; inactive controls must not redraw shadows/masks at screen frequency.
+class _AbilityStatusBuilder extends StatefulWidget {
+  const _AbilityStatusBuilder({
+    required this.frame,
+    required this.sample,
+    required this.child,
+    required this.builder,
+  });
+  final Listenable frame;
+  final String Function() sample;
+  final Widget child;
+  final Widget Function(BuildContext, Widget) builder;
+  @override
+  State<_AbilityStatusBuilder> createState() => _AbilityStatusBuilderState();
+}
+
+class _AbilityStatusBuilderState extends State<_AbilityStatusBuilder> {
+  late String _sample;
+  void _tick() {
+    final next = widget.sample();
+    if (next != _sample) setState(() => _sample = next);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _sample = widget.sample();
+    widget.frame.addListener(_tick);
+  }
+
+  @override
+  void didUpdateWidget(_AbilityStatusBuilder old) {
+    super.didUpdateWidget(old);
+    if (old.frame != widget.frame) {
+      old.frame.removeListener(_tick);
+      widget.frame.addListener(_tick);
+    }
+    _sample = widget.sample();
+  }
+
+  @override
+  void dispose() {
+    widget.frame.removeListener(_tick);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.builder(context, widget.child);
 }

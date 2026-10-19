@@ -17,12 +17,21 @@ async function seed(uid,values,extra={}){
   for(const timeMs of values){const id=hash(`${uid}:${++serial}`);await db.collection('scores').doc(id).set({id,uid,userId:`supabase:${uid}`,playerName:uid,platform:'android',timeMs,createdAt:stamp++,runDistance:0,riskCount:0,...extra});}
 }
 const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-7,`${a} != ${b}`);
-test('defaults, strict 1 second boundary and 19/20 admission; no fake seed',async()=>{
+test('legacy configured strict 1 second boundary and 19/20 admission; no fake seed',async()=>{
+ policy.config.ranking={average:{...averageDefaults,minAttempts:20,minDurationMs:1000}};policy.revision=hash(policy.config);
  await player('boundary');await seed('boundary',[...Array(19).fill(5000),1,999,1000]);
- let b=await board('boundary');assert.deepEqual(b.rules,averageDefaults);assert.equal(b.mine.eligibleCount,19);assert.equal(b.mine.place,null);near(b.mine.averageMs,5000);assert.equal(b.rows.length,0);
+ let b=await board('boundary');assert.equal(b.rules.minAttempts,20);assert.equal(b.mine.eligibleCount,19);assert.equal(b.mine.place,null);near(b.mine.averageMs,5000);assert.equal(b.rows.length,0);
  await seed('boundary',[1001]);b=await board('boundary');assert.equal(b.mine.eligibleCount,20);assert.equal(b.mine.usedCount,20);assert.equal(b.mine.place,1);
  near(b.mine.averageMs,5000+(1001-5000)*.08/(1-.92**20));
  await player('empty');b=await board('empty');assert.equal(b.mine.averageMs,null);assert.equal(b.mine.eligibleCount,0);
+});
+test('new defaults rank the first confirmed attempt, including one millisecond',async()=>{
+ assert.equal(averageRules({}).minAttempts,1);assert.equal(averageRules({}).minDurationMs,0);
+ await player('first_short');await seed('first_short',[1]);
+ const b=await averageRanking({db,config:{},uid:'first_short',stamp});
+ assert.equal(b.mine.totalAttempts,1);assert.equal(b.mine.eligibleCount,1);assert.ok(b.mine.place>0);near(b.mine.averageMs,1);
+ await seed('first_short',[999]);const next=await averageRanking({db,config:{},uid:'first_short',stamp});
+ near(next.mine.averageMs,(999+1*.92)/1.92);assert.equal(next.mine.eligibleCount,2);
 });
 test('filter before last50; exponential normalization; one record; hidden/deleted/platform isolation',async()=>{
  await player('window');await seed('window',Array(50).fill(5000));await seed('window',Array(100).fill(1000));await seed('window',[15000]);

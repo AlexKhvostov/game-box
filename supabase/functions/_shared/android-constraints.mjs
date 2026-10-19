@@ -28,6 +28,9 @@ export function androidGeometryIssues(config) {
 // plausibility checks authenticate arbitrary metrics supplied by a client.
 export function plausibleAndroidResult(result) {
   const seconds=result.timeMs/1000;
-  return result.runDistance<=32+Math.ceil(seconds*4000)
-    && result.riskCount<=4+Math.ceil(seconds*64);
+  // A quick swipe/reversal can arrive before the first rendered clock frame.
+  // Allow a short input burst (one arena diagonal even at minimum hero size).
+  // The full Dart replay still verifies every movement, collision and metric.
+  return result.runDistance<=512+Math.ceil(seconds*4000)
+    && result.riskCount<=32+Math.ceil(seconds*64);
 }

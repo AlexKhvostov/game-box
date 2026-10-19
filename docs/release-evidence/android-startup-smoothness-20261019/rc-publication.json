@@ -1,0 +1,13 @@
+{
+  "ok": true,
+  "published": true,
+  "version": "52",
+  "revision": "b168224d630439a00de83f47f00eca2bf9663ac57473e7d0682be58e5c9fd6aa",
+  "rules": {
+    "windowSize": 50,
+    "previousWeightPercent": 92,
+    "minAttempts": 1,
+    "minDurationMs": 0
+  },
+  "otherBlocksPreserved": true
+}

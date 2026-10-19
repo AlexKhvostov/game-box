@@ -1,6 +1,7 @@
 import '../../ui/game_run_scene.dart';
 import '../../ui/energy_reward_motion.dart';
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
@@ -18,6 +19,8 @@ import '../../data/player_preferences.dart';
 import '../profile/profile_screen.dart';
 import 'arcade_hud.dart';
 import '../../data/scores_store.dart';
+import '../../data/android_config_session.dart';
+import '../../data/mobile_account.dart';
 import '../../domain/gameplay_config.dart';
 import '../../domain/arcade_rules.dart';
 import '../../domain/round_delivery.dart';
@@ -166,12 +169,51 @@ class _GameHomeScreenState extends State<GameHomeScreen>
 
   double? _resultArtworkDpr;
   bool _routeCurrent = true;
+  MobileAccount? _settingsAccount;
+  bool _settingsCheckScheduled = false;
+  void _queueIdleSettingsCheck() {
+    if (!mounted ||
+        _settingsCheckScheduled ||
+        _startingRound ||
+        _phase != _Phase.idle) {
+      return;
+    }
+    _settingsCheckScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      _settingsCheckScheduled = false;
+      if (!mounted || _phase != _Phase.idle || _startingRound) return;
+      final scores = context.read<ScoresStore>();
+      final session = context.read<AndroidConfigSession?>();
+      if (session == null || !_settingsDiffer(scores, session)) return;
+      final ready = await _synchronizeSettings(
+        scores,
+        session,
+        showError: false,
+      );
+      // Preserve a touch that arrived while the idle scene was being updated.
+      if (ready &&
+          mounted &&
+          _primaryPointer != null &&
+          _phase == _Phase.idle) {
+        _startGameFromTouch();
+      }
+    });
+    WidgetsBinding.instance.ensureVisualUpdate();
+  }
+
   bool _exchangeOpen = false;
   final _modalBackdrop = SnapshotController();
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    final account = context.read<MobileAccount?>();
+    if (!identical(account, _settingsAccount)) {
+      _settingsAccount?.removeListener(_queueIdleSettingsCheck);
+      _settingsAccount = account;
+      account?.addListener(_queueIdleSettingsCheck);
+      _queueIdleSettingsCheck();
+    }
     final current = ModalRoute.isCurrentOf(context) ?? true;
     if (_routeCurrent != current) {
       _routeCurrent = current;
@@ -206,6 +248,7 @@ class _GameHomeScreenState extends State<GameHomeScreen>
 
   @override
   void dispose() {
+    _settingsAccount?.removeListener(_queueIdleSettingsCheck);
     _debugFrame.dispose();
     WidgetsBinding.instance.removeObserver(this);
     _jumpWarnTimer?.cancel();
@@ -246,6 +289,38 @@ class _GameHomeScreenState extends State<GameHomeScreen>
       return;
     }
     if (_world != null && _fieldSize == field && _boundConfig == config) {
+      return;
+    }
+    final before = _boundConfig;
+    if (_world != null &&
+        before != null &&
+        _fieldSize == field &&
+        jsonEncode([
+              before.enemies.toJson(),
+              before.player.toJson(),
+              before.field.toJson(),
+              before.game.toJson(),
+              [
+                before.mobileEnemies.startSpeedSteps,
+                before.mobileEnemies.accelerationSteps,
+                before.mobileEnemies.speedVariation,
+                before.mobileEnemies.accelerationVariation,
+              ],
+            ]) ==
+            jsonEncode([
+              config.enemies.toJson(),
+              config.player.toJson(),
+              config.field.toJson(),
+              config.game.toJson(),
+              [
+                config.mobileEnemies.startSpeedSteps,
+                config.mobileEnemies.accelerationSteps,
+                config.mobileEnemies.speedVariation,
+                config.mobileEnemies.accelerationVariation,
+              ],
+            ])) {
+      // Audio/ranking changes keep the visible seeded layout and enemy pose.
+      _boundConfig = config;
       return;
     }
     _fieldSize = field;
@@ -311,6 +386,7 @@ class _GameHomeScreenState extends State<GameHomeScreen>
       }
     });
     if (!_ticker.isActive) _ticker.start();
+    _queueIdleSettingsCheck();
   }
 
   void _clearPointers() {
@@ -684,12 +760,23 @@ class _GameHomeScreenState extends State<GameHomeScreen>
     final delta = event.localPosition - last;
     if (delta == Offset.zero) return;
 
+    // Android can deliver the first fast swipe before the first ticker frame.
+    // A terminal hit must still have a positive, replayable duration. Record
+    // the minimum clock step BEFORE the move; never alter a finished proof.
+    if (_elapsedPreciseMs == 0) {
+      _advanceFrame(_world!, 1);
+      if (_phase != _Phase.playing) return;
+    }
+
     // Pointer coordinates are already in the viewport's logical units.
     // Convert field display units to the fixed Telegram simulation units.
     final simulationDelta =
         delta * (GameViewport.referenceFieldSide / _visualFieldSide);
     _recordProof([1, simulationDelta.dx, simulationDelta.dy]);
     _world!.movePlayerBy(simulationDelta, checkEnemies: !_isInvulnerable);
+    // Paint a new finger position in this frame, including events delivered
+    // after the simulation ticker. Never interpolate or delay a sharp dodge.
+    _frame.value++;
     if (_world!.playerHitsBorder()) {
       if (!_world!.wallsKillPlayer) {
         _world!.clampPlayerToField();
@@ -817,8 +904,57 @@ class _GameHomeScreenState extends State<GameHomeScreen>
     }
   }
 
+  bool _settingsDiffer(ScoresStore scores, AndroidConfigSession session) =>
+      scores.rulesUpdateRequired ||
+      (scores.account?.serverGameConfig != null &&
+          scores.account!.serverGameConfig!['revision'] !=
+              session.snapshot.revision);
+
+  Future<bool> _synchronizeSettings(
+    ScoresStore scores,
+    AndroidConfigSession session, {
+    bool showError = true,
+  }) async {
+    setState(() => _startingRound = true);
+    try {
+      final ready = await session.synchronize(
+        force: scores.rulesUpdateRequired,
+      );
+      if (!ready) throw const FormatException('settings_unavailable');
+      // One frame propagates providers, the next paints the prepared world.
+      await WidgetsBinding.instance.endOfFrame;
+      if (!mounted) return false;
+      await WidgetsBinding.instance.endOfFrame;
+    } catch (_) {
+      if (!mounted) return false;
+      _clearPointers();
+      if (showError) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              Localizations.localeOf(context).languageCode == 'ru'
+                  ? 'Не удалось обновить настройки. Проверьте подключение и коснитесь поля ещё раз.'
+                  : 'Could not update settings. Check your connection and tap the field again.',
+            ),
+          ),
+        );
+      }
+      setState(() => _startingRound = false);
+      return false;
+    }
+    if (!mounted) return false;
+    setState(() => _startingRound = false);
+    return _phase == _Phase.idle && _routeCurrent && !_backgrounded;
+  }
+
   void _startGameFromTouch() async {
     if (_startingRound) return;
+    final scores = context.read<ScoresStore>();
+    final configSession = context.read<AndroidConfigSession?>();
+    if (configSession != null && _settingsDiffer(scores, configSession)) {
+      if (!await _synchronizeSettings(scores, configSession)) return;
+    }
+    if (!mounted) return;
     final geometryIssue = _fieldGeometryIssue();
     if (geometryIssue != null) {
       _showGeometryIssue(geometryIssue);
@@ -830,7 +966,6 @@ class _GameHomeScreenState extends State<GameHomeScreen>
       _openLivesExchange();
       return;
     }
-    final scores = context.read<ScoresStore>();
     final gameplay = context.read<GameplayConfig>();
     if (!scores.localHistoryReadable) {
       _clearPointers();
@@ -967,10 +1102,10 @@ class _GameHomeScreenState extends State<GameHomeScreen>
           content: Text(
             Localizations.localeOf(context).languageCode == 'ru'
                 ? (error == 'rules_changed'
-                      ? 'Правила обновились. Перезапустите игру для загрузки настроек.'
+                      ? 'Настройки обновляются. Коснитесь поля ещё раз.'
                       : 'Не удалось начать попытку. Проверьте подключение.')
                 : (error == 'rules_changed'
-                      ? 'Rules changed. Restart the game to load the settings.'
+                      ? 'Updating settings. Tap the field again.'
                       : 'Could not start a run. Check your connection.'),
           ),
         ),
@@ -1175,7 +1310,9 @@ class _GameHomeScreenState extends State<GameHomeScreen>
                   left: -64,
                   right: -64,
                   bottom: 16,
-                  child: const IgnorePointer(child: GameTouchpad()),
+                  child: const IgnorePointer(
+                    child: RepaintBoundary(child: GameTouchpad()),
+                  ),
                 ),
                 // Визуальный layout: весь экран под HUD — управление героем.
                 // Верхний HUD поверх Stack перехватывает клики (жизни/кристаллы/…).
@@ -1234,41 +1371,77 @@ class _GameHomeScreenState extends State<GameHomeScreen>
                                         borderRadius: BorderRadius.circular(18),
                                         child: RepaintBoundary(
                                           key: _fieldGeometryKey,
-                                          child: CustomPaint(
-                                            key: const ValueKey(
-                                              'arcade-game-field',
-                                            ),
-                                            size: size,
-                                            painter: GameFieldPainter(
-                                              drawGrid:
-                                                  AppTargetConfig.isMobile,
-                                              world: world,
-                                              accent: heroColor,
-                                              danger: enemyColor,
-                                              fieldColor: config.field
-                                                  .resolveSurfaceColor(
-                                                    AppTargetConfig.isMobile
-                                                        ? GameFieldColors.floor
-                                                        : theme
-                                                              .colorScheme
-                                                              .surface,
+                                          child: Stack(
+                                            children: [
+                                              Positioned.fill(
+                                                child: RepaintBoundary(
+                                                  child: CustomPaint(
+                                                    painter: GameFieldSurfacePainter(
+                                                      fieldColor: config.field
+                                                          .resolveSurfaceColor(
+                                                            AppTargetConfig
+                                                                    .isMobile
+                                                                ? GameFieldColors
+                                                                      .floor
+                                                                : theme
+                                                                      .colorScheme
+                                                                      .surface,
+                                                          ),
+                                                      borderColor: wallColor,
+                                                      drawGrid: AppTargetConfig
+                                                          .isMobile,
+                                                    ),
+                                                    isComplex: true,
                                                   ),
-                                              borderColor: wallColor,
-                                              borderWidth: config.borderWidth,
-                                              cornerRadius: 18,
-                                              repaint: _frame,
-                                              frameValue: () => _frame.value,
-                                              invulnerableNow: () =>
-                                                  _isInvulnerable,
-                                              playerPreview:
-                                                  _phase == _Phase.idle,
-                                              impacts: _impacts,
-                                              hasHelmet: _runHelmetActive,
-                                              invulnerable: _isInvulnerable,
-                                              shadowBrightness:
-                                                  config.field.shadowBrightness,
-                                              showFace: config.player.showFace,
-                                            ),
+                                                ),
+                                              ),
+                                              RepaintBoundary(
+                                                child: CustomPaint(
+                                                  key: const ValueKey(
+                                                    'arcade-game-field',
+                                                  ),
+                                                  size: size,
+                                                  painter: GameFieldPainter(
+                                                    drawSurface: false,
+                                                    drawGrid: AppTargetConfig
+                                                        .isMobile,
+                                                    world: world,
+                                                    accent: heroColor,
+                                                    danger: enemyColor,
+                                                    fieldColor: config.field
+                                                        .resolveSurfaceColor(
+                                                          AppTargetConfig
+                                                                  .isMobile
+                                                              ? GameFieldColors
+                                                                    .floor
+                                                              : theme
+                                                                    .colorScheme
+                                                                    .surface,
+                                                        ),
+                                                    borderColor: wallColor,
+                                                    borderWidth:
+                                                        config.borderWidth,
+                                                    cornerRadius: 18,
+                                                    repaint: _frame,
+                                                    frameValue: () =>
+                                                        _frame.value,
+                                                    invulnerableNow: () =>
+                                                        _isInvulnerable,
+                                                    playerPreview:
+                                                        _phase == _Phase.idle,
+                                                    impacts: _impacts,
+                                                    hasHelmet: _runHelmetActive,
+                                                    invulnerable:
+                                                        _isInvulnerable,
+                                                    shadowBrightness: config
+                                                        .field
+                                                        .shadowBrightness,
+                                                    showFace:
+                                                        config.player.showFace,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
                                       ),

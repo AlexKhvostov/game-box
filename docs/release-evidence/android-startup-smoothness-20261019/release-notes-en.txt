@@ -1,0 +1,2 @@
+Version 1.0.184 (185), updated October 19, 2026.
+Game settings update without restarting. Improved response to sharp movements and handling of very short runs. Average ranking starts with the first confirmed run. Added a two-step illustrated guide for finishing rewarded ads.

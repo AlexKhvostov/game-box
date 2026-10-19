@@ -17,7 +17,10 @@ import 'data/yandex_ads_driver.dart';
 import 'data/player_preferences.dart';
 import 'data/supabase_mobile_client.dart';
 import 'data/android_firebase_config.dart';
+import 'data/android_config_session.dart';
 import 'data/shared_config_loader.dart';
+import 'domain/gameplay_config.dart';
+import 'ui/game_sfx.dart';
 import 'data/scores_store.dart';
 import 'data/mobile_account.dart';
 import 'data/mobile_invites.dart';
@@ -121,6 +124,13 @@ Future<Widget> _createGame(AudiencePolicy audience) async {
   }
   final preferences = PlayerPreferences();
   await preferences.load();
+  if (useSupabase) {
+    preferences.applyAudio(gameplayConfig.audio);
+    await GameSfx.prepare().timeout(
+      const Duration(seconds: 1),
+      onTimeout: () {},
+    );
+  }
 
   final account = MobileAccount(
     rulesRevision: remote.revision,
@@ -130,6 +140,9 @@ Future<Widget> _createGame(AudiencePolicy audience) async {
     endpoint: useSupabase ? SupabaseMobileClient.endpoint : null,
   );
   final walletBridge = MobileWalletBridge(account, economy);
+  final configSession = useSupabase
+      ? AndroidConfigSession(remote, account, economy)
+      : null;
   if (!TestTools.enabled) await walletBridge.load();
   final billing = PlayBillingService(account);
   unawaited(billing.initialize());
@@ -202,8 +215,18 @@ Future<Widget> _createGame(AudiencePolicy audience) async {
         create: (_) =>
             AdsService(YandexAdsDriver(audience: audience), audience: audience),
       ),
-      Provider.value(value: gameplayConfig),
-      Provider.value(value: remote),
+      if (configSession != null) ...[
+        ChangeNotifierProvider(create: (_) => configSession),
+        ProxyProvider<AndroidConfigSession, GameplayConfig>(
+          update: (_, session, _) => session.gameplay,
+        ),
+        ProxyProvider<AndroidConfigSession, SharedConfigs>(
+          update: (_, session, _) => session.snapshot,
+        ),
+      ] else ...[
+        Provider.value(value: gameplayConfig),
+        Provider.value(value: remote),
+      ],
     ],
     child: GameBoxApp(forceLocale: forceLocale),
   );

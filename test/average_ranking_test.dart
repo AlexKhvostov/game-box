@@ -332,6 +332,8 @@ void main() {
           }
           store.online = false;
           store.averageRanking = const AverageRanking(
+            minAttempts: 20,
+            minDurationMs: 1000,
             mine: AverageRankEntry(
               averageMs: 5000,
               usedCount: 19,

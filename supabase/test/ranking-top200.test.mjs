@@ -26,8 +26,9 @@ test('both rankings: top200 only, actual own place1/50/200/201/520, all attempts
   }
   const average=await averageRanking({db,config:{},uid:uid(ownPlace),stamp});
   assert.equal(average.rows.length,200);assert.equal(average.mine.place,ownPlace);
-  assert.equal(average.mine.totalAttempts,21);assert.equal(average.mine.eligibleCount,20);
-  assert.equal(average.mine.usedCount,20);assert.equal(average.mine.averageMs,200000-ownPlace);
+  assert.equal(average.mine.totalAttempts,21);assert.equal(average.mine.eligibleCount,21);
+  assert.equal(average.mine.usedCount,21);
+  assert.ok(Math.abs(average.mine.averageMs-((200000-ownPlace)*(1-.92**20)+500*.08*.92**20)/(1-.92**21))<1e-6);
   assert.equal(average.mine.userId,'supabase:'+uid(ownPlace));
   assert.ok(average.rows.every(r=>r.totalAttempts===21));
  }
@@ -54,8 +55,8 @@ test('hidden, deleted and other-platform results cannot displace visible players
  assert.equal(result.scores.length,200);assert.equal(result.scores.at(-1).userId,'supabase:'+uid(201));
  assert.equal(result.scores[0].timeMs,199998);assert.equal(result.scores[0].place,1);
  const avg=await averageRanking({db,config:{},uid:'short',stamp});
- assert.equal(avg.rows.length,200);assert.equal(avg.mine.averageMs,null);assert.equal(avg.mine.place,null);
- assert.equal(avg.mine.totalAttempts,1);assert.equal(avg.mine.eligibleCount,0);
+ assert.equal(avg.rows.length,200);assert.equal(avg.mine.averageMs,1000);assert.equal(avg.mine.place,520);
+ assert.equal(avg.mine.totalAttempts,1);assert.equal(avg.mine.eligibleCount,1);
  const absent=await averageRanking({db,config:{},uid:'missing',stamp});assert.equal(absent.mine.place,null);
  const hidden=await averageRanking({db,config:{},uid:uid(1),stamp});assert.equal(hidden.mine.totalAttempts,0);
 });

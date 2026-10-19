@@ -47,7 +47,8 @@ class InstantRoundJournal {
   int? _retryAt;
   int _backoff = 1;
   String? lastError;
-  bool rulesUpdateRequired = false;
+  String? _blockedRevision;
+  bool get rulesUpdateRequired => _blockedRevision == account.rulesRevision;
   String? get activeKey => _active;
   bool get ready => _loaded && _owner == account.id;
   bool get hasPending => _rows.any((r) => r['rejected'] == null);
@@ -81,11 +82,11 @@ class InstantRoundJournal {
           _rows.clear();
           _activationAges.clear();
           _finishNotBefore.clear();
-          rulesUpdateRequired = false;
+          _blockedRevision = null;
           if (owner != null) {
-            rulesUpdateRequired =
-                _prefs!.getString('${_key(owner)}_blocked_revision') ==
-                account.rulesRevision;
+            _blockedRevision = _prefs!.getString(
+              '${_key(owner)}_blocked_revision',
+            );
             final raw = _prefs!.getString(_key(owner));
             if (raw != null) {
               final saved = jsonDecode(raw) as List;
@@ -279,7 +280,7 @@ class InstantRoundJournal {
     if (_rulesErrors.contains(code) &&
         !obsoleteProtocol &&
         row['rulesRevision'] == account.rulesRevision) {
-      rulesUpdateRequired = true;
+      _blockedRevision = account.rulesRevision;
       if (!await _prefs!.setString(
         '${_key(owner)}_blocked_revision',
         account.rulesRevision,

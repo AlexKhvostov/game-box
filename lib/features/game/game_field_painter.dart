@@ -37,6 +37,7 @@ class GameFieldPainter extends CustomPainter {
     this.shadowBrightness = 1.0,
     this.drawBorder = true,
     this.drawGrid = false,
+    this.drawSurface = true,
     this.eyeLook = Offset.zero,
     this.showFace = false,
     super.repaint,
@@ -45,13 +46,12 @@ class GameFieldPainter extends CustomPainter {
   });
   final int Function()? frameValue;
   final bool Function()? invulnerableNow;
-  Size? _shaderSize;
-  Shader? _backgroundShader;
-  Path? _floorGrid;
-  late final _gridPaint = Paint()
-    ..color = borderColor.withValues(alpha: .1)
-    ..style = PaintingStyle.stroke
-    ..strokeWidth = .6;
+  late final _surface = GameFieldSurfacePainter(
+    fieldColor: fieldColor,
+    borderColor: borderColor,
+    cornerRadius: cornerRadius,
+    drawGrid: drawGrid || fieldColor == GameFieldColors.floor,
+  );
   late final _heroFill = Paint()
     ..shader = LinearGradient(
       begin: Alignment.topLeft,
@@ -97,6 +97,7 @@ class GameFieldPainter extends CustomPainter {
 
   /// Mobile arena detail, independent of the configurable surface color.
   final bool drawGrid;
+  final bool drawSurface;
 
   /// Направление взгляда глаз (−1…1 по X/Y). Если почти ноль — лёгкий idle-взгляд.
   final Offset eyeLook;
@@ -125,50 +126,9 @@ class GameFieldPainter extends CustomPainter {
     size = world.field;
 
     final r = math.min(cornerRadius, size.shortestSide / 2).clamp(0.0, 64.0);
-    final outer = RRect.fromRectAndRadius(
-      Offset.zero & size,
-      Radius.circular(r),
-    );
-
-    // Фон
-    if (_shaderSize != size) {
-      _shaderSize = size;
-      _backgroundShader = RadialGradient(
-        center: const Alignment(0, -.2),
-        radius: .85,
-        colors: [
-          Color.lerp(fieldColor, const Color(0xFF168899), .18)!,
-          fieldColor,
-        ],
-      ).createShader(Offset.zero & size);
-      // One cached path and one stroke for the entire arena grid.
-      _floorGrid = Path();
-      for (var i = 1; i < 12; i++) {
-        final x = size.width * i / 12;
-        final y = size.height * i / 12;
-        _floorGrid!
-          ..moveTo(x, 0)
-          ..lineTo(x, size.height)
-          ..moveTo(0, y)
-          ..lineTo(size.width, y);
-      }
+    if (drawSurface) {
+      _surface.paint(canvas, size);
     }
-    canvas.drawRRect(outer, Paint()..shader = _backgroundShader);
-    if (drawGrid || fieldColor == GameFieldColors.floor) {
-      canvas.save();
-      canvas.clipRRect(outer);
-      canvas.drawPath(_floorGrid!, _gridPaint);
-      canvas.restore();
-    }
-
-    // Лёгкая «глубина» без blur — полупрозрачный оверлей по краям через stroke
-    canvas.drawRRect(
-      outer,
-      Paint()
-        ..color = Colors.black.withValues(alpha: 0.12)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = size.shortestSide * 0.08,
-    );
 
     // Слой «пола»: только тень по форме объекта (без овала).
     const light = Offset(5.5, 7.0);
@@ -450,6 +410,7 @@ class GameFieldPainter extends CustomPainter {
         oldDelegate.invulnerableFactor != invulnerableFactor ||
         oldDelegate.drawBorder != drawBorder ||
         oldDelegate.drawGrid != drawGrid ||
+        oldDelegate.drawSurface != drawSurface ||
         oldDelegate.shadowBrightness != shadowBrightness ||
         oldDelegate.fieldColor != fieldColor ||
         oldDelegate.borderColor != borderColor ||
@@ -471,4 +432,79 @@ Offset nearestEnemyLook(GameWorld world) {
     }
   }
   return delta.distance > .001 ? delta / delta.distance : Offset.zero;
+}
+
+/// Static floor recorded independently from moving actors. A ticker cannot
+/// invalidate its gradient/grid display list or upload another floor texture.
+class GameFieldSurfacePainter extends CustomPainter {
+  GameFieldSurfacePainter({
+    required this.fieldColor,
+    required this.borderColor,
+    this.cornerRadius = 18,
+    this.drawGrid = true,
+  });
+  final Color fieldColor, borderColor;
+  final double cornerRadius;
+  final bool drawGrid;
+  Size? _shaderSize;
+  Shader? _backgroundShader;
+  Path? _floorGrid;
+  late final _gridPaint = Paint()
+    ..color = borderColor.withValues(alpha: .1)
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = .6;
+  @override
+  void paint(Canvas canvas, Size size) {
+    final outer = RRect.fromRectAndRadius(
+      Offset.zero & size,
+      Radius.circular(
+        math.min(cornerRadius, size.shortestSide / 2).clamp(0.0, 64.0),
+      ),
+    );
+    if (_shaderSize != size) {
+      _shaderSize = size;
+      _backgroundShader = RadialGradient(
+        center: const Alignment(0, -.2),
+        radius: .85,
+        colors: [
+          Color.lerp(fieldColor, const Color(0xFF168899), .18)!,
+          fieldColor,
+        ],
+      ).createShader(Offset.zero & size);
+      // One cached path and one stroke for the entire arena grid.
+      _floorGrid = Path();
+      for (var i = 1; i < 12; i++) {
+        final x = size.width * i / 12;
+        final y = size.height * i / 12;
+        _floorGrid!
+          ..moveTo(x, 0)
+          ..lineTo(x, size.height)
+          ..moveTo(0, y)
+          ..lineTo(size.width, y);
+      }
+    }
+    canvas.drawRRect(outer, Paint()..shader = _backgroundShader);
+    if (drawGrid) {
+      canvas.save();
+      canvas.clipRRect(outer);
+      canvas.drawPath(_floorGrid!, _gridPaint);
+      canvas.restore();
+    }
+
+    // Лёгкая «глубина» без blur — полупрозрачный оверлей по краям через stroke
+    canvas.drawRRect(
+      outer,
+      Paint()
+        ..color = Colors.black.withValues(alpha: 0.12)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = size.shortestSide * 0.08,
+    );
+  }
+
+  @override
+  bool shouldRepaint(GameFieldSurfacePainter old) =>
+      old.fieldColor != fieldColor ||
+      old.borderColor != borderColor ||
+      old.cornerRadius != cornerRadius ||
+      old.drawGrid != drawGrid;
 }

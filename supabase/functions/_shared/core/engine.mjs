@@ -54,6 +54,24 @@ function createEngine({db, getPolicy = async () => defaults, verifyPlay, googleL
     identity = {googleLinked:false,...identity};
     const policy = validatePolicy(await getPolicy());
     const stamp = now();
+    // A ranking/audio/text edit must not invalidate an installed client's
+    // otherwise identical simulation and prices. Accept only a known, validated
+    // published snapshot; never accept a client-authored rules object.
+    let roundPolicy=policy;
+    if(input.action==='round_start' && input.rulesRevision!==policy.revision &&
+       /^[a-f0-9]{64}$/.test(input.rulesRevision??'') && db.pool) {
+      const saved=await db.pool.query('select snapshot from untouch.policy_revisions where revision=$1',[input.rulesRevision]);
+      if(saved.rows[0]?.snapshot) {
+        const previous=saved.rows[0].snapshot;
+        // PostgreSQL JSONB normalizes object order. The row was written only by
+        // the trusted publisher; validate its schema with that order, retain
+        // its original published revision for receipt idempotency.
+        validatePolicy({...previous,revision:hash(previous.config)});
+        requireThat(previous.revision===input.rulesRevision,'policy_invalid',503);
+        const gameplay=c=>Object.fromEntries(['enemies','player','field','game','mobileEnemies','economy'].map(key=>[key,c[key]]));
+        if(digest(gameplay(previous.config))===digest(gameplay(policy.config)))roundPolicy=previous;
+      }
+    }
     if (input.action === 'scores') {
       // Rate-limit once per board request, including a single all-period fetch.
       const viewer=await execute(uid,{action:'profile'},identity);
@@ -139,7 +157,7 @@ function createEngine({db, getPolicy = async () => defaults, verifyPlay, googleL
           put(opRef,{fingerprint,response,createdAt:stamp,policyRevision:policy.revision});
         }
       } else if (['round_start','round_activate','round_cancel','round_finish'].includes(action)) {
-        response=await round(tx,p,input,policy,stamp,put,verifiedProofRound);
+        response=await round(tx,p,input,roundPolicy,stamp,put,verifiedProofRound);
       } else if (action === 'play_quote') {
         const sku=input.productId, originalTerms=product(sku), requestId=nonce(input.requestId);
         const config=policy.config.economy.androidEnergyV2;
@@ -220,6 +238,7 @@ function createEngine({db, getPolicy = async () => defaults, verifyPlay, googleL
       for (const [r,data] of writes) { if (data === null) tx.delete(r); else tx.set(r,data); }
       // Respond after transaction commit, including latest server-owned wallet.
       return {ok:true,...response,profile:publicProfile(p,policy,identity,stamp),serverNow:stamp,
+        ...(['guest','profile'].includes(action) && input.includeGameConfig===true ? {gameConfig:clone(policy)} : {}),
         ...(['invites_state','invites_bind','invites_list'].includes(action) ? {_invitePlayer:p} : {})};
     }).then(async result => {
       if(identity.googleLinked && ['google_link','google_restore'].includes(input.action)) {

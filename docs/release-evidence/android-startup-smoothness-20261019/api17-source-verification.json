@@ -1,0 +1,8 @@
+{
+  "version": 17,
+  "matches": {
+    "engine.mjs": true,
+    "average-config.mjs": true,
+    "policy.mjs": true
+  }
+}

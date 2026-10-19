@@ -1,0 +1,26 @@
+{
+  "beforeEnergy": 88,
+  "afterEnergy": 85,
+  "runs": [
+    {
+      "timeMs": 998,
+      "pending": 0,
+      "energy": 87,
+      "confirmed": true
+    },
+    {
+      "timeMs": 2129,
+      "pending": 0,
+      "energy": 86,
+      "confirmed": true
+    },
+    {
+      "timeMs": 1148,
+      "pending": 0,
+      "energy": 85,
+      "confirmed": true
+    }
+  ],
+  "realCollisionRules": true,
+  "extendedProtection": false
+}

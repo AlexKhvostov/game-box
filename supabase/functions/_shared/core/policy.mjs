@@ -24,6 +24,8 @@ function validatePolicy(snapshot) {
   walk(c);
   function types(candidate, original, path='') {
     if(candidate===undefined && path==='economy.androidEnergyV2.simpleBonus.videoDailyLimit')return;
+    // Published pre-ranking snapshots remain valid for identical game rules.
+    if(candidate===undefined && path==='ranking')return;
     requireThat(candidate !== undefined && typeof candidate === typeof original && Array.isArray(candidate) === Array.isArray(original),'policy_invalid',503);
     if(original && typeof original === 'object' && !Array.isArray(original)) for(const [key,value] of Object.entries(original)) types(candidate[key],value,path?`${path}.${key}`:key);
   }

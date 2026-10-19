@@ -1,0 +1,21 @@
+{
+  "realDeviceResultsConfirmed": true,
+  "scoreDurationsMs": [
+    1,
+    998,
+    2129,
+    1148
+  ],
+  "firstAcceptedAttemptMs": 1,
+  "firstShortAttemptRanked": true,
+  "acceptedAttemptCount": 4,
+  "averageMs": 1114.8287117273253,
+  "averagePlace": 8,
+  "adRewardCount": 1,
+  "adReward": 40,
+  "adBeforeEnergy": 48,
+  "adAfterEnergy": 88,
+  "afterThreeMoreRunsEnergy": 85,
+  "realPlayersModified": 0,
+  "disposableNativeQaDeleted": true
+}

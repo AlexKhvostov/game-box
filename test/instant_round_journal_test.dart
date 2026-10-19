@@ -801,6 +801,27 @@ void main() {
         expect([for (final enemy in preview.enemies) enemy.orientDeg], angles);
         expect(scores.activeInstantRoundKey, isNotNull);
         expect(t.widget<ArcadeHud>(find.byType(ArcadeHud)).isPlaying, true);
+        final pointer = await t.startGesture(
+          t.getCenter(find.byKey(const ValueKey('arcade-game-field'))),
+        );
+        final originalPlayer = preview.player;
+        final timeBeforeDodge = t
+            .widget<ArcadeHud>(find.byType(ArcadeHud))
+            .timeMs();
+        for (final dx in [120.0, -240.0, 120.0]) {
+          final beforeFrame = painter().frameValue!();
+          final beforeX = preview.player.dx;
+          await pointer.moveBy(Offset(dx, 0));
+          // No pump/ticker step: sharp changes update world and paint now.
+          expect(preview.player.dx, closeTo(beforeX + dx, 1e-6));
+          expect(painter().frameValue!(), greaterThan(beforeFrame));
+          expect(
+            t.widget<ArcadeHud>(find.byType(ArcadeHud)).timeMs(),
+            timeBeforeDodge == 0 ? 1 : timeBeforeDodge,
+          );
+        }
+        expect((preview.player - originalPlayer).distance, lessThan(1e-6));
+        await pointer.up();
         await t.pump(const Duration(milliseconds: 32));
         await t.pump(const Duration(milliseconds: 16));
         expect(

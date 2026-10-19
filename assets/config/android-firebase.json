@@ -161,7 +161,15 @@
       "accelerationSteps": 4,
       "speedVariation": 0.05,
       "accelerationVariation": 0.08
+    },
+    "ranking": {
+      "average": {
+        "windowSize": 50,
+        "previousWeightPercent": 92,
+        "minAttempts": 1,
+        "minDurationMs": 0
+      }
     }
   },
-  "revision": "a4f8a49f69ba6d165451917c78b222d0191566a5eddf67ce5e485b067b6880a4"
+  "revision": "b168224d630439a00de83f47f00eca2bf9663ac57473e7d0682be58e5c9fd6aa"
 }

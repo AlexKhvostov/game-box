@@ -794,7 +794,7 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
       const SizedBox(height: 8),
-      const SizedBox(height: 170, child: CustomPaint(painter: _VideoPainter())),
+        const SizedBox(height: 72, child: CustomPaint(painter: _VideoPainter())),
       Center(
         child: EnergyText(
           e.energyConfig.reward('watch_ad'),

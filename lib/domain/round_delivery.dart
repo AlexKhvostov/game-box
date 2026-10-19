@@ -13,8 +13,8 @@ abstract final class RoundDelivery {
     }
     if (rulesError(code)) {
       return ru
-          ? 'Правила обновились. Перезапустите игру.'
-          : 'Rules changed. Please restart the game.';
+          ? 'Настройки этой попытки устарели. Новые настройки загрузятся автоматически перед следующей игрой.'
+          : 'This run used older settings. New settings will load automatically before the next game.';
     }
     if (code == 'insufficient_energy') {
       return ru

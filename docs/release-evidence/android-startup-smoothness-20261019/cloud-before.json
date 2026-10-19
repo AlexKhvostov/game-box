@@ -1,0 +1,17 @@
+{
+  "ok": true,
+  "knownPlay184StartsWithoutRestart": true,
+  "exactlyOneDebit": true,
+  "duplicateFinishOnce": true,
+  "confirmedFirstAttemptMs": 1,
+  "oldThreshold": {
+    "windowSize": 50,
+    "previousWeightPercent": 92,
+    "minAttempts": 20,
+    "minDurationMs": 1000
+  },
+  "previouslyRanked": false,
+  "unknownRevisionRejected": true,
+  "currentSnapshotFromProfile": true,
+  "tag": "startup19-ac12ee39f7e11b478d714854"
+}
