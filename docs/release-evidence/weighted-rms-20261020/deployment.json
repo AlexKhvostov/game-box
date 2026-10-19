@@ -1,0 +1,13 @@
+{
+  "version": 21,
+  "status": "ACTIVE",
+  "algorithm": "weighted_rms_v1",
+  "changedFiles": [
+    "average-config.mjs",
+    "average-ranking.mjs",
+    "average-ranking-cache.mjs"
+  ],
+  "unchangedDependencies": 20,
+  "verifyJwtPreserved": true,
+  "backup": ".private/weighted-rms-20261020/android-api-before.json"
+}

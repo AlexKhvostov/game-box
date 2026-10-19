@@ -1,4 +1,4 @@
-import {averageChartPage,averageChartCard,selectAverageChart,addAverageChartButtons} from './average-chart.js?v=rms-1';
+import {averageChartPage,averageChartCard,selectAverageChart,addAverageChartButtons} from './average-chart.js?v=rms-live-1';
 import {connectRankingKit,openRankingDestination,rankingPage,rankingSheet,rankingMineSheet,rankingDetail,rankingResultPage,handleRankingAction} from "./ranking-kit.js?v=account-stat-navigation-12";
 import {hudHeaderPage,paintHudBonus} from "./hud-header.js?v=1";
 import {HOURS,PACKS,PLANS,initialState,clock,claim,completeVideo,formatTime} from "./model.js";
@@ -99,7 +99,7 @@ function render() {
   document.querySelector(".intro-copy").innerHTML=view==="account"?'Все текущие функции аккаунта — в компактных игровых окнах.<br>Нажимайте на элементы и проверяйте переходы.':view==="hud"?'Баланс, рейтинг и аккаунт — живые компоненты по последнему эскизу.<br>Кольцо плюса повторяет готовность бонуса из окна энергии.':view==="result"?'Подробности выбранной попытки в едином стиле с рейтингом.<br>Проверьте показатели, усиления и пояснения по нажатию.':introDefaults.copy;
   if(view==='average-chart'){
     document.querySelector('.intro h1').innerHTML='Два графика. <span>Сравнение средних.</span>';
-    document.querySelector('.intro-copy').innerHTML='Текущее и квадратичное среднее на одних и тех же 100 попытках.<br>В обоих расчётах — окно 50 и одинаковые веса по давности.';
+    document.querySelector('.intro-copy').innerHTML='Утверждённое квадратичное и прежнее среднее на тех же 100 попытках.<br>В обоих расчётах — окно 50 и одинаковые веса по давности.';
   }
   if(view==="bonus-motion"){
     document.querySelector(".intro h1").innerHTML='Награда. <span>Энергия в движении.</span>';
@@ -118,7 +118,7 @@ function render() {
 }
 function overlayContent() {
   const top=stack.at(-1);if(!top)return"";
-  if(top.id==='average-chart')return averageChartCard({modal:true,calculation:top.purchase?.calculation??'weighted'});
+  if(top.id==='average-chart')return averageChartCard({modal:true,calculation:top.purchase?.calculation??'rms'});
   if(top.id==="ranking")return rankingSheet("modal");
   if(top.id==="ranking-mine")return rankingMineSheet();
   if(top.id==="ranking-detail")return rankingDetail(top.purchase.id,top.purchase.resultOptions);
@@ -186,6 +186,7 @@ async function finishVideoReward(){
   else toast("Награда уже получена");
 }
 async function handle(action,target) {
+  if(action==='average-chart-open-weighted'){selectAverageChart(null);open('average-chart',{calculation:'weighted'});return;}
   if(action==='average-chart-open-rms'){selectAverageChart(null);open('average-chart',{calculation:'rms'});return;}
   if(action==='average-chart-open'){selectAverageChart(null);open('average-chart');return;}
   if(action.startsWith('average-chart-select-')){selectAverageChart(Number(action.slice('average-chart-select-'.length)));const parent=target.closest('.ac-canvas'),scroll=parent?.scrollLeft??0;refresh();document.querySelectorAll('.ac-canvas').forEach(el=>el.scrollLeft=scroll);return;}

@@ -1,0 +1,8 @@
+{
+  "active": 50,
+  "bars": 100,
+  "defaultGraph": "rms",
+  "title": "Среднее квадратичное",
+  "value": "⌁ 10,996 с",
+  "errors": []
+}

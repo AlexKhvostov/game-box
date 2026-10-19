@@ -1,5 +1,6 @@
 // Pure configuration contract shared by server and browser admin (no SDK/SQL).
 export const averageDefaults=Object.freeze({windowSize:50,previousWeightPercent:92,minAttempts:1,minDurationMs:0});
+export const averageAlgorithm='weighted_rms_v1';
 export function averageRules(config){
   const rules={...averageDefaults,...config.ranking?.average};
   const valid=Number.isInteger(rules.windowSize)&&rules.windowSize>=1&&rules.windowSize<=500

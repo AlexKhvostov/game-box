@@ -28,7 +28,7 @@ test('both rankings: top200 only, actual own place1/50/200/201/520, all attempts
   assert.equal(average.rows.length,200);assert.equal(average.mine.place,ownPlace);
   assert.equal(average.mine.totalAttempts,21);assert.equal(average.mine.eligibleCount,21);
   assert.equal(average.mine.usedCount,21);
-  assert.ok(Math.abs(average.mine.averageMs-((200000-ownPlace)*(1-.92**20)+500*.08*.92**20)/(1-.92**21))<1e-6);
+  assert.ok(Math.abs(average.mine.averageMs-Math.sqrt(((200000-ownPlace)**2*(1-.92**20)+500**2*.08*.92**20)/(1-.92**21)))<1e-6);
   assert.equal(average.mine.userId,'supabase:'+uid(ownPlace));
   assert.ok(average.rows.every(r=>r.totalAttempts===21));
  }

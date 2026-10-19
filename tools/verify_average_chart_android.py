@@ -3,13 +3,16 @@ import argparse,json,re,subprocess,time,urllib.request
 from pathlib import Path
 
 parser=argparse.ArgumentParser();parser.add_argument('apk',type=Path)
+parser.add_argument('--out',type=Path,default=Path('docs/release-evidence/weighted-rms-20261020'))
+parser.add_argument('--version-code',type=int,default=198)
+parser.add_argument('--expected-average-ms',type=float,default=10995.868454706817)
 args=parser.parse_args()
 adb='C:/Users/alexe/AppData/Local/Android/Sdk/platform-tools/adb.exe'
 devices=subprocess.check_output([adb,'devices'],text=True)
 found=re.findall(r'^(\S+)\s+device$',devices,re.M)
 assert len(found)==1,'Expected exactly one authorized physical Android device'
 serial=found[0];pkg='com.best4u.untouch.uiprobe.averagechart';main='com.best4u.untouch'
-out=Path('docs/release-evidence/average-chart-20261019');out.mkdir(parents=True,exist_ok=True)
+out=args.out;out.mkdir(parents=True,exist_ok=True)
 def run(*parts):return subprocess.check_output([adb,'-s',serial,*parts],text=True,encoding='utf-8',errors='replace').strip()
 def get(path='/state'):
     with urllib.request.urlopen('http://127.0.0.1:8897'+path,timeout=10) as response:return json.load(response)
@@ -22,8 +25,8 @@ def main_version():return re.search(r'versionCode=(\d+)',run('shell','dumpsys','
 assert f'package:{pkg}' not in run('shell','pm','list','packages','--user','0'),'Do not replace an existing user0 probe'
 aapt=sorted(Path('C:/Users/alexe/AppData/Local/Android/Sdk/build-tools').glob('*/aapt.exe'))[-1]
 badging=subprocess.check_output([str(aapt),'dump','badging',str(args.apk)],text=True,encoding='utf-8',errors='replace')
-assert f"name='{pkg}'" in badging and "versionCode='197'" in badging
-assert "application-label:'QA197 Untouch'" in badging
+assert f"name='{pkg}'" in badging and f"versionCode='{args.version_code}'" in badging
+assert f"application-label:'QA{args.version_code} Untouch'" in badging
 size=run('shell','wm','size');override=re.search(r'Override size: (\d+x\d+)',size)
 old_font=run('shell','settings','get','system','font_scale')
 old_usb=run('shell','settings','get','global','stay_on_while_plugged_in')
@@ -42,7 +45,7 @@ try:
     s=get('/show?screen=ranking');tap(s,'average-chart-open');s=get()
     assert 'average-chart-dialog' in s['rectangles'] and not s['errors']
     assert s['points']==100 and s['currentWindow']==50 and s['activeBars']==50
-    assert abs(s['averageMs']-9263.854161690324)<1e-8
+    assert abs(s['averageMs']-args.expected_average_ms)<1e-7
     shot('phone-normal');tap(s,'average-chart-close');s=get()
     assert 'average-chart-dialog' not in s['rectangles'] and 'average-chart-open' in s['rectangles']
     results.append({'case':'actual-ranking-open-close','ok':True,'points':100,'activeBars':50,'averageMs':s['averageMs']})

@@ -1,4 +1,4 @@
-import {averageRules} from './average-config.mjs';
+import {averageRules,averageAlgorithm} from './average-config.mjs';
 import {cachedAverageRanking} from './average-ranking-cache.mjs';
 
 export async function averageRanking(args){
@@ -41,7 +41,7 @@ export async function uncachedAverageRanking({db,config,uid,stamp}){
       where p.parent='players' and coalesce((p.body->>'supportDisabled')::boolean,false)=false
     ), aggregates as (
       select uid,max(nickname) as nickname,
-        sum(time_ms*power($2::numeric,age-1))/sum(power($2::numeric,age-1)) as average_ms,
+        sqrt(sum(time_ms*time_ms*power($2::numeric,age-1))/sum(power($2::numeric,age-1))) as average_ms,
         count(*)::integer as used_count,max(eligible_count)::integer as eligible_count,max(played_at) as last_at
       from ordered where age <= $3 group by uid
     ), ranked as (
@@ -60,6 +60,6 @@ export async function uncachedAverageRanking({db,config,uid,stamp}){
         where p.parent='players' and p.key=$5 and coalesce((p.body->>'supportDisabled')::boolean,false)=false) as mine`,
       [rules.minDurationMs,rules.previousWeightPercent/100,rules.windowSize,rules.minAttempts,uid]);
   const value=result.rows[0];
-  return {ok:true,source:'supabase',rules,rows:value.rows,
+  return {ok:true,source:'supabase',rules:{...rules,algorithm:averageAlgorithm},rows:value.rows,
     mine:value.mine??{averageMs:null,usedCount:0,eligibleCount:0,totalAttempts:0,place:null},serverNow:stamp};
 }

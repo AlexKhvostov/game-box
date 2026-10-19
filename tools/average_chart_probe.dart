@@ -49,7 +49,10 @@ class ChartProbeStore extends ScoresStore {
           shared: true,
         ),
     ];
-    final rules = AverageRanking(minDurationMs: mode == 'threshold' ? 1000 : 0);
+    final rules = AverageRanking(
+      algorithm: AverageRanking.quadraticAlgorithm,
+      minDurationMs: mode == 'threshold' ? 1000 : 0,
+    );
     final data = AverageChartData.fromAttempts(
       attempts: history,
       ranking: rules,
@@ -65,6 +68,7 @@ class ChartProbeStore extends ScoresStore {
       place: 1,
     );
     averageRanking = AverageRanking(
+      algorithm: rules.algorithm,
       minDurationMs: rules.minDurationMs,
       mine: own,
       rows: [own],
@@ -173,13 +177,10 @@ Future<void> main() async {
         );
         await Future<void>.delayed(const Duration(milliseconds: 150));
         final chartContext = navigator.currentState?.overlay?.context;
-        if (request.uri.queryParameters['screen'] == 'chart' && chartContext != null && chartContext.mounted) {
-          unawaited(
-            showAverageChartDialog(
-              chartContext,
-              store,
-            ),
-          );
+        if (request.uri.queryParameters['screen'] == 'chart' &&
+            chartContext != null &&
+            chartContext.mounted) {
+          unawaited(showAverageChartDialog(chartContext, store));
         }
         await Future<void>.delayed(const Duration(milliseconds: 250));
       }

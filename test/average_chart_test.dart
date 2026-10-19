@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:game_box/domain/average_chart.dart';
 import 'package:game_box/domain/average_ranking.dart';
@@ -13,6 +15,67 @@ LocalAttempt attempt(int i, int ms, {bool shared = true, String? error}) =>
     );
 
 void main() {
+  test(
+    'RMS matches independent weights for all 100 historical points and JSON keeps the formula',
+    () {
+      final values = List.generate(
+        100,
+        (i) => i % 13 == 3
+            ? 200 + (i % 8) * 100
+            : 1000 + ((i * 7307 + 1931) % 19001),
+      );
+      final ranking = AverageRanking.fromJson(
+        const AverageRanking(
+          algorithm: AverageRanking.quadraticAlgorithm,
+        ).toJson(),
+      );
+      expect(ranking.isQuadratic, isTrue);
+      final data = AverageChartData.fromAttempts(
+        attempts: [
+          for (var i = 0; i < values.length; i++) attempt(i, values[i]),
+        ],
+        ranking: ranking,
+      );
+      for (var i = 0; i < values.length; i++) {
+        final used = values.take(i + 1).toList().reversed.take(50).toList();
+        var squares = 0.0, weights = 0.0;
+        for (var j = 0; j < used.length; j++) {
+          final w = math.pow(.92, j).toDouble();
+          squares += used[j] * used[j] * w;
+          weights += w;
+        }
+        expect(
+          data.points[i].averageMs,
+          closeTo(math.sqrt(squares / weights), 1e-7),
+        );
+      }
+      expect(data.averageMs, closeTo(10995.868454706817, 1e-7));
+      expect(data.currentWindowCount, 50);
+    },
+  );
+  test(
+    'RMS short attempts count, improvements help, and a 100 percent weight is unweighted RMS',
+    () {
+      AverageChartData project(List<int> values) =>
+          AverageChartData.fromAttempts(
+            attempts: [
+              for (var i = 0; i < values.length; i++) attempt(i, values[i]),
+            ],
+            ranking: const AverageRanking(
+              algorithm: AverageRanking.quadraticAlgorithm,
+              previousWeightPercent: 100,
+            ),
+          );
+      final initial = project([15000, 3000]);
+      expect(initial.averageMs, closeTo(math.sqrt(117) * 1000, 1e-7));
+      expect(
+        project([15000, 3000, 500]).averageMs,
+        lessThan(initial.averageMs!),
+      );
+      expect(project([15000, 1000]).averageMs, lessThan(initial.averageMs!));
+      expect(project([3000, 3000]).averageMs, 3000);
+    },
+  );
   test(
     '100 visible attempts retain history while only last 50 qualify for current mean',
     () {

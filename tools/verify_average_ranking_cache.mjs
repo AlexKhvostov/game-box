@@ -45,7 +45,7 @@ try{
   const security=(await connection.query("select has_table_privilege('anon','untouch.average_rank_cache','select') as anon,has_table_privilege('authenticated','untouch.average_rank_cache','update') as authenticated")).rows[0];
   assert.deepEqual(security,{anon:false,authenticated:false});
   await connection.query('commit');
-  console.log(JSON.stringify({ok:true,live,documents:before.documents,playersInTop:warm.rows.length,cacheRows:cacheBefore.length,coldRecomputed,warmRecomputed:0,warmMs,planExecutionMs:plan['Execution Time'],scoreScans,identicalToOriginal:true,documentsUnchanged:true,cacheUnchangedOnRepeat:true,browserCacheAccess:false}));
+  console.log(JSON.stringify({ok:true,live,algorithm:warm.rules.algorithm,documents:before.documents,playersInTop:warm.rows.length,cacheRows:cacheBefore.length,coldRecomputed,warmRecomputed:0,warmMs,planExecutionMs:plan['Execution Time'],scoreScans,identicalToUncached:true,documentsUnchanged:true,cacheUnchangedOnRepeat:true,browserCacheAccess:false}));
 }catch(error){
   await connection?.query('rollback').catch(()=>{});
   console.error(JSON.stringify({ok:false,live,error:error.code??error.message,...(!live?{detail:error.message.slice(0,350)}:{})}));process.exitCode=1;

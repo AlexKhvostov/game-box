@@ -1,0 +1,1 @@
+{"ok":true,"live":true,"algorithm":"weighted_rms_v1","documents":1306,"playersInTop":12,"cacheRows":29,"coldRecomputed":0,"warmRecomputed":0,"warmMs":207.91840000000047,"planExecutionMs":0.706,"scoreScans":[{"node":"Index Scan","loops":0,"rows":0}],"identicalToUncached":true,"documentsUnchanged":true,"cacheUnchangedOnRepeat":true,"browserCacheAccess":false}

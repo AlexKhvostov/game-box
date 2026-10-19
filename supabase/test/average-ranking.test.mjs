@@ -22,7 +22,7 @@ test('legacy configured strict 1 second boundary and 19/20 admission; no fake se
  await player('boundary');await seed('boundary',[...Array(19).fill(5000),1,999,1000]);
  let b=await board('boundary');assert.equal(b.rules.minAttempts,20);assert.equal(b.mine.eligibleCount,19);assert.equal(b.mine.place,null);near(b.mine.averageMs,5000);assert.equal(b.rows.length,0);
  await seed('boundary',[1001]);b=await board('boundary');assert.equal(b.mine.eligibleCount,20);assert.equal(b.mine.usedCount,20);assert.equal(b.mine.place,1);
- near(b.mine.averageMs,5000+(1001-5000)*.08/(1-.92**20));
+ near(b.mine.averageMs,Math.sqrt(5000**2+(1001**2-5000**2)*.08/(1-.92**20)));
  await player('empty');b=await board('empty');assert.equal(b.mine.averageMs,null);assert.equal(b.mine.eligibleCount,0);
 });
 test('new defaults rank the first confirmed attempt, including one millisecond',async()=>{
@@ -31,11 +31,12 @@ test('new defaults rank the first confirmed attempt, including one millisecond',
  const b=await averageRanking({db,config:{},uid:'first_short',stamp});
  assert.equal(b.mine.totalAttempts,1);assert.equal(b.mine.eligibleCount,1);assert.ok(b.mine.place>0);near(b.mine.averageMs,1);
  await seed('first_short',[999]);const next=await averageRanking({db,config:{},uid:'first_short',stamp});
- near(next.mine.averageMs,(999+1*.92)/1.92);assert.equal(next.mine.eligibleCount,2);
+ near(next.mine.averageMs,Math.sqrt((999**2+1*.92)/1.92));assert.equal(next.mine.eligibleCount,2);
+ assert.equal(next.rules.algorithm,'weighted_rms_v1');
 });
 test('filter before last50; exponential normalization; one record; hidden/deleted/platform isolation',async()=>{
  await player('window');await seed('window',Array(50).fill(5000));await seed('window',Array(100).fill(1000));await seed('window',[15000]);
- let b=await board('window');assert.equal(b.mine.eligibleCount,51);assert.equal(b.mine.usedCount,50);near(b.mine.averageMs,5000+10000*.08/(1-.92**50));
+ let b=await board('window');assert.equal(b.mine.eligibleCount,51);assert.equal(b.mine.usedCount,50);near(b.mine.averageMs,Math.sqrt(5000**2+(15000**2-5000**2)*.08/(1-.92**50)));
  await seed('window',Array(50).fill(5000));b=await board('window');near(b.mine.averageMs,5000);
  await seed('window',[999999],{platform:'telegram'});b=await board('window');near(b.mine.averageMs,5000);
  await player('hidden');await seed('hidden',Array(20).fill(20000));await db.collection('players').doc('hidden').update({supportDisabled:true});
@@ -46,7 +47,7 @@ test('all four RC fields affect existing history immediately without waiting for
  await player('rc');await seed('rc',[...Array(50).fill(5000),...Array(10).fill(8000),1001]);
  const before=await board('rc');const config=applyChanges(policy,patches);policy={ok:true,config,revision:hash(config)};
  const after=await board('rc');assert.equal(after.mine.eligibleCount,before.mine.eligibleCount-1);assert.equal(after.mine.usedCount,30);assert.equal(after.rules.minAttempts,10);
- near(after.mine.averageMs,5000+3000*(1-.85**10)/(1-.85**30));
+ near(after.mine.averageMs,Math.sqrt(5000**2+(8000**2-5000**2)*(1-.85**10)/(1-.85**30)));
  for(const p of patches){assert.equal(fields.find(f=>f.path===p.path).hidden,false);assert.equal(getValue(config,p.path),p.value);}
  assert.throws(()=>averageRules({ranking:{average:{windowSize:0}}}));
  for(const [key,value]of [['windowSize',501],['previousWeightPercent',0],['minAttempts',0],['minDurationMs',60001]])assert.throws(()=>applyChanges(policy,[{path:`ranking.average.${key}`,value}]),e=>e.code==='config_invalid');
@@ -60,12 +61,12 @@ test('actual accepted rounds: duplicate finish once; reverse delivery sorted by 
  for(let i=0;i<2;i++){const requestId=hash(`delivery:${i}`);const r=await call({action:'round_start',requestId,rulesRevision:p.revision});await call({action:'round_activate',requestId});starts.push(r.roundId);stamp+=10000;}
  const finish=(id,timeMs)=>({action:'round_finish',roundId:id,timeMs,runDistance:0,riskCount:0,hadJump:false,hadHelmet:false});
  await call(finish(starts[1],8000));await call(finish(starts[0],2000));await call(finish(starts[0],2000));
- const b=await call({action:'scores',period:'allPeriods'});assert.equal(b.average.mine.eligibleCount,2);near(b.average.mine.averageMs,(8000+2000*.92)/1.92);
+ const b=await call({action:'scores',period:'allPeriods'});assert.equal(b.average.mine.eligibleCount,2);near(b.average.mine.averageMs,Math.sqrt((8000**2+2000**2*.92)/1.92));
  assert.equal((await db.collection('players').doc('delivery').get()).data().completedGames,2);
 });
-test('ties deterministic, minimum independent of window,100% means ordinary mean',async()=>{
+test('ties deterministic, minimum independent of window,100% means ordinary RMS',async()=>{
  const config={ranking:{average:{windowSize:2,previousWeightPercent:100,minAttempts:3,minDurationMs:1000}}};
  await player('tie_a');await player('tie_b');await seed('tie_a',[9999,4000,6000]);await seed('tie_b',[11111,6000,4000]);
- const b=await averageRanking({db,config,uid:'tie_a',stamp});near(b.mine.averageMs,5000);assert.equal(b.mine.usedCount,2);assert.equal(b.mine.eligibleCount,3);
+ const b=await averageRanking({db,config,uid:'tie_a',stamp});near(b.mine.averageMs,Math.sqrt(26000000));assert.equal(b.mine.usedCount,2);assert.equal(b.mine.eligibleCount,3);
  assert.ok(b.rows.find(r=>r.userId==='supabase:tie_a').place<b.rows.find(r=>r.userId==='supabase:tie_b').place);
 });

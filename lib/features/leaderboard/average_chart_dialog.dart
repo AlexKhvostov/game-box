@@ -171,8 +171,8 @@ class AverageChartDialog extends StatelessWidget {
                         const SizedBox(height: 10),
                         Text(
                           ru
-                              ? 'Линия — среднее после каждой попытки. ${board!.minDurationMs == 0 ? "Короткие попытки тоже учитываются" : "Учитываются попытки дольше ${_seconds(board.minDurationMs.toDouble(), ru)} с"}'
-                              : 'Line: average after each attempt. ${board!.minDurationMs == 0 ? "Short attempts also count" : "Only attempts longer than ${_seconds(board.minDurationMs.toDouble(), ru)} s count"}',
+                              ? 'Линия — ${board!.isQuadratic ? "среднее квадратичное" : "среднее"} после каждой попытки, с весами по давности. ${board.minDurationMs == 0 ? "Короткие попытки тоже учитываются" : "Учитываются попытки дольше ${_seconds(board.minDurationMs.toDouble(), ru)} с"}'
+                              : 'Line: ${board!.isQuadratic ? "weighted root mean square" : "weighted average"} after each attempt. ${board.minDurationMs == 0 ? "Short attempts also count" : "Only attempts longer than ${_seconds(board.minDurationMs.toDouble(), ru)} s count"}',
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             color: GameUi.muted,

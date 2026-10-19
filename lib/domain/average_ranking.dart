@@ -1,6 +1,9 @@
 /// Server-confirmed weighted average. Never sent as a client-authored score.
 class AverageRanking {
+  static const legacyAlgorithm = 'weighted_arithmetic_v1';
+  static const quadraticAlgorithm = 'weighted_rms_v1';
   const AverageRanking({
+    this.algorithm = legacyAlgorithm,
     this.windowSize = 50,
     this.previousWeightPercent = 92,
     this.minAttempts = 1,
@@ -9,6 +12,8 @@ class AverageRanking {
     this.mine = const AverageRankEntry(),
   });
   final int windowSize, minAttempts, minDurationMs;
+  final String algorithm;
+  bool get isQuadratic => algorithm == quadraticAlgorithm;
   final double previousWeightPercent;
   final List<AverageRankEntry> rows;
   final AverageRankEntry mine;
@@ -16,6 +21,7 @@ class AverageRanking {
   factory AverageRanking.fromJson(Map<String, dynamic> json) {
     final rules = json['rules'] as Map;
     return AverageRanking(
+      algorithm: rules['algorithm'] as String? ?? legacyAlgorithm,
       windowSize: (rules['windowSize'] as num).toInt(),
       previousWeightPercent: (rules['previousWeightPercent'] as num).toDouble(),
       minAttempts: (rules['minAttempts'] as num).toInt(),
@@ -34,6 +40,7 @@ class AverageRanking {
 
   Map<String, dynamic> toJson() => {
     'rules': {
+      'algorithm': algorithm,
       'windowSize': windowSize,
       'previousWeightPercent': previousWeightPercent,
       'minAttempts': minAttempts,

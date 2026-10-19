@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -18,6 +19,7 @@ import 'mobile_account_test.dart' show MemoryVault;
 const owner = 'supabase:12345678-1234-4234-8234-123456789abc';
 Map<String, dynamic> payload() => {
   'rules': {
+    'algorithm': AverageRanking.quadraticAlgorithm,
     'windowSize': 50,
     'previousWeightPercent': 92,
     'minAttempts': 20,
@@ -79,12 +81,24 @@ class AverageFixture extends ScoresStore {
 
 class CachedBoardAccount extends AverageAccount {
   @override
-  Future<Map<String,dynamic>> request(Map<String,dynamic> body,{bool guest=false}) async {
-    final result=await super.request(body,guest:guest);
-    result['periods']={for(final period in ['all','day','week','month','year'])period:[{
-      'id':'own-$period','userId':owner,'playerName':'Проверенный игрок',
-      'timeMs':3001,'createdAt':1,'place':520,
-    }]};
+  Future<Map<String, dynamic>> request(
+    Map<String, dynamic> body, {
+    bool guest = false,
+  }) async {
+    final result = await super.request(body, guest: guest);
+    result['periods'] = {
+      for (final period in ['all', 'day', 'week', 'month', 'year'])
+        period: [
+          {
+            'id': 'own-$period',
+            'userId': owner,
+            'playerName': 'Проверенный игрок',
+            'timeMs': 3001,
+            'createdAt': 1,
+            'place': 520,
+          },
+        ],
+    };
     return result;
   }
 }
@@ -120,22 +134,62 @@ void main() {
     await loader.load();
   });
   setUp(() => SharedPreferences.setMockInitialValues({}));
-  test('record periods retain actual own rank offline, including late owner restore, never another owner',()async {
-    final firstAccount=CachedBoardAccount(),first=ScoresStore(account:CachedBoardAccount());
-    await first.load();
-    expect(first.scoresForNamedPeriod('day').single.place,520);
-    final account=CachedBoardAccount()..id=null;
-    final restored=ScoresStore(account:account);
-    await restored.loadLocal();
-    expect(restored.scoresForNamedPeriod('day'),isEmpty);
-    account.id=owner;account.notifyListeners();
-    expect(restored.scoresForNamedPeriod('day').single.place,520);
-    expect(restored.averageRanking!.mine.totalAttempts,112);
-    account.id='supabase:22345678-1234-4234-8234-123456789abc';account.notifyListeners();
-    expect(restored.scoresForNamedPeriod('day'),isEmpty);
-    expect(restored.scores,isEmpty);expect(restored.averageRanking,null);
-    first.dispose();first.account!.dispose();firstAccount.dispose();restored.dispose();account.dispose();
-  });
+  test(
+    'tagged RMS persists; ambiguous pre-formula cache is not reused after upgrade',
+    () async {
+      final old = payload();
+      (old['rules'] as Map).remove('algorithm');
+      final legacy = AverageRanking.fromJson(old);
+      expect(legacy.isQuadratic, isFalse);
+      SharedPreferences.setMockInitialValues({
+        'average_ranking_v1_$owner': jsonEncode(old),
+      });
+      final account = AverageAccount(),
+          store = ScoresStore(account: AverageAccount());
+      await store.loadLocal();
+      expect(store.averageRanking, isNull);
+      await store.load();
+      expect(store.averageRanking!.isQuadratic, isTrue);
+      final restored = ScoresStore(account: account);
+      await restored.loadLocal();
+      expect(restored.averageRanking!.isQuadratic, isTrue);
+      expect(
+        AverageRanking.fromJson(restored.averageRanking!.toJson()).isQuadratic,
+        isTrue,
+      );
+      store.dispose();
+      store.account!.dispose();
+      restored.dispose();
+      account.dispose();
+    },
+  );
+  test(
+    'record periods retain actual own rank offline, including late owner restore, never another owner',
+    () async {
+      final firstAccount = CachedBoardAccount(),
+          first = ScoresStore(account: CachedBoardAccount());
+      await first.load();
+      expect(first.scoresForNamedPeriod('day').single.place, 520);
+      final account = CachedBoardAccount()..id = null;
+      final restored = ScoresStore(account: account);
+      await restored.loadLocal();
+      expect(restored.scoresForNamedPeriod('day'), isEmpty);
+      account.id = owner;
+      account.notifyListeners();
+      expect(restored.scoresForNamedPeriod('day').single.place, 520);
+      expect(restored.averageRanking!.mine.totalAttempts, 112);
+      account.id = 'supabase:22345678-1234-4234-8234-123456789abc';
+      account.notifyListeners();
+      expect(restored.scoresForNamedPeriod('day'), isEmpty);
+      expect(restored.scores, isEmpty);
+      expect(restored.averageRanking, null);
+      first.dispose();
+      first.account!.dispose();
+      firstAccount.dispose();
+      restored.dispose();
+      account.dispose();
+    },
+  );
   test(
     'server average stays precise, caches confirmed data for offline restart, clears on owner switch',
     () async {

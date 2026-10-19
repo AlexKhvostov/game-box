@@ -23,17 +23,24 @@ class AverageRankingPanel extends StatelessWidget {
         : (board.minDurationMs / 1000)
               .toStringAsFixed(3)
               .replaceFirst(RegExp(r'\.?0+$'), '');
-    final explanation = ru
-        ? '${board == null
-              ? "Среднее время последних попыток."
-              : board.minDurationMs == 0
-              ? "Среднее время последних ${board.windowSize} попыток, включая короткие. В рейтинге — с первой попытки."
-              : "Среднее время последних ${board.windowSize} попыток дольше $threshold с."} Свежие результаты влияют сильнее, поэтому показатель отражает текущий уровень игры. Чем выше среднее, тем выше место.'
-        : '${board == null
-              ? "Average time of your latest attempts."
-              : board.minDurationMs == 0
-              ? "Average time of your last ${board.windowSize} attempts, including short runs. Ranked from your first attempt."
-              : "Average time of your last ${board.windowSize} attempts longer than $threshold s."} Recent results matter more, so this reflects your current skill. A higher average means a higher rank.';
+    final formulaExplanation = board?.isQuadratic == true
+        ? (ru
+              ? 'Используется среднее квадратичное: сильные попытки влияют заметнее. '
+              : 'Uses a weighted root mean square: stronger attempts matter more. ')
+        : '';
+    final explanation =
+        formulaExplanation +
+        (ru
+            ? '${board == null
+                  ? "Среднее время последних попыток."
+                  : board.minDurationMs == 0
+                  ? "Среднее время последних ${board.windowSize} попыток, включая короткие. В рейтинге — с первой попытки."
+                  : "Среднее время последних ${board.windowSize} попыток дольше $threshold с."} Свежие результаты влияют сильнее, поэтому показатель отражает текущий уровень игры. Чем выше среднее, тем выше место.'
+            : '${board == null
+                  ? "Average time of your latest attempts."
+                  : board.minDurationMs == 0
+                  ? "Average time of your last ${board.windowSize} attempts, including short runs. Ranked from your first attempt."
+                  : "Average time of your last ${board.windowSize} attempts longer than $threshold s."} Recent results matter more, so this reflects your current skill. A higher average means a higher rank.');
     final rows =
         board?.rows.where((r) => (r.place ?? 201) <= 200).take(200).toList() ??
         <AverageRankEntry>[];

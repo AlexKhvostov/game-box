@@ -1,7 +1,8 @@
 // Cache only the per-player aggregate. Rank, profile visibility and names are
 // always current. All reads/calculations/write-back share one SQL snapshot.
+import {averageAlgorithm} from './average-config.mjs';
 export async function cachedAverageRanking({db,rules,uid,stamp}){
-  const key=`weighted-v1:${rules.windowSize}:${rules.previousWeightPercent}:${rules.minDurationMs}:${rules.minAttempts}`;
+  const key=`${averageAlgorithm}:${rules.windowSize}:${rules.previousWeightPercent}:${rules.minDurationMs}:${rules.minAttempts}`;
   const result=await db.pool.query(`
     with owners as materialized (
       select p.key as uid,p.path as owner_path,p.body,
@@ -20,7 +21,7 @@ export async function cachedAverageRanking({db,rules,uid,stamp}){
         (coalesce(t.attempts,0)-untouch.attempt_count_through(p.uid,$1::integer))::integer as eligible_count
       from missing p left join untouch.attempt_counts t on t.uid=p.uid and t.node=65536
       cross join lateral (
-        select sum(time_ms*power($2::numeric,age-1))/sum(power($2::numeric,age-1)) as average_ms,
+        select sqrt(sum(time_ms*time_ms*power($2::numeric,age-1))/sum(power($2::numeric,age-1))) as average_ms,
           count(*)::integer as used_count,max(played_at) as last_at
         from (
           select (recent.body->>'timeMs')::numeric as time_ms,
@@ -65,6 +66,6 @@ export async function cachedAverageRanking({db,rules,uid,stamp}){
       (select count(*)::integer from saved) as cache_recomputed`,
     [rules.minDurationMs,rules.previousWeightPercent/100,rules.windowSize,rules.minAttempts,uid,key]);
   const value=result.rows[0];
-  return {ok:true,source:'supabase',rules,rows:value.rows,
+  return {ok:true,source:'supabase',rules:{...rules,algorithm:averageAlgorithm},rows:value.rows,
     mine:value.mine??{averageMs:null,usedCount:0,eligibleCount:0,totalAttempts:0,place:null},serverNow:stamp};
 }

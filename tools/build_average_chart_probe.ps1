@@ -1,4 +1,4 @@
-param([string]$FlutterRoot='C:/Users/alexe/develop/flutter')
+param([string]$FlutterRoot='C:/Users/alexe/develop/flutter',[int]$QaVersion=198,[string]$BuildName='1.0.187')
 $ErrorActionPreference='Stop'
 $chartProject=Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
 $chartProbe=Join-Path $chartProject ('tmp/average-chart-probe-'+(Get-Date).ToUniversalTime().ToString('yyyyMMdd_HHmmss_fff'))
@@ -26,7 +26,7 @@ try {
   $env:UNTOUCH_UI_PROBE='true';$env:UNTOUCH_SIGNING_PROPERTIES=$null
   & $chartDart $chartFlutter pub get --offline
   if($LASTEXITCODE -ne 0){throw 'Probe dependencies failed'}
-  & $chartDart $chartFlutter build apk --release --no-pub --target=tools/average_chart_probe.dart --build-number=197 --build-name=1.0.186 --dart-define=APP_TARGET=mobile
+  & $chartDart $chartFlutter build apk --release --no-pub --target=tools/average_chart_probe.dart --build-number=$QaVersion --build-name=$BuildName --dart-define=APP_TARGET=mobile
   if($LASTEXITCODE -ne 0){throw 'Probe build failed'}
   Write-Output ('PROBE_APK='+ (Join-Path $chartProbe 'build/app/outputs/flutter-apk/app-release.apk'))
 } finally {

@@ -18,7 +18,7 @@ async function compare(uid,cfg=config){
 }
 const cache=()=>local.pool.query('select uid,rules_key,score_revision::text,updated_at::text from untouch.average_rank_cache order by uid').then(r=>r.rows);
 
-test('cold and warm boards equal the old calculation; second read does not update cache',async()=>{
+test('cold and warm boards equal uncached RMS; second read does not update cache',async()=>{
   await player('a');await player('b');await player('empty');
   await seed('a',Array.from({length:100},(_,i)=>i%9===0?500:1000+i*139));await seed('b',[15000,3000]);
   const first=await compare('a');assert.equal(first.mine.usedCount,50);assert.equal(recomputed,3);
@@ -100,4 +100,18 @@ test('accepted round refreshes the cached board once; duplicate finish preserves
   assert.equal(board.average.mine.averageMs,5000);assert.equal(board.average.mine.totalAttempts,1);assert.equal(recomputed,1);
   const duplicate=await call(command);assert.equal(duplicate.profile.wallet.energy,first.profile.wallet.energy);
   const repeated=await call({action:'scores',period:'average'});assert.equal(recomputed,0);assert.equal(repeated.mine.totalAttempts,1);
+});
+test('approved 100-attempt fixture matches independent RMS and ignores old arithmetic cache',async()=>{
+  const values=Array.from({length:100},(_,i)=>i%13===3?200+(i%8)*100:1000+((i*7307+1931)%19001));
+  await player('rms-fixture');await seed('rms-fixture',values);
+  const used=values.slice(-50).reverse();let squares=0,total=0;
+  used.forEach((t,i)=>{const w=.92**i;squares+=t*t*w;total+=w;});
+  let b=await compare('rms-fixture');
+  assert.equal(b.rules.algorithm,'weighted_rms_v1');
+  assert.ok(Math.abs(b.mine.averageMs-Math.sqrt(squares/total))<1e-7);
+  assert.ok(Math.abs(b.mine.averageMs-10995.868454706817)<1e-7);
+  await local.pool.query("update untouch.average_rank_cache set rules_key='weighted-v1:50:92:0:1',average_ms=9263.854161690324 where uid='rms-fixture'");
+  b=await compare('rms-fixture');assert.equal(recomputed,1);
+  assert.ok(Math.abs(b.mine.averageMs-10995.868454706817)<1e-7);
+  await compare('rms-fixture');assert.equal(recomputed,0);
 });

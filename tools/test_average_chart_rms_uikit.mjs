@@ -38,7 +38,7 @@ for(const options of [{},{windowSize:3,previousWeightPercent:75,minDurationMs:10
 const improved=averageChartDemo.map((t,i)=>i===80?t+1000:t);
 assert.ok(averageChartSeries(improved).at(-1).rms>rows.at(-1).rms);
 selectAverageChart(79);
-const oldCard=averageChartCard(),newCard=averageChartCard({calculation:'rms'});
+const oldCard=averageChartCard({calculation:'weighted'}),newCard=averageChartCard();
 for(const html of [oldCard,newCard]){
   assert.equal((html.match(/data-duration-ms=/g)||[]).length,100);
   assert.ok(html.includes('Попытка 80: <b>10,154 с</b>'));

@@ -105,7 +105,9 @@ class ScoresStore extends ChangeNotifier {
       account?.storagePrefix.startsWith('supabase_android_') ?? false;
   AverageRanking? averageRanking;
   String get _averageCacheKey =>
-      '${storagePrefix}average_ranking_v1_${_attemptOwner ?? 'pending'}';
+      // Old clients discarded the formula marker when persisting their reply.
+      // Start a tagged cache so a stale RMS number cannot be plotted as linear.
+      '${storagePrefix}average_ranking_v2_${_attemptOwner ?? 'pending'}';
   String get _recordCacheKey =>
       '${storagePrefix}record_ranking_v1_${_attemptOwner ?? 'pending'}';
   void _loadAverageCache() {

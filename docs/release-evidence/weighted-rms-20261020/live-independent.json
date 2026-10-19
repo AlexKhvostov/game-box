@@ -1,0 +1,1 @@
+{"ok":true,"algorithm":"weighted_rms_v1","rules":{"windowSize":50,"previousWeightPercent":92,"minAttempts":1,"minDurationMs":0},"profiles":29,"scores":548,"ranked":12,"verifiedRows":12,"coldRecomputed":29,"warmRecomputed":0,"rankChanges":4,"maxIncreaseMs":1678.2105274181622,"activeCacheKeysRms":true,"documentsUnchanged":true,"independentOracle":true}

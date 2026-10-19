@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'average_ranking.dart';
 import 'score_entry.dart';
 
@@ -77,7 +79,8 @@ class AverageChartData {
       // newest=1, previous=.92, previous=.92², over the latest N eligible.
       var sum = 0.0, weights = 0.0, factor = 1.0;
       for (var i = eligible.length - 1; i >= 0; i--) {
-        sum += eligible[i] * factor;
+        final value = eligible[i].toDouble();
+        sum += (ranking.isQuadratic ? value * value : value) * factor;
         weights += factor;
         factor *= weight;
       }
@@ -85,7 +88,9 @@ class AverageChartData {
         AverageChartPoint(
           attempt: attempt,
           included: included,
-          averageMs: weights > 0 ? sum / weights : null,
+          averageMs: weights > 0
+              ? (ranking.isQuadratic ? math.sqrt(sum / weights) : sum / weights)
+              : null,
           windowCount: eligible.length,
         ),
       );

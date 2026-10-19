@@ -20,8 +20,9 @@ class ChartStore extends ScoresStore {
   ChartStore() {
     online = true;
     averageRanking = const AverageRanking(
+      algorithm: AverageRanking.quadraticAlgorithm,
       mine: AverageRankEntry(
-        averageMs: 9263.854161690324,
+        averageMs: 10995.868454706817,
         totalAttempts: 100,
         usedCount: 50,
         eligibleCount: 100,

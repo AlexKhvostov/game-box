@@ -1,0 +1,30 @@
+00:00 +0: loading D:/_P_R_O_J_E_C_T/game/square/Untouch/test/shared_scores_test.dart
+00:00 +0: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/shared_scores_test.dart: Android loads platform-neutral server periods and sorts by time
+00:00 +1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/shared_scores_test.dart: lost finish is queued across restart and marked published only after acknowledgement
+00:00 +2: loading D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart
+00:01 +2: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: obsolete unaccepted protocol row is retained diagnostically without blocking updated client
+00:01 +3: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: active or completed pending run blocks identity switch until confirmed
+00:01 +4: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: real cached wallet and two process restarts never subtract queued costs twice
+00:01 +5: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: ScoresStore keeps every offline attempt visible and marks both shared after restart
+00:01 +6: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: known Supabase owner restores offline from secure credentials without HTTP
+00:01 +7: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: prepared preview ID is used once without charging invalid or duplicate IDs
+00:01 +8: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: last offline attempt costs 1, zero survives restart and replay
+00:01 +9: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: last offline attempt costs 2, zero survives restart and replay
+00:01 +10: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: last offline attempt costs 3, zero survives restart and replay
+00:01 +11: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: server-empty balance replaces a stale offline balance before releasing a refused cost
+00:01 +12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +13: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: offline costs, all results and frozen boosts survive restart and sync exactly once
+00:02 +14: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: lost start and finish acknowledgements replay one ID without a second debit
+00:02 +15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: server refusal never grants a score or reward, and owner changes cannot send old rows
+00:02 +16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: pending local history recovers a result if the process died between two writes
+00:02 +17: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: touch keeps visible enemies and enters playing while HTTP is unresolved: idleMove=false
+00:02 +18: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/instant_round_journal_test.dart: touch keeps visible enemies and enters playing while HTTP is unresolved: idleMove=true
+00:03 +19: loading D:/_P_R_O_J_E_C_T/game/square/Untouch/test/autoscore_delivery_test.dart
+00:03 +19: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/autoscore_delivery_test.dart: attempt and outbox are durable before first send; restart and lost acknowledgement use one round ID
+00:03 +20: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/autoscore_delivery_test.dart: network recovery retries automatically without another run or manual save
+00:03 +21: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/autoscore_delivery_test.dart: successful finish stays acknowledged when profile refresh fails
+00:03 +22: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/autoscore_delivery_test.dart: Google link keeps guest history; restore is blocked by queued delivery and scopes history
+00:03 +23: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/autoscore_delivery_test.dart: failed start/practice is local and cannot be submitted as a ranked score
+00:03 +24: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/autoscore_delivery_test.dart: legacy pending rows migrate once and only for the matching owner history
+00:03 +25: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/autoscore_delivery_test.dart: stale wallet cannot lower local best; restoring another owner can
+00:04 +26: All tests passed!

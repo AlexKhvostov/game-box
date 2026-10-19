@@ -17,8 +17,8 @@ const number=ms=>(ms/1000).toFixed(3).replace('.',',');
 const stamp=ms=>`${Math.floor(ms/60000)}:${String(Math.round(ms/1000)%60).padStart(2,'0')}`;
 let selected=null;
 export function selectAverageChart(index){selected=Number.isInteger(index)&&index>=0&&index<averageChartDemo.length?index:null;}
-export function averageChartCard({modal=false,durations=averageChartDemo,minDurationMs=0,calculation='weighted'}={}){
-  const quadratic=calculation==='rms',title=quadratic?'Среднее квадратичное':'Текущее среднее';
+export function averageChartCard({modal=false,durations=averageChartDemo,minDurationMs=0,calculation='rms'}={}){
+  const quadratic=calculation==='rms',title=quadratic?'Среднее квадратичное':'Прежнее среднее';
   const rows=averageChartSeries(durations,{minDurationMs}).map(r=>({...r,average:quadratic?r.rms:r.average})),last=rows.at(-1),chosen=rows[selected]??last;
   const gradientId=`ac-bars-${calculation}-${modal?'modal':'page'}`;
   const W=1000,H=380,L=64,R=28,T=16,B=46,plotW=W-L-R,plotH=H-T-B;
@@ -35,20 +35,20 @@ export function averageChartCard({modal=false,durations=averageChartDemo,minDura
   const points=line.map(r=>`<circle cx="${x(r.index)}" cy="${y(r.average)}" r="${r.index===(selected??rows.length-1)?6:4}" class="ac-point"/>`).join('');
   const actions=rows.map(r=>`<button data-action="average-chart-select-${r.index}" aria-label="Попытка ${r.index+1}: ${number(r.ms)} с, среднее ${r.average===null?'нет':number(r.average)+' с'}" aria-pressed="${r.index===(selected??rows.length-1)}" style="left:${100*(x(r.index)-plotW/rows.length*.5)/W}%;width:${100*plotW/rows.length/W}%"></button>`).join('');
   return `<section class="average-chart-card ${quadratic?'ac-quadratic':''}" data-calculation="${calculation}" aria-label="${title}">
-    <header class="ac-header"><div><p class="ac-mode">${quadratic?'02 · Вариант для сравнения':'01 · Действующая формула'}</p><h2>${title}</h2><p>Последние ${rows.length} попыток · веса по давности</p></div><strong><span aria-hidden="true">⌁</span> ${last?.average==null?'—':number(last.average)} <small>с</small></strong>${modal?'<button class="ac-close" data-action="close" aria-label="Закрыть график">×</button>':''}</header>
+    <header class="ac-header"><div><p class="ac-mode">${quadratic?'02 · Утверждённая формула рейтинга':'01 · Прежняя формула для сравнения'}</p><h2>${title}</h2><p>Последние ${rows.length} попыток · веса по давности</p></div><strong><span aria-hidden="true">⌁</span> ${last?.average==null?'—':number(last.average)} <small>с</small></strong>${modal?'<button class="ac-close" data-action="close" aria-label="Закрыть график">×</button>':''}</header>
     <div class="ac-window-guide"><span>На графике: ${rows.length} попыток</span><strong>В расчёте — последние ${activeCount}</strong></div>
     <div class="ac-plot"><span class="ac-time">Время, мин:сек</span><div class="ac-chart-shell"><div class="ac-canvas"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Бирюзовые столбики — попытки, серые — короче секунды, ${quadratic?'розовая':'жёлтая'} линия — ${title.toLowerCase()}"><defs><linearGradient id="${gradientId}" x2="0" y2="1"><stop stop-color="#64fbf5"/><stop offset="1" stop-color="#00a8cd"/></linearGradient></defs>${band}${grid}<path d="M${L} ${T}V${H-B}H${W-R}" class="ac-axis"/>${bars}<path d="${path}" class="ac-line"/>${points}</svg><div class="ac-pick-columns">${actions}</div></div>${axis}</div><span class="ac-attempts">Попытки</span></div>
     <div class="ac-selection" aria-live="polite">Попытка ${chosen.index+1}: <b>${number(chosen.ms)} с</b><span>Среднее <b>${chosen.average==null?'—':number(chosen.average)+' с'}</b></span></div>
-    <div class="ac-legend"><span><i class="ac-swatch"></i>Попытка ≥ 1 с</span><span><i class="ac-swatch ac-grey"></i>Короче 1 с</span><span><i class="ac-line-swatch"></i>${quadratic?'Квадратичное':'Текущее среднее'}</span></div>
+    <div class="ac-legend"><span><i class="ac-swatch"></i>Попытка ≥ 1 с</span><span><i class="ac-swatch ac-grey"></i>Короче 1 с</span><span><i class="ac-line-swatch"></i>${quadratic?'Квадратичное':'Прежнее среднее'}</span></div>
     <p class="ac-formula">${quadratic?'√(Σ(вес × время²) / Σ весов)':'Σ(вес × время) / Σ весов'}<span>Вес новой: 1 · предыдущей: 0,92 · ещё раньше: 0,92² …</span></p>
     <p class="ac-footnote">Для текущего среднего — последние ${activeCount} подходящих попыток. Линия — среднее после каждой попытки.<br>${minDurationMs===0?'Короткие попытки тоже учитываются':`Порог: больше ${number(minDurationMs)} с`}</p>
   </section>`;
 }
 export function averageChartPage(){
   const last=averageChartSeries(averageChartDemo).at(-1),delta=last.rms-last.average,percent=100*delta/last.average;
-  return `<div class="section-head"><h2><span class="index">G01 / G02</span>Два расчёта · одни попытки</h2><p>Сравнение только в UIKit · рейтинг игры не изменён</p></div><div class="ac-showcase ac-comparison">
+  return `<div class="section-head"><h2><span class="index">G01 / G02</span>Два расчёта · одни попытки</h2><p>Квадратичное утверждено для рейтинга · прежняя формула оставлена для сравнения</p></div><div class="ac-showcase ac-comparison">
     <aside class="ac-comparison-summary" aria-label="Условия сравнения"><div><b>100 одинаковых результатов</b><p>В обоих графиках — последние 50 в расчёте, одна шкала и одинаковые веса по давности. Короткие попытки тоже учитываются.</p></div><div class="ac-comparison-delta"><span>Квадратичное выше на</span><strong>+${number(delta)} с <small>(+${percent.toFixed(1).replace('.',',')}%)</small></strong></div><p class="ac-linked-hint">Нажмите на столбик — одна и та же попытка выделится на обоих графиках.</p></aside>
-    ${averageChartCard()}<button class="neon-btn" data-action="average-chart-open">Открыть текущее среднее ↗</button>
+    ${averageChartCard({calculation:'weighted'})}<button class="neon-btn" data-action="average-chart-open-weighted">Открыть прежнее среднее ↗</button>
     ${averageChartCard({calculation:'rms'})}<button class="neon-btn" data-action="average-chart-open-rms">Открыть квадратичное ↗</button></div>`;
 }
 export function addAverageChartButtons(root){
