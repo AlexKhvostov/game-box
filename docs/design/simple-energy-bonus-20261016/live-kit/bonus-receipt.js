@@ -1,4 +1,4 @@
-import {energySheet,home,icon} from './components.js?v=rewarded-guide-2';
+import {energySheet,home,icon} from './components.js?v=soft-arrows-3';
 import {rewardFor} from './model.js';
 
 let active=null;

@@ -1,9 +1,10 @@
 .video-sheet .rg-body{padding:0 16px 12px;text-align:center;color:#f0fbff}
 .video-sheet .rg-intro{font-size:17px;font-weight:800;margin:4px 0 10px}
-.rg-step{border:1.2px solid #13708c;border-radius:15px;padding:7px 9px 8px;background:linear-gradient(135deg,#07364d,#002033);text-align:center}
+.rg-step{border:1.2px solid #13708c;border-radius:15px;padding:7px 9px 8px;background:radial-gradient(ellipse at 35% 20%,#09567130,transparent 75%),linear-gradient(135deg,#07364d,#002033);box-shadow:inset 0 1px 0 #86f7ff0d,0 2px 12px #00131f30;text-align:center}
 .rg-step svg{display:block;width:100%;height:auto;max-height:100px}
 .rg-step-labels{display:grid;grid-template-columns:1fr 1fr;gap:25px;font-size:13px;line-height:1.35}
-.rg-down{display:block;height:20px;font-size:28px;line-height:19px;color:#54e9ff;font-weight:900}
+.rg-down{display:flex;justify-content:center;height:20px;line-height:0;pointer-events:none}
+.rg-down svg{display:block;width:24px;height:20px;overflow:visible}
 .rg-reward{display:flex;align-items:center;flex-direction:column;gap:3px;color:#ffee73;margin-bottom:12px}
 .rg-reward>span{border:1.6px solid #ffee73;border-radius:40px;padding:0 19px;background:#092c43;box-shadow:0 0 13px #ffee7333;font-size:38px;line-height:1.2;font-weight:900;color:#ffee73;text-shadow:0 0 8px #ffee7360}
 .rg-reward i{font-style:normal}.rg-reward>strong{font-size:15px}

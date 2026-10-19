@@ -6,7 +6,7 @@ import http from 'node:http';
 import {pathToFileURL} from 'node:url';
 const {chromium}=await import(pathToFileURL('C:/Users/alexe/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright/index.mjs'));
 const root=path.resolve('docs/design/simple-energy-bonus-20261016/live-kit');
-const out=path.resolve('docs/release-evidence/rewarded-guide-20261019');await fs.mkdir(out,{recursive:true});
+const out=path.resolve(process.env.UNTOUCH_GUIDE_EVIDENCE||'docs/release-evidence/rewarded-guide-20261019');await fs.mkdir(out,{recursive:true});
 const server=http.createServer(async(req,res)=>{
   try{
     const name=decodeURIComponent(new URL(req.url,'http://localhost').pathname);

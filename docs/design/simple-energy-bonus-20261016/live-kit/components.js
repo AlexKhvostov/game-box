@@ -1,4 +1,4 @@
-import {rewardedGuideBody} from "./rewarded-guide.js?v=1";
+import {rewardedGuideBody} from "./rewarded-guide.js?v=soft-arrows-3";
 import {HOURS,PACKS,PLANS,clock,rewardFor,attemptCost,formatTime,energyText} from "./model.js";
 import {energyHud,hudHeader} from "./hud-header.js?v=1";
 const paths={

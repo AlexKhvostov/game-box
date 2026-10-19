@@ -1,0 +1,42 @@
+{
+  "ok": true,
+  "qaBuild": 196,
+  "nativeWidget": true,
+  "allApiIntercepted": true,
+  "sdkRetested": false,
+  "cases": [
+    {
+      "label": "normal",
+      "errors": [],
+      "window": {
+        "left": 31.456310679611647,
+        "top": 327.5194174757281,
+        "width": 1017.0873786407766,
+        "height": 1737.9611650485435
+      },
+      "launch": {
+        "left": 76.01941747572815,
+        "top": 1611.9854368932038,
+        "width": 927.9611650485436,
+        "height": 136.31067961165058
+      }
+    },
+    {
+      "label": "320x640",
+      "errors": [],
+      "window": {
+        "left": 27.961165048543688,
+        "top": 228.07281553398053,
+        "width": 904.0776699029128,
+        "height": 1544.8543689320388
+      },
+      "launch": {
+        "left": 67.57281553398057,
+        "top": 1369.8203883495144,
+        "width": 824.8543689320387,
+        "height": 121.16504854368941
+      }
+    }
+  ],
+  "mainDataChanged": false
+}

@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'energy_widgets.dart';
 
@@ -99,13 +100,15 @@ class _GuideStep extends StatelessWidget {
           return Column(
             children: [
               ExcludeSemantics(
-                child: SizedBox(
-                  height: height,
-                  width: double.infinity,
-                  child: CustomPaint(
-                    painter: _StepIllustration(
-                      close: number == 2,
-                      number: number,
+                child: RepaintBoundary(
+                  child: SizedBox(
+                    height: height,
+                    width: double.infinity,
+                    child: CustomPaint(
+                      painter: _StepIllustration(
+                        close: number == 2,
+                        number: number,
+                      ),
                     ),
                   ),
                 ),
@@ -151,13 +154,79 @@ class _FlowArrow extends StatelessWidget {
   Widget build(BuildContext context) => const ExcludeSemantics(
     child: SizedBox(
       height: 20,
-      child: Icon(
-        Icons.arrow_downward_rounded,
-        size: 23,
-        color: RewardedAdGuide.cyan,
+      child: Center(
+        child: SizedBox(
+          width: 24,
+          height: 20,
+          child: CustomPaint(painter: _FlowArrowPainter()),
+        ),
       ),
     ),
   );
+}
+
+class _FlowArrowPainter extends CustomPainter {
+  const _FlowArrowPainter();
+  @override
+  void paint(Canvas canvas, Size size) =>
+      _paintGuideArrow(canvas, Offset.zero & size, down: true);
+  @override
+  bool shouldRepaint(_FlowArrowPainter old) => false;
+}
+
+// The same rounded silhouette and three-tone fill are used by the UIKit SVG.
+void _paintGuideArrow(Canvas canvas, Rect bounds, {bool down = false}) {
+  canvas.save();
+  if (down) {
+    canvas.translate(bounds.right, bounds.top);
+    canvas.rotate(math.pi / 2);
+    canvas.scale(bounds.height / 48, bounds.width / 36);
+  } else {
+    canvas.translate(bounds.left, bounds.top);
+    canvas.scale(bounds.width / 48, bounds.height / 36);
+  }
+  final shape = Path()
+    ..moveTo(5, 14)
+    ..lineTo(28, 14)
+    ..lineTo(28, 7)
+    ..quadraticBezierTo(28, 4, 30.5, 5.5)
+    ..lineTo(43, 16)
+    ..quadraticBezierTo(45, 18, 43, 20)
+    ..lineTo(30.5, 30.5)
+    ..quadraticBezierTo(28, 32, 28, 29)
+    ..lineTo(28, 22)
+    ..lineTo(5, 22)
+    ..cubicTo(-.3, 22, -.3, 14, 5, 14)
+    ..close();
+  canvas.drawPath(
+    shape,
+    Paint()
+      ..color = const Color(0x7054E9FF)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3),
+  );
+  canvas.drawPath(
+    shape.shift(const Offset(0, 1.3)),
+    Paint()..color = const Color(0xFF00668E),
+  );
+  canvas.drawPath(
+    shape,
+    Paint()
+      ..shader = const LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [Color(0xFFAAFAFF), Color(0xFF54E9FF), Color(0xFF13B6E6)],
+        stops: [0, .4, 1],
+      ).createShader(const Rect.fromLTWH(0, 4, 48, 29)),
+  );
+  canvas.drawPath(
+    shape,
+    Paint()
+      ..color = const Color(0x889DFFFF)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = .7
+      ..strokeJoin = StrokeJoin.round,
+  );
+  canvas.restore();
 }
 
 class _StepIllustration extends CustomPainter {
@@ -178,8 +247,35 @@ class _StepIllustration extends CustomPainter {
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round;
     final clock = const Offset(67, 52);
-    canvas.drawCircle(clock, 26, Paint()..color = const Color(0x1800C9FF));
-    canvas.drawCircle(clock, 26, ink);
+    canvas.drawCircle(
+      clock,
+      26,
+      Paint()
+        ..color = const Color(0x5054E9FF)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 4
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4),
+    );
+    canvas.drawCircle(
+      clock,
+      26,
+      Paint()
+        ..shader = const RadialGradient(
+          colors: [Color(0xFF06455D), Color(0xFF002237)],
+        ).createShader(Rect.fromCircle(center: clock, radius: 26)),
+    );
+    canvas.drawCircle(
+      clock,
+      26,
+      Paint()
+        ..shader = const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFFB5FDFF), cyan, Color(0xFF159AC5)],
+        ).createShader(Rect.fromCircle(center: clock, radius: 26))
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3.2,
+    );
     canvas.drawPath(
       Path()
         ..moveTo(67, 34)
@@ -187,18 +283,27 @@ class _StepIllustration extends CustomPainter {
         ..lineTo(79, 62),
       ink,
     );
-    for (var i = 0; i < 3; i++) {
-      canvas.drawCircle(Offset(100 + i * 8, 51), 2, Paint()..color = cyan);
+    if (close) {
+      for (var i = 0; i < 3; i++) {
+        canvas.drawCircle(
+          Offset(100 + i * 8, 51),
+          1.9,
+          Paint()..color = cyan.withValues(alpha: 1 - i * .18),
+        );
+      }
+    } else {
+      canvas.drawPath(
+        Path()
+          ..moveTo(100, 35)
+          ..lineTo(104, 32)
+          ..moveTo(103, 45)
+          ..lineTo(109, 45)
+          ..moveTo(100, 55)
+          ..lineTo(104, 58),
+        ink..strokeWidth = 2.7,
+      );
     }
-    canvas.drawPath(
-      Path()
-        ..moveTo(132, 52)
-        ..lineTo(150, 52)
-        ..moveTo(142, 44)
-        ..lineTo(150, 52)
-        ..lineTo(142, 60),
-      ink..strokeWidth = 4,
-    );
+    _paintGuideArrow(canvas, const Rect.fromLTWH(125, 39, 34, 27));
 
     // Only the top-right corner is visible. No advertising copy or brand art.
     const phone = Rect.fromLTWH(164, 7, 123, 83);
@@ -214,13 +319,29 @@ class _StepIllustration extends CustomPainter {
           stops: [0, .65],
         ).createShader(phone),
     );
+    final phoneEdge = Path()
+      ..moveTo(170, 7)
+      ..lineTo(262, 7)
+      ..quadraticBezierTo(287, 7, 287, 32)
+      ..lineTo(287, 88);
     canvas.drawPath(
-      Path()
-        ..moveTo(170, 7)
-        ..lineTo(262, 7)
-        ..quadraticBezierTo(287, 7, 287, 32)
-        ..lineTo(287, 88),
-      ink..strokeWidth = 2.6,
+      phoneEdge,
+      Paint()
+        ..color = const Color(0x6054E9FF)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 4
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3),
+    );
+    canvas.drawPath(
+      phoneEdge,
+      Paint()
+        ..shader = const LinearGradient(
+          colors: [Color(0x0054E9FF), Color(0xFFA5F8FF), cyan],
+          stops: [0, .5, 1],
+        ).createShader(phone)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.5
+        ..strokeCap = StrokeCap.round,
     );
     final status = Paint()
       ..color = const Color(0xFF747B80)
@@ -304,22 +425,65 @@ class _StepIllustration extends CustomPainter {
     );
     // Small schematic hand: finger points at the lower-right edge of the button.
     final hand = Path()
-      ..moveTo(277, 91)
-      ..lineTo(270, 84)
-      ..lineTo(264, 72)
-      ..quadraticBezierTo(262, 67, 265, 66)
-      ..quadraticBezierTo(268, 65, 270, 69)
-      ..lineTo(274, 77)
-      ..lineTo(274, 73)
-      ..quadraticBezierTo(277, 70, 280, 74)
-      ..quadraticBezierTo(284, 71, 287, 76)
-      ..quadraticBezierTo(292, 74, 294, 80)
-      ..lineTo(298, 89)
-      ..lineTo(291, 97)
+      ..moveTo(279, 92)
+      ..quadraticBezierTo(274, 92, 271, 86)
+      ..lineTo(262, 69)
+      ..cubicTo(260, 65, 261, 62, 264, 62)
+      ..cubicTo(267, 62, 268, 64, 270, 68)
+      ..lineTo(277, 80)
+      ..lineTo(275, 76)
+      ..cubicTo(274, 73, 278, 71, 281, 75)
+      ..lineTo(284, 81)
+      ..lineTo(282, 78)
+      ..cubicTo(281, 75, 285, 74, 288, 78)
+      ..lineTo(291, 84)
+      ..lineTo(290, 82)
+      ..cubicTo(289, 79, 293, 79, 295, 83)
+      ..lineTo(298, 90)
+      ..quadraticBezierTo(300, 94, 295, 96)
+      ..lineTo(289, 98)
+      ..quadraticBezierTo(284, 100, 279, 94)
       ..close();
-    canvas.drawPath(hand, Paint()..color = const Color(0xFFF0FBFF));
-    canvas.drawPath(hand, ink..strokeWidth = 1.5);
-    canvas.drawCircle(const Offset(13, 15), 12, Paint()..color = cyan);
+    canvas.drawPath(
+      hand,
+      Paint()
+        ..color = const Color(0x5054E9FF)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2.3),
+    );
+    canvas.drawPath(
+      hand,
+      Paint()
+        ..shader = const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Colors.white, Color(0xFFD4F4FF)],
+        ).createShader(const Rect.fromLTWH(261, 64, 38, 35)),
+    );
+    canvas.drawPath(hand, ink..strokeWidth = 1.2);
+    canvas.drawPath(
+      Path()
+        ..moveTo(274, 75)
+        ..lineTo(278, 82)
+        ..moveTo(282, 80)
+        ..lineTo(285, 81)
+        ..moveTo(289, 83)
+        ..lineTo(292, 88),
+      Paint()
+        ..color = const Color(0x886CCDE3)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = .8
+        ..strokeCap = StrokeCap.round,
+    );
+    canvas.drawCircle(
+      const Offset(13, 15),
+      12,
+      Paint()
+        ..shader = const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF9AFBFF), cyan, Color(0xFF12BCDE)],
+        ).createShader(const Rect.fromLTWH(1, 3, 24, 24)),
+    );
     final numberText = TextPainter(
       text: TextSpan(
         text: '$number',
