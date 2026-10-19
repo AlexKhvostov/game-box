@@ -1,9 +1,21 @@
 import {averageRules} from './average-config.mjs';
+import {cachedAverageRanking} from './average-ranking-cache.mjs';
+
+export async function averageRanking(args){
+  const rules=averageRules(args.config);
+  try{return await cachedAverageRanking({...args,rules});}
+  catch(error){
+    // Safe rolling deployment/rollback; a concurrent profile deletion may also
+    // win the cache FK race. Never let derived storage break the read-only board.
+    if(!['42P01','23503','40001','40P01'].includes(error.code))throw error;
+    return uncachedAverageRanking(args);
+  }
+}
 
 // One SQL snapshot: filter BEFORE row numbering, retain the newest N per owner,
 // normalize exponential weights, then rank only qualified, visible players.
 // Values are server-confirmed scores; callers cannot submit an aggregate.
-export async function averageRanking({db,config,uid,stamp}){
+export async function uncachedAverageRanking({db,config,uid,stamp}){
   const rules=averageRules(config);
   const result=await db.pool.query(`
     with totals as (

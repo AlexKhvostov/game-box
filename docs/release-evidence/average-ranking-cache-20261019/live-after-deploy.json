@@ -1,0 +1,1 @@
+{"ok":true,"live":true,"documents":1164,"playersInTop":12,"cacheRows":29,"coldRecomputed":0,"warmRecomputed":0,"warmMs":197.31830000000036,"planExecutionMs":1.442,"scoreScans":[{"node":"Index Scan","loops":0,"rows":0}],"identicalToOriginal":true,"documentsUnchanged":true,"cacheUnchangedOnRepeat":true,"browserCacheAccess":false}

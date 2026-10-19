@@ -1,0 +1,62 @@
+TAP version 13
+# Subtest: cold and warm boards equal the old calculation; second read does not update cache
+ok 1 - cold and warm boards equal the old calculation; second read does not update cache
+  ---
+  duration_ms: 325.4315
+  ...
+# Subtest: new, corrected, deleted and out-of-order attempts invalidate only their owner
+ok 2 - new, corrected, deleted and out-of-order attempts invalidate only their owner
+  ---
+  duration_ms: 37.6819
+  ...
+# Subtest: irrelevant changes and duplicate delivery do not invalidate; platform/owner changes do
+ok 3 - irrelevant changes and duplicate delivery do not invalidate; platform/owner changes do
+  ---
+  duration_ms: 45.1127
+  ...
+# Subtest: all rule changes produce correct values immediately, including returning to previous rules
+ok 4 - all rule changes produce correct values immediately, including returning to previous rules
+  ---
+  duration_ms: 48.6538
+  ...
+# Subtest: fresh names, moderation, visibility and ranking positions do not reuse stale profile output
+ok 5 - fresh names, moderation, visibility and ranking positions do not reuse stale profile output
+  ---
+  duration_ms: 22.7096
+  ...
+# Subtest: profile deletion cascades cache removal; empty/recreated profiles remain correct
+ok 6 - profile deletion cascades cache removal; empty/recreated profiles remain correct
+  ---
+  duration_ms: 19.7994
+  ...
+# Subtest: rolled back attempt does not change revision/cache, and older revision cannot replace newer cache
+ok 7 - rolled back attempt does not change revision/cache, and older revision cannot replace newer cache
+  ---
+  duration_ms: 13.1393
+  ...
+# Subtest: private runtime permissions work; browser roles have no cache or trigger access
+ok 8 - private runtime permissions work; browser roles have no cache or trigger access
+  ---
+  duration_ms: 13.6815
+  ...
+# Subtest: safe uncached fallback during migration rollout and concurrent profile deletion
+ok 9 - safe uncached fallback during migration rollout and concurrent profile deletion
+  ---
+  duration_ms: 7.5926
+  ...
+# (node:2960) ExperimentalWarning: Importing JSON modules is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: accepted round refreshes the cached board once; duplicate finish preserves wallet and cache
+ok 10 - accepted round refreshes the cached board once; duplicate finish preserves wallet and cache
+  ---
+  duration_ms: 71.1901
+  ...
+1..10
+# tests 10
+# suites 0
+# pass 10
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1703.5549

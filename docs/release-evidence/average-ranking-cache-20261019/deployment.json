@@ -1,0 +1,13 @@
+{
+  "version": 20,
+  "status": "ACTIVE",
+  "fileCount": 23,
+  "unchangedDependencies": 21,
+  "changedFiles": [
+    "functions/_shared/average-ranking.mjs",
+    "functions/_shared/average-ranking-cache.mjs"
+  ],
+  "verifyJwtPreserved": true,
+  "migration": "20261019205914_android_average_ranking_cache",
+  "backup": ".private/average-ranking-cache-20261019/android-api-before.json"
+}
