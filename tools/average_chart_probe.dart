@@ -115,7 +115,30 @@ class ProbeState extends State<ProbeApp> {
 
 Map<String, dynamic> state() {
   final rectangles = <String, dynamic>{};
+  final texts = <String>[];
+  Map<String, double>? horizontal;
+  String? selection;
   void walk(Element e) {
+    if (e.widget case Text(:final data, :final textSpan)) {
+      final text = data ?? textSpan?.toPlainText();
+      if (text != null) {
+        texts.add(text);
+        if (e.widget.key == const ValueKey('average-chart-selection')) {
+          selection = text;
+        }
+      }
+    }
+    if (e.widget.key == const ValueKey('average-chart-horizontal') &&
+        e.widget is SingleChildScrollView) {
+      final controller = (e.widget as SingleChildScrollView).controller;
+      if (controller != null && controller.hasClients) {
+        horizontal = {
+          'offset': controller.offset,
+          'max': controller.position.maxScrollExtent,
+          'viewport': controller.position.viewportDimension,
+        };
+      }
+    }
     if (e.widget.key case ValueKey<String>(:final value)) {
       if (value.startsWith('average-chart-') ||
           value == 'average-ranking-info') {
@@ -141,7 +164,7 @@ Map<String, dynamic> state() {
     ranking: store.averageRanking!,
   );
   return {
-    'qaBuild': 197,
+    'qaBuild': const int.fromEnvironment('QA_BUILD', defaultValue: 198),
     'allNetworkIntercepted': true,
     'errors': errors,
     'rectangles': rectangles,
@@ -151,6 +174,10 @@ Map<String, dynamic> state() {
     'historyComplete': data.historyComplete,
     'averageMs': data.averageMs,
     'activeBars': data.points.where((p) => p.inCurrentWindow).length,
+    'algorithm': store.averageRanking!.algorithm,
+    'selection': selection,
+    'texts': texts,
+    'horizontal': horizontal,
   };
 }
 

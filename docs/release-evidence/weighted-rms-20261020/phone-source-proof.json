@@ -1,0 +1,33 @@
+{
+  "qaBuild": 198,
+  "productionVersion": 188,
+  "sourceCommit": "fccff57",
+  "sameComponents": true,
+  "files": [
+    {
+      "path": "lib/domain/average_ranking.dart",
+      "sha256": "b3863864d7820c63b6379256e791c5d10c834fcaa61eb7805a49a61328c53db7",
+      "qaMatches": true
+    },
+    {
+      "path": "lib/domain/average_chart.dart",
+      "sha256": "d6ffdda88dadba54388f8dccdf62682e7bcd642eb4ae27a1636f95275778e6de",
+      "qaMatches": true
+    },
+    {
+      "path": "lib/data/scores_store.dart",
+      "sha256": "63bdfe3b77053e1f4a9e2deeef03297156b95cb84e0ab3e113f44dcae0422d1f",
+      "qaMatches": true
+    },
+    {
+      "path": "lib/features/leaderboard/average_ranking_panel.dart",
+      "sha256": "0a6901716f31198d9318cb668086cea95a5ffbed529ed253a7c2df486c72d0f0",
+      "qaMatches": true
+    },
+    {
+      "path": "lib/features/leaderboard/average_chart_dialog.dart",
+      "sha256": "3bc810ae7c52a9c74117a25f90a0216e8c34036bb204e83701e6891c523df1a2",
+      "qaMatches": true
+    }
+  ]
+}

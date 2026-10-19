@@ -26,7 +26,7 @@ try {
   $env:UNTOUCH_UI_PROBE='true';$env:UNTOUCH_SIGNING_PROPERTIES=$null
   & $chartDart $chartFlutter pub get --offline
   if($LASTEXITCODE -ne 0){throw 'Probe dependencies failed'}
-  & $chartDart $chartFlutter build apk --release --no-pub --target=tools/average_chart_probe.dart --build-number=$QaVersion --build-name=$BuildName --dart-define=APP_TARGET=mobile
+  & $chartDart $chartFlutter build apk --release --no-pub --target=tools/average_chart_probe.dart --build-number=$QaVersion --build-name=$BuildName --dart-define=APP_TARGET=mobile --dart-define=QA_BUILD=$QaVersion
   if($LASTEXITCODE -ne 0){throw 'Probe build failed'}
   Write-Output ('PROBE_APK='+ (Join-Path $chartProbe 'build/app/outputs/flutter-apk/app-release.apk'))
 } finally {

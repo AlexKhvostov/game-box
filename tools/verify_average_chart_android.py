@@ -1,5 +1,5 @@
 """Physical acceptance of the disposable, network-free chart UI probe only."""
-import argparse,json,re,subprocess,time,urllib.request
+import argparse,json,math,re,subprocess,time,urllib.request
 from pathlib import Path
 
 parser=argparse.ArgumentParser();parser.add_argument('apk',type=Path)
@@ -31,6 +31,7 @@ size=run('shell','wm','size');override=re.search(r'Override size: (\d+x\d+)',siz
 old_font=run('shell','settings','get','system','font_scale')
 old_usb=run('shell','settings','get','global','stay_on_while_plugged_in')
 before=main_version();installed=False;results=[]
+packages_before=run('shell','pm','list','packages','--user','0','com.best4u.untouch')
 try:
     run('shell','am','force-stop',main)
     install=run('install','--user','0','-r',str(args.apk));assert 'Success' in install;installed=True
@@ -41,12 +42,30 @@ try:
         except (OSError,ValueError):time.sleep(.25)
     else:raise AssertionError('Probe HTTP did not start')
     assert s['allNetworkIntercepted'] and not s['errors'],s.get('errors')
+    assert s['qaBuild']==args.version_code and s['algorithm']=='weighted_rms_v1'
     # Actual Android tap on the production ranking button, then actual close.
     s=get('/show?screen=ranking');tap(s,'average-chart-open');s=get()
     assert 'average-chart-dialog' in s['rectangles'] and not s['errors']
     assert s['points']==100 and s['currentWindow']==50 and s['activeBars']==50
     assert abs(s['averageMs']-args.expected_average_ms)<1e-7
-    shot('phone-normal');tap(s,'average-chart-close');s=get()
+    shot('phone-normal')
+    # Real tap on bar80, independently check its value and RMS at that point.
+    plot=s['rectangles']['average-chart-plot'];ratio=s['devicePixelRatio']
+    x=plot['left']+44+(plot['width']-56)*.795;y=plot['top']+plot['height']/2
+    run('shell','input','tap',str(round(x*ratio)),str(round(y*ratio)));time.sleep(.25);s=get()
+    assert s['selection']=='Попытка 80: 10,154 с',s['selection']
+    fixture=[200+(i%8)*100 if i%13==3 else 1000+((i*7307+1931)%19001) for i in range(80)]
+    used=fixture[-50:][::-1];weights=[.92**i for i in range(len(used))]
+    rms=math.sqrt(sum(t*t*w for t,w in zip(used,weights))/sum(weights))
+    expected=f'Среднее: {rms/1000:.3f} с'.replace('.',',')
+    assert expected in s['texts'],(expected,s['texts'])
+    shot('phone-selection80')
+    viewport=s['rectangles']['average-chart-horizontal'];before_scroll=s['horizontal']['offset']
+    run('shell','input','swipe',str(round((viewport['left']+50)*ratio)),str(round(y*ratio)),
+        str(round((viewport['left']+viewport['width']-25)*ratio)),str(round(y*ratio)),'120')
+    time.sleep(.25);s=get();assert s['horizontal']['offset']<before_scroll and not s['errors']
+    results.append({'case':'actual-bar80-and-fast-swipe','ok':True,'attemptMs':10154,'historicalRmsMs':rms,'historyScrolled':True})
+    tap(s,'average-chart-close');s=get()
     assert 'average-chart-dialog' not in s['rectangles'] and 'average-chart-open' in s['rectangles']
     results.append({'case':'actual-ranking-open-close','ok':True,'points':100,'activeBars':50,'averageMs':s['averageMs']})
     for name,screen,scale,mode in [
@@ -67,7 +86,19 @@ try:
         assert s['points']==(0 if mode=='empty' else 100)
         assert s['activeBars']==(0 if mode=='empty' else 50)
         shot(name);results.append({'case':name,'points':s['points'],'activeBars':s['activeBars'],'errors':s['errors'],'ok':True})
-    print('Huawei: ranking button/close, 100/50 math, small/font2/offline/empty/threshold/200-history PASS')
+        if name=='phone-320-font2':
+            # The large-text dialog scrolls vertically; verify its bottom can
+            # actually be reached and Android Back returns to ranking.
+            for _ in range(3):
+                run('shell','input','swipe',str(width//2),str(round(height*.83)),str(width//2),str(round(height*.32)),'180')
+                time.sleep(.2)
+            s=get();selection=s['rectangles']['average-chart-selection']
+            assert selection['top']>=0 and (selection['top']+selection['height'])*ratio<=height+1
+            assert not s['errors'],s['errors'];shot('phone-320-font2-bottom')
+            run('shell','input','keyevent','4');time.sleep(.2);s=get()
+            assert 'average-chart-dialog' not in s['rectangles'] and 'average-chart-open' in s['rectangles']
+            results.append({'case':'large-text-scroll-bottom-and-android-back','ok':True,'bottomReached':True,'backToRanking':True})
+    print('Huawei: RMS, actual button/bar80/fast swipe/close, 100/50, small/font2/offline/empty/threshold/200-history PASS')
 finally:
     run('shell','wm','size',override.group(1) if override else 'reset')
     run('shell','am','force-stop',pkg);run('shell','am','force-stop',main)
@@ -76,6 +107,8 @@ finally:
     assert main_version()==before
     assert run('shell','settings','get','system','font_scale')==old_font
     assert run('shell','settings','get','global','stay_on_while_plugged_in')==old_usb
+    assert run('shell','pm','list','packages','--user','0','com.best4u.untouch')==packages_before
     (out/'phone-verification.json').write_text(json.dumps({'cases':results,'allNetworkIntercepted':True,
       'realPlayerDataChanged':False,'mainVersionPreserved':before,'qaUser0Removed':installed,
-      'displayRestored':True,'fontRestored':True,'usbPreserved':True,'mainStopped':True},indent=2),encoding='utf-8')
+      'displayRestored':True,'fontRestored':True,'usbPreserved':True,'mainStopped':True,
+      'originalPackagesPreserved':True,'qaVersion':args.version_code,'algorithm':'weighted_rms_v1'},indent=2),encoding='utf-8')

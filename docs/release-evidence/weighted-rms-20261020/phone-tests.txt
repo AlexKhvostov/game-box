@@ -1,0 +1,1 @@
+Huawei: RMS, actual button/bar80/fast swipe/close, 100/50, small/font2/offline/empty/threshold/200-history PASS
