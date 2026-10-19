@@ -1,0 +1,230 @@
+- progressbar
+- generic: Загрузка Google Play Console
+- banner:
+  - link "Логотип Google Play Console":
+    - /url: /console/u/0/developers/7352115345592950495/home
+    - button "Логотип Google Play Console"
+  - button "Непрочитанные уведомления Открыть центр уведомлений":
+    - img: notifications_unread
+    - generic: Непрочитанные уведомления
+  - button "Сменить аккаунт разработчика":
+    - img: more_vert
+  - 'button "Аккаунт Google: Алексей Хвостов (lihach.ok@gmail.com), Подписка Google"':
+- navigation:
+  - list:
+    - listitem "Главная страница":
+      - button "Главная страница":
+        - img: home
+    - listitem "Настройки аккаунта":
+      - button "Настройки аккаунта":
+        - img: badge
+    - listitem "untouch":
+      - button "untouch":
+        - img: play_prism
+    - listitem "Панель управления":
+      - button "Панель управления":
+        - img: dashboard
+    - listitem "Статистика":
+      - button "Статистика":
+        - img: bar_chart
+    - listitem "Обзор публикации":
+      - button "Обзор публикации":
+        - img: overview
+    - listitem "Защищено Google Play":
+      - button "Защищено Google Play":
+        - img: shield
+    - listitem "Тестирование и выпуск":
+      - button "Тестирование и выпуск":
+        - img: rocket_launch
+    - listitem "Мониторинг и улучшение":
+      - button "Мониторинг и улучшение":
+        - img: vital_signs
+    - listitem "Привлечение пользователей":
+      - button "Привлечение пользователей":
+        - img: finance_mode
+    - listitem "Монетизация с Google Play":
+      - button "Монетизация с Google Play":
+        - img: sell
+- link "Вернуться на страницу \"Обзор публикации\"":
+  - /url: /console/u/0/developers/7352115345592950495/app/4976408092958094737/publishing
+  - img: keyboard_backspace
+  - generic: Обзор публикации
+- heading "История проверок" [level=1]
+- text: Отслеживайте отправленные на проверку изменения и их статус. Доступны данные с 1 мая 2026 г.
+- button "Подробнее о странице \"История проверок\" (статья откроется в новой вкладке)": Подробнее
+- img: filter_list
+- grid:
+  - row:
+    - gridcell:
+      - combobox "Добавить фильтр"
+      - status
+- button "Выбор диапазона дат":
+  - text: date_range
+  - generic: Выбор диапазона дат
+  - img: arrow_drop_down
+- grid "История проверок":
+  - row "Идентификатор запроса Отправлено Изменения Статус":
+    - columnheader "Идентификатор запроса"
+    - columnheader "Отправлено"
+    - columnheader "Изменения"
+    - columnheader "Статус"
+    - cell
+  - row "11 окт. 18, 2026, 10:11 PM Закрытое тестирование - Alpha, Данные для Google Play, Контент приложения Опубликовано Посмотреть сведения об отправленных материалах":
+    - gridcell "11":
+      - generic: "11"
+    - gridcell "окт. 18, 2026, 10:11 PM":
+      - generic: окт. 18, 2026, 10:11 PM
+    - gridcell "Закрытое тестирование - Alpha, Данные для Google Play, Контент приложения":
+      - generic: Закрытое тестирование - Alpha, Данные для Google Play, Контент приложения
+    - gridcell "Опубликовано":
+      - img: play_store_installed
+      - generic: Опубликовано
+    - gridcell "Посмотреть сведения об отправленных материалах":
+      - link "Посмотреть сведения об отправленных материалах":
+        - /url: /console/u/0/developers/7352115345592950495/app/4976408092958094737/publishing/submission-activity/11/details
+        - img: arrow_right_alt
+  - row "10 окт. 18, 2026, 7:42 PM Данные для Google Play Опубликовано Посмотреть сведения об отправленных материалах":
+    - gridcell "10":
+      - generic: "10"
+    - gridcell "окт. 18, 2026, 7:42 PM":
+      - generic: окт. 18, 2026, 7:42 PM
+    - gridcell "Данные для Google Play":
+      - generic: Данные для Google Play
+    - gridcell "Опубликовано":
+      - img: play_store_installed
+      - generic: Опубликовано
+    - gridcell "Посмотреть сведения об отправленных материалах":
+      - link "Посмотреть сведения об отправленных материалах":
+        - /url: /console/u/0/developers/7352115345592950495/app/4976408092958094737/publishing/submission-activity/10/details
+        - img: arrow_right_alt
+  - row "9 окт. 18, 2026, 7:15 PM Закрытое тестирование - Alpha, Данные для Google Play Опубликовано Посмотреть сведения об отправленных материалах":
+    - gridcell "9":
+      - generic: "9"
+    - gridcell "окт. 18, 2026, 7:15 PM":
+      - generic: окт. 18, 2026, 7:15 PM
+    - gridcell "Закрытое тестирование - Alpha, Данные для Google Play":
+      - generic: Закрытое тестирование - Alpha, Данные для Google Play
+    - gridcell "Опубликовано":
+      - img: play_store_installed
+      - generic: Опубликовано
+    - gridcell "Посмотреть сведения об отправленных материалах":
+      - link "Посмотреть сведения об отправленных материалах":
+        - /url: /console/u/0/developers/7352115345592950495/app/4976408092958094737/publishing/submission-activity/9/details
+        - img: arrow_right_alt
+  - row "8 окт. 15, 2026, 7:43 PM Закрытое тестирование - Alpha, Контент приложения Опубликовано Посмотреть сведения об отправленных материалах":
+    - gridcell "8":
+      - generic: "8"
+    - gridcell "окт. 15, 2026, 7:43 PM":
+      - generic: окт. 15, 2026, 7:43 PM
+    - gridcell "Закрытое тестирование - Alpha, Контент приложения":
+      - generic: Закрытое тестирование - Alpha, Контент приложения
+    - gridcell "Опубликовано":
+      - img: play_store_installed
+      - generic: Опубликовано
+    - gridcell "Посмотреть сведения об отправленных материалах":
+      - link "Посмотреть сведения об отправленных материалах":
+        - /url: /console/u/0/developers/7352115345592950495/app/4976408092958094737/publishing/submission-activity/8/details
+        - img: arrow_right_alt
+  - row "7 окт. 15, 2026, 4:00 PM Закрытое тестирование - Alpha Опубликовано Посмотреть сведения об отправленных материалах":
+    - gridcell "7":
+      - generic: "7"
+    - gridcell "окт. 15, 2026, 4:00 PM":
+      - generic: окт. 15, 2026, 4:00 PM
+    - gridcell "Закрытое тестирование - Alpha":
+      - generic: Закрытое тестирование - Alpha
+    - gridcell "Опубликовано":
+      - img: play_store_installed
+      - generic: Опубликовано
+    - gridcell "Посмотреть сведения об отправленных материалах":
+      - link "Посмотреть сведения об отправленных материалах":
+        - /url: /console/u/0/developers/7352115345592950495/app/4976408092958094737/publishing/submission-activity/7/details
+        - img: arrow_right_alt
+  - row "6 окт. 15, 2026, 3:21 AM Закрытое тестирование - Alpha Опубликовано Посмотреть сведения об отправленных материалах":
+    - gridcell "6":
+      - generic: "6"
+    - gridcell "окт. 15, 2026, 3:21 AM":
+      - generic: окт. 15, 2026, 3:21 AM
+    - gridcell "Закрытое тестирование - Alpha":
+      - generic: Закрытое тестирование - Alpha
+    - gridcell "Опубликовано":
+      - img: play_store_installed
+      - generic: Опубликовано
+    - gridcell "Посмотреть сведения об отправленных материалах":
+      - link "Посмотреть сведения об отправленных материалах":
+        - /url: /console/u/0/developers/7352115345592950495/app/4976408092958094737/publishing/submission-activity/6/details
+        - img: arrow_right_alt
+  - row "5 окт. 13, 2026, 4:47 PM Данные для Google Play Опубликовано Посмотреть сведения об отправленных материалах":
+    - gridcell "5":
+      - generic: "5"
+    - gridcell "окт. 13, 2026, 4:47 PM":
+      - generic: окт. 13, 2026, 4:47 PM
+    - gridcell "Данные для Google Play":
+      - generic: Данные для Google Play
+    - gridcell "Опубликовано":
+      - img: play_store_installed
+      - generic: Опубликовано
+    - gridcell "Посмотреть сведения об отправленных материалах":
+      - link "Посмотреть сведения об отправленных материалах":
+        - /url: /console/u/0/developers/7352115345592950495/app/4976408092958094737/publishing/submission-activity/5/details
+        - img: arrow_right_alt
+  - row "4 окт. 12, 2026, 10:09 PM Закрытое тестирование - Alpha, Контент приложения Опубликовано Посмотреть сведения об отправленных материалах":
+    - gridcell "4":
+      - generic: "4"
+    - gridcell "окт. 12, 2026, 10:09 PM":
+      - generic: окт. 12, 2026, 10:09 PM
+    - gridcell "Закрытое тестирование - Alpha, Контент приложения":
+      - generic: Закрытое тестирование - Alpha, Контент приложения
+    - gridcell "Опубликовано":
+      - img: play_store_installed
+      - generic: Опубликовано
+    - gridcell "Посмотреть сведения об отправленных материалах":
+      - link "Посмотреть сведения об отправленных материалах":
+        - /url: /console/u/0/developers/7352115345592950495/app/4976408092958094737/publishing/submission-activity/4/details
+        - img: arrow_right_alt
+  - row "3 окт. 10, 2026, 6:47 PM Закрытое тестирование - Alpha Опубликовано Посмотреть сведения об отправленных материалах":
+    - gridcell "3":
+      - generic: "3"
+    - gridcell "окт. 10, 2026, 6:47 PM":
+      - generic: окт. 10, 2026, 6:47 PM
+    - gridcell "Закрытое тестирование - Alpha":
+      - generic: Закрытое тестирование - Alpha
+    - gridcell "Опубликовано":
+      - img: play_store_installed
+      - generic: Опубликовано
+    - gridcell "Посмотреть сведения об отправленных материалах":
+      - link "Посмотреть сведения об отправленных материалах":
+        - /url: /console/u/0/developers/7352115345592950495/app/4976408092958094737/publishing/submission-activity/3/details
+        - img: arrow_right_alt
+  - row "2 окт. 10, 2026, 11:54 AM Закрытое тестирование - Alpha Опубликовано Посмотреть сведения об отправленных материалах":
+    - gridcell "2":
+      - generic: "2"
+    - gridcell "окт. 10, 2026, 11:54 AM":
+      - generic: окт. 10, 2026, 11:54 AM
+    - gridcell "Закрытое тестирование - Alpha":
+      - generic: Закрытое тестирование - Alpha
+    - gridcell "Опубликовано":
+      - img: play_store_installed
+      - generic: Опубликовано
+    - gridcell "Посмотреть сведения об отправленных материалах":
+      - link "Посмотреть сведения об отправленных материалах":
+        - /url: /console/u/0/developers/7352115345592950495/app/4976408092958094737/publishing/submission-activity/2/details
+        - img: arrow_right_alt
+- generic: 1–10
+- button "На предыдущую страницу" [disabled]:
+  - img: chevron_left
+- button "На следующую страницу":
+  - img: chevron_right
+- link "Информация об обновлениях":
+  - /url: https://play.google.com/console/about/whats-new/
+- link "Панель мониторинга":
+  - /url: https://status.play.google.com/
+- link "Справка":
+  - /url: /console/u/0/developers/7352115345592950495/help-and-support?app=4976408092958094737
+- generic: © Google, 2026
+- link "Конфиденциальность":
+  - /url: https://www.google.com/policies/privacy/
+- link "Соглашение о распространении ПО":
+  - /url: https://play.google.com/about/developer-distribution-agreement.html
+- link "Условия использования":
+  - /url: https://play.google.com/about/console/terms-of-service/
+- status

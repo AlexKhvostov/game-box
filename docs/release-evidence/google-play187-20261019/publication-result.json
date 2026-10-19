@@ -1,0 +1,19 @@
+{
+  "versionCode": 187,
+  "versionName": "1.0.186",
+  "date": "2026-10-19",
+  "track": "Alpha",
+  "releaseId": 12,
+  "aabAccepted": true,
+  "descriptionsSaved": [
+    "en-US",
+    "ru-RU"
+  ],
+  "preflightPassed": true,
+  "playSubmitted": false,
+  "published": false,
+  "lastRegisteredSubmission": 11,
+  "submissionBlocker": "Console returns to pending changes without a new submission or visible error; cause unknown",
+  "manualDialogOpen": true,
+  "codeCommit": "20ccae4"
+}
