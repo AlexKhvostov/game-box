@@ -1,0 +1,115 @@
+{
+  "kind": "proposal-only",
+  "thresholdSeconds": 1,
+  "previousWeightPercent": 92,
+  "data": [
+    {
+      "attempt": 1,
+      "seconds": 0.4,
+      "included": false,
+      "averageSeconds": null
+    },
+    {
+      "attempt": 2,
+      "seconds": 3,
+      "included": true,
+      "averageSeconds": 3
+    },
+    {
+      "attempt": 3,
+      "seconds": 7,
+      "included": true,
+      "averageSeconds": 3.32
+    },
+    {
+      "attempt": 4,
+      "seconds": 0.7,
+      "included": false,
+      "averageSeconds": 3.32
+    },
+    {
+      "attempt": 5,
+      "seconds": 12,
+      "included": true,
+      "averageSeconds": 4.014
+    },
+    {
+      "attempt": 6,
+      "seconds": 6,
+      "included": true,
+      "averageSeconds": 4.173
+    },
+    {
+      "attempt": 7,
+      "seconds": 16,
+      "included": true,
+      "averageSeconds": 5.119
+    },
+    {
+      "attempt": 8,
+      "seconds": 9,
+      "included": true,
+      "averageSeconds": 5.43
+    },
+    {
+      "attempt": 9,
+      "seconds": 0.3,
+      "included": false,
+      "averageSeconds": 5.43
+    },
+    {
+      "attempt": 10,
+      "seconds": 18,
+      "included": true,
+      "averageSeconds": 6.435
+    },
+    {
+      "attempt": 11,
+      "seconds": 11,
+      "included": true,
+      "averageSeconds": 6.801
+    },
+    {
+      "attempt": 12,
+      "seconds": 15,
+      "included": true,
+      "averageSeconds": 7.457
+    },
+    {
+      "attempt": 13,
+      "seconds": 0.8,
+      "included": false,
+      "averageSeconds": 7.457
+    },
+    {
+      "attempt": 14,
+      "seconds": 20,
+      "included": true,
+      "averageSeconds": 8.46
+    },
+    {
+      "attempt": 15,
+      "seconds": 14,
+      "included": true,
+      "averageSeconds": 8.903
+    },
+    {
+      "attempt": 16,
+      "seconds": 17,
+      "included": true,
+      "averageSeconds": 9.551
+    },
+    {
+      "attempt": 17,
+      "seconds": 8,
+      "included": true,
+      "averageSeconds": 9.427
+    },
+    {
+      "attempt": 18,
+      "seconds": 19,
+      "included": true,
+      "averageSeconds": 10.193
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+Use case: ui-mockup. Create a beautiful single standalone chart component sketch for the Russian mobile arcade untouch, as if it belongs inside its results interface. Landscape 3:2 canvas about1536x1024. One large rounded dark-navy translucent game UI card, subtly illuminated thin cyan frame, restrained cyan glow, rounded friendly white Cyrillic typography. Reference image is the real results window; use ONLY its navy/cyan styling and typography, not its existing layout or mascot illustration. The chart is the main subject, not a tiny chart inside a phone. Flat front-on view, no device mockup, no perspective, no decorative 3D objects. This is a design sketch, no implementation yet.
+
+Purpose: each column is a completed attempt, and a golden polyline is the evolving smoothed average after that attempt. Make this very clear visually. Horizontalaxis chronological attempts fromleft1 to right18. Verticalaxis elapsed time formatted minutes:seconds, showing 0:00,0:05,0:10,0:15,0:20. Scale max20seconds to use chart height well. Keep full data visible. Subtle horizontal grid, generous plotting area and margins, no chart clutter.
+Columns: 18 separate slim rounded-top bars, widths/gaps all equal. Attempts1,4,9,13 lasted under1second: draw them as true very short muted gray stubs at baseline, not missing columns. Other14columns bright luminous cyan/mint with subtle vertical gradient, correctrelativeheights. Lastcolumn slightly highlighted. Thin dashed threshold at1second near bottom only iflegible, with small label "1 с".
+Line: warm yellow/gold, clearly thinner thanbars, connected STRAIGHTsegments withsmallrounddots. It is NOT a horizontal mean reference line and NOT a spline. It changes aftereachincludedattempt. It remains flat over theunder1sec excluded attempts. Noaveragepointbeforethefirstqualifiedattempt(attempt2). Goldenline starts atattempt2,3seconds and ends atattempt18,10.193seconds,withoverallgradualgrowth and a small dip at17. Goldenline andbars share EXACTsame yaxis. No secondaxis.
+Data by chronological attempt 1..18 (seconds):
+0.4, 3, 7, 0.7, 12, 6, 16, 9, 0.3, 18, 11, 15, 0.8, 20, 14, 17, 8, 19
+Historical running smoothed average (seconds, blank at1):
+none, 3, 3.32, 3.32, 4.014, 4.173, 5.119, 5.43, 5.43, 6.435, 6.801, 7.457, 7.457, 8.46, 8.903, 9.551, 9.427, 10.193
+Average uses existing game smoothing0.92previous+0.08new; firstincluded3sec initializes3. For this proposed design only, excludeunder1sec fromaveraging. This math is already computed: DO NOT replacewitharithmeticmean or connectbar tops. Match thedata, especiallygrayindices1/4/9/13 and peak20sec at14. Finalaverage10.193sec, finalattempt19sec.
+XAxis labels 1,3,6,9,12,15,18; labelunderaxis "Попытки". Small yaxisheading "Время, мин:сек".
+Copyverbatim:
+Top left heading "Средний результат"
+Small subheading "Последние 18 попыток"
+Top right prominentmetric "10,193 с" withsmallgoldlineicon.
+A small muted tag "ЭСКИЗ" separatefrommetric.
+At lastgoldpoint a neat small attacheddarktag "Среднее 10,193 с", placedclearofbarsandplotlabels.
+Belowplot an airy compact legend using a cyanbaricon, graybaricon, and goldlineicon:
+"Попытка ≥ 1 с"
+"Меньше 1 с — не учитывается"
+"Среднее"
+Bottomsmallstatus "Учтено 14 из 18 попыток".
+Precisechartgeometry,beautiful polishedgamecomponent. No other sections/buttons, no code, no watermark, no unrelatedtext. This is intended to evaluate theidea and visualhierarchy, not a scientificpublication. Preserve thetimebarvaluesandlinecoherence faithfully.
