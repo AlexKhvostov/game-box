@@ -1,0 +1,61 @@
+{
+  "cases": [
+    {
+      "case": "actual-ranking-open-close",
+      "ok": true,
+      "points": 100,
+      "activeBars": 50,
+      "averageMs": 9263.854161690324
+    },
+    {
+      "case": "phone-320",
+      "points": 100,
+      "activeBars": 50,
+      "errors": [],
+      "ok": true
+    },
+    {
+      "case": "phone-320-font2",
+      "points": 100,
+      "activeBars": 50,
+      "errors": [],
+      "ok": true
+    },
+    {
+      "case": "phone-offline",
+      "points": 100,
+      "activeBars": 50,
+      "errors": [],
+      "ok": true
+    },
+    {
+      "case": "phone-empty",
+      "points": 0,
+      "activeBars": 0,
+      "errors": [],
+      "ok": true
+    },
+    {
+      "case": "phone-threshold",
+      "points": 100,
+      "activeBars": 50,
+      "errors": [],
+      "ok": true
+    },
+    {
+      "case": "phone-long",
+      "points": 100,
+      "activeBars": 50,
+      "errors": [],
+      "ok": true
+    }
+  ],
+  "allNetworkIntercepted": true,
+  "realPlayerDataChanged": false,
+  "mainVersionPreserved": "187",
+  "qaUser0Removed": true,
+  "displayRestored": true,
+  "fontRestored": true,
+  "usbPreserved": true,
+  "mainStopped": true
+}

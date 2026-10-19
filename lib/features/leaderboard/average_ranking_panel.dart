@@ -6,6 +6,7 @@ import '../../ui/game_ui.dart';
 import 'leaderboard_tone.dart';
 import 'ranking_art.dart';
 import 'ranking_summary.dart';
+import 'average_chart_dialog.dart';
 
 String averageSeconds(double? ms) =>
     ms == null ? '—' : (ms / 1000).toStringAsFixed(3);
@@ -55,6 +56,20 @@ class AverageRankingPanel extends StatelessWidget {
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
                 ),
+              ),
+            ),
+            TextButton.icon(
+              key: const ValueKey('average-chart-open'),
+              onPressed: () => showAverageChartDialog(context, store),
+              style: TextButton.styleFrom(
+                foregroundColor: GameUi.cyan,
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                minimumSize: const Size(0, 44),
+              ),
+              icon: const Icon(Icons.show_chart_rounded, size: 18),
+              label: Text(
+                ru ? 'График' : 'Chart',
+                style: const TextStyle(fontSize: 12),
               ),
             ),
             _AverageInfoButton(message: explanation, ru: ru),

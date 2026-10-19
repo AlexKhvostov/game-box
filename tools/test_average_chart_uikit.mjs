@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict';
+import {averageChartDemo,averageChartSeries,averageChartCard} from '../docs/design/simple-energy-bonus-20261016/live-kit/average-chart.js';
+const rows=averageChartSeries(averageChartDemo);
+assert.equal(rows.length,100);assert.equal(rows.filter(r=>r.inCurrentWindow).length,50);
+assert.equal(rows[49].inCurrentWindow,false);assert.equal(rows[50].inCurrentWindow,true);
+const oracle=(values)=>{let s=0,w=0;values.slice(-50).reverse().forEach((ms,i)=>{s+=ms*.92**i;w+=.92**i});return s/w;};
+assert.ok(Math.abs(rows.at(-1).average-oracle(averageChartDemo))<1e-8);
+const changed=averageChartSeries(averageChartDemo.map((ms,i)=>i<50?ms+100000:ms));
+assert.equal(rows.at(-1).average,changed.at(-1).average);
+assert.notEqual(rows[49].average,changed[49].average);
+const threshold=averageChartSeries([400,1000,2000,800],{minDurationMs:1000});
+assert.equal(threshold.filter(r=>r.inCurrentWindow).length,1);
+assert.equal(threshold[1].average,null);assert.equal(threshold.at(-1).average,2000);
+const html=averageChartCard();assert.ok(html.includes('В расчёте — последние 50'));
+console.log(JSON.stringify({ok:true,shown:100,inCurrentMean:50,averageMs:rows.at(-1).average,checks:['normalized-window','old-history-no-influence','strict-threshold','100/50-copy']}));
+const old=[400,3000,7000,700,12000,6000,16000,9000,300,18000,11000,15000,800,20000,14000,17000,8000,19000];
+console.log('18-attempt fixture averageMs='+oracle(old));

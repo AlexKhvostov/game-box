@@ -1,3 +1,4 @@
+import {averageChartPage,averageChartCard,selectAverageChart,addAverageChartButtons} from './average-chart.js?v=2';
 import {connectRankingKit,openRankingDestination,rankingPage,rankingSheet,rankingMineSheet,rankingDetail,rankingResultPage,handleRankingAction} from "./ranking-kit.js?v=account-stat-navigation-12";
 import {hudHeaderPage,paintHudBonus} from "./hud-header.js?v=1";
 import {HOURS,PACKS,PLANS,initialState,clock,claim,completeVideo,formatTime} from "./model.js";
@@ -91,10 +92,15 @@ function render() {
   const scroll=window.scrollY;
   const rankPositions=new Map([...workspace.querySelectorAll(".rank-list")].map(el=>[el.dataset.rankingKey,el.scrollTop]));
   const listPositions=[...workspace.querySelectorAll(".friend-list")].map(el=>el.scrollTop);
-  workspace.innerHTML=view==="rewarded-guide"?section("E03","Энергия за рекламу","Согласованный эскиз · два шага ожидания и бонус после закрытия")+'<div class="rewarded-guide-showcase"><div class="phone">'+videoSheet(state)+'</div></div>':view==="bonus-motion"?bonusMotionPage(state,{slow:receiptSlow,reduce:receiptReduce}):view==="library"?library():view==="scenario"?scenario():view==="references"?referencePage():view==="account"?accountPage():view==="abilities"?abilitiesPage():view==="ranking"?rankingPage():view==="result"?rankingResultPage():view==="hud"?hudHeaderPage(state,home(state)):foundations();
-  document.querySelector(".lab").hidden=["references","account","ranking","result"].includes(view);
+  workspace.innerHTML=view==="average-chart"?averageChartPage():view==="rewarded-guide"?section("E03","Энергия за рекламу","Согласованный эскиз · два шага ожидания и бонус после закрытия")+'<div class="rewarded-guide-showcase"><div class="phone">'+videoSheet(state)+'</div></div>':view==="bonus-motion"?bonusMotionPage(state,{slow:receiptSlow,reduce:receiptReduce}):view==="library"?library():view==="scenario"?scenario():view==="references"?referencePage():view==="account"?accountPage():view==="abilities"?abilitiesPage():view==="ranking"?rankingPage():view==="result"?rankingResultPage():view==="hud"?hudHeaderPage(state,home(state)):foundations();
+  addAverageChartButtons(workspace);
+  document.querySelector(".lab").hidden=["references","account","ranking","result","average-chart"].includes(view);
   document.querySelector(".intro h1").innerHTML=view==="account"?'Аккаунт. <span>Компактный неон.</span>':view==="hud"?'Главный экран. <span>Неоновая шапка.</span>':view==="result"?'Результат игрока. <span>Компактные подробности.</span>':introDefaults.title;
   document.querySelector(".intro-copy").innerHTML=view==="account"?'Все текущие функции аккаунта — в компактных игровых окнах.<br>Нажимайте на элементы и проверяйте переходы.':view==="hud"?'Баланс, рейтинг и аккаунт — живые компоненты по последнему эскизу.<br>Кольцо плюса повторяет готовность бонуса из окна энергии.':view==="result"?'Подробности выбранной попытки в едином стиле с рейтингом.<br>Проверьте показатели, усиления и пояснения по нажатию.':introDefaults.copy;
+  if(view==='average-chart'){
+    document.querySelector('.intro h1').innerHTML='График. <span>Динамика среднего.</span>';
+    document.querySelector('.intro-copy').innerHTML='Показаны 100 попыток. Для текущего среднего выделены последние 50.<br>Нажмите на столбик, чтобы посмотреть его время и среднее.';
+  }
   if(view==="bonus-motion"){
     document.querySelector(".intro h1").innerHTML='Награда. <span>Энергия в движении.</span>';
     document.querySelector(".intro-copy").innerHTML='Заберите бонус или завершите демонстрационный просмотр рекламы.<br>Один игровой эффект для каждого успешного получения энергии.';
@@ -112,6 +118,7 @@ function render() {
 }
 function overlayContent() {
   const top=stack.at(-1);if(!top)return"";
+  if(top.id==='average-chart')return averageChartCard({modal:true});
   if(top.id==="ranking")return rankingSheet("modal");
   if(top.id==="ranking-mine")return rankingMineSheet();
   if(top.id==="ranking-detail")return rankingDetail(top.purchase.id,top.purchase.resultOptions);
@@ -129,8 +136,9 @@ function renderOverlay(focus=false) {
   const id=stack.at(-1).id;
   const oldRank=overlayRoot.querySelector(".rank-list");
   if(oldRank&&id==="ranking"){stack.at(-1).rankScroll=oldRank.scrollTop;stack.at(-1).rankKey=oldRank.dataset.rankingKey;}
-  const dialogTitle=id.startsWith("acct-")?accountDialogTitle(id.slice(5)):({ranking:"Рейтинг","ranking-mine":"Мои попытки","ranking-detail":"Результат игрока",reference:"Референс",energy:"Энергия",subscription:"Увеличить размер бонуса",video:"Энергия за видео",friends:"Пригласить друга",packs:"Купить энергию",payment:"Демонстрация оплаты",ad:"Демонстрация рекламы",helmet:"Шлем",jump:"Прыжок"}[id]);
-  overlayRoot.innerHTML='<div class="overlay"><div class="overlay-frame'+(id==="reference"?" reference-viewer":"")+'" role="dialog" aria-modal="true" aria-label="'+dialogTitle+'">'+(stack.length>1?'<button class="overlay-back" data-action="close">← Назад</button>':"")+overlayContent()+'</div></div>';
+  const dialogTitle=id.startsWith("acct-")?accountDialogTitle(id.slice(5)):({"average-chart":"График среднего",ranking:"Рейтинг","ranking-mine":"Мои попытки","ranking-detail":"Результат игрока",reference:"Референс",energy:"Энергия",subscription:"Увеличить размер бонуса",video:"Энергия за видео",friends:"Пригласить друга",packs:"Купить энергию",payment:"Демонстрация оплаты",ad:"Демонстрация рекламы",helmet:"Шлем",jump:"Прыжок"}[id]);
+  overlayRoot.innerHTML='<div class="overlay"><div class="overlay-frame'+(id==="reference"?" reference-viewer":id==="average-chart"?" average-chart-frame":"")+'" role="dialog" aria-modal="true" aria-label="'+dialogTitle+'">'+(stack.length>1?'<button class="overlay-back" data-action="close">← Назад</button>':"")+overlayContent()+'</div></div>';
+  addAverageChartButtons(overlayRoot);
   overlayRoot.querySelector(".friend-list")?.scrollTo(0,scroll);
   const nextRank=overlayRoot.querySelector(".rank-list");if(nextRank&&nextRank.dataset.rankingKey===stack.at(-1).rankKey)nextRank.scrollTop=stack.at(-1).rankScroll||0;
   document.body.style.overflow="hidden";document.querySelector("main").inert=true;document.querySelector(".kit-header").inert=true;document.querySelector(".kit-footer").inert=true;
@@ -178,6 +186,8 @@ async function finishVideoReward(){
   else toast("Награда уже получена");
 }
 async function handle(action,target) {
+  if(action==='average-chart-open'){selectAverageChart(null);open('average-chart');return;}
+  if(action.startsWith('average-chart-select-')){selectAverageChart(Number(action.slice('average-chart-select-'.length)));const parent=target.closest('.ac-canvas'),scroll=parent?.scrollLeft??0;refresh();document.querySelectorAll('.ac-canvas').forEach(el=>el.scrollLeft=scroll);return;}
   if(receiptPlaying()){
     if(action==="claim"||action==="receipt-replay")return;
     cancelReceipt();refresh();
@@ -289,8 +299,8 @@ document.addEventListener("keydown",e=>{
     else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
   }
 });
-window.addEventListener("hashchange",()=>{const requested=location.hash.slice(1);if(["bonus-motion","library","scenario","foundations","references","account","abilities","ranking","hud","result","rewarded-guide"].includes(requested)){cancelReceipt();view=requested;refresh();}});
-if(["bonus-motion","library","scenario","foundations","references","account","abilities","ranking","hud","result","rewarded-guide"].includes(location.hash.slice(1)))view=location.hash.slice(1);
+window.addEventListener("hashchange",()=>{const requested=location.hash.slice(1);if(["bonus-motion","library","scenario","foundations","references","account","abilities","ranking","hud","result","rewarded-guide","average-chart"].includes(requested)){cancelReceipt();view=requested;refresh();}});
+if(["bonus-motion","library","scenario","foundations","references","account","abilities","ranking","hud","result","rewarded-guide","average-chart"].includes(location.hash.slice(1)))view=location.hash.slice(1);
 setInterval(()=>{
   if(adSession){
     const remaining=Math.max(0,Math.ceil((adSession.ends-Date.now())/1000));

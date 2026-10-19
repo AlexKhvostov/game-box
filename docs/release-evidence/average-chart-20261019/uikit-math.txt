@@ -1,0 +1,2 @@
+{"ok":true,"shown":100,"inCurrentMean":50,"averageMs":9263.854161690324,"checks":["normalized-window","old-history-no-influence","strict-threshold","100/50-copy"]}
+18-attempt fixture averageMs=11406.482696936548

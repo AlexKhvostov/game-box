@@ -1,0 +1,25 @@
+{
+  "desktop": {
+    "current": 50,
+    "metric": "⌁ 9,264 с",
+    "overflow": false,
+    "shown": 100,
+    "viewport": {
+      "height": 820,
+      "width": 1100
+    }
+  },
+  "mobile320": {
+    "shown": 100,
+    "current": 50,
+    "overflow": false,
+    "pinnedTimeAxis": true,
+    "closeVisible": true
+  },
+  "interactionChecks": [
+    "ranking-average-button-beside-info",
+    "modal-opens",
+    "tap-attempt80-matches-80",
+    "close-restores-average-tab"
+  ]
+}

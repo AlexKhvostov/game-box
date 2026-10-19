@@ -1,0 +1,42 @@
+00:00 +0: loading D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_chart_test.dart
+00:00 +0: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_chart_test.dart: 100 visible attempts retain history while only last 50 qualify for current mean
+00:00 +1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_chart_test.dart: uses normalized server weights, not the unnormalized sketch EMA
+00:00 +2: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_chart_test.dart: strict RC threshold: gray short attempts count at zero, excluded ones hold line
+00:00 +3: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_chart_test.dart: filters confirmations/errors/pending, never mutates source history
+00:00 +4: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_chart_test.dart: finite window drops oldest eligible value before normalizing, even when hidden
+00:00 +5: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_chart_test.dart: no confirmed history stays empty, unknown/mismatched server history is explicit
+00:00 +6: loading D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_chart_dialog_test.dart
+00:00 +6: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_chart_dialog_test.dart: (setUpAll)
+00:00 +6: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_chart_dialog_test.dart: graph opens/closes without losing ranking at Size(1000.0, 780.0) scale1.0
+00:02 +7: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_chart_dialog_test.dart: graph opens/closes without losing ranking at Size(1000.0, 780.0) scale2.0
+00:02 +8: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_chart_dialog_test.dart: graph opens/closes without losing ranking at Size(390.0, 844.0) scale1.0
+00:02 +9: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_chart_dialog_test.dart: graph opens/closes without losing ranking at Size(390.0, 844.0) scale2.0
+00:02 +10: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_chart_dialog_test.dart: graph opens/closes without losing ranking at Size(320.0, 480.0) scale1.0
+00:02 +11: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_chart_dialog_test.dart: graph opens/closes without losing ranking at Size(320.0, 480.0) scale2.0
+00:02 +12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_chart_dialog_test.dart: bar selection, offline/partial and owner history changes remain read-only
+00:02 +13: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_chart_dialog_test.dart: English, unknown ranking, under-threshold history and long history scroll
+00:03 +14: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_chart_dialog_test.dart: (tearDownAll)
+00:03 +14: loading D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_ranking_test.dart
+00:03 +14: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_ranking_test.dart: (setUpAll)
+00:03 +14: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_ranking_test.dart: record periods retain actual own rank offline, including late owner restore, never another owner
+00:03 +15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_ranking_test.dart: server average stays precise, caches confirmed data for offline restart, clears on owner switch
+00:03 +16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_ranking_test.dart: missing old-server aggregate does not invent a ranking
+00:03 +17: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_ranking_test.dart: offline startup restores average when secure owner arrives after local load
+00:03 +18: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_ranking_test.dart: average tab Size(360.0, 720.0) scale1.0 handles own/provisional/offline/empty states
+00:05 +19: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_ranking_test.dart: average tab Size(360.0, 720.0) scale2.0 handles own/provisional/offline/empty states
+00:05 +20: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_ranking_test.dart: average tab Size(320.0, 480.0) scale1.0 handles own/provisional/offline/empty states
+00:06 +21: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_ranking_test.dart: average tab Size(320.0, 480.0) scale2.0 handles own/provisional/offline/empty states
+00:06 +22: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/average_ranking_test.dart: (tearDownAll)
+00:06 +22: loading D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart
+00:06 +22: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: (setUpAll)
+00:06 +22: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 1 keeps real place, one own row, divider only outside
+00:07 +23: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 50 keeps real place, one own row, divider only outside
+00:08 +24: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 200 keeps real place, one own row, divider only outside
+00:08 +25: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 201 keeps real place, one own row, divider only outside
+00:10 +26: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: top200 / own 520 keeps real place, one own row, divider only outside
+00:11 +27: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: attached ranking and history fit Size(320.0, 480.0) at text scale 1.0
+00:11 +28: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: attached ranking and history fit Size(320.0, 480.0) at text scale 2.0
+00:11 +29: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: attached ranking and history fit Size(430.0, 800.0) at text scale 1.0
+00:12 +30: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: attached ranking and history fit Size(430.0, 800.0) at text scale 2.0
+00:12 +31: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/ranking_top200_test.dart: (tearDownAll)
+00:12 +31: All tests passed!
