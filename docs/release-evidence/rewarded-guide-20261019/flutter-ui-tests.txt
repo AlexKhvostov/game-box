@@ -1,0 +1,68 @@
+00:00 +0: loading D:/_P_R_O_J_E_C_T/game/square/Untouch/test/rewarded_guide_test.dart
+00:00 +0: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/rewarded_guide_test.dart: ad guide and launch fit Size(320.0, 640.0) without scrolling at normal text
+00:00 +1: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/rewarded_guide_test.dart: ad guide and launch fit Size(360.0, 770.0) without scrolling at normal text
+00:00 +2: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/rewarded_guide_test.dart: ad guide and launch fit Size(412.0, 850.0) without scrolling at normal text
+00:00 +3: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/rewarded_guide_test.dart: guide reward comes from current policy and stays after the close step
+00:00 +4: loading D:/_P_R_O_J_E_C_T/game/square/Untouch/test/rewarded_disclosure_test.dart
+00:01 +4: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/rewarded_disclosure_test.dart: SDK disclosure is in the normal reward path before any request: EnergyPage.energy
+00:02 +5: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/rewarded_disclosure_test.dart: SDK disclosure is in the normal reward path before any request: EnergyPage.video
+00:02 +6: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/rewarded_disclosure_test.dart: English explains connection/device data without an additional consent control
+00:02 +7: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/rewarded_disclosure_test.dart: two ad steps stay readable at width 320.0 with large text
+00:02 +8: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/rewarded_disclosure_test.dart: two ad steps stay readable at width 430.0 with large text
+00:02 +9: loading D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart
+00:03 +9: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Bonus has an indivisible boundary and freezes period
+00:03 +10: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Pending claim never changes confirmed balance before response
+00:03 +11: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Subscriber can watch voluntary rewarded video; cooldown persists
+00:03 +12: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.energy Size(393.0, 852.0) font1.0 fits with fallback
+00:04 +13: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.subscription Size(393.0, 852.0) font1.0 fits with fallback
+00:04 +14: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.video Size(393.0, 852.0) font1.0 fits with fallback
+00:04 +15: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.friends Size(393.0, 852.0) font1.0 fits with fallback
+00:04 +16: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.feedback Size(393.0, 852.0) font1.0 fits with fallback
+00:04 +17: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.packs Size(393.0, 852.0) font1.0 fits with fallback
+00:04 +18: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.helmet Size(393.0, 852.0) font1.0 fits with fallback
+00:04 +19: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.jump Size(393.0, 852.0) font1.0 fits with fallback
+00:04 +20: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.energy Size(393.0, 852.0) font2.0 fits with fallback
+00:04 +21: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.subscription Size(393.0, 852.0) font2.0 fits with fallback
+00:04 +22: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.video Size(393.0, 852.0) font2.0 fits with fallback
+00:04 +23: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.friends Size(393.0, 852.0) font2.0 fits with fallback
+00:04 +24: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.feedback Size(393.0, 852.0) font2.0 fits with fallback
+00:04 +25: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.packs Size(393.0, 852.0) font2.0 fits with fallback
+00:04 +26: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.helmet Size(393.0, 852.0) font2.0 fits with fallback
+00:04 +27: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.jump Size(393.0, 852.0) font2.0 fits with fallback
+00:04 +28: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.energy Size(320.0, 568.0) font1.0 fits with fallback
+00:05 +29: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.subscription Size(320.0, 568.0) font1.0 fits with fallback
+00:05 +30: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.video Size(320.0, 568.0) font1.0 fits with fallback
+00:05 +31: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.friends Size(320.0, 568.0) font1.0 fits with fallback
+00:05 +32: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.feedback Size(320.0, 568.0) font1.0 fits with fallback
+00:05 +33: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.packs Size(320.0, 568.0) font1.0 fits with fallback
+00:05 +34: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.helmet Size(320.0, 568.0) font1.0 fits with fallback
+00:05 +35: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.jump Size(320.0, 568.0) font1.0 fits with fallback
+00:05 +36: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.energy Size(320.0, 568.0) font2.0 fits with fallback
+00:05 +37: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.subscription Size(320.0, 568.0) font2.0 fits with fallback
+00:05 +38: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.video Size(320.0, 568.0) font2.0 fits with fallback
+00:05 +39: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.friends Size(320.0, 568.0) font2.0 fits with fallback
+00:05 +40: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.feedback Size(320.0, 568.0) font2.0 fits with fallback
+00:05 +41: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.packs Size(320.0, 568.0) font2.0 fits with fallback
+00:05 +42: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.helmet Size(320.0, 568.0) font2.0 fits with fallback
+00:05 +43: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.jump Size(320.0, 568.0) font2.0 fits with fallback
+00:05 +44: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.energy Size(320.0, 480.0) font1.0 fits with fallback
+00:05 +45: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.subscription Size(320.0, 480.0) font1.0 fits with fallback
+00:05 +46: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.video Size(320.0, 480.0) font1.0 fits with fallback
+00:05 +47: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.friends Size(320.0, 480.0) font1.0 fits with fallback
+00:05 +48: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.feedback Size(320.0, 480.0) font1.0 fits with fallback
+00:05 +49: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.packs Size(320.0, 480.0) font1.0 fits with fallback
+00:05 +50: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.helmet Size(320.0, 480.0) font1.0 fits with fallback
+00:05 +51: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.jump Size(320.0, 480.0) font1.0 fits with fallback
+00:06 +52: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.energy Size(320.0, 480.0) font2.0 fits with fallback
+00:06 +53: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.subscription Size(320.0, 480.0) font2.0 fits with fallback
+00:06 +54: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.video Size(320.0, 480.0) font2.0 fits with fallback
+00:06 +55: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.friends Size(320.0, 480.0) font2.0 fits with fallback
+00:06 +56: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.feedback Size(320.0, 480.0) font2.0 fits with fallback
+00:06 +57: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.packs Size(320.0, 480.0) font2.0 fits with fallback
+00:06 +58: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.helmet Size(320.0, 480.0) font2.0 fits with fallback
+00:06 +59: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Current window EnergyPage.jump Size(320.0, 480.0) font2.0 fits with fallback
+00:06 +60: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: Children return using system Back; UI does not claim energy
+00:06 +61: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: H01 50 keeps round plus
+00:06 +62: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: H01 1500 keeps round plus
+00:06 +63: D:/_P_R_O_J_E_C_T/game/square/Untouch/test/simple_energy_test.dart: H01 99999 keeps round plus
+00:06 +64: All tests passed!

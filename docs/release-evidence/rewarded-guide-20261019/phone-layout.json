@@ -1,0 +1,97 @@
+{
+  "ok": true,
+  "results": [
+    {
+      "label": "normal",
+      "rectangles": {
+        "simple-energy-window": {
+          "left": 31.456310679611647,
+          "top": 327.5194174757281,
+          "width": 1164.0,
+          "height": 1989.0
+        },
+        "rewarded-guide-step-1": {
+          "left": 76.01941747572815,
+          "top": 568.6844660194174,
+          "width": 1062.0,
+          "height": 409.20000000000005
+        },
+        "rewarded-guide-step-2": {
+          "left": 76.01941747572815,
+          "top": 978.6650485436893,
+          "width": 1062.0,
+          "height": 409.20000000000005
+        },
+        "rewarded-guide-reward": {
+          "left": 76.01941747572815,
+          "top": 1388.6456310679612,
+          "width": 1062.0,
+          "height": 219.60000000000002
+        },
+        "simple-watch-video": {
+          "left": 76.01941747572815,
+          "top": 1611.9854368932038,
+          "width": 1062.0,
+          "height": 156.0
+        },
+        "rewarded-ad-data-info": {
+          "left": 541.8480230535117,
+          "top": 1910.8203883495146,
+          "width": 320.3397674560547,
+          "height": 132.0
+        }
+      },
+      "errors": [],
+      "allControlsInsideWindow": true
+    },
+    {
+      "label": "320x640",
+      "rectangles": {
+        "simple-energy-window": {
+          "left": 27.961165048543688,
+          "top": 228.07281553398053,
+          "width": 1164.0,
+          "height": 1989.0
+        },
+        "rewarded-guide-step-1": {
+          "left": 67.57281553398057,
+          "top": 442.4417475728155,
+          "width": 1062.0,
+          "height": 409.20000000000005
+        },
+        "rewarded-guide-step-2": {
+          "left": 67.57281553398057,
+          "top": 806.8689320388349,
+          "width": 1062.0,
+          "height": 409.20000000000005
+        },
+        "rewarded-guide-reward": {
+          "left": 67.57281553398057,
+          "top": 1171.2961165048541,
+          "width": 1062.0,
+          "height": 219.60000000000002
+        },
+        "simple-watch-video": {
+          "left": 67.57281553398057,
+          "top": 1369.8203883495144,
+          "width": 1062.0,
+          "height": 156.0
+        },
+        "rewarded-ad-data-info": {
+          "left": 481.6426871586771,
+          "top": 1635.451456310679,
+          "width": 320.3397674560547,
+          "height": 132.0
+        }
+      },
+      "errors": [],
+      "allControlsInsideWindow": true
+    },
+    {
+      "label": "320x640-font2",
+      "launchReachable": true,
+      "errors": []
+    }
+  ],
+  "mainUntouched": true
+}

@@ -61,7 +61,12 @@ Future<void> main() async {
   await SupabaseMobileClient.initialize();
   if (Supabase.instance.client.auth.currentUser == null) {
     await Supabase.instance.client.auth.signInAnonymously(
-      data: {'untouch_qa_tag': 'huawei-startup-20261019'},
+      data: {
+        'untouch_qa_tag': const String.fromEnvironment(
+          'SUPABASE_QA_TAG',
+          defaultValue: 'huawei-startup-20261019',
+        ),
+      },
     );
   }
   FlutterError.onError = (details) {
@@ -71,10 +76,12 @@ Future<void> main() async {
   final raw =
       jsonDecode(await rootBundle.loadString(AndroidFirebaseConfig.assetPath))
           as Map<String, dynamic>;
-  raw['config'].remove('ranking');
-  raw['revision'] = sha256
-      .convert(utf8.encode(jsonEncode(raw['config'])))
-      .toString();
+  if (const bool.fromEnvironment('QA_LEGACY_SETTINGS', defaultValue: true)) {
+    raw['config'].remove('ranking');
+    raw['revision'] = sha256
+        .convert(utf8.encode(jsonEncode(raw['config'])))
+        .toString();
+  }
   config = AndroidFirebaseConfig.parse(
     jsonEncode(raw),
     'legacy-first-launch-fixture',
@@ -173,12 +180,19 @@ class _ProbeState extends State<ProbeApp> {
       try {
         if (request.uri.path == '/offline/on') network.blocked = true;
         if (request.uri.path == '/offline/off') network.blocked = false;
-        if (request.uri.path == '/energy') {
+        if (request.uri.path == '/energy' || request.uri.path == '/video') {
           final windowContext = navigator.currentState!.overlay!.context;
           if (!windowContext.mounted) {
             throw StateError('Probe window unavailable');
           }
-          unawaited(showSimpleEnergyWindow(windowContext));
+          unawaited(
+            showSimpleEnergyWindow(
+              windowContext,
+              page: request.uri.path == '/video'
+                  ? EnergyPage.video
+                  : EnergyPage.energy,
+            ),
+          );
           await Future<void>.delayed(const Duration(milliseconds: 500));
         } else if (request.uri.path == '/sync') {
           await account.refreshProfile();

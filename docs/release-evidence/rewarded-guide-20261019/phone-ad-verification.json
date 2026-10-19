@@ -1,0 +1,13 @@
+{
+  "realSdkShown": true,
+  "adMode": "Yandex demo in isolated release QA",
+  "nextControlObservedAndTapped": true,
+  "endcardWaitObserved": true,
+  "closeControlObservedAndTapped": true,
+  "beforeEnergy": 50,
+  "afterEnergy": 90,
+  "serverEnergyAfterRestart": 90,
+  "claimedAdSessions": 1,
+  "realPlayerDataChanged": false,
+  "disposableQaDeleted": true
+}

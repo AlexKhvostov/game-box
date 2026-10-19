@@ -1,0 +1,19 @@
+.video-sheet .rg-body{padding:0 16px 12px;text-align:center;color:#f0fbff}
+.video-sheet .rg-intro{font-size:17px;font-weight:800;margin:4px 0 10px}
+.rg-step{border:1.2px solid #13708c;border-radius:15px;padding:7px 9px 8px;background:linear-gradient(135deg,#07364d,#002033);text-align:center}
+.rg-step svg{display:block;width:100%;height:auto;max-height:100px}
+.rg-step-labels{display:grid;grid-template-columns:1fr 1fr;gap:25px;font-size:13px;line-height:1.35}
+.rg-down{display:block;height:20px;font-size:28px;line-height:19px;color:#54e9ff;font-weight:900}
+.rg-reward{display:flex;align-items:center;flex-direction:column;gap:3px;color:#ffee73;margin-bottom:12px}
+.rg-reward>span{border:1.6px solid #ffee73;border-radius:40px;padding:0 19px;background:#092c43;box-shadow:0 0 13px #ffee7333;font-size:38px;line-height:1.2;font-weight:900;color:#ffee73;text-shadow:0 0 8px #ffee7360}
+.rg-reward i{font-style:normal}.rg-reward>strong{font-size:15px}
+.rg-body .rg-launch{width:100%;min-height:52px;font-size:19px;padding:8px}.rg-launch>span{margin-right:5px;font-size:22px}
+.rg-body .rg-cancel{display:block;margin:0 auto;min-height:44px;font-size:15px}
+.rg-disclosure{font-size:10px;line-height:1.4;color:#a5cae8}.rg-disclosure>div{padding-top:5px}
+.rg-disclosure details{display:inline}.rg-disclosure summary{display:inline;text-decoration:underline;cursor:pointer;padding:8px 1px}.rg-disclosure summary:focus-visible{outline:2px solid #54e9ff}
+.rg-disclosure details[open]{display:block;text-align:left;margin-top:8px}.rg-disclosure details[open] summary{display:block;text-align:center}
+.video-sheet:has(.rg-body)>.sheet-head{height:44px;margin-bottom:3px;padding-bottom:4px;border-bottom:none}
+.video-sheet:has(.rg-body)>.sheet-head::after{display:none}
+.video-sheet:has(.rg-body)>.sheet-head h2{font-size:20px;letter-spacing:0}
+.rewarded-guide-showcase{max-width:430px;margin:0 auto}.rewarded-guide-showcase .phone{width:100%;min-height:0}
+@media(max-width:360px){.rg-step-labels{font-size:12px}.video-sheet .rg-body{padding-inline:12px}}

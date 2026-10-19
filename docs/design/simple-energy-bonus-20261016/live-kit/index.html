@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#061424">
+  <title>Untouch · Energy UI kit</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="reference.css?v=compact-abilities-2">
+  <link rel="stylesheet" href="native-refinement.css?v=2">
+  <link rel="stylesheet" href="references.css">
+  <link rel="stylesheet" href="account-kit.css">
+  <link rel="stylesheet" href="ability-buttons.css?v=2">
+  <link rel="stylesheet" href="ranking-kit.css?v=top-200-9">
+  <link rel="stylesheet" href="hud-header.css?v=1">
+  <link rel="stylesheet" href="player-result.css?v=1">
+  <link rel="stylesheet" href="account-neon.css?v=account-stat-navigation-12">
+  <link rel="stylesheet" href="bonus-receipt.css?v=main-hud-2">
+  <link rel="stylesheet" href="rewarded-guide.css?v=1">
+</head>
+<body>
+  <header class="kit-header">
+    <a class="brand" href="#library"><span class="brand-mark">U</span><span>UNTOUCH <small>ENERGY / COMPONENT KIT · 01</small></span></a>
+    <nav aria-label="Режим UI kit">
+      <button data-view="library" class="active">Компоненты</button>
+      <button data-view="hud">Главный экран</button>
+      <button data-view="bonus-motion">Награда</button>
+      <button data-view="account">Аккаунт</button>
+      <button data-view="ranking">Рейтинг</button>
+      <button data-view="result">Результат</button>
+      <button data-view="rewarded-guide">Реклама</button>
+      <button data-view="references">Референсы</button>
+      <button data-view="scenario">Сценарий</button>
+      <button data-view="abilities">Усиления</button>
+      <button data-view="foundations">Основа стиля</button>
+    </nav>
+    <span class="prototype-tag"><i></i> Живой прототип</span>
+  </header>
+  <main>
+    <section class="intro">
+      <div><p class="eyebrow">UNTOUCH / NEON ARCADE</p><h1>Энергия. <span>Живой UI kit.</span></h1>
+      <p class="intro-copy">Компоненты по неоновому референсу: готовый бонус, перезарядка и подписка.<br>Все окна можно открыть и проверить.</p></div>
+      <aside class="demo-note">Изолированный UI kit.<br><strong>Платежи и реклама — демонстрация.</strong><br>Баланс и подписка меняются только здесь. Сама игра не изменена.</aside>
+    </section>
+    <section class="lab" aria-label="Управление демонстрацией">
+      <label>Баланс <input id="lab-balance" type="number" min="0" max="999999" value="50" aria-label="Демонстрационный баланс"></label>
+      <label>Подписка <select id="lab-plan" aria-label="Демонстрационная подписка"><option value="1">Без подписки</option><option value="2">×2 · 60 энергии</option><option value="5">×5 · 150 энергии</option></select></label>
+      <button data-action="ready">Бонус готов</button>
+      <button data-action="cooldown">Откат 4 часа</button>
+      <button data-action="advance">Время +8 ч</button>
+      <button data-action="reset" class="lab-reset">Сбросить демо ↺</button>
+      <span id="lab-status" aria-live="polite"></span>
+    </section>
+    <div id="workspace"></div>
+  </main>
+  <footer class="kit-footer">UNTOUCH · 16 OCT 2026 <span>HTML / CSS / SVG · без картинок интерфейса · без внешних сервисов</span></footer>
+  <div id="overlay-root"></div>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <div id="receipt-announcement" class="receipt-announcement" role="status" aria-live="polite" aria-atomic="true"></div>
+  <script type="module" src="app.js?v=rewarded-guide-13"></script>
+</body>
+</html>

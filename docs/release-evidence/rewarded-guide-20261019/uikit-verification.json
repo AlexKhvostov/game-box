@@ -1,0 +1,16 @@
+{
+  "ok": true,
+  "checks": [
+    "Reference links to live E03; two schematic steps",
+    "width1100: no horizontal overflow",
+    "width390: no horizontal overflow",
+    "width320: no horizontal overflow",
+    "data details open without starting an ad",
+    "launch enters local ad; no immediate reward",
+    "demo completion credits 40 once",
+    "energy entry opens guide before any demo ad"
+  ],
+  "errors": [],
+  "missing": [],
+  "externalNetwork": false
+}

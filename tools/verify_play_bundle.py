@@ -37,8 +37,11 @@ def main():
     with zipfile.ZipFile(a.bundle) as z,zipfile.ZipFile(a.baseline) as old:
         assert z.testzip() is None
         names=labels(z.read('base/resources.pb'));assert names and all(n=='untouch' for n in names)
-        images=['rewarded-next-example.png','rewarded-close-example.png']
+        examples=['rewarded-next-example.png','rewarded-close-example.png']
+        declared=Path('pubspec.yaml').read_text(encoding='utf-8')
+        images=[n for n in examples if 'assets/branding/ui/'+n in declared]
         for name in images:assert z.read('base/assets/flutter_assets/assets/branding/ui/'+name)==Path('assets/branding/ui/'+name).read_bytes()
+        for name in set(examples)-set(images):assert 'base/assets/flutter_assets/assets/branding/ui/'+name not in z.namelist()
         raw=z.read('base/assets/flutter_assets/assets/config/android-firebase.json');assert raw==Path('assets/config/android-firebase.json').read_bytes()
         snap=json.loads(raw);assert snap['config']['ranking']['average']['minAttempts']==1
         assert snap['config']['ranking']['average']['minDurationMs']==0
@@ -48,7 +51,7 @@ def main():
         assert b'R-M-20184253-1' in binary and b'R-M-20184253-2' in binary
     result=dict(sha256=hashlib.sha256(a.bundle.read_bytes()).hexdigest(),applicationLabels=names,
         jarVerified=True,uploadCertificateMatches184=True,certificateSha256=digest,zipCrc=True,
-        sdkScreenshotAssetsVerified=images,bundledRevision=snap['revision'],minAttempts=1,minDurationMs=0,
+        sdkScreenshotAssetsVerified=images,guideMode='screenshot' if images else 'schematic',bundledRevision=snap['revision'],minAttempts=1,minDurationMs=0,
         oauthClientPreserved=True,yandexPublisherUnitsPresent=True,installedThroughPlay=False,published=False)
     a.output.write_text(json.dumps(result,indent=2),encoding='utf-8');print(json.dumps(result))
 

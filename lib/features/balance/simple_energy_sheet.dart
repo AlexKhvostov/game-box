@@ -19,6 +19,7 @@ import '../../ui/neon_chrome.dart';
 export '../../ui/neon_chrome.dart' show NeonGlass;
 import '../../ui/watch_rewarded_ad.dart';
 import '../../ui/rewarded_ad_disclosure.dart';
+import '../../ui/rewarded_ad_guide.dart';
 import '../../ui/public_name_controls.dart';
 import 'energy_services.dart'
     show EnergyBillingStatus, buySimpleEnergy, EnergyFeedbackForm;
@@ -257,9 +258,10 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
                                   : null,
                               child: _text(
                                 _title,
-                                size:
-                                    _page == EnergyPage.packs ||
-                                        _page == EnergyPage.subscription
+                                size: _page == EnergyPage.video
+                                    ? 20
+                                    : _page == EnergyPage.packs ||
+                                          _page == EnergyPage.subscription
                                     ? 22
                                     : 24,
                                 weight: FontWeight.w900,
@@ -323,7 +325,10 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
                           ),
                         ],
                       ),
-                      _line(),
+                      if (_page == EnergyPage.video)
+                        const SizedBox(height: 5)
+                      else
+                        _line(),
                       switch (_page) {
                         EnergyPage.energy => _energy(e),
                         EnergyPage.subscription => _subscription(e),
@@ -793,27 +798,7 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
     mainAxisSize: MainAxisSize.min,
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      const SizedBox(height: 8),
-        const SizedBox(height: 72, child: CustomPaint(painter: _VideoPainter())),
-      Center(
-        child: EnergyText(
-          e.energyConfig.reward('watch_ad'),
-          prefix: '+',
-          size: 45,
-        ),
-      ),
-      const SizedBox(height: 9),
-      _text(
-        _tr(
-          context,
-          'Дождитесь награды и закройте рекламу.',
-          'Finish the video to receive energy.',
-        ),
-        size: 15,
-        align: TextAlign.center,
-      ),
-      const SizedBox(height: 12),
-      const RewardedAdDisclosure(),
+      RewardedAdGuide(reward: e.energyConfig.reward('watch_ad')),
       const SizedBox(height: 12),
       NeonAction(
         key: const ValueKey('simple-watch-video'),
@@ -823,28 +808,40 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
             !_busy && e.canClaimWatchAd && context.watch<AdsService?>() != null
             ? () => _watchVideo(e)
             : null,
-        child: _text(
-          _busy
-              ? _tr(context, 'Проверяем…', 'Checking…')
-              : e.watchAdDailyLimitReached
-              ? _tr(context, 'Лимит на сегодня', 'Daily limit reached')
-              : e.watchAdCooldownRemaining != null
-              ? bonusTime(e.watchAdCooldownRemaining!)
-              : _tr(context, 'Смотреть рекламу', 'Watch ad'),
-          size: 19,
-          weight: FontWeight.w800,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (!_busy &&
+                !e.watchAdDailyLimitReached &&
+                e.watchAdCooldownRemaining == null) ...[
+              const Icon(
+                Icons.play_arrow_rounded,
+                color: Colors.white,
+                size: 25,
+              ),
+              const SizedBox(width: 6),
+            ],
+            Flexible(
+              child: _text(
+                _busy
+                    ? _tr(context, 'Проверяем…', 'Checking…')
+                    : e.watchAdDailyLimitReached
+                    ? _tr(context, 'Лимит на сегодня', 'Daily limit reached')
+                    : e.watchAdCooldownRemaining != null
+                    ? bonusTime(e.watchAdCooldownRemaining!)
+                    : _tr(context, 'Смотреть рекламу', 'Watch ad'),
+                size: 19,
+                weight: FontWeight.w800,
+              ),
+            ),
+          ],
         ),
       ),
       TextButton(
         onPressed: _busy ? null : _back,
         child: Text(_tr(context, 'Не сейчас', 'Not now')),
       ),
-      _text(
-        _tr(context, 'Просмотр добровольный.', 'Watching is optional.'),
-        size: 11,
-        color: _muted,
-        align: TextAlign.center,
-      ),
+      const RewardedAdDisclosure(),
     ],
   );
   Widget _friends(EconomyStore e, double available) {
@@ -2181,65 +2178,6 @@ class GoldMedallion extends StatelessWidget {
       ),
     ),
   );
-}
-
-class _VideoPainter extends CustomPainter {
-  const _VideoPainter();
-  @override
-  void paint(Canvas c, Size s) {
-    final center = s.center(Offset.zero), r = s.height * .29;
-    for (var i = 0; i < 3; i++) {
-      final path = Path();
-      for (var x = 0.0; x <= s.width; x += 2) {
-        final y =
-            center.dy +
-            math.sin(x / s.width * math.pi * 4 + i) *
-                s.height *
-                .08 *
-                math.sin(x / s.width * math.pi);
-        if (x == 0) {
-          path.moveTo(x, y);
-        } else {
-          path.lineTo(x, y);
-        }
-      }
-      c.drawPath(
-        path,
-        Paint()
-          ..color = _cyan.withValues(alpha: .35)
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = i == 0 ? 5 : 1
-          ..maskFilter = MaskFilter.blur(BlurStyle.normal, i == 0 ? 4 : 0),
-      );
-    }
-    c.drawCircle(
-      center,
-      r + 8,
-      Paint()
-        ..color = _cyan.withValues(alpha: .25)
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10),
-    );
-    c.drawCircle(center, r, Paint()..color = const Color(0xFF00243E));
-    for (final inset in [0.0, 7.0]) {
-      c.drawCircle(
-        center,
-        r - inset,
-        Paint()
-          ..color = _cyan
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = inset == 0 ? 3 : 1,
-      );
-    }
-    final p = Path()
-      ..moveTo(center.dx - r * .22, center.dy - r * .44)
-      ..lineTo(center.dx + r * .43, center.dy)
-      ..lineTo(center.dx - r * .22, center.dy + r * .44)
-      ..close();
-    c.drawPath(p, Paint()..color = const Color(0xFF81FAFF));
-  }
-
-  @override
-  bool shouldRepaint(_VideoPainter old) => false;
 }
 
 class EnergyPackPainter extends CustomPainter {

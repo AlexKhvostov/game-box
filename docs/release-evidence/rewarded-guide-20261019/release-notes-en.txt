@@ -1,0 +1,2 @@
+Version 1.0.185 (186), updated October 19, 2026.
+A new illustrated rewarded-ad guide: wait for Continue, then wait for Close and return for your energy. Clear phone-corner diagrams and improved layout for smaller screens and larger text.
