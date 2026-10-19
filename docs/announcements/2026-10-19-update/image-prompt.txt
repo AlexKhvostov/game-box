@@ -1,0 +1,32 @@
+Use case: infographic-diagram / ads-marketing.
+Create one polished final Russian Telegram announcement infographic for the real Android arcade game untouch. Portrait 4:5 composition, aim 1536x1920, very sharp text readable on a phone. This is a finished social announcement, not a webpage or a redesign spec. Spacious deliberate hierarchy, limited copy, professional friendly game art.
+
+Reference images: first is the REAL current game board (dark navy, thin cyan grid, green smiling cube, red rectangular enemies, glossy cyan HUD). Second is the REAL latest two-step rewarded-ad guide with soft cyan arrows, phone corners and yellow energy. Third is the official game icon/mascot. They are visual/identity references; preserve recognizable real game interface and mascot. Remove Android status/navigation bars. No personal/account data. Do not invent unrelated game mechanics. Show a convincing compact preview of this actual new UI in two gently overlapping upright phone frames: one actual board, one the latest ad guide. Keep interface shapes and text structure faithful, no fake other game. Tiny UI labels need not dominate, but screenshot previews should look clean and authentic.
+
+Style: premium casual mobile arcade, dark deep navy background #031a2b with extremely subtle grid; softly glowing cyan outlines and smooth rounded arrows, warm yellow energy bolts, mint green cute cube from real icon. Crisp bold rounded Cyrillic sans typography, restrained bloom, ample negative space; avoid coarse arrows, cramped legal-looking panels, neon overload. Main hero phones take about upper-middle 40% and remain recognizable. Small official icon beside the lowercase wordmark "untouch". Three short visual information cards below, neatly balanced. All copy exact Russian, no extra prose, no random English except the test card name and Google Play. Calendar14 icon large in final amber-outlined reminder card. Card illustration for purchase is clearly an infographic diagram, not a real screenshot of Google checkout; no real card numbers, no currency amounts, no banking logos.
+
+Exact copy and structure, all required:
+Top wordmark: "untouch"
+Large headline: "Вышло обновление!"
+Small version/date: "1.0.186 · 19.10.2026"
+A small caption near phone previews: "Новый интерфейс"
+
+First compact card with Google Play/update icon:
+"Обновите в Google Play"
+"С Google-аккаунта участника теста"
+
+Second compact card with test payment card → yellow energy bolt → green cube flow:
+"Тестовая покупка → энергия → попытки"
+"Выберите тестовую карту"
+Small selected mock payment row: "Test card, always approves"
+Small reassuring badge: "Без списания денег"
+Readable small note: "Нет тестовой карты? Напишите разработчику"
+
+Final prominent reminder card with large calendar14 and phone/check:
+"Не удаляйте игру 14 дней"
+"Оставайтесь в тестировании"
+"Обновлять приложение можно"
+
+Small footer: "Ссылка на Google Play — в посте"
+Do NOT include QR codes or long URLs. No claim that joining with any Google account automatically grants access or that all credit cards are free. No claim Google requires starting14days over after updating. Do not include the developer's private details.
+Overall beautiful stylish game update infographic, large clear hierarchy, phone-sized readability.
