@@ -56,7 +56,7 @@ export class ApiTransport {
     timeoutMs?: number; probeTimeoutMs?: number; cooldownMs?: number;
   } = {}) {
     this.endpoint = endpoint;
-    this.fetcher = options.fetcher ?? fetch; this.now = options.now ?? (() => performance.now());
+    this.fetcher = options.fetcher ?? globalThis.fetch.bind(globalThis); this.now = options.now ?? (() => performance.now());
     this.timeoutMs = options.timeoutMs ?? 20000; this.probeTimeoutMs = options.probeTimeoutMs ?? 6000;
     this.cooldownMs = options.cooldownMs ?? 3000;
     this.connection = new ConnectionTracker(status => {
