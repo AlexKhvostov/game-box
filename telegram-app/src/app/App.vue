@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
-import { state, world, initialize, attemptCost, back, refreshBoards, action, errorText } from '../services/game-store';
+import { state, world, initialize, attemptCost, back, refreshBoards, action, errorText, openScreen } from '../services/game-store';
 import { localQa } from '../services/api';
 import { loadKernel } from '../domain/kernel';
 import { viewportGeometry, textScale } from '../domain/viewport';
@@ -20,8 +20,12 @@ import { adPresenter } from '../platform/adsgram';
 import { offerStartupAge } from '../platform/audience';
 import { warmArtwork } from '../services/artwork';
 import { version as appVersion } from '../../package.json';
+import { motionProbe } from '../game/motion-probe';
+import GameWindow from '../components/GameWindow.vue';
 const canvas = ref<HTMLCanvasElement>(), touchpad = ref<HTMLElement>();
 const nativeQa=import.meta.env.VITE_QA_MODE==='true';
+const motionReportText=computed(()=>state.screen==='motion-diagnostics'?`UNTOUCH_MOTION ${JSON.stringify(motionProbe.report())}`:'');
+const legacyInputPaint=ref(false);
 const width = ref(window.innerWidth), height = ref(window.innerHeight), insets = ref(safeInsets());
 const usableWidth=computed(()=>Math.max(1,width.value-insets.value.left-insets.value.right));
 const geometry = computed(() => viewportGeometry(usableWidth.value, height.value, insets.value.top, insets.value.bottom));
@@ -57,9 +61,10 @@ onBeforeUnmount(() => { controller?.dispose(); adPresenter.destroy(); window.rem
       </div>
       </div>
       <div v-if="!state.initialized && state.error" class="startup-error" role="alert"><p>{{ state.error }}</p><button class="primary" @click="start">{{ t('Повторить','Retry') }}</button></div>
-      <span v-if="localQa||nativeQa" class="qa-label">{{ nativeQa?`Telegram QA · ${appVersion}`:'Локальная проверка · тестовые данные' }}</span>
+      <button v-if="localQa||nativeQa" class="qa-label" style="pointer-events:auto;border:0;background:none;padding:0;min-height:0" :disabled="world?.playing" @click="openScreen('motion-diagnostics',state.screen)">{{ nativeQa?`Telegram QA · ${appVersion}`:'Локальная проверка · тестовые данные' }}</button>
       <span v-if="state.connection==='checking'||state.connection==='offline'" class="connection-label" role="status">{{ state.connection==='checking'?t('Проверяем соединение…','Checking the connection…'):t('Сервер пока недоступен','Cannot reach the server right now') }}</span>
-      <EnergyWindow v-if="['energy','subscription','video','friends','feedback','packs','helmet','jump'].includes(state.screen)" />
+      <GameWindow v-if="(localQa||nativeQa)&&state.screen==='motion-diagnostics'" title="QA · Плавность"><label><input v-model="legacyInputPaint" type="checkbox" @change="motionProbe.setLegacyInputPaint(legacyInputPaint)"> QA: прежняя отрисовка на каждом касании</label><pre style="white-space:pre-wrap;overflow-wrap:anywhere;font-size:9px">{{motionReportText}}</pre></GameWindow>
+      <EnergyWindow v-else-if="['energy','subscription','video','friends','feedback','packs','helmet','jump'].includes(state.screen)" />
       <ProfileWindow v-else-if="state.screen === 'profile'" />
       <RankingWindow v-else-if="['ranking','history','chart','player-result','name-actions'].includes(state.screen)" />
       <ResultWindow v-else-if="['result','share'].includes(state.screen)" />

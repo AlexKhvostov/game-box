@@ -1,3 +1,4 @@
+import { motionProbe } from '../game/motion-probe';
 export interface JsonStorage { get<T>(key: string, fallback: T): T; set(key: string, value: unknown): void }
 export class DurableStorage implements JsonStorage {
   get<T>(key: string, fallback: T): T {
@@ -5,7 +6,8 @@ export class DurableStorage implements JsonStorage {
     catch { throw new Error('storage_unavailable'); }
   }
   set(key: string, value: unknown) {
-    try { const text = JSON.stringify(value); localStorage.setItem(`untouch_tg_v2:${key}`, text); if (localStorage.getItem(`untouch_tg_v2:${key}`) !== text) throw new Error(); }
+    const started=motionProbe.clock();
+    try { const text = JSON.stringify(value); localStorage.setItem(`untouch_tg_v2:${key}`, text); if (localStorage.getItem(`untouch_tg_v2:${key}`) !== text) throw new Error();motionProbe.persisted(motionProbe.clock()-started,text.length); }
     catch { throw new Error('storage_unavailable'); }
   }
 }

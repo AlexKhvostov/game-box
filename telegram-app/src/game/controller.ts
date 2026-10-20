@@ -6,6 +6,7 @@ import { state, world, prepareAttempt, finishAttempt, errorText, openScreen, ene
 import { sound, enableAudio, syncMusic, stopAudio } from '../platform/audio';
 import { telegram } from '../platform/telegram';
 import type { GameConfig } from '../services/contracts';
+import { motionProbe } from './motion-probe';
 export class GameController {
   private painter: FieldPainter;
   private snapshot!: WorldState;
@@ -64,14 +65,16 @@ export class GameController {
     this.raf = requestAnimationFrame(this.tick);
     if (!this.snapshot || state.screen || state.externalBusy || document.hidden || telegram()?.isActive === false) { this.lastTime = 0; this.debt = 0; return; }
     const dt = this.lastTime ? time - this.lastTime : 0; this.lastTime = time;
-    if (dt <= 0) return;
+    if (dt <= 0) {this.draw();return;}
     this.impacts=this.impacts.filter(impact=>impact.update(Math.min(50,dt)/1000));
     if(this.snapshot.dead){this.frame++;this.draw();return;}
     if (this.snapshot.playing) {
+      const before = this.snapshot.timeMs, started = motionProbe.clock();
       this.debt += dt; let budget = Math.min(250, this.debt);
       while (budget > 1e-9 && this.snapshot.playing) { const step = Math.min(50, budget); this.debt -= step; budget -= step; this.advance(step); }
-    } else this.snapshot = kernel({ op: 'idle', ms: Math.min(50, dt) });
-    this.frame++; this.draw();
+      const afterKernel=motionProbe.clock();this.frame++;this.draw();
+      motionProbe.frame(dt,this.snapshot.timeMs-before,afterKernel-started,motionProbe.clock()-afterKernel,this.snapshot.dead);
+    } else { this.snapshot = kernel({ op: 'idle', ms: Math.min(50, dt) });this.frame++;this.draw(); }
     if (time - this.lastHud >= 33) { world.value = this.snapshot; this.lastHud = time; }
   };
   private advance(ms: number) {
@@ -87,6 +90,7 @@ export class GameController {
       this.pointers.clear(); this.primary = null; this.debt = 0; world.value = this.snapshot;
       try { finishAttempt(this.requestId, this.snapshot, proof()); } catch (error) { state.error = errorText(error); }
       state.resultId = this.requestId; this.resultTimer = setTimeout(() => openScreen('result'), 420);
+      motionProbe.finish();
     }
   }
   private down = (event: PointerEvent) => {
@@ -98,7 +102,7 @@ export class GameController {
       try {
         // Loadout was chosen while idle. Recreate with the same seed, restore
         // the continuously displayed start pose, then start without a frame jump.
-        prepareAttempt(this.requestId); this.snapshot = kernel({ op: 'start' }); this.lastTime = 0; this.debt = 0; world.value = this.snapshot; sound('start');
+        prepareAttempt(this.requestId); this.snapshot = kernel({ op: 'start' }); this.lastTime = 0; this.debt = 0; world.value = this.snapshot; sound('start');motionProbe.start();
       } catch (error) { state.error = errorText(error); state.notice = state.error; return; }
     }
     if (this.primary === null) { this.primary = event.pointerId; this.pointers.set(event.pointerId, { x: event.clientX, y: event.clientY }); }
@@ -110,7 +114,12 @@ export class GameController {
     const factor = 380 / this.canvas.getBoundingClientRect().width;
     const dx = (event.clientX - last.x) * factor, dy = (event.clientY - last.y) * factor;
     if (!dx && !dy) return;
-    const previous = this.snapshot; this.snapshot = kernel({ op: 'move', dx, dy }); this.transitions(previous); this.draw(); world.value = this.snapshot;
+    const previous = this.snapshot; this.snapshot = kernel({ op: 'move', dx, dy }); this.transitions(previous);
+    // Consume every input in physics immediately, but present once per display frame.
+    // The old duplicate paints remain available only for an explicit QA comparison.
+    const paintOnInput=motionProbe.paintOnInput(),started=motionProbe.clock();
+    if(paintOnInput){this.draw();world.value=this.snapshot;}
+    motionProbe.input(motionProbe.clock()-started,paintOnInput);
   };
   private up = (event: PointerEvent) => {
     this.pointers.delete(event.pointerId);
@@ -119,7 +128,7 @@ export class GameController {
   jump() {
     if (!this.snapshot.playing || !state.jump) return;
     const previous = this.snapshot.jumpCooldownMs; this.snapshot = kernel({ op: 'jump' });
-    if (this.snapshot.jumpCooldownMs > previous) sound('jump'); this.draw(); world.value = this.snapshot;
+    if (this.snapshot.jumpCooldownMs > previous) sound('jump'); if(motionProbe.paintOnInput())this.draw(); world.value = this.snapshot;
   }
   private key = (event: KeyboardEvent) => {
     if (['INPUT', 'TEXTAREA', 'SELECT'].includes((event.target as HTMLElement)?.tagName) || state.screen) return;
@@ -128,5 +137,5 @@ export class GameController {
   private deactivate = () => { this.lastTime = 0; this.debt = 0; this.pointers.clear(); this.primary = null; stopAudio(); };
   private activate = () => { this.lastTime = 0; syncMusic(); };
   private visibility = () => document.hidden ? this.deactivate() : this.activate();
-  dispose() { this.stopped = true; cancelAnimationFrame(this.raf); if (this.resultTimer) clearTimeout(this.resultTimer); for (const fn of this.events) fn(); window.removeEventListener('keydown', this.key); document.removeEventListener('visibilitychange', this.visibility); telegram()?.offEvent('deactivated', this.deactivate); telegram()?.offEvent('activated', this.activate); stopAudio(); }
+  dispose() { motionProbe.cancel();this.stopped = true; cancelAnimationFrame(this.raf); if (this.resultTimer) clearTimeout(this.resultTimer); for (const fn of this.events) fn(); window.removeEventListener('keydown', this.key); document.removeEventListener('visibilitychange', this.visibility); telegram()?.offEvent('deactivated', this.deactivate); telegram()?.offEvent('activated', this.activate); stopAudio(); }
 }
