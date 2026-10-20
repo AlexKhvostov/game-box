@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, onMounted, onBeforeUnmount } from 'vue';
 import BonusOrb from '../components/BonusOrb.vue';
+import EnergyBoostTile from '../components/EnergyBoostTile.vue';
 import EnergyAmount from '../components/EnergyAmount.vue';
 import EnergyPackArt from '../components/EnergyPackArt.vue';
 import GameWindow from '../components/GameWindow.vue';
@@ -49,7 +50,7 @@ const applyCode = () => action(async () => { if(!await ensureResourceAge())retur
     <template v-if="state.parent" #back>‹</template>
     <div v-if="page === 'energy'" class="energy-home">
       <p class="bonus-period">{{ t(`Бонус каждые ${bonus.policy.periodSec/3600} часов`,`Bonus every ${bonus.policy.periodSec/3600} hours`) }}</p>
-      <div class="bonus-layout"><BonusOrb :amount="bonus.reward" :ready="remaining===0" :fraction="remaining/(bonus.durationMs||bonus.policy.periodSec*1000)" :timer="timer" :multiplier="tierActive" :pending="state.busy" :locale="state.locale" @claim="resource('energy_bonus_claim')"/><div class="boost-column"><button class="energy-boost-tile" @click="child('subscription')"><strong>{{ tierActive===5?'×5':'×2 / ×5' }}</strong><span>{{ tierActive===5?t('Активно','Active'):t('Усилить','Boost') }}</span></button><small>{{ tierActive>1?t('Управлять','Manage'):t('Подписка','Subscription') }}</small></div></div>
+      <div class="bonus-layout"><BonusOrb :amount="bonus.reward" :ready="remaining===0" :fraction="remaining/(bonus.durationMs||bonus.policy.periodSec*1000)" :timer="timer" :multiplier="tierActive" :pending="state.busy" :locale="state.locale" @claim="resource('energy_bonus_claim')"/><div class="boost-column"><EnergyBoostTile :tier="tierActive" :locale="state.locale" :busy="state.busy" @open="child('subscription')"/><button v-if="tierActive>1" class="text-button boost-manage" :disabled="state.busy" @click="child('subscription')">{{t('Управлять','Manage')}}</button><small v-else>{{t('Подписка','Subscription')}}</small></div></div>
       <div class="energy-reward-row"><GameIcon class="reward-symbol" name="video"/><span>{{ t('Смотреть рекламу','Watch an ad') }}</span><EnergyAmount :amount="bonus.policy.videoReward" prefix="+"/><button class="secondary" :disabled="adLeft===0||adCooldown>0" @click="child('video')">{{ adLeft===0?t('До завтра','Tomorrow'):adCooldown>0?adTimer:t('Смотреть','Watch') }}</button></div>
       <small class="ad-daily-status">{{ t('Сегодня','Today') }}: {{ adUsed }} / {{ wallet.adQuota.limit }}</small>
       <div class="energy-reward-row"><GameIcon class="reward-symbol" name="invite"/><span>{{ t('Пригласить друга','Invite a friend') }}</span><EnergyAmount :amount="bonus.policy.inviterReward" prefix="+"/><button class="secondary" @click="child('friends')">{{ t('Пригласить','Invite') }}</button></div>

@@ -205,6 +205,10 @@ export async function moreInvites() {
   return invitePage;
 }
 let navigation: string[] = [];
+export function returnToPlay() {
+  if (failedFinish.value) return;
+  openScreen(energy.value < attemptCost.value ? 'energy' : '');
+}
 export function openScreen(screen: string, parent = '') {
   if (failedFinish.value && screen !== 'result') return;
   if (!parent) navigation = [];

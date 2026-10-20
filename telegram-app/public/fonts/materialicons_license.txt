@@ -1,9 +1,9 @@
 Material Icons — Google LLC
 Copyright 2019 Google LLC. All Rights Reserved.
-Source: Flutter SDK bundled materialicons-regular.otf, glyph U+F5CA
-(MaterialIcons.bolt_rounded), https://github.com/flutter/flutter
+Source: Flutter SDK bundled materialicons-regular.otf, glyphs U+F5CA / U+F634
+(MaterialIcons.bolt_rounded / check_circle_outline_rounded), https://github.com/flutter/flutter
 Icon family: https://github.com/google/material-design-icons
-Adaptation: single glyph extracted as an SVG outline, normalized to 24x24;
+Adaptation: glyphs extracted as SVG outlines, normalized to 24x24;
 filled with the application's energy color. No endorsement is implied.
 The Flutter font distribution includes the following CC BY 4.0 license:
 https://creativecommons.org/licenses/by/4.0/

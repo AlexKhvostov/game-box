@@ -4,7 +4,7 @@ import GameWindow from '../components/GameWindow.vue';
 import EnergyAmount from '../components/EnergyAmount.vue';
 import GameArt from '../components/GameArt.vue';
 import { loadArtwork, resultArtwork } from '../services/artwork';
-import { state, openScreen, action, flush, failedFinish, retryFailedFinish } from '../services/game-store';
+import { state, openScreen, action, flush, failedFinish, retryFailedFinish, returnToPlay } from '../services/game-store';
 import { telegram } from '../platform/telegram';
 import {registerOverlayBack} from '../services/ui-overlays';
 const t = (ru: string, en: string) => state.locale === 'ru' ? ru : en;
@@ -62,7 +62,7 @@ async function saveImage() {
     </div>
     <div v-else class="result-actions"><button class="primary full" @click="share">Telegram</button><button class="secondary full" @click="action(saveImage)">{{ t('Сохранить картинку','Save image') }}</button><template v-if="imageUrl"><img class="share-preview" :src="imageUrl" :alt="t('Картинка вашего результата','Your result image')"><a class="secondary full share-download" :href="imageUrl" :download="`untouch-${seconds}.png`">{{ t('Скачать PNG','Download PNG') }}</a></template></div>
     
-    <template v-if="state.screen==='result'" #footer><div class="button-row result-links"><button class="text-button" :disabled="!!failedFinish" @click="openScreen('ranking','result')">{{t('Рейтинг','Leaderboard')}}</button><button class="text-button" :disabled="!!failedFinish" @click="openScreen('share','result')">↥ {{t('Поделиться','Share')}}</button></div><button class="primary full replay-action" :disabled="!!failedFinish" @click="state.screen=''">↻ {{t('Ещё раз','Play again')}}</button></template>
+    <template v-if="state.screen==='result'" #footer><div class="button-row result-links"><button class="text-button" :disabled="!!failedFinish" @click="openScreen('ranking','result')">{{t('Рейтинг','Leaderboard')}}</button><button class="text-button" :disabled="!!failedFinish" @click="openScreen('share','result')">↥ {{t('Поделиться','Share')}}</button></div><button class="primary full replay-action" :disabled="!!failedFinish" @click="returnToPlay">↻ {{t('Ещё раз','Play again')}}</button></template>
   </GameWindow>
   <GameWindow v-if="metricTip" class="metric-tip-window" :title="metricTip==='risk'?t('Что такое риск','What is risk?'):t('Как считаются шаги','How steps are counted')">
     <p>{{metricTip==='risk'?t('Риск — успешное опасное сближение с врагом или прыжок через него. Награда начисляется после подтверждения попытки.','Risk counts a close escape from an enemy or a jump over one. Rewards are credited after run confirmation.'):t('Шаги — пройденное расстояние. Один шаг равен одной десятой ширины героя на любом экране.','Steps measure distance. One step equals one tenth of the hero’s width on every screen.')}}</p>

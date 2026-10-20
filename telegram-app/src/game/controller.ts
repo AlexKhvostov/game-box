@@ -103,7 +103,7 @@ export class GameController {
         // Loadout was chosen while idle. Recreate with the same seed, restore
         // the continuously displayed start pose, then start without a frame jump.
         prepareAttempt(this.requestId); this.snapshot = kernel({ op: 'start' }); this.lastTime = 0; this.debt = 0; world.value = this.snapshot; sound('start');motionProbe.start();
-      } catch (error) { state.error = errorText(error); state.notice = state.error; return; }
+      } catch (error) { if(error instanceof Error && error.message==='insufficient_energy'){openScreen('energy');return;} state.error = errorText(error); state.notice = state.error; return; }
     }
     if (this.primary === null) { this.primary = event.pointerId; this.pointers.set(event.pointerId, { x: event.clientX, y: event.clientY }); }
     else { this.pointers.set(event.pointerId, { x: event.clientX, y: event.clientY }); this.jump(); }
