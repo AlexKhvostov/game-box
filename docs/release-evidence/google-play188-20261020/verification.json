@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-10-20T17:32:53.086147+03:00",
+  "checkedAt": "2026-10-20T18:01:09.485988+03:00",
   "package": "com.best4u.untouch",
   "applicationLabel": "untouch",
   "versionCode": 188,
@@ -21,16 +21,14 @@
   "listingFieldsMatchLocal": 6,
   "listingServiceVersionDate": false,
   "sendConfirmationClicked": true,
-  "playSubmitted": false,
+  "playSubmitted": true,
   "published": false,
-  "stage": "preflight passed; automated final sends returned pending; manual click requested",
+  "stage": "in review",
   "testersChanged": false,
   "countriesChanged": false,
   "liveYandexEnabled": true,
   "playBillingEnabled": true,
   "preflightPassed": true,
-  "lastSubmissionId": 12,
-  "lastSubmissionDate": "2026-10-19",
   "sendMethods": [
     "Playwright button",
     "AX button",
@@ -38,5 +36,23 @@
     "Enter"
   ],
   "browserErrors": [],
-  "handoffTab": "1941753553"
+  "manualConfirmationByUser": true,
+  "consoleStatus": "Изменения на проверке",
+  "reviewComposition": {
+    "versionCode": 188,
+    "versionName": "1.0.187",
+    "track": "Alpha",
+    "listingChanges": 4,
+    "languages": [
+      "en-US",
+      "ru-RU"
+    ]
+  },
+  "evidence": [
+    "under-review.txt",
+    "under-review.png"
+  ],
+  "resultTab": "1941753586",
+  "previousSubmissionId": 12,
+  "previousSubmissionDate": "2026-10-19"
 }
