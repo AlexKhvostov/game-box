@@ -1,0 +1,1 @@
+Added an attempt history chart in the Average leaderboard tab. Updated the average to a recency-weighted root mean square, giving stronger results more influence.

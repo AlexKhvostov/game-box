@@ -1,0 +1,47 @@
+{
+  "checkedAt": "2026-10-20T17:20:26.804254+03:00",
+  "checks": [
+    {
+      "language": "en-US",
+      "field": "title",
+      "matchesLocal": true,
+      "noServiceVersionDate": true,
+      "characters": 7
+    },
+    {
+      "language": "en-US",
+      "field": "short-description",
+      "matchesLocal": true,
+      "noServiceVersionDate": true,
+      "characters": 67
+    },
+    {
+      "language": "en-US",
+      "field": "full-description",
+      "matchesLocal": true,
+      "noServiceVersionDate": true,
+      "characters": 242
+    },
+    {
+      "language": "ru-RU",
+      "field": "title",
+      "matchesLocal": true,
+      "noServiceVersionDate": true,
+      "characters": 7
+    },
+    {
+      "language": "ru-RU",
+      "field": "short-description",
+      "matchesLocal": true,
+      "noServiceVersionDate": true,
+      "characters": 75
+    },
+    {
+      "language": "ru-RU",
+      "field": "full-description",
+      "matchesLocal": true,
+      "noServiceVersionDate": true,
+      "characters": 235
+    }
+  ]
+}

@@ -1,0 +1,114 @@
+TAP version 13
+# Subtest: cold and warm boards equal uncached RMS; second read does not update cache
+ok 1 - cold and warm boards equal uncached RMS; second read does not update cache
+  ---
+  duration_ms: 386.3192
+  ...
+# Subtest: new, corrected, deleted and out-of-order attempts invalidate only their owner
+ok 2 - new, corrected, deleted and out-of-order attempts invalidate only their owner
+  ---
+  duration_ms: 50.5428
+  ...
+# Subtest: irrelevant changes and duplicate delivery do not invalidate; platform/owner changes do
+ok 3 - irrelevant changes and duplicate delivery do not invalidate; platform/owner changes do
+  ---
+  duration_ms: 76.811
+  ...
+# Subtest: all rule changes produce correct values immediately, including returning to previous rules
+ok 4 - all rule changes produce correct values immediately, including returning to previous rules
+  ---
+  duration_ms: 78.7077
+  ...
+# Subtest: fresh names, moderation, visibility and ranking positions do not reuse stale profile output
+ok 5 - fresh names, moderation, visibility and ranking positions do not reuse stale profile output
+  ---
+  duration_ms: 30.9166
+  ...
+# Subtest: profile deletion cascades cache removal; empty/recreated profiles remain correct
+ok 6 - profile deletion cascades cache removal; empty/recreated profiles remain correct
+  ---
+  duration_ms: 26.9772
+  ...
+# Subtest: rolled back attempt does not change revision/cache, and older revision cannot replace newer cache
+ok 7 - rolled back attempt does not change revision/cache, and older revision cannot replace newer cache
+  ---
+  duration_ms: 17.6473
+  ...
+# Subtest: private runtime permissions work; browser roles have no cache or trigger access
+ok 8 - private runtime permissions work; browser roles have no cache or trigger access
+  ---
+  duration_ms: 16.4398
+  ...
+# Subtest: safe uncached fallback during migration rollout and concurrent profile deletion
+ok 9 - safe uncached fallback during migration rollout and concurrent profile deletion
+  ---
+  duration_ms: 6.7929
+  ...
+# (node:15208) ExperimentalWarning: Importing JSON modules is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: accepted round refreshes the cached board once; duplicate finish preserves wallet and cache
+ok 10 - accepted round refreshes the cached board once; duplicate finish preserves wallet and cache
+  ---
+  duration_ms: 103.1743
+  ...
+# Subtest: approved 100-attempt fixture matches independent RMS and ignores old arithmetic cache
+ok 11 - approved 100-attempt fixture matches independent RMS and ignores old arithmetic cache
+  ---
+  duration_ms: 296.9469
+  ...
+# (node:39836) ExperimentalWarning: Importing JSON modules is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: legacy configured strict 1 second boundary and 19/20 admission; no fake seed
+ok 12 - legacy configured strict 1 second boundary and 19/20 admission; no fake seed
+  ---
+  duration_ms: 131.3408
+  ...
+# Subtest: new defaults rank the first confirmed attempt, including one millisecond
+ok 13 - new defaults rank the first confirmed attempt, including one millisecond
+  ---
+  duration_ms: 21.675
+  ...
+# Subtest: filter before last50; exponential normalization; one record; hidden/deleted/platform isolation
+ok 14 - filter before last50; exponential normalization; one record; hidden/deleted/platform isolation
+  ---
+  duration_ms: 589.0503
+  ...
+# Subtest: all four RC fields affect existing history immediately without waiting for board cache
+ok 15 - all four RC fields affect existing history immediately without waiting for board cache
+  ---
+  duration_ms: 146.8883
+  ...
+# Subtest: actual accepted rounds: duplicate finish once; reverse delivery sorted by server round start
+ok 16 - actual accepted rounds: duplicate finish once; reverse delivery sorted by server round start
+  ---
+  duration_ms: 66.7269
+  ...
+# Subtest: ties deterministic, minimum independent of window,100% means ordinary RMS
+ok 17 - ties deterministic, minimum independent of window,100% means ordinary RMS
+  ---
+  duration_ms: 25.7531
+  ...
+# Subtest: both rankings: top200 only, actual own place1/50/200/201/520, all attempts counted
+ok 18 - both rankings: top200 only, actual own place1/50/200/201/520, all attempts counted
+  ---
+  duration_ms: 46489.6682
+  ...
+# Subtest: periods independently pick own best attempt and rank before cutting
+ok 19 - periods independently pick own best attempt and rank before cutting
+  ---
+  duration_ms: 9058.6126
+  ...
+# Subtest: hidden, deleted and other-platform results cannot displace visible players; zero/short-only owner
+ok 20 - hidden, deleted and other-platform results cannot displace visible players; zero/short-only owner
+  ---
+  duration_ms: 6986.6404
+  ...
+1..20
+# tests 20
+# suites 0
+# pass 20
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 72910.004

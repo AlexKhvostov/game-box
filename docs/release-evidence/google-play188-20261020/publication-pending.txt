@@ -1,0 +1,150 @@
+- progressbar
+- generic: Загрузка Google Play Console
+- banner:
+  - link "Логотип Google Play Console":
+    - /url: /console/u/0/developers/7352115345592950495/home
+    - button "Логотип Google Play Console"
+  - button "Непрочитанные уведомления Открыть центр уведомлений":
+    - img: notifications_unread
+    - generic: Непрочитанные уведомления
+  - button "Сменить аккаунт разработчика":
+    - img: more_vert
+  - 'button "Аккаунт Google: Алексей Хвостов ([account email redacted]), Подписка Google"':
+- navigation:
+  - list:
+    - listitem "Главная страница":
+      - button "Главная страница":
+        - img: home
+    - listitem "Настройки аккаунта":
+      - button "Настройки аккаунта":
+        - img: badge
+    - listitem "untouch":
+      - button "untouch":
+        - img: play_prism
+    - listitem "Панель управления":
+      - button "Панель управления":
+        - img: dashboard
+    - listitem "Статистика":
+      - button "Статистика":
+        - img: bar_chart
+    - listitem "Обзор публикации":
+      - button "Обзор публикации":
+        - img: overview
+    - listitem "Защищено Google Play":
+      - button "Защищено Google Play":
+        - img: shield
+    - listitem "Тестирование и выпуск":
+      - button "Тестирование и выпуск":
+        - img: rocket_launch
+    - listitem "Мониторинг и улучшение":
+      - button "Мониторинг и улучшение":
+        - img: vital_signs
+    - listitem "Привлечение пользователей":
+      - button "Привлечение пользователей":
+        - img: finance_mode
+    - listitem "Монетизация с Google Play":
+      - button "Монетизация с Google Play":
+        - img: sell
+- heading "Обзор публикации" [level=1]
+- text: Здесь вы можете просматривать изменения, внесенные в приложение, и указывать, когда их публиковать или отправлять на проверку.
+- 'button "Показать подробную информацию о следующей странице: Обзор публикации"': Развернуть
+- button "Управляемая публикация выключена.":
+  - img: sync_disabled
+  - generic: Управляемая публикация выключена.
+  - img: arrow_drop_down
+- img: history
+- generic: "Последняя публикация: 19 октября 2026 г."
+- link "История проверок":
+  - /url: /console/u/0/developers/7352115345592950495/app/4976408092958094737/publishing/submission-activity
+  - generic: История проверок
+  - img: arrow_right_alt
+- heading "Изменения, ещё не отправленные на проверку" [level=2]
+- button "Подробнее об объекте \"Изменения, ещё не отправленные на проверку\"":
+  - img: help
+- button "Отправить 5 изменений на проверку":
+  - generic: Отправить 5 изменений на проверку
+- 'button "Скрыть следующий контент: Изменения, ещё не отправленные на проверку" [expanded]':
+  - generic: Скрыть
+  - img: expand_less
+- img: inventory
+- generic: Теперь вы можете передать изменения на проверку. Если в приложении есть другие проблемы, мы обнаружим их на этом этапе.
+- link "Перейти в Справочный центр и узнать больше об автоматических проверках, которые мы проводим для выявления проблем до отправки вами изменений на проверку":
+  - /url: https://support.google.com/googleplay/android-developer/answer/14807773
+  - generic: Подробнее
+- grid "Изменения":
+  - row "Элемент изменен Описание":
+    - columnheader "Элемент изменен"
+    - columnheader "Описание"
+    - cell
+  - row "Закрытое тестирование - Alpha button":
+    - img: slow_motion_video
+    - gridcell "Закрытое тестирование - Alpha"
+    - button "button":
+      - generic "button": Сохранить
+  - row "188 (1.0.187) Начать полное внедрение":
+    - gridcell "188 (1.0.187)":
+      - generic: 188 (1.0.187)
+    - gridcell "Начать полное внедрение":
+      - generic: Начать полное внедрение
+    - gridcell:
+      - listbox "Ещё":
+        - button "Ещё":
+          - img: more_vert
+  - row "Страницы приложения button":
+    - img: play_prism
+    - gridcell "Страницы приложения"
+    - button "button":
+      - generic "button": Сохранить
+  - row "Английский (Соединенные Штаты) – en-US Стандартная страница приложения Изменить краткое описание на \"Train your reflexes and focus, set records and compete with friends\"":
+    - gridcell "Английский (Соединенные Штаты) – en-US Стандартная страница приложения":
+      - generic: Английский (Соединенные Штаты) – en-US
+      - generic: Стандартная страница приложения
+    - gridcell "Изменить краткое описание на \"Train your reflexes and focus, set records and compete with friends\"":
+      - generic: Изменить краткое описание на "Train your reflexes and focus, set records and compete with friends"
+    - gridcell:
+      - listbox "Ещё":
+        - button "Ещё":
+          - img: more_vert
+  - row "Английский (Соединенные Штаты) – en-US Стандартная страница приложения Изменить полное описание":
+    - gridcell "Английский (Соединенные Штаты) – en-US Стандартная страница приложения":
+      - generic: Английский (Соединенные Штаты) – en-US
+      - generic: Стандартная страница приложения
+    - gridcell "Изменить полное описание":
+      - generic: Изменить полное описание
+    - gridcell:
+      - listbox "Ещё":
+        - button "Ещё":
+          - img: more_vert
+  - row "Русский – ru-RU Стандартная страница приложения Изменить краткое описание на \"Тренируйте реакцию и усидчивость, ставьте рекорды и соревнуйтесь с друзьями\"":
+    - gridcell "Русский – ru-RU Стандартная страница приложения":
+      - generic: Русский – ru-RU
+      - generic: Стандартная страница приложения
+    - gridcell "Изменить краткое описание на \"Тренируйте реакцию и усидчивость, ставьте рекорды и соревнуйтесь с друзьями\"":
+      - generic: Изменить краткое описание на "Тренируйте реакцию и усидчивость, ставьте рекорды и соревнуйтесь с друзьями"
+    - gridcell:
+      - listbox "Ещё":
+        - button "Ещё":
+          - img: more_vert
+  - row "Русский – ru-RU Стандартная страница приложения Изменить полное описание":
+    - gridcell "Русский – ru-RU Стандартная страница приложения":
+      - generic: Русский – ru-RU
+      - generic: Стандартная страница приложения
+    - gridcell "Изменить полное описание":
+      - generic: Изменить полное описание
+    - gridcell:
+      - listbox "Ещё":
+        - button "Ещё":
+          - img: more_vert
+- link "Информация об обновлениях":
+  - /url: https://play.google.com/console/about/whats-new/
+- link "Панель мониторинга":
+  - /url: https://status.play.google.com/
+- link "Справка":
+  - /url: /console/u/0/developers/7352115345592950495/help-and-support?app=4976408092958094737
+- generic: © Google, 2026
+- link "Конфиденциальность":
+  - /url: https://www.google.com/policies/privacy/
+- link "Соглашение о распространении ПО":
+  - /url: https://play.google.com/about/developer-distribution-agreement.html
+- link "Условия использования":
+  - /url: https://play.google.com/about/console/terms-of-service/
