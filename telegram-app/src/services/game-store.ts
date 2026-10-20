@@ -4,13 +4,15 @@ import { DurableStorage, operationId } from './storage';
 import { RoundJournal } from './journal';
 import type { ApiResult, Profile, GameConfig, PlatformConfig, AverageBoard, InviteState, Attempt, Score } from './contracts';
 import type { WorldState, RoundProof } from '../domain/kernel';
+import { transportErrorText, type ConnectionStatus } from './connection';
+import { telegram } from '../platform/telegram';
 const storage = new DurableStorage();
-export const api = new TelegramApi();
 export const state = reactive({ profile: null as Profile | null, config: null as GameConfig | null, platform: null as PlatformConfig | null,
-  initialized: false, online: true, busy: false, externalBusy: false, error: '', notice: '', screen: '' as string, parent: '',
+  initialized: false, online: true, connection: 'unknown' as ConnectionStatus, busy: false, externalBusy: false, error: '', notice: '', screen: '' as string, parent: '',
   helmet: false, jump: false, history: [] as Attempt[], periods: {} as Record<string, Score[]>, average: null as AverageBoard | null,
   invites: null as InviteState | null, period: 'all', rankingTab: 'record', locale: 'ru',
   preferences: { sound: true, music: true, vibration: true }, serverOffset: 0, resultId: '', selectedScore: null as Score | null, selectedPlayer:null as {userId:string;playerName:string}|null, rulesAccepted: false });
+export const api = new TelegramApi(status => { state.connection = status; state.online = status !== 'offline'; });
 export const world = shallowRef<WorldState | null>(null);
 export const failedFinish = shallowRef<{ id: string; owner: string; result: NonNullable<Attempt['result']>; finishedAt: number } | null>(import.meta.hot?.data.failedFinish ?? null);
 let journal: RoundJournal | null = null, flushing: Promise<void> | null = null, retryTimer: ReturnType<typeof setTimeout> | null = null;
@@ -53,27 +55,25 @@ function accept(result: ApiResult, serial: number) {
     if (result.gameConfig) { storage.set(`config:${result.profile?.id ?? state.profile!.id}`, result.gameConfig); if (world.value?.playing) pendingConfig = result.gameConfig; else { pendingConfig = null; state.config = result.gameConfig; } }
     if (result.platformConfig) state.platform = result.platformConfig;
   }
-  if(state.notice===errorText(new ApiError('network_unavailable')))state.notice='';
-  state.online = true;
 }
 export const errorText = (error: unknown) => {
   const code = error instanceof Error ? error.message : String(error);
+  const transportMessage = transportErrorText(code,state.locale); if(transportMessage)return transportMessage;
   const english:Record<string,string>={
-    network_unavailable:'Offline. Your result is saved on this device.', native_telegram_required:'Open this game in the Telegram app.', api_not_configured:'The game connection is being configured.', qa_server_unavailable:'The local test server is not running.', insufficient_energy:'Not enough energy.', nickname_taken:'This name is already taken.', nickname_invalid:'Use 2–24 characters for your name.', nickname_prohibited:'Choose another name.', bonus_not_ready:'Your bonus is still recharging.', feedback_locked:'Feedback unlocks after spending 100 energy.', feedback_length:'Write 20–1000 characters.', invite_self:'You cannot invite yourself.', invite_not_found:'Invite code not found.', invite_already_bound:'Your inviter is already assigned.', invite_code_invalid:'Check the invite code.', invite_cursor_invalid:'The invitation list changed. Refresh and try again.', storage_unavailable:'Could not save data on this device. Free storage space and retry.', public_rules_required:'Accept the community rules first.', rules_changed:'Settings have changed. Wait for synchronization.', telegram_session_expired:'Your Telegram session expired. Close and reopen the game.', profile_disabled:'This profile is unavailable.', ad_daily_limit:'Today’s ad reward limit has been reached.', ad_not_ready:'Please wait before watching another video.', another_window_active:'The game is open in another window. Close it and retry.', browser_update_required:'Update Telegram: this browser does not support safe game storage.', ad_unavailable:'Ads are unavailable. Please try later.', ad_age_restricted:'Ads are available to adults only. Other energy sources remain available.', invoice_expired:'This invoice expired. Tap again to create a new one.', checkout_in_progress:'Another checkout is already in progress.', stars_unavailable:'Purchases are not available yet.', subscription_active:'You already have an active subscription.', qa_account_locked:'This temporary test is reserved for another account.'
+    native_telegram_required:'Open this game in the Telegram app.', api_not_configured:'The game connection is being configured.', qa_server_unavailable:'The local test server is not running.', insufficient_energy:'Not enough energy.', nickname_taken:'This name is already taken.', nickname_invalid:'Use 2–24 characters for your name.', nickname_prohibited:'Choose another name.', bonus_not_ready:'Your bonus is still recharging.', feedback_locked:'Feedback unlocks after spending 100 energy.', feedback_length:'Write 20–1000 characters.', invite_self:'You cannot invite yourself.', invite_not_found:'Invite code not found.', invite_already_bound:'Your inviter is already assigned.', invite_code_invalid:'Check the invite code.', invite_cursor_invalid:'The invitation list changed. Refresh and try again.', storage_unavailable:'Could not save data on this device. Free storage space and retry.', public_rules_required:'Accept the community rules first.', rules_changed:'Settings have changed. Wait for synchronization.', telegram_session_expired:'Your Telegram session expired. Close and reopen the game.', profile_disabled:'This profile is unavailable.', ad_daily_limit:'Today’s ad reward limit has been reached.', ad_not_ready:'Please wait before watching another video.', another_window_active:'The game is open in another window. Close it and retry.', browser_update_required:'Update Telegram: this browser does not support safe game storage.', ad_unavailable:'Ads are unavailable. Please try later.', ad_age_restricted:'Ads are available to adults only. Other energy sources remain available.', invoice_expired:'This invoice expired. Tap again to create a new one.', checkout_in_progress:'Another checkout is already in progress.', stars_unavailable:'Purchases are not available yet.', subscription_active:'You already have an active subscription.', qa_account_locked:'This temporary test is reserved for another account.'
   };
-  if(state.locale==='en')return english[code]??'Could not confirm this action. Check your connection and retry.';
-  const labels: Record<string, string> = { network_unavailable: 'Нет связи. Результат сохранён на устройстве.', native_telegram_required: 'Откройте игру в приложении Telegram.', api_not_configured: 'Подключение игры ещё настраивается.', qa_server_unavailable: 'Локальный тестовый сервер не запущен.', insufficient_energy: 'Недостаточно энергии.', nickname_taken: 'Это имя уже занято.', nickname_invalid: 'Имя: от 2 до 24 символов.', nickname_prohibited: 'Выберите другое имя.', bonus_not_ready: 'Бонус ещё заряжается.', feedback_locked: 'Отзыв откроется после траты 100 энергии.', feedback_length: 'Напишите от 20 до 1000 символов.', invite_self: 'Нельзя пригласить самого себя.', invite_not_found: 'Код не найден.', invite_already_bound: 'Пригласивший уже указан.', invite_code_invalid: 'Проверьте код приглашения.', storage_unavailable: 'Не удалось сохранить данные на устройстве. Освободите место и повторите.', public_rules_required: 'Сначала примите правила сообщества.', rules_changed: 'Настройки обновились. Подождите синхронизации.', telegram_session_expired: 'Сессия Telegram закончилась. Закройте и откройте игру снова.', profile_disabled: 'Этот профиль недоступен.', ad_daily_limit: 'Лимит рекламных наград на сегодня исчерпан.', ad_not_ready: 'Подождите перед следующим просмотром.' };
+  if(state.locale==='en')return english[code]??'Could not confirm this action. Please retry.';
+  const labels: Record<string, string> = { native_telegram_required: 'Откройте игру в приложении Telegram.', api_not_configured: 'Подключение игры ещё настраивается.', qa_server_unavailable: 'Локальный тестовый сервер не запущен.', insufficient_energy: 'Недостаточно энергии.', nickname_taken: 'Это имя уже занято.', nickname_invalid: 'Имя: от 2 до 24 символов.', nickname_prohibited: 'Выберите другое имя.', bonus_not_ready: 'Бонус ещё заряжается.', feedback_locked: 'Отзыв откроется после траты 100 энергии.', feedback_length: 'Напишите от 20 до 1000 символов.', invite_self: 'Нельзя пригласить самого себя.', invite_not_found: 'Код не найден.', invite_already_bound: 'Пригласивший уже указан.', invite_code_invalid: 'Проверьте код приглашения.', storage_unavailable: 'Не удалось сохранить данные на устройстве. Освободите место и повторите.', public_rules_required: 'Сначала примите правила сообщества.', rules_changed: 'Настройки обновились. Подождите синхронизации.', telegram_session_expired: 'Сессия Telegram закончилась. Закройте и откройте игру снова.', profile_disabled: 'Этот профиль недоступен.', ad_daily_limit: 'Лимит рекламных наград на сегодня исчерпан.', ad_not_ready: 'Подождите перед следующим просмотром.' };
   if (code === 'another_window_active') return 'Игра уже открыта в другом окне. Закройте его и повторите.';
   if (code === 'browser_update_required') return 'Обновите Telegram: текущая версия не поддерживает безопасное сохранение игры.';
   if(code==='invoice_expired')return 'Счёт устарел. Нажмите ещё раз, чтобы создать новый.';
   if(code==='checkout_in_progress')return 'Другая покупка ещё не завершена.';
   if (code === 'ad_unavailable') return 'Реклама пока недоступна. Попробуйте позже.';
   if (code === 'ad_age_restricted') return 'Реклама доступна только совершеннолетним. Другие способы получения энергии остаются доступны.';
-  return labels[code] ?? 'Не удалось подтвердить действие. Проверьте связь и повторите.';
+  return labels[code] ?? 'Не удалось подтвердить действие. Повторите.';
 };
 export async function request(body: Record<string, unknown>) {
-  try { if (disposed) throw new Error('store_disposed'); const serial = ++requestSerial; const result = await api.execute(body); if (disposed) throw new Error('store_disposed'); accept(result, serial); return result; }
-  catch (error) { if (error instanceof ApiError && error.code === 'network_unavailable') state.online = false; throw error; }
+  if (disposed) throw new Error('store_disposed'); const serial = ++requestSerial; const result = await api.execute(body); if (disposed) throw new Error('store_disposed'); accept(result, serial); return result;
 }
 export async function initialize() {
   try {
@@ -118,6 +118,12 @@ function later(delay: number) {
   if (retryTimer) clearTimeout(retryTimer); retryAt = deadline;
   retryTimer = setTimeout(() => { retryTimer = null; retryAt = Infinity; void flush(); }, Math.max(100, delay));
 }
+function deliveryNotice(error: unknown) {
+  // Transport has its own verified status. A saved proof has its own pending
+  // status in ResultWindow; a failed profile/start request is not a saved result.
+  if (error instanceof ApiError && error.source === 'transport') return;
+  state.notice = errorText(error);
+}
 export async function flush() {
   if (disposed) return;
   needsWork = true;
@@ -157,18 +163,18 @@ export async function flush() {
         }
         if (error instanceof ApiError && ['insufficient_energy', 'rules_changed', 'revision_mismatch', 'update_required', 'result_proof_invalid', 'round_canceled', 'result_metrics_invalid'].includes(error.code)) {
           if (['insufficient_energy','rules_changed','revision_mismatch','update_required'].includes(error.code)) {
-            try { await request({ action: 'profile', includeGameConfig: true }); } catch (refreshError) { state.notice = errorText(refreshError); later(5000); return; }
+            try { await request({ action: 'profile', includeGameConfig: true }); } catch (refreshError) { deliveryNotice(refreshError); later(5000); return; }
           }
           current.update(entry.requestId, { phase: 'rejected', error: error.code }); history();
         } else {
           const wait = error instanceof ApiError && error.retryAfterMs ? Math.min(3600000, error.retryAfterMs + 100) : 5000;
           later(wait);
-          state.notice = errorText(error); return;
+          deliveryNotice(error); return;
         }
       }
     }
     } while (needsWork);
-  })().catch(error => { if (!disposed) { state.notice = errorText(error); later(5000); } }).finally(() => { flushing = null; if (!disposed && needsWork) { needsWork = false; queueMicrotask(() => { void flush(); }); } });
+  })().catch(error => { if (!disposed) { deliveryNotice(error); later(5000); } }).finally(() => { flushing = null; if (!disposed && needsWork) { needsWork = false; queueMicrotask(() => { void flush(); }); } });
   return flushing;
 }
 export async function action(callback: () => Promise<unknown>) {
@@ -206,12 +212,15 @@ export function openScreen(screen: string, parent = '') {
   state.error = ''; state.screen = screen; state.parent = navigation.at(-1) ?? '';
 }
 export function back() { if (failedFinish.value) return; state.screen = navigation.pop() ?? ''; state.parent = navigation.at(-1) ?? ''; state.error = ''; }
-const online = () => { if (!disposed) { state.online = true; void flush(); } };
-const offline = () => { if (!disposed) state.online = false; };
+const online = () => { if (!disposed) { void api.checkConnection(); void flush(); } };
+const offline = () => { if (!disposed) void api.checkConnection(); };
+const activity = () => { if (!disposed) { const active = !document.hidden && telegram()?.isActive !== false; api.setActive(active); if (active) void flush(); } };
 const beforeUnload = (event: BeforeUnloadEvent) => { if (failedFinish.value) { event.preventDefault(); event.returnValue = ''; } };
 window.addEventListener('online', online); window.addEventListener('offline', offline); window.addEventListener('beforeunload', beforeUnload);
-if (import.meta.hot) import.meta.hot.dispose(data => {
+document.addEventListener('visibilitychange',activity); telegram()?.onEvent('activated',activity); telegram()?.onEvent('deactivated',activity); activity();
+export function disposeStore() {
   disposed = true; generation++; needsWork = false; if (retryTimer) clearTimeout(retryTimer);
-  data.failedFinish = failedFinish.value;
+  api.dispose(); document.removeEventListener('visibilitychange',activity); telegram()?.offEvent('activated',activity); telegram()?.offEvent('deactivated',activity);
   window.removeEventListener('online', online); window.removeEventListener('offline', offline); window.removeEventListener('beforeunload', beforeUnload);
-});
+}
+if (import.meta.hot) import.meta.hot.dispose(data => { data.failedFinish = failedFinish.value; disposeStore(); });

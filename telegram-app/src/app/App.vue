@@ -19,6 +19,7 @@ import { deliverAdReward, maybeResultInterstitial, completedRound } from '../ser
 import { adPresenter } from '../platform/adsgram';
 import { offerStartupAge } from '../platform/audience';
 import { warmArtwork } from '../services/artwork';
+import { version as appVersion } from '../../package.json';
 const canvas = ref<HTMLCanvasElement>(), touchpad = ref<HTMLElement>();
 const nativeQa=import.meta.env.VITE_QA_MODE==='true';
 const width = ref(window.innerWidth), height = ref(window.innerHeight), insets = ref(safeInsets());
@@ -56,8 +57,8 @@ onBeforeUnmount(() => { controller?.dispose(); adPresenter.destroy(); window.rem
       </div>
       </div>
       <div v-if="!state.initialized && state.error" class="startup-error" role="alert"><p>{{ state.error }}</p><button class="primary" @click="start">{{ t('Повторить','Retry') }}</button></div>
-      <span v-if="localQa||nativeQa" class="qa-label">{{ nativeQa?'Telegram QA · тестовая версия':'Локальная проверка · тестовые данные' }}</span>
-      <span v-if="!state.online" class="connection-label" role="status">{{ t('Нет связи · результаты сохраняются','Offline · results are saved') }}</span>
+      <span v-if="localQa||nativeQa" class="qa-label">{{ nativeQa?`Telegram QA · ${appVersion}`:'Локальная проверка · тестовые данные' }}</span>
+      <span v-if="state.connection==='checking'||state.connection==='offline'" class="connection-label" role="status">{{ state.connection==='checking'?t('Проверяем соединение…','Checking the connection…'):t('Сервер пока недоступен','Cannot reach the server right now') }}</span>
       <EnergyWindow v-if="['energy','subscription','video','friends','feedback','packs','helmet','jump'].includes(state.screen)" />
       <ProfileWindow v-else-if="state.screen === 'profile'" />
       <RankingWindow v-else-if="['ranking','history','chart','player-result','name-actions'].includes(state.screen)" />
