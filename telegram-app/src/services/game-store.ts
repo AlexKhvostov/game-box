@@ -53,6 +53,7 @@ function accept(result: ApiResult, serial: number) {
     if (result.gameConfig) { storage.set(`config:${result.profile?.id ?? state.profile!.id}`, result.gameConfig); if (world.value?.playing) pendingConfig = result.gameConfig; else { pendingConfig = null; state.config = result.gameConfig; } }
     if (result.platformConfig) state.platform = result.platformConfig;
   }
+  if(state.notice===errorText(new ApiError('network_unavailable')))state.notice='';
   state.online = true;
 }
 export const errorText = (error: unknown) => {
