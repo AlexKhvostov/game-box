@@ -1,0 +1,12 @@
+{
+  "baselineId": "android-188-20261020",
+  "generatedSha256": "f42df1d0d377057d9ad9a602178e1d26a05a25320b8016071f6abb7120d6a07e",
+  "bytes": 113060,
+  "method": "actual Dart GameWorld + MobileGameplayTuning, incremental browser adapter; rendering replaced",
+  "adapterSha256": "d23fb9ac3a810df33f280d362f0891b3ebd8479e3b5a6ffc1b6060e23575dc1e",
+  "adapterInputs": {
+    "build_kernel.py": "823bdd1bef16f1a5b52aaf6b06ea7cc3527e5bbce53b87c66c38a2179e665d56",
+    "kernel/main.dart": "3bf36404fe203ed4b7406ce1976465e50a8721f2079bdb3eb173830c4a0bb0e4",
+    "kernel/session.dart": "d23fb9ac3a810df33f280d362f0891b3ebd8479e3b5a6ffc1b6060e23575dc1e"
+  }
+}

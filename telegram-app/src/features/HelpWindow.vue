@@ -1,0 +1,42 @@
+<script setup lang="ts">
+import { computed } from 'vue';
+import GameWindow from '../components/GameWindow.vue';
+import { state, openScreen, action, request } from '../services/game-store';
+import { telegram } from '../platform/telegram';
+const page=computed(()=>state.screen);
+const title=computed(()=>page.value==='deletion'?t('Запрос удаления профиля','Request profile deletion'):page.value==='privacy'?t('Данные Telegram-профиля','Telegram profile data'):t('Помощь и приватность','Help and privacy'));
+function copy(value:string){void navigator.clipboard.writeText(value).then(()=>state.notice=t('Скопировано','Copied')).catch(()=>state.error=t('Не удалось скопировать','Could not copy'));}
+const deletion=computed(()=>t(`Прошу удалить мой Telegram-профиль Untouch. ID игрока: ${state.profile?.id??'—'}. Готов подтвердить владение аккаунтом.`,`Please delete my Untouch Telegram profile. Player ID: ${state.profile?.id??'—'}. I can verify account ownership.`));
+const t = (ru: string, en: string) => state.locale === 'ru' ? ru : en;
+const resetNames=()=>action(async()=>{await request({action:'public_names_reset'});state.notice=t('Скрытые имена сброшены','Hidden names reset');});
+function link(url: string) { if(telegram()?.initData) telegram()!.openLink(url); else window.open(url,'_blank','noopener,noreferrer'); }
+</script>
+<template>
+  <GameWindow :title="title" tall class="help-window">
+    <template v-if="state.parent" #back>‹</template>
+    <template v-if="page==='deletion'">
+      <p>{{ t('Чтобы удалить профиль, напишите в поддержку с ID игрока. Удаление выполняется после проверки владельца. Нажатие кнопки ниже только копирует текст обращения.','Contact support with your player ID to request deletion. Deletion follows ownership verification. The button below only copies the request text.') }}</p>
+      <p class="profile-id">ID: {{ state.profile?.id }}</p><p>support@untouch.fun</p>
+      <button class="primary full" @click="copy(deletion)">{{ t('Скопировать текст обращения','Copy request text') }}</button>
+      <button class="secondary full" @click="copy('support@untouch.fun')">{{ t('Скопировать адрес поддержки','Copy support address') }}</button>
+      <p class="hint">{{ t('Telegram-профиль и Google-профиль отдельные. Укажите, что обращение относится к Telegram. Закрытие мини-приложения и удаление бота из списка чатов сами по себе не удаляют игровой профиль.','Telegram and Google profiles are separate. Specify that your request concerns Telegram. Closing the mini app or removing its chat does not delete the game profile.') }}</p>
+      <p class="hint">{{ t('Если есть действующая подписка Stars, отдельно отключите автопродление в Telegram. Часть обезличенных сведений о платежах сохраняется для защиты от повторной обработки.','If you have a Stars subscription, separately turn off auto-renewal in Telegram. Anonymous payment markers are retained to prevent repeated processing.') }}</p>
+    </template>
+    <template v-else-if="page==='privacy'">
+      <p>{{ t('Telegram передаёт серверу подписанные данные входа. По ним создаётся отдельный игровой профиль: Telegram ID и имя пользователя используются для входа и поддержки. Игровой ник, результаты и позиция видны в общем рейтинге Android и Telegram.','Telegram sends signed sign-in data to the server. It creates a separate game profile: Telegram ID and username are used for sign-in and support. Your game name, scores and rank appear in the shared Android and Telegram leaderboard.') }}</p>
+      <p>{{ t('В аккаунте можно скрыть Telegram username. Это не скрывает игровой ник. На устройстве хранятся настройки, возрастная группа и очередь результатов; дата рождения не запрашивается. На сервер передаётся факт прохождения выбора возраста.','You can hide your Telegram username in Account. This does not hide your game name. Settings, age group and pending results are stored on your device; your date of birth is not requested. The server receives only whether age selection was completed.') }}</p>
+      <p>{{ t('Реклама AdsGram загружается по разрешению и при доступности рекламных настроек. Покупки Stars обрабатываются Telegram; игра получает сведения о товаре, сумме и статусе платежа.','AdsGram advertisements load with permission when ads are enabled. Telegram processes Stars purchases; the game receives product, amount and payment status information.') }}</p>
+      <button class="menu-row" @click="link('https://untouch.fun/privacy/')"><strong>{{ t('Общая политика Untouch','Untouch privacy policy') }}</strong><i>↗</i></button>
+      <button class="secondary full" @click="openScreen('deletion','privacy')">{{ t('Запрос удаления профиля','Request profile deletion') }}</button>
+    </template>
+    <template v-else>
+    <p class="profile-id">ID: {{ state.profile?.id }}</p><div class="button-row"><button class="secondary" @click="copy(state.profile?.id??'')">{{t('Копировать ID','Copy ID')}}</button><button class="secondary" @click="copy('support@untouch.fun')">support@untouch.fun</button></div>
+    <details class="help-game-guide"><summary>{{ t('Как играть','How to play') }}</summary>
+    <h2>{{ t('Как играть','How to play') }}</h2><p>{{ t('Коснитесь поля и двигайте палец: герой повторяет ваше движение. Уклоняйтесь от красных фигур и продержитесь как можно дольше.','Touch the field and move your finger: the hero follows your movement. Dodge the red shapes and survive as long as possible.') }}</p><p>{{ t('Включённый шлем спасает от одного удара. Если выбран прыжок — коснитесь вторым пальцем или нажмите пробел на компьютере.','An equipped helmet protects against one collision. With jump enabled, tap with a second finger or press Space on desktop.') }}</p>
+    <h2>{{ t('Энергия','Energy') }}</h2><p>{{ t('Стоимость попытки и усилений видна перед стартом. Бонус заряжается по серверному времени. Награда за пробег и риск начисляется после проверки результата.','Run and boost costs are shown before starting. The bonus recharges by server time. Distance and risk rewards are credited after result verification.') }}</p>
+    <h2>{{ t('Общий рейтинг','Shared ranking') }}</h2><p>{{ t('Android и Telegram играют по одинаковым правилам. Рейтинг рекордов и среднего результата — общий. Балансы и аккаунты платформ отдельные.','Android and Telegram use the same rules and share best-time and average rankings. Platform accounts and balances are separate.') }}</p><p>{{ t('Среднее — взвешенное среднее квадратичное последних подходящих попыток. Параметры расчёта показаны в рейтинге.','The average is the weighted root mean square of recent eligible runs. Calculation settings are shown in the ranking.') }}</p>
+    </details><button class="menu-row" @click="openScreen('privacy','help')"><strong>{{ t('Данные и конфиденциальность','Data and privacy') }}</strong><i>↗</i></button><button class="menu-row" @click="openScreen('deletion','help')"><strong>{{ t('Запрос удаления профиля','Request profile deletion') }}</strong><i>↗</i></button>
+    <button class="secondary full" :disabled="state.busy||!state.profile?.hiddenPlayers.length" @click="resetNames">{{ t('Сбросить скрытые имена','Reset hidden names') }}</button><button class="secondary full" @click="openScreen('feedback','help')">{{ t('Поделиться мнением','Share feedback') }}</button>
+    <p class="hint">{{ t('ID профиля нужен для обращения в поддержку. Его можно скопировать в аккаунте.','You can copy your profile ID from your account to contact support.') }}</p></template><p v-if="state.error" class="error-message" role="alert">{{ state.error }}</p>
+  </GameWindow>
+</template>

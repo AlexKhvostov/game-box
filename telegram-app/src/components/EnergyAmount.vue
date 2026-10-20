@@ -1,0 +1,1 @@
+<script setup lang="ts">defineProps<{amount:number;prefix?:string}>();</script><template><span class="energy-amount"><span>{{prefix}}{{amount}}</span><svg viewBox="0 0 18 24" aria-hidden="true"><path d="M11 0 0 13 7 13 5 24 18 9 10 9Z" fill="#FFF03B"/></svg></span></template>
