@@ -6,6 +6,7 @@ import type { ApiResult, Profile, GameConfig, PlatformConfig, AverageBoard, Invi
 import type { WorldState, RoundProof } from '../domain/kernel';
 import { transportErrorText, type ConnectionStatus } from './connection';
 import { telegram } from '../platform/telegram';
+import {closeTopOverlay} from './ui-overlays';
 const storage = new DurableStorage();
 export const state = reactive({ profile: null as Profile | null, config: null as GameConfig | null, platform: null as PlatformConfig | null,
   initialized: false, online: true, connection: 'unknown' as ConnectionStatus, busy: false, externalBusy: false, error: '', notice: '', screen: '' as string, parent: '',
@@ -211,7 +212,7 @@ export function openScreen(screen: string, parent = '') {
   else navigation = [parent];
   state.error = ''; state.screen = screen; state.parent = navigation.at(-1) ?? '';
 }
-export function back() { if (failedFinish.value) return; state.screen = navigation.pop() ?? ''; state.parent = navigation.at(-1) ?? ''; state.error = ''; }
+export function back() { if(closeTopOverlay())return; if (failedFinish.value) return; state.screen = navigation.pop() ?? ''; state.parent = navigation.at(-1) ?? ''; state.error = ''; }
 const online = () => { if (!disposed) { void api.checkConnection(); void flush(); } };
 const offline = () => { if (!disposed) void api.checkConnection(); };
 const activity = () => { if (!disposed) { const active = !document.hidden && telegram()?.isActive !== false; api.setActive(active); if (active) void flush(); } };

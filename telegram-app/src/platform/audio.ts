@@ -1,21 +1,23 @@
-import { state } from '../services/game-store';
-import { telegram } from './telegram';
-const files: Record<string, string> = { start: 'game_start', wall: 'mob_wall', collide: 'mob_collide', hit: 'hero_mob', heroWall: 'hero_wall', helmet: 'helmet_break', jump: 'jump', risk: 'near_miss' };
-const flags: Record<string, string> = { start: 'sfxStart', wall: 'sfxMobWall', collide: 'sfxMobCollide', hit: 'sfxHeroMob', heroWall: 'sfxHeroWall', helmet: 'sfxHelmet', jump: 'sfxJump', risk: 'sfxNearMiss' };
-const gains: Record<string, number> = { wall: .7, collide: .55, hit: .8, heroWall: .8, helmet: .65, jump: .45, risk: .6, start: .5 };
-const sounds = new Map<string, HTMLAudioElement[]>(), last = new Map<string, number>();
-let music: HTMLAudioElement | undefined, enabled = false;
-export function enableAudio() { enabled = true; syncMusic(); }
-export function syncMusic() {
-  if (!enabled || document.hidden || telegram()?.isActive === false || state.externalBusy || !state.preferences.music || state.config?.config.audio.music === false) { music?.pause(); return; }
-  music ??= new Audio('/assets/sfx/bgm_loop.wav'); music.loop = true; music.volume = state.config?.config.audio.musicVolume ?? .35; void music.play().catch(() => {});
+import {watch} from 'vue';
+import {state} from '../services/game-store';
+import {telegram} from './telegram';
+import {GameAudio,effects,type SoundName} from './audio-engine';
+let paused=false;
+const inhibitions=new Set<symbol>(),previews=new Set<symbol>();
+const active=()=>!inhibitions.size&&!paused&&!document.hidden&&telegram()?.isActive!==false&&!state.externalBusy;
+const engine=new GameAudio(()=>{const config=state.config?.config.audio??{},preview=previews.size>0;return{active:active(),sound:preview||state.preferences.sound,music:preview||state.preferences.music,config:preview?{...config,music:true,...Object.fromEntries(Object.values(effects).map(effect=>[effect.flag,true]))}:config};});
+export async function prepareAudio(){await engine.prepare();engine.sync();}
+export function enableAudio(){paused=false;void engine.unlock();}
+export function syncMusic(){paused=document.hidden||telegram()?.isActive===false||state.externalBusy;engine.sync();if(!paused)engine.resumeIfUnlocked();}
+export function sound(name:SoundName){if(name==='start')engine.startFromGesture();else engine.play(name);}
+export function stopAudio(){paused=true;engine.stop();}
+export function inhibitAudio(){const token=Symbol();inhibitions.add(token);engine.stop();return()=>{inhibitions.delete(token);};}
+export function previewAllAudioEffects(){if(!import.meta.env.DEV&&import.meta.env.VITE_QA_MODE!=='true')return()=>{};const token=Symbol();previews.add(token);engine.sync();return()=>{previews.delete(token);engine.sync();};}
+export function audioDiagnostics(){return engine.diagnostics();}
+export function installAudio(){
+  const gesture=(event:Event)=>{if(event.isTrusted)enableAudio();};
+  window.addEventListener('pointerdown',gesture,{capture:true,passive:true});
+  window.addEventListener('keydown',gesture,{capture:true});
+  const unwatch=watch(()=>[state.preferences.sound,state.preferences.music,state.config?.config.audio],()=>engine.sync(),{deep:true});
+  return()=>{unwatch();window.removeEventListener('pointerdown',gesture,true);window.removeEventListener('keydown',gesture,true);engine.dispose();};
 }
-export function sound(name: string) {
-  if (!enabled || document.hidden || telegram()?.isActive === false || state.externalBusy || !state.preferences.sound || state.config?.config.audio[flags[name]!] === false) return;
-  const stamp = performance.now(), gap = name === 'wall' ? 70 : name === 'collide' ? 90 : name === 'risk' ? 140 : 0;
-  if (stamp - (last.get(name) ?? -1000) < gap || !files[name]) return; last.set(name, stamp);
-  if (!sounds.has(name)) sounds.set(name, Array.from({ length: name === 'wall' ? 3 : 1 }, () => new Audio(`/assets/sfx/${files[name]}.wav`)));
-  const pool = sounds.get(name)!, item = pool.find(a => a.paused) ?? pool[0]!;
-  item.currentTime = 0; item.volume = (state.config?.config.audio.sfxVolume ?? .85) * (gains[name] ?? .5); void item.play().catch(() => {});
-}
-export function stopAudio() { music?.pause(); for (const pool of sounds.values()) for (const a of pool) a.pause(); }

@@ -74,7 +74,7 @@ export class GameController {
       while (budget > 1e-9 && this.snapshot.playing) { const step = Math.min(50, budget); this.debt -= step; budget -= step; this.advance(step); }
       const afterKernel=motionProbe.clock();this.frame++;this.draw();
       motionProbe.frame(dt,this.snapshot.timeMs-before,afterKernel-started,motionProbe.clock()-afterKernel,this.snapshot.dead);
-    } else { this.snapshot = kernel({ op: 'idle', ms: Math.min(50, dt) });this.frame++;this.draw(); }
+    } else { this.snapshot = kernel({ op: 'idle', ms: Math.min(50, dt) });if(this.snapshot.wallBounces)sound('wall');if(this.snapshot.enemyBounces)sound('collide');this.frame++;this.draw(); }
     if (time - this.lastHud >= 33) { world.value = this.snapshot; this.lastHud = time; }
   };
   private advance(ms: number) {

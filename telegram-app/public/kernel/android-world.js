@@ -2792,10 +2792,10 @@ $1(a){A.df(a)
 return isFinite(a)&&a>0.05&&a<50},
 $S:4}
 A.cX.prototype={
-$1(b2){var t,s,r,q,p,o,n,m,l,k,j,i,h,g,f,e,d,c,b,a,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,b0=null,b1="startPose"
-A.a8(b2)
+$1(b3){var t,s,r,q,p,o,n,m,l,k,j,i,h,g,f,e,d,c,b,a,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,b0,b1=null,b2="startPose"
+A.a8(b3)
 try{p=u.c
-t=p.a(B.e.bb(b2,b0))
+t=p.a(B.e.bb(b3,b1))
 s=J.a0(t,"op")
 if(J.T(s,"rewardFrame")){q=A.t(J.a0(t,"p"))
 p=J.T(J.a0(t,"reduced"),!0)
@@ -2816,35 +2816,35 @@ j=j.a
 j=i?j:B.b.m((j-0.8)/0.2,0,1)
 i=r
 i=i.b?0:Math.sin(3.141592653589793*B.b.m((i.a-0.83)/0.17,0,1))
-h=B.e.a0(A.K(["ok",!0,"p",p,"appearance",q,"flight",o,"fly",n,"scale",m,"opacity",k*(1-l),"roll",j,"hit",i],u.N,u.K),b0)
+h=B.e.a0(A.K(["ok",!0,"p",p,"appearance",q,"flight",o,"fly",n,"scale",m,"opacity",k*(1-l),"roll",j,"hit",i],u.N,u.K),b1)
 return h}if(J.T(s,"create")){o=t
 g=new A.c2(A.n([],u.U))
-b2=p.a(o.h(0,"config"))
-f=A.eU(p.a(b2.h(0,"enemies")))
-n=p.a(b2.h(0,"player"))
+b3=p.a(o.h(0,"config"))
+f=A.eU(p.a(b3.h(0,"enemies")))
+n=p.a(b3.h(0,"player"))
 m=A.p(n.h(0,"size"))
-if(m==null)m=b0
+if(m==null)m=b1
 if(m==null){m=A.p(n.h(0,"playerSize"))
-if(m==null)m=b0}if(m==null)m=36
+if(m==null)m=b1}if(m==null)m=36
 l=A.N(n.h(0,"showFace"))
 n=l==null?A.N(n.h(0,"playerShowFace")):l
-l=p.a(b2.h(0,"field"))
+l=p.a(b3.h(0,"field"))
 k=l.h(0,"color")
 e=k==null?l.h(0,"colorHex"):k
 if(e==null)e=l.h(0,"surfaceColor")
-d=typeof e=="string"&&B.d.aO(e).length!==0?B.d.aO(e):b0
+d=typeof e=="string"&&B.d.aO(e).length!==0?B.d.aO(e):b1
 k=A.p(l.h(0,"borderWidth"))
-if(k==null)k=b0
+if(k==null)k=b1
 if(k==null)k=3
 j=A.p(l.h(0,"brightness"))
-if(j==null)j=b0
+if(j==null)j=b1
 if(j==null){j=A.p(l.h(0,"fieldBrightness"))
-if(j==null)j=b0}if(j==null)j=1
+if(j==null)j=b1}if(j==null)j=1
 l=A.p(l.h(0,"shadowBrightness"))
-if(l==null)l=b0
+if(l==null)l=b1
 if(l==null)l=1
-i=A.dB(p.a(b2.h(0,"game")))
-p=p.a(b2.h(0,"mobileEnemies"))
+i=A.dB(p.a(b3.h(0,"game")))
+p=p.a(b3.h(0,"mobileEnemies"))
 c=p.h(0,"startSpeedSteps")
 b=p.h(0,"accelerationSteps")
 if(typeof c!="number"||typeof b!="number"||!isFinite(c)||!isFinite(b)||c<0.01||c>250||b<0||b>50)A.J(B.E)
@@ -2883,7 +2883,7 @@ B.a.M(j,p.b6())
 g.b=p
 g.c=J.T(o.h(0,"hadHelmet"),!0)
 g.d=J.T(o.h(0,"hadJump"),!0)
-if(o.h(0,b1)!=null)p.bo(o.h(0,b1))
+if(o.h(0,b2)!=null)p.bo(o.h(0,b2))
 g.e=Math.max(0,i.z)
 p=this.a
 p.a=g}else{o=this.a
@@ -2891,15 +2891,18 @@ n=o.a
 if(n==null){q=A.bP("session_missing")
 throw A.c(q)}switch(s){case"idle":p=A.t(J.a0(t,"ms"))
 if(n.w||n.x||!isFinite(p)||p<=0||p>50)A.J(A.bP("idle"))
-n=n.b
-n===$&&A.j()
-n.bq(p/1000)
+m=n.b
+m===$&&A.j()
+a7=m.bq(p/1000)
+n.Q=a7.a
+n.as=a7.b
 break
 case"start":if(n.w||n.x)A.J(A.bP("start"))
 p=n.b
 p===$&&A.j()
 p.aT()
 n.ax=p.gaU()
+n.as=n.Q=0
 n.w=!0
 break
 case"tick":n.aj([0,J.a0(t,"ms")])
@@ -2914,32 +2917,32 @@ case"jump":n.bi()
 break
 case"snapshot":break
 case"proof":q=u.N
-h=B.e.a0(A.K(["ok",!0,"proof",A.K(["version",1,"events",n.at,"startPose",n.ax],q,u.z)],q,u.K),b0)
+h=B.e.a0(A.K(["ok",!0,"proof",A.K(["version",1,"events",n.at,"startPose",n.ax],q,u.z)],q,u.K),b1)
 return h
 case"guard":q=p.a(t)
 p=u.j
-a7=p.a(q.h(0,"field"))
-a8=p.a(q.h(0,"visible"))
+a8=p.a(q.h(0,"field"))
+a9=p.a(q.h(0,"visible"))
 n=n.b
 n===$&&A.j()
-p=J.a_(a7)
-o=A.t(p.h(a7,0))
-m=A.t(p.h(a7,1))
-l=A.t(p.h(a7,2))
-p=A.t(p.h(a7,3))
-k=J.a_(a8)
-j=A.t(k.h(a8,0))
-i=A.t(k.h(a8,1))
-a=A.t(k.h(a8,2))
-k=A.t(k.h(a8,3))
-h=B.e.a0(A.K(["ok",!0,"issue",A.eX(A.t(q.h(0,"dpr")),new A.v(o,m,o+l,m+p),B.r,new A.v(j,i,j+a,i+k),n)],u.N,u.X),b0)
+p=J.a_(a8)
+o=A.t(p.h(a8,0))
+m=A.t(p.h(a8,1))
+l=A.t(p.h(a8,2))
+p=A.t(p.h(a8,3))
+k=J.a_(a9)
+j=A.t(k.h(a9,0))
+i=A.t(k.h(a9,1))
+a=A.t(k.h(a9,2))
+k=A.t(k.h(a9,3))
+h=B.e.a0(A.K(["ok",!0,"issue",A.eX(A.t(q.h(0,"dpr")),new A.v(o,m,o+l,m+p),B.r,new A.v(j,i,j+a,i+k),n)],u.N,u.X),b1)
 return h
 default:q=A.br("unknown_operation")
 throw A.c(q)}p=o}q=A.dK(u.N,u.z)
 J.eI(q,"ok",!0)
 J.dr(q,p.a.gaS())
-h=B.e.a0(q,b0)
-return h}catch(a9){return'{"ok":false,"error":"invalid_kernel_operation"}'}},
+h=B.e.a0(q,b1)
+return h}catch(b0){return'{"ok":false,"error":"invalid_kernel_operation"}'}},
 $S:11}
 A.bN.prototype={
 b1(){var t=this.a

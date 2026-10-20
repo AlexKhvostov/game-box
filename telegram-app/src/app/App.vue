@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
-import { state, world, initialize, attemptCost, back, refreshBoards, action, errorText, openScreen } from '../services/game-store';
+import { state, world, initialize, attemptCost, back, refreshBoards, action, errorText, openScreen, failedFinish } from '../services/game-store';
 import { localQa } from '../services/api';
 import { loadKernel } from '../domain/kernel';
 import { viewportGeometry, textScale } from '../domain/viewport';
@@ -9,6 +9,7 @@ import { setupTelegram, telegram, safeInsets } from '../platform/telegram';
 import GameHud from '../components/GameHud.vue';
 import TouchpadFloor from '../components/TouchpadFloor.vue';
 import EnergyWindow from '../features/EnergyWindow.vue';
+import AudioDiagnostics from '../features/AudioDiagnostics.vue';
 import ProfileWindow from '../features/ProfileWindow.vue';
 import RankingWindow from '../features/RankingWindow.vue';
 import ResultWindow from '../features/ResultWindow.vue';
@@ -25,6 +26,8 @@ import GameWindow from '../components/GameWindow.vue';
 import StatusOverlay from '../components/StatusOverlay.vue';
 import EnergyAmount from '../components/EnergyAmount.vue';
 import {prepareImpactGlyphs} from '../game/impact-glyphs';
+import {prepareAudio,installAudio} from '../platform/audio';
+import {prepareResultFonts} from '../services/result-fonts';
 const canvas = ref<HTMLCanvasElement>(), touchpad = ref<HTMLElement>();
 const nativeQa=import.meta.env.VITE_QA_MODE==='true';
 const motionReportText=computed(()=>state.screen==='motion-diagnostics'?`UNTOUCH_MOTION ${JSON.stringify(motionProbe.report())}`:'');
@@ -35,21 +38,24 @@ const geometry = computed(() => viewportGeometry(usableWidth.value, height.value
 const css = computed(() => ({ '--scale': geometry.value.scale, '--logical-height': `${geometry.value.logicalHeight}px`, '--hud-height': `${geometry.value.hudHeight / geometry.value.scale}px`, '--text-scale': textScale(usableWidth.value, height.value, 1, insets.value.top + insets.value.bottom), width: `${geometry.value.width}px`, height: `${Math.max(0,height.value - insets.value.top - insets.value.bottom)}px`, marginTop: `${insets.value.top}px`, left:`${(insets.value.left-insets.value.right)/2}px` }));
 const t=(ru:string,en:string)=>state.locale==='ru'?ru:en;
 let controller: GameController | undefined;
+let disposeAudio:(()=>void)|undefined;
+let previewResultId='';
+function openLastResult(){if(failedFinish.value)return;const last=state.history.find(row=>!!row.result);if(last){previewResultId=last.requestId;state.resultId=last.requestId;openScreen('result','motion-diagnostics');}}
 function resize() { controller?.reanchor(); width.value = window.innerWidth; height.value = window.innerHeight; insets.value = safeInsets(); }
 async function start() {
   warmArtwork();
-  state.error = ''; await Promise.all([loadKernel(), initialize(), prepareImpactGlyphs()]); await nextTick();
+  state.error = ''; await Promise.all([loadKernel(), initialize(), prepareImpactGlyphs(),prepareAudio(),prepareResultFonts()]); await nextTick();
   if (state.initialized && canvas.value && touchpad.value) { controller?.dispose(); controller = new GameController(canvas.value, touchpad.value); offerStartupAge(); void action(refreshBoards); void deliverAdReward().catch(error => state.notice = errorText(error)); }
 }
 watch(() => [state.helmet, state.jump, state.config?.revision], () => { if (!world.value?.playing && !world.value?.dead) controller?.reset(); }, { flush: 'sync' });
 watch(() => state.screen, (screen, before) => {
   if (before==='result') adPresenter.destroy();
-  if (screen==='result') { completedRound(state.resultId); setTimeout(() => { void maybeResultInterstitial().catch(() => {}); }, 480); }
+  if (screen==='result'&&state.resultId!==previewResultId) { completedRound(state.resultId); setTimeout(() => { void maybeResultInterstitial().catch(() => {}); }, 480); }
   const tg = nativeBack(); if (screen) tg?.BackButton.show(); else { tg?.BackButton.hide(); if (before === 'result' || world.value?.dead) controller?.reset(); }
 });
 function nativeBack() { const tg = telegram(); return tg?.initData && tg.isVersionAtLeast('6.1') ? tg : undefined; }
-onMounted(() => { setupTelegram(); window.addEventListener('resize', resize); window.visualViewport?.addEventListener('resize', resize); telegram()?.onEvent('viewportChanged', resize); telegram()?.onEvent('safeAreaChanged', resize); telegram()?.onEvent('contentSafeAreaChanged', resize); nativeBack()?.BackButton.onClick(back); void start(); });
-onBeforeUnmount(() => { controller?.dispose(); adPresenter.destroy(); window.removeEventListener('resize', resize); window.visualViewport?.removeEventListener('resize', resize); telegram()?.offEvent('viewportChanged', resize); telegram()?.offEvent('safeAreaChanged', resize); telegram()?.offEvent('contentSafeAreaChanged', resize); nativeBack()?.BackButton.offClick(back); });
+onMounted(() => { disposeAudio=installAudio(); setupTelegram(); window.addEventListener('resize', resize); window.visualViewport?.addEventListener('resize', resize); telegram()?.onEvent('viewportChanged', resize); telegram()?.onEvent('safeAreaChanged', resize); telegram()?.onEvent('contentSafeAreaChanged', resize); nativeBack()?.BackButton.onClick(back); void start(); });
+onBeforeUnmount(() => { controller?.dispose(); disposeAudio?.(); adPresenter.destroy(); window.removeEventListener('resize', resize); window.visualViewport?.removeEventListener('resize', resize); telegram()?.offEvent('viewportChanged', resize); telegram()?.offEvent('safeAreaChanged', resize); telegram()?.offEvent('contentSafeAreaChanged', resize); nativeBack()?.BackButton.offClick(back); });
 </script>
 <template>
   <main class="viewport" :style="css">
@@ -65,7 +71,8 @@ onBeforeUnmount(() => { controller?.dispose(); adPresenter.destroy(); window.rem
       </div>
       <div v-if="!state.initialized && state.error" class="startup-error" role="alert"><p>{{ state.error }}</p><button class="primary" @click="start">{{ t('Повторить','Retry') }}</button></div>
       <button v-if="localQa||nativeQa" class="qa-label" style="pointer-events:auto;border:0;background:none;padding:0;min-height:0" :disabled="world?.playing" @click="openScreen('motion-diagnostics',state.screen)">{{ nativeQa?`Telegram QA · ${appVersion}`:'Локальная проверка · тестовые данные' }}</button>
-      <GameWindow v-if="(localQa||nativeQa)&&state.screen==='motion-diagnostics'" title="QA · Плавность"><label><input :checked="legacyInputPaint" type="checkbox" @change="legacyInputPaint=($event.target as HTMLInputElement).checked;motionProbe.setLegacyInputPaint(legacyInputPaint)"> QA: прежняя отрисовка на каждом касании</label><pre style="white-space:pre-wrap;overflow-wrap:anywhere;font-size:9px">{{motionReportText}}</pre></GameWindow>
+      <GameWindow v-if="(localQa||nativeQa)&&state.screen==='motion-diagnostics'" title="QA · Плавность"><label><input :checked="legacyInputPaint" type="checkbox" @change="legacyInputPaint=($event.target as HTMLInputElement).checked;motionProbe.setLegacyInputPaint(legacyInputPaint)"> QA: прежняя отрисовка на каждом касании</label><button class="secondary full" @click="openScreen('audio-diagnostics','motion-diagnostics')">Проверка звуков без энергии</button><button v-if="state.history.some(row=>!!row.result)" class="secondary full" @click="openLastResult">Последний сохранённый результат</button><pre style="white-space:pre-wrap;overflow-wrap:anywhere;font-size:9px">{{motionReportText}}</pre></GameWindow>
+      <AudioDiagnostics v-else-if="(localQa||nativeQa)&&state.screen==='audio-diagnostics'"/>
       <EnergyWindow v-else-if="['energy','subscription','video','friends','feedback','packs','helmet','jump'].includes(state.screen)" />
       <ProfileWindow v-else-if="state.screen === 'profile'" />
       <RankingWindow v-else-if="['ranking','history','chart','player-result','name-actions'].includes(state.screen)" />
