@@ -1,5 +1,6 @@
 import type {ImpactBurst} from './impact';
 import type { Body, WorldState } from '../domain/kernel';
+import {motionProbe} from './motion-probe';
 // Direct Canvas translation of GameFieldPainter/paintHeroFace. Geometry comes
 // exclusively from the compiled Dart world; visible effects never alter bodies.
 function rounded(c: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
@@ -31,9 +32,12 @@ export class FieldPainter {
     rounded(c, 0, 0, 380, 380, config.field.cornerRadius); c.strokeStyle = '#0000001f'; c.lineWidth = 380 * .08; c.stroke();
   }
   draw(s: WorldState, config: Record<string, any>, frame: number, impacts:ImpactBurst[] = []) {
+    const t0=motionProbe.clock();
     const c = this.c, dpr = Math.min(devicePixelRatio || 1, 3), side = this.canvas.clientWidth;
     const pixels = Math.max(1, Math.round(side * dpr)); if (this.canvas.width !== pixels) { this.canvas.width = pixels; this.canvas.height = pixels; }
+    const t1=t0?motionProbe.clock():0;
     c.setTransform(pixels / 380, 0, 0, pixels / 380, 0, 0); c.drawImage(this.background, 0, 0, 380, 380);c.save();rounded(c,0,0,380,380,config.field.cornerRadius);c.clip();
+    const t2=t0?motionProbe.clock():0;
     const brightness = Math.max(.4, Math.min(2.5, config.field.shadowBrightness ?? 1));
     for (const e of s.enemies) enemy(c, e, `rgba(0,0,0,${Math.min(.85, .42 / brightness)})`, 5.5);
     const p = s.player, vis = p.size * p.visualScale, x = p.x + (p.size - vis) / 2, y = p.y + (p.size - vis) / 2 - p.jumpLift * 8;
@@ -47,6 +51,7 @@ export class FieldPainter {
       rounded(c, -e.w / 2, -e.h / 2, e.w, e.h, 3); c.fillStyle = fill; c.fill(); c.strokeStyle = '#FFC8B9b3'; c.lineWidth = 1; c.stroke();
       if (config.enemies.collideWithEachOther) { rounded(c, -e.w / 2 - 1.2, -e.h / 2 - 1.2, e.w + 2.4, e.h + 2.4, 4.2); c.strokeStyle = '#ffffffd1'; c.lineWidth = 2; c.stroke(); } c.restore();
     }
+    const t3=t0?motionProbe.clock():0;
     if (p.jumpLift > .02) shadow();
     c.save(); c.globalAlpha = s.invulnerable ? .22 + .78 * (Math.sin(frame * 1.35) + 1) / 2 : 1;
     rounded(c, x - 4, y - 4, vis + 8, vis + 8, 8); c.fillStyle = '#35F5C633'; c.fill();
@@ -77,11 +82,14 @@ export class FieldPainter {
     }
     c.restore();
     if (!s.playing && !s.dead) { rounded(c, x - 5, y - 5, vis + 10, vis + 10, 9); c.strokeStyle = '#B1FFD777'; c.lineWidth = 1; c.stroke(); }
+    const t4=t0?motionProbe.clock():0;
     const border = config.field.borderWidth, inset = Math.max(.5, Math.min(12, border / 2 + .5));
     rounded(c, inset, inset, 380 - inset * 2, 380 - inset * 2, Math.max(0, config.field.cornerRadius - inset));
     const wall = config.game.wallsKillPlayer ? '#F0363E' : '#58E2EC'; c.strokeStyle = `${wall}47`; c.lineWidth = border + 4; c.stroke(); c.strokeStyle = wall; c.lineWidth = border; c.stroke();
+    const t5=t0?motionProbe.clock():0;
     for(const impact of impacts)impact.paint(c);
     for(const fx of s.nearMissFx??[]){const t=Math.min(1,fx.age/.42),a=(1-t)*.9,r=6+t*26;c.save();c.globalAlpha=a;c.strokeStyle='#FFC107';c.lineWidth=2.4*(1-t*.5);c.beginPath();c.arc(fx.x,fx.y,r,0,Math.PI*2);c.stroke();c.globalAlpha=a*.55;c.fillStyle='#FFF59D';c.beginPath();c.arc(fx.x,fx.y,r*.35,0,Math.PI*2);c.fill();c.restore();}
     c.restore();
+    if(t0)motionProbe.paint([t1-t0,t2-t1,t3-t2,t4-t3,t5-t4,motionProbe.clock()-t5]);
   }
 }
