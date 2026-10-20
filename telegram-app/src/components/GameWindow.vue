@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { back, state } from '../services/game-store';
+import StatusOverlay from './StatusOverlay.vue';
 const props = withDefaults(defineProps<{ title: string; tall?: boolean; icon?: string; closable?: boolean }>(), { closable: true });
 const panel = ref<HTMLElement>();
 let previous: HTMLElement | null = null;
@@ -23,7 +24,7 @@ onBeforeUnmount(() => { window.removeEventListener('keydown', key); previous?.fo
       <header class="window-header"><button v-if="$slots.back" class="icon-button" :aria-label="state.locale==='ru'?'Назад':'Back'" :disabled="closable === false" @click="back">‹</button><h1 id="window-title"><slot name="title"><span v-if="icon" aria-hidden="true">{{ icon }}</span>{{ title }}</slot></h1><slot name="header-extra"/><button class="icon-button close-window" :aria-label="state.locale==='ru'?'Закрыть':'Close'" :disabled="closable === false" @click="back">×</button></header>
       <div class="window-body"><slot /></div>
       <footer v-if="$slots.footer" class="window-footer"><slot name="footer"/></footer>
-      <button v-if="state.notice" class="window-notice" role="status" @click="state.notice=''">{{ state.notice }}</button>
+      <StatusOverlay/>
     </section>
   </div>
 </template>

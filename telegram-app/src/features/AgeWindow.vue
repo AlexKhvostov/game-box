@@ -24,6 +24,6 @@ onBeforeUnmount(() => finishAgePrompt(false));
     <div ref="options" class="button-row age-options" :class="{'age-large':large}"><button class="secondary" :class="{selected:selected==='adult18plus'}" :aria-pressed="selected==='adult18plus'" @click="selected='adult18plus'"><span class="age-radio" aria-hidden="true"/>{{ t('Да, мне есть 18','Yes, I am 18 or older') }}</button><button class="secondary" :class="{selected:selected==='under18'}" :aria-pressed="selected==='under18'" @click="selected='under18'"><span class="age-radio" aria-hidden="true"/>{{ t('Нет, я младше 18','No, I am under 18') }}</button></div>
     <p>{{ t('Можно играть и сохранять результат без ответа. Возраст потребуется перед получением ресурсов.','You can play and save scores without answering. A declaration is required before receiving resources.') }}</p>
     <button class="primary full" :disabled="!selected" @click="save">{{ t('Подтвердить и продолжить','Confirm and continue') }}</button>
-    <p v-if="state.error" class="error-message" role="alert">{{ state.error }}</p>
+    
   </GameWindow>
 </template>

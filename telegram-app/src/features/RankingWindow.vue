@@ -79,6 +79,6 @@ onMounted(() => { if(state.screen==='ranking') void action(refreshBoards); });
       <template v-if="target.userId!==state.profile?.id"><button class="secondary full" :disabled="state.busy" @click="hideName">{{ nameHidden?t('Показать имя для меня','Show name for me'):t('Скрыть имя для меня','Hide name for me') }}</button><label v-if="reporting" class="field-label">{{ t('Причина жалобы','Report reason') }}<select v-model="reason"><option value="offensive_name">{{ t('Оскорбительное имя','Offensive name') }}</option><option value="personal_data">{{ t('Персональные данные','Personal information') }}</option><option value="impersonation">{{ t('Выдаёт себя за другого','Impersonation') }}</option><option value="other">{{ t('Другое','Other') }}</option></select></label><button class="text-button full" :disabled="state.busy" @click="reporting?reportName():reporting=true">{{ reporting?t('Отправить жалобу','Submit report'):t('Пожаловаться на имя','Report name') }}</button></template>
     </template>
     <template v-if="['player-result','name-actions'].includes(state.screen)" #footer><button class="secondary full" :disabled="state.busy" @click="back">{{t('Закрыть','Close')}}</button></template>
-    <p v-if="state.error" class="error-message" role="alert">{{ state.error }}</p>
+    
   </GameWindow>
 </template>

@@ -198,3 +198,19 @@ input.game-switch[type=checkbox]::after{content:'';position:absolute;inset:-10px
 .energy-capsule>.lightning{position:absolute;left:7px;top:calc(50% - 11px)}.energy-capsule>strong{position:absolute;left:41px;right:41px;top:5px;bottom:5px;display:grid;place-items:center}.energy-capsule>.capsule-plus{position:absolute;right:3px;top:calc(50% - 19px)}
 
 .record-capsule small{font-size:8.5px}.record-capsule.narrow small{font-size:7.5px}
+
+/* Status messages overlay the existing sheet; neither flex height nor scroll geometry changes. */
+.status-overlay{position:fixed;z-index:50;left:16px;right:16px;bottom:28px;display:flex;align-items:center;gap:6px;padding:10px 12px;border:1px solid #67e6ee80;border-radius:12px;background:#05283bdd;backdrop-filter:blur(8px);box-shadow:0 3px 14px #0005;pointer-events:none;max-height:40%;color:#e2fff7}
+.game-shell>.status-overlay{z-index:50}
+.status-overlay-copy{flex:1;min-width:0;min-height:0;max-height:min(140px,calc(var(--logical-height) * .4 - 24px));overflow:auto;pointer-events:none;overscroll-behavior:contain}.status-overlay.has-dismiss .status-overlay-copy{pointer-events:auto}
+.status-overlay p{margin:0;color:inherit;font-size:calc(12px * var(--text-scale,1));line-height:1.4;overflow-wrap:anywhere}
+.status-overlay p+p{margin-top:5px}
+.status-dismiss{align-self:flex-start;flex:none;pointer-events:auto;width:36px;height:36px;min-height:36px;padding:0;border:0;background:none;font-size:25px;line-height:1;color:#b0f2fb}
+.attempt-caption .energy-amount,.next-attempt-cost .energy-amount,.result-metric small .energy-amount{font:inherit;vertical-align:-.12em}
+.result-status{height:calc(40px * var(--text-scale,1));display:flex;align-items:center;justify-content:center;gap:8px;text-align:center}.result-status>span:first-child{flex:1;min-width:0}.result-delivery-action{display:grid;place-items:center;flex:none;width:44px}.result-retry{width:36px;height:36px;font-size:25px}
+.result-status .energy-amount{font-size:12px}
+.record-capsule>span:not(.trophy){align-items:center;text-align:center}
+.ability>span{left:33px;right:3px}
+.ability>img{left:2px}.ability-ring{left:2px}
+
+.energy-amount>.energy-bolt{width:1em;height:1.1em;color:#ffee73;flex:none}

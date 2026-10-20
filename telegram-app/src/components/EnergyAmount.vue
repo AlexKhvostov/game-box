@@ -1,1 +1,6 @@
-<script setup lang="ts">defineProps<{amount:number;prefix?:string}>();</script><template><span class="energy-amount"><span>{{prefix}}{{amount}}</span><svg viewBox="0 0 18 24" aria-hidden="true"><path d="M11 0 0 13 7 13 5 24 18 9 10 9Z" fill="#FFF03B"/></svg></span></template>
+<script setup lang="ts">
+import {state} from '../services/game-store';
+import EnergyBolt from './EnergyBolt.vue';
+defineProps<{amount:number;prefix?:string}>();
+</script>
+<template><span class="energy-amount" role="img" :aria-label="`${prefix??''}${amount} ${state.locale==='ru'?'энергии':'energy'}`"><span aria-hidden="true">{{prefix}}{{amount}}</span><EnergyBolt/></span></template>

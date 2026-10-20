@@ -22,6 +22,8 @@ import { warmArtwork } from '../services/artwork';
 import { version as appVersion } from '../../package.json';
 import { motionProbe } from '../game/motion-probe';
 import GameWindow from '../components/GameWindow.vue';
+import StatusOverlay from '../components/StatusOverlay.vue';
+import EnergyAmount from '../components/EnergyAmount.vue';
 import {prepareImpactGlyphs} from '../game/impact-glyphs';
 const canvas = ref<HTMLCanvasElement>(), touchpad = ref<HTMLElement>();
 const nativeQa=import.meta.env.VITE_QA_MODE==='true';
@@ -58,12 +60,11 @@ onBeforeUnmount(() => { controller?.dispose(); adPresenter.destroy(); window.rem
       <GameHud />
       <div ref="touchpad" class="touchpad" :aria-label="t('Игровое поле. Перемещайте палец; второй палец — прыжок.','Game field. Move your finger; a second finger jumps.')">
         <canvas ref="canvas" class="game-field" width="760" height="760" :aria-label="t('Поле Untouch','Untouch field')"></canvas>
-        <div v-if="!world?.playing && !world?.dead" class="start-caption"><strong><img src="/assets/branding/ui/hero-ready-v1.png" alt="">Untouch</strong><p>{{ state.initialized ? t(`Попытка: ${attemptCost} ϟ · коснитесь поля`,`Run: ${attemptCost} ϟ · touch the field`) : t('Подключение…','Connecting…') }}</p><small>{{ t('Двигайте палец, чтобы уклоняться','Move your finger to dodge') }}</small></div>
+        <div v-if="!world?.playing && !world?.dead" class="start-caption"><strong><img src="/assets/branding/ui/hero-ready-v1.png" alt="">Untouch</strong><p class="attempt-caption"><template v-if="state.initialized">{{t('Попытка:','Run:')}} <EnergyAmount :amount="attemptCost"/> · {{t('коснитесь поля','touch the field')}}</template><template v-else>{{t('Подключение…','Connecting…')}}</template></p><small>{{ t('Двигайте палец, чтобы уклоняться','Move your finger to dodge') }}</small></div>
       </div>
       </div>
       <div v-if="!state.initialized && state.error" class="startup-error" role="alert"><p>{{ state.error }}</p><button class="primary" @click="start">{{ t('Повторить','Retry') }}</button></div>
       <button v-if="localQa||nativeQa" class="qa-label" style="pointer-events:auto;border:0;background:none;padding:0;min-height:0" :disabled="world?.playing" @click="openScreen('motion-diagnostics',state.screen)">{{ nativeQa?`Telegram QA · ${appVersion}`:'Локальная проверка · тестовые данные' }}</button>
-      <span v-if="state.connection==='checking'||state.connection==='offline'" class="connection-label" role="status">{{ state.connection==='checking'?t('Проверяем соединение…','Checking the connection…'):t('Сервер пока недоступен','Cannot reach the server right now') }}</span>
       <GameWindow v-if="(localQa||nativeQa)&&state.screen==='motion-diagnostics'" title="QA · Плавность"><label><input :checked="legacyInputPaint" type="checkbox" @change="legacyInputPaint=($event.target as HTMLInputElement).checked;motionProbe.setLegacyInputPaint(legacyInputPaint)"> QA: прежняя отрисовка на каждом касании</label><pre style="white-space:pre-wrap;overflow-wrap:anywhere;font-size:9px">{{motionReportText}}</pre></GameWindow>
       <EnergyWindow v-else-if="['energy','subscription','video','friends','feedback','packs','helmet','jump'].includes(state.screen)" />
       <ProfileWindow v-else-if="state.screen === 'profile'" />
@@ -71,7 +72,7 @@ onBeforeUnmount(() => { controller?.dispose(); adPresenter.destroy(); window.rem
       <ResultWindow v-else-if="['result','share'].includes(state.screen)" />
       <AgeWindow v-else-if="state.screen==='age'" />
       <HelpWindow v-else-if="state.screen" />
-      <div v-if="state.notice && !state.screen" class="toast" role="status" @click="state.notice = ''">{{ state.notice }}</div>
+      <StatusOverlay v-if="!state.screen && state.initialized"/>
     </div>
   </main>
 </template>
