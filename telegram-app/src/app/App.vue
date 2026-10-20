@@ -56,7 +56,7 @@ onBeforeUnmount(() => { controller?.dispose(); adPresenter.destroy(); window.rem
       </div>
       </div>
       <div v-if="!state.initialized && state.error" class="startup-error" role="alert"><p>{{ state.error }}</p><button class="primary" @click="start">{{ t('Повторить','Retry') }}</button></div>
-      <span v-if="localQa||nativeQa" class="qa-label">{{ nativeQa?'Telegram QA · изолированные данные':'Локальная проверка · тестовые данные' }}</span>
+      <span v-if="localQa||nativeQa" class="qa-label">{{ nativeQa?'Telegram QA · тестовая версия':'Локальная проверка · тестовые данные' }}</span>
       <span v-if="!state.online" class="connection-label" role="status">{{ t('Нет связи · результаты сохраняются','Offline · results are saved') }}</span>
       <EnergyWindow v-if="['energy','subscription','video','friends','feedback','packs','helmet','jump'].includes(state.screen)" />
       <ProfileWindow v-else-if="state.screen === 'profile'" />
