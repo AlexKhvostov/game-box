@@ -22,6 +22,7 @@ import { warmArtwork } from '../services/artwork';
 import { version as appVersion } from '../../package.json';
 import { motionProbe } from '../game/motion-probe';
 import GameWindow from '../components/GameWindow.vue';
+import {prepareImpactGlyphs} from '../game/impact-glyphs';
 const canvas = ref<HTMLCanvasElement>(), touchpad = ref<HTMLElement>();
 const nativeQa=import.meta.env.VITE_QA_MODE==='true';
 const motionReportText=computed(()=>state.screen==='motion-diagnostics'?`UNTOUCH_MOTION ${JSON.stringify(motionProbe.report())}`:'');
@@ -35,7 +36,7 @@ let controller: GameController | undefined;
 function resize() { controller?.reanchor(); width.value = window.innerWidth; height.value = window.innerHeight; insets.value = safeInsets(); }
 async function start() {
   warmArtwork();
-  state.error = ''; await Promise.all([loadKernel(), initialize()]); await nextTick();
+  state.error = ''; await Promise.all([loadKernel(), initialize(), prepareImpactGlyphs()]); await nextTick();
   if (state.initialized && canvas.value && touchpad.value) { controller?.dispose(); controller = new GameController(canvas.value, touchpad.value); offerStartupAge(); void action(refreshBoards); void deliverAdReward().catch(error => state.notice = errorText(error)); }
 }
 watch(() => [state.helmet, state.jump, state.config?.revision], () => { if (!world.value?.playing && !world.value?.dead) controller?.reset(); }, { flush: 'sync' });
