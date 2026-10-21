@@ -1,10 +1,13 @@
 <script setup lang="ts">
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref, watch, onMounted } from 'vue';
 import GameWindow from '../components/GameWindow.vue';
 import AverageChart from '../components/AverageChart.vue';
 import GameArt from '../components/GameArt.vue';
+import AverageInfoDialog from '../components/AverageInfoDialog.vue';
+import MyAttemptsWindow from './MyAttemptsWindow.vue';
 import { state, action, refreshBoards, refreshInvites, openScreen, request, back } from '../services/game-store';
 import { averageChart } from '../domain/average';
+import { ownAttempts } from '../domain/my-attempts';
 import type { Score, Attempt } from '../services/contracts';
 const t = (ru: string, en: string) => state.locale === 'ru' ? ru : en;
 const title = computed(() => state.screen==='chart'?t('Средний результат','Average result'):state.screen==='history'?t('Мои попытки','My runs'):state.screen==='name-actions'?t('Имя игрока','Player name'):state.screen==='player-result'?t('Результат игрока','Player result'):t('Рейтинг','Leaderboard'));
@@ -12,9 +15,9 @@ const periodLabels = computed(() => [['all',t('Всё','All')],['year',t('Год
 const currentPeriodLabel=computed(()=>periodLabels.value.find(([id])=>id===state.period)?.[1]??'');
 const records = computed(() => state.periods[state.period]??[]), ownRecord = computed(() => records.value.find(r=>r.userId===state.profile?.id));
 const averages = computed(() => state.average?.rows??[]);
-const localHistory = computed(() => state.history.filter(a=>a.result).sort((a,b)=>b.createdAt-a.createdAt));
-const limit = ref(50), reason = ref('offensive_name'),detailTip=ref(''),selectedContext=ref(''),reporting=ref(false),showAverageInfo=ref(false);
-const chart = computed(() => state.average ? averageChart(state.history, state.average) : null);
+const reason = ref('offensive_name'),detailTip=ref(''),selectedContext=ref(''),reporting=ref(false),showAverageInfo=ref(false);
+const chart = computed(() => state.average ? averageChart(ownAttempts(state.history,state.profile?.id), state.average) : null);
+watch(() => [state.profile?.id,state.screen,!!state.average], (value, previous) => {if(!value[2]||value[0]!==previous[0]||value[1]!==previous[1])showAverageInfo.value=false;}, {flush:'sync'});
 const seconds = (v?: number | null) => v==null?'—':`${(v/1000).toFixed(3)} ${t('с','s')}`;
 const date = (v: number) => new Date(v).toLocaleString(state.locale==='ru'?'ru-RU':'en-US',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
 function detail(row: Score) { selectedContext.value=periodLabels.value.find(([id])=>id===state.period)?.[1]??'';detailTip.value='';reporting.value=false;state.selectedScore=row; openScreen('player-result','ranking'); }
@@ -27,7 +30,8 @@ const reportName = () => action(async () => { await request({ action: 'public_na
 onMounted(() => { if(state.screen==='ranking') void action(refreshBoards); });
 </script>
 <template>
-  <GameWindow :title="title" tall :class="['ranking','history'].includes(state.screen)?'ranking-window':state.screen==='chart'?'chart-window':'player-result-window'">
+  <MyAttemptsWindow v-if="state.screen==='history'" @detail="detailHistory"/>
+  <GameWindow v-else :title="title" tall :inactive="showAverageInfo" :class="['ranking','history'].includes(state.screen)?'ranking-window':state.screen==='chart'?'chart-window':'player-result-window'">
     <template #title><GameArt v-if="['ranking','history'].includes(state.screen)" class="window-title-art" src="/assets/branding/ranking/trophy.svg"/>{{title}}</template>
     <template v-if="state.screen==='ranking'" #header-extra><button class="ranking-history-action text-button" @click="openScreen('history','ranking')">{{t('Мои попытки','My runs')}}</button></template>
     <template v-if="state.parent" #back>‹</template>
@@ -46,8 +50,7 @@ onMounted(() => { if(state.screen==='ranking') void action(refreshBoards); });
         </div>
       </template>
       <template v-else>
-        <div class="average-heading"><p>{{ t('Рейтинг по среднему времени','Ranking by average attempt time') }}</p><button class="text-button" @click="openScreen('chart','ranking')">⌁ {{t('График','Chart')}}</button><button class="icon-button average-info-button" :aria-label="t('Как считается среднее','How the average is calculated')" :aria-expanded="showAverageInfo" @click="showAverageInfo=!showAverageInfo">ⓘ</button></div>
-        <p v-if="showAverageInfo" class="average-info" role="note">{{t('Среднее квадратичное с весами по давности.','The weighted root mean square of recent runs.')}} {{t('Последние','Last')}} {{state.average?.rules.windowSize??50}} · {{t('вес предыдущей','previous weight')}} {{state.average?.rules.previousWeightPercent??92}}% · {{t('порог','threshold')}} {{seconds(state.average?.rules.minDurationMs??0)}}<button class="text-button full" @click="showAverageInfo=false">{{t('Понятно','Got it')}}</button></p>
+        <div class="average-heading"><p>{{ t('Рейтинг по среднему времени','Ranking by average attempt time') }}</p><button class="text-button" @click="openScreen('chart','ranking')">⌁ {{t('График','Chart')}}</button><button class="icon-button average-info-button" :disabled="!state.average" aria-haspopup="dialog" :aria-label="t('Как считается среднее','How the average is calculated')" :aria-expanded="showAverageInfo" @click="showAverageInfo=!showAverageInfo">ⓘ</button></div>
         <p v-if="!state.online" class="hint">{{t('Показано последнее загруженное среднее','Showing the last loaded average')}}</p>
         <div v-if="state.average?.mine" class="ranking-summary"><span>{{t('Ваше среднее','Your average')}}: {{seconds(state.average.mine.averageMs)}}</span><span>{{t('Место','Place')}}: {{state.average.mine.place??'—'}}</span><span>{{t('Попыток','Attempts')}}: {{state.average.mine.totalAttempts}}</span></div>
         <p v-if="state.average?.mine.place==null&&(state.average?.rules.minAttempts??1)>1" class="hint">{{t('Предварительно','Provisional')}} · {{state.average?.mine.eligibleCount??0}} / {{state.average?.rules.minAttempts}} {{t('попыток для допуска','qualifying attempts')}}</p>
@@ -58,13 +61,6 @@ onMounted(() => { if(state.screen==='ranking') void action(refreshBoards); });
         </div>
       </template>
       <button class="text-button full" :disabled="state.busy" @click="action(refreshBoards)">{{ t('Обновить','Refresh') }}</button>
-    </template>
-    <template v-else-if="state.screen==='history'">
-      <div class="history-summary"><span><strong>⌁ {{ seconds(state.average?.mine.averageMs) }}</strong><small>{{t('Место','Place')}} #{{state.average?.mine.place??'—'}} · {{t('Всего попыток','Total runs')}} {{state.average?.mine.totalAttempts??localHistory.length}}</small></span><button class="secondary" @click="openScreen('chart','history')">{{t('График','Chart')}}</button></div>
-      <p class="hint">{{ t('История на этом устройстве. Неподтверждённые попытки не участвуют в общем рейтинге.','History on this device. Unconfirmed runs are not included in the shared ranking.') }}</p>
-      <div class="history-legend"><GameArt src="/assets/branding/ranking/jump.svg"/> {{t('Прыжок','Jump')}} · <GameArt src="/assets/branding/ranking/helmet.svg"/> {{t('Шлем','Helmet')}}<small>{{t('Яркие — были включены','Bright icons were enabled')}}</small></div><div class="rank-header"><span>#</span><span>{{t('Результат','Result')}}</span><span>{{t('Усиления','Boosts')}}</span><span>{{t('Показатели','Metrics')}}</span></div><div class="ranking-list"><button v-for="(run,i) in localHistory.slice(0,limit)" :key="run.requestId" class="history-row" @click="detailHistory(run)"><b>{{ i+1 }}</b><div><strong>{{ seconds(run.result?.timeMs) }}</strong><small>{{ date(run.createdAt) }}</small><small>{{ run.phase==='confirmed'?t('В рейтинге','Ranked'):run.phase==='rejected'?t('Не подтверждено','Not confirmed'):t('Ожидает отправки','Pending delivery') }}</small></div><span>⚠ {{ run.result?.riskCount }}<br>♧ {{ run.result?.runDistance }}</span><span class="boost-icons"><GameArt :class="{dim:!run.jump}" src="/assets/branding/ranking/jump.svg" :alt="t('Прыжок','Jump')"/><GameArt :class="{dim:!run.helmet}" src="/assets/branding/ranking/helmet.svg" :alt="t('Шлем','Helmet')"/></span></button>
-      <button v-if="localHistory.length>limit" class="secondary full" @click="limit+=50">{{ t('Ещё попытки','More runs') }}</button><p v-if="!localHistory.length" class="empty">{{ t('Здесь появятся ваши попытки.','Your runs will appear here.') }}</p>
-      </div>
     </template>
     <template v-else-if="state.screen==='chart'">
       <p>{{ state.locale==='ru'?`Последние ${chart?.points.length??0} сохранённых попыток`:`Last ${chart?.points.length??0} saved attempts` }}</p><strong class="chart-total">⌁ {{ seconds(chart?.averageMs) }}</strong>
@@ -81,4 +77,5 @@ onMounted(() => { if(state.screen==='ranking') void action(refreshBoards); });
     <template v-if="['player-result','name-actions'].includes(state.screen)" #footer><button class="secondary full" :disabled="state.busy" @click="back">{{t('Закрыть','Close')}}</button></template>
     
   </GameWindow>
+  <AverageInfoDialog v-if="showAverageInfo&&state.average" :rules="state.average.rules" @close="showAverageInfo=false"/>
 </template>

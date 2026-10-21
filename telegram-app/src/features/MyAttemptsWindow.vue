@@ -1,0 +1,110 @@
+<script setup lang="ts">
+import {computed, ref, watch, nextTick, onMounted, useId} from 'vue';
+import GameWindow from '../components/GameWindow.vue';
+import GameArt from '../components/GameArt.vue';
+import AverageInfoDialog from '../components/AverageInfoDialog.vue';
+import {state, refreshBoards} from '../services/game-store';
+import {myAttemptsModel, attemptWindow} from '../domain/my-attempts';
+import type {Attempt} from '../services/contracts';
+const emit = defineEmits<{detail: [attempt: Attempt]}>();
+const t = (ru: string, en: string) => state.locale === 'ru' ? ru : en;
+const model = computed(() => myAttemptsModel({attempts: state.history, profile: state.profile, board: state.average, allTime: state.periods.all ?? []}));
+const expanded = ref(true), showInfo = ref(false), selectedId = ref<string | null>(null), meanButton = ref<HTMLButtonElement>(), list = ref<HTMLElement>();
+const plotId = useId(), missingBest = ref(false);
+const selected = computed(() => model.value.rows.find(row => row.attempt.requestId === selectedId.value));
+const visible = computed(() => attemptWindow(model.value.rows, selectedId.value));
+const ceiling = computed(() => Math.max(5000, Math.ceil(Math.max(0, ...visible.value.map(row => Math.max(row.attempt.result!.timeMs, row.averageMs ?? 0))) / 5000) * 5000));
+const x = (index: number) => 36 + (index + .5) * 314 / Math.max(1, visible.value.length);
+const y = (ms: number) => 172 - 160 * ms / ceiling.value;
+const barWidth = computed(() => Math.min(22, 314 / Math.max(1, visible.value.length) * .58));
+const averageLine = computed(() => visible.value.map((row, index) => row.averageMs === null ? null : `${x(index)},${y(row.averageMs)}`).filter(Boolean).join(' '));
+const seconds = (ms?: number | null) => ms == null ? '—' : (ms / 1000).toFixed(3).replace('.', state.locale === 'ru' ? ',' : '.');
+function stamp(timestamp?: number | null) {
+  if (timestamp == null) return t('Дата недоступна','Date unavailable');
+  const date = new Date(timestamp), now = new Date(), yesterday = new Date(now);
+  yesterday.setDate(now.getDate() - 1);
+  const locale = state.locale === 'ru' ? 'ru-RU' : 'en-US';
+  const day = date.toDateString() === now.toDateString() ? t('Сегодня','Today') : date.toDateString() === yesterday.toDateString() ? t('Вчера','Yesterday') : date.toLocaleDateString(locale, {day:'numeric', month:'short', ...(date.getFullYear()===now.getFullYear()?{}:{year:'numeric'})});
+  return `${day}, ${date.toLocaleTimeString(locale,{hour:'2-digit',minute:'2-digit'})}`;
+}
+const phase = (attempt: Attempt) => attempt.phase === 'confirmed' ? '' : attempt.phase === 'rejected' || attempt.phase === 'abandoned' ? t(' · Не зачтена',' · Not counted') : t(' · Ожидает',' · Pending');
+function scrollSelected() {void nextTick(() => {
+  const row = Array.from(list.value?.querySelectorAll<HTMLElement>('[data-attempt-id]') ?? []).find(el => el.dataset.attemptId === selectedId.value);
+  if (!row || !list.value) return;
+  // Scroll only the history container; never move the modal or page.
+  const top = row.offsetTop, bottom = top + row.offsetHeight;
+  if (top < list.value.scrollTop) list.value.scrollTop = top;
+  else if (bottom > list.value.scrollTop + list.value.clientHeight) list.value.scrollTop = bottom - list.value.clientHeight;
+});}
+function select(id: string, scroll = false) {selectedId.value = id; missingBest.value = false; if (scroll) scrollSelected();}
+function selectBest() {const id = model.value.best?.localId; if (id) select(id, true); else missingBest.value = true;}
+function closeInfo() {const owner = state.profile?.id; showInfo.value = false; void nextTick(() => {if (owner === state.profile?.id && state.screen === 'history') meanButton.value?.focus({preventScroll: true});});}
+function chartKey(event: KeyboardEvent) {
+  const step = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
+  if (!step) return;
+  event.preventDefault();
+  const index = model.value.rows.findIndex(row => row.attempt.requestId === selectedId.value);
+  const row = model.value.rows[Math.max(0, Math.min(model.value.rows.length - 1, index + step))];
+  if (row) select(row.attempt.requestId, true);
+}
+function chartClick(event: MouseEvent) {
+  const rect = (event.currentTarget as SVGElement).getBoundingClientRect();
+  const at = Math.floor(((event.clientX - rect.left) * 364 / rect.width - 36) / 314 * visible.value.length);
+  const row = visible.value[Math.max(0, Math.min(visible.value.length - 1, at))];
+  if (row) select(row.attempt.requestId, true);
+}
+watch(() => state.profile?.id, () => {selectedId.value = null; showInfo.value = false; expanded.value = true; missingBest.value = false;}, {flush: 'sync'});
+watch(() => !!model.value.rules, available => {if (!available) showInfo.value = false;}, {flush: 'sync'});
+watch(() => model.value.rows.map(row => row.attempt.requestId).join(','), () => {
+  if (!model.value.rows.some(row => row.attempt.requestId === selectedId.value)) selectedId.value = model.value.rows.at(-1)?.attempt.requestId ?? null;
+}, {immediate: true});
+onMounted(() => {void refreshBoards().catch(() => {/* Keep the available history usable offline. */});});
+</script>
+<template>
+  <GameWindow class="my-attempts-window" :title="t('Мои попытки','My attempts')" tall :inactive="showInfo">
+    <template #title><GameArt class="ma-hero" src="/assets/branding/ranking/my-attempts-hero.png"/>{{t('Мои попытки','My attempts')}}</template>
+    <template v-if="state.parent" #back>‹</template>
+    <section class="ma-graph" :aria-label="t('Результаты попыток','Attempt results')">
+      <div class="ma-summary">
+        <button ref="meanButton" type="button" class="ma-stat ma-mean" :disabled="!model.rules" aria-haspopup="dialog" :aria-expanded="showInfo" @click="showInfo=true">
+          <span class="ma-stat-label">{{t('Среднее','Average')}} <span aria-hidden="true" class="ma-info">ⓘ</span></span>
+          <strong class="ma-value">{{seconds(model.averageMs)}} <small>{{t('с','s')}}</small></strong>
+          <span class="ma-stat-sub">{{model.rules?t(`Последние ${model.rules.windowSize} попыток`,`Latest ${model.rules.windowSize} attempts`):t('Подключаем данные…','Loading rules…')}}</span>
+        </button>
+        <button type="button" class="ma-stat ma-best" :disabled="!model.best" @click="selectBest">
+          <span class="ma-stat-label"><img src="/assets/branding/ranking/trophy.svg" alt="">{{t('Лучшая попытка','Best attempt')}}</span>
+          <strong class="ma-value">{{seconds(model.best?.timeMs)}} <small>{{t('с','s')}}</small></strong>
+          <span class="ma-stat-sub ma-best-date">{{model.best?stamp(model.best.createdAt):t('Пока нет рекорда','No record yet')}}</span>
+          <span v-if="model.best?.source==='confirmed-local'" class="ma-stat-sub">{{t('Подтверждено на устройстве','Confirmed on this device')}}</span>
+        </button>
+      </div>
+      <div class="ma-chart-shell">
+        <button type="button" class="ma-chart-toggle" :aria-expanded="expanded" :aria-controls="plotId" @click="expanded=!expanded"><span>{{t('График · время, с','Chart · time, s')}}</span><span>{{expanded?t('Свернуть','Collapse'):t('Развернуть','Expand')}} <svg viewBox="0 0 24 24" aria-hidden="true" :class="{collapsed:!expanded}"><path d="m6 15 6-6 6 6"/></svg></span></button>
+        <div v-show="expanded" :id="plotId" class="ma-chart-region">
+          <svg v-if="visible.length" viewBox="0 0 364 198" class="ma-chart" tabindex="0" role="img" :aria-label="t('Столбики — попытки, жёлтая линия — среднее. Стрелки выбирают попытку.','Bars show attempts; the yellow line shows the average. Arrow keys select an attempt.')" @click="chartClick" @keydown="chartKey">
+            <g v-for="i in 6" :key="`grid-${i}`"><line x1="36" x2="350" :y1="y(ceiling*(i-1)/5)" :y2="y(ceiling*(i-1)/5)" class="ma-grid"/><text x="30" :y="y(ceiling*(i-1)/5)+4" text-anchor="end">{{ceiling*(i-1)/5000}}</text></g>
+            <g v-for="(row,i) in visible" :key="row.attempt.requestId"><rect :x="x(i)-barWidth/2" :y="Math.min(170,y(row.attempt.result!.timeMs))" :width="barWidth" :height="Math.max(2,172-y(row.attempt.result!.timeMs))" rx="2" class="ma-bar" :class="{'is-selected':row.attempt.requestId===selectedId,'is-pending':row.attempt.phase!=='confirmed'}"/><text v-if="i===0||i===visible.length-1||i===Math.floor((visible.length-1)/2)" :x="x(i)" y="190" text-anchor="middle">{{row.number}}</text></g>
+            <polyline v-if="averageLine" :points="averageLine" class="ma-average-line"/>
+            <circle v-for="(row,i) in visible.filter(row=>row.averageMs!==null)" :key="`point-${row.attempt.requestId}`" :cx="x(visible.indexOf(row))" :cy="y(row.averageMs!)" :r="row.attempt.requestId===selectedId?3.8:2" class="ma-average-dot" :data-point="i"/>
+          </svg>
+          <p v-else class="ma-empty-chart">{{t('Здесь появится ваш прогресс','Your progress will appear here')}}</p>
+        </div>
+      </div>
+      <div v-show="expanded" class="ma-selection" aria-live="polite"><span>{{selected?`#${selected.number} · ${seconds(selected.attempt.result!.timeMs)} ${t('с','s')}`:t('Пока нет попыток','No attempts yet')}}</span><strong v-if="selected?.averageMs!=null">{{t('Среднее','Average')}} {{seconds(selected.averageMs)}} {{t('с','s')}}</strong></div>
+      <div v-show="expanded" class="ma-legend"><span><b class="ma-line-swatch"/>{{t('Среднее','Average')}}</span><span><b class="ma-bar-swatch"/>{{t('Попытка','Attempt')}}</span><span v-if="model.rules">{{model.activeCount}} {{t('в расчёте здесь','included here')}}</span></div>
+    </section>
+    <section class="ma-history" :aria-label="t('История на устройстве','History on this device')">
+      <header class="ma-history-heading"><h2>{{t('История','History')}} <span>· {{model.history.length}}</span></h2><small>{{t('На устройстве · новые сверху','On this device · newest first')}}</small></header>
+      <div ref="list" class="ma-list">
+        <div v-for="row in model.history" :key="row.attempt.requestId" class="ma-row" :class="{'is-selected':selectedId===row.attempt.requestId,'is-best':row.attempt.requestId===model.best?.localId}" :data-attempt-id="row.attempt.requestId">
+          <button type="button" class="ma-row-select" :aria-pressed="selectedId===row.attempt.requestId" @click="select(row.attempt.requestId)"><span class="ma-number">#{{row.number}}</span><span class="ma-row-meta"><span class="ma-date">{{stamp(row.attempt.createdAt)}}</span><small>{{t('Шаги','Steps')}} {{row.attempt.result!.runDistance}} · {{t('Риск','Risk')}} {{row.attempt.result!.riskCount}}{{phase(row.attempt)}}</small></span><strong class="ma-time">{{seconds(row.attempt.result!.timeMs)}} <small>{{t('с','s')}}</small></strong></button>
+          <button type="button" class="ma-details" :aria-label="t(`Подробности попытки ${row.number}`,`Details of attempt ${row.number}`)" @click="emit('detail',row.attempt)">ⓘ</button>
+        </div>
+        <p v-if="!model.history.length" class="ma-empty">{{t('Ваши попытки будут здесь. Пока нет результатов.','Your attempts will appear here. No results yet.')}}</p>
+      </div>
+      <p v-if="missingBest||!model.rules||!model.historyComplete" class="ma-history-note" role="status">{{missingBest?t('Рекорд не сохранён в истории этого устройства. Его значение получено с сервера.','This record is not stored on this device. Its value comes from the server.'):!model.rules?t('Правила среднего загружаются. История уже доступна.','Average rules are loading. Your history is already available.'):t('История может быть неполной. Линия — по доступным попыткам; среднее сверху — с сервера.','History may be incomplete. The line uses available attempts; the summary average comes from the server.')}}</p>
+    </section>
+  </GameWindow>
+  <AverageInfoDialog v-if="showInfo&&model.rules" :rules="model.rules" :incomplete="!model.historyComplete" @close="closeInfo"/>
+</template>
+<style scoped src="./my-attempts.css"></style>
