@@ -5,6 +5,7 @@ export interface Body { x: number; y: number; w: number; h: number; angle: numbe
 export interface WorldState {
   playing: boolean; dead: boolean; timeMs: number; runDistance: number; riskCount: number;
   helmet: boolean; invulnerable: boolean; jumpCooldownMs: number; jumpCount?:number;
+  jumpEnabled?: boolean; jumpRemainingMs?: number;
   player: { x: number; y: number; size: number; visualScale: number; jumpLift: number };
   enemies: Body[]; wallBounces: number; enemyBounces: number;
   againstWall: boolean; issue?: string | null;

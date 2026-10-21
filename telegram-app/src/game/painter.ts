@@ -1,6 +1,8 @@
 import type {ImpactBurst} from './impact';
 import type { Body, WorldState } from '../domain/kernel';
 import {motionProbe} from './motion-probe';
+import {createJumpGlowDrawer, type JumpGlowDrawer} from './jump-glow';
+import {jumpGlowProgress} from './jump-glow-progress';
 // Direct Canvas translation of GameFieldPainter/paintHeroFace. Geometry comes
 // exclusively from the compiled Dart world; visible effects never alter bodies.
 function rounded(c: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
@@ -16,9 +18,12 @@ function enemy(c: CanvasRenderingContext2D, e: Body, fill: string | CanvasGradie
 export class FieldPainter {
   private c: CanvasRenderingContext2D;
   private background: HTMLCanvasElement;
+  private jumpGlow: JumpGlowDrawer;
   constructor(private canvas: HTMLCanvasElement) {
     this.c = canvas.getContext('2d', { alpha: false })!;
     this.background = document.createElement('canvas'); this.background.width = 760; this.background.height = 760;
+    // Warm the approved artwork before play; no texture work in the frame loop.
+    this.jumpGlow = createJumpGlowDrawer({radius: .1});
   }
   configure(config: Record<string, any>) {
     const c = this.background.getContext('2d')!; c.setTransform(2, 0, 0, 2, 0, 0);
@@ -57,6 +62,13 @@ export class FieldPainter {
     rounded(c, x - 4, y - 4, vis + 8, vis + 8, 8); c.fillStyle = '#35F5C633'; c.fill();
     const hero = c.createLinearGradient(x, y, x + vis, y + vis); hero.addColorStop(0, mix('#35F5C6','#ffffff',.62)); hero.addColorStop(.35, '#35F5C6'); hero.addColorStop(1, mix('#35F5C6','#007D74',.4));
     rounded(c, x, y, vis, vis, 4); c.fillStyle = hero; c.fill(); c.strokeStyle = '#8AFFCD'; c.lineWidth = 1.4; c.stroke();
+    const jumpProgress = jumpGlowProgress(s, config.game);
+    if (jumpProgress > 0) {
+      c.save();
+      rounded(c, x, y, vis, vis, 4); c.clip();
+      this.jumpGlow(c, {x, y, size: vis, progress: jumpProgress});
+      c.restore();
+    }
     if (s.helmet) { rounded(c, x - 2.5, y - 2.5, vis + 5, vis + 5, 6.5); c.strokeStyle = '#7EE0FFf2'; c.lineWidth = 2.6; c.stroke();rounded(c,x-5,y-5,vis+10,vis+10,9);c.strokeStyle='#ffffff59';c.lineWidth=1.2;c.stroke(); }
     c.beginPath(); c.moveTo(x + vis * .17, y + vis * .083); c.lineTo(x + vis * .83, y + vis * .083); c.strokeStyle = '#C4FFE3a6'; c.lineWidth = 1.2; c.stroke();
     if (config.player.showFace) {
