@@ -7,6 +7,8 @@ import type { WorldState, RoundProof } from '../domain/kernel';
 import { transportErrorText, type ConnectionStatus } from './connection';
 import { telegram } from '../platform/telegram';
 import {closeTopOverlay} from './ui-overlays';
+import {readBootstrap,sessionHash,type Bootstrap,type OfflineIdentity} from './bootstrap-cache';
+import {emitResultReward} from './reward-events';
 const storage = new DurableStorage();
 export const state = reactive({ profile: null as Profile | null, config: null as GameConfig | null, platform: null as PlatformConfig | null,
   initialized: false, online: true, connection: 'unknown' as ConnectionStatus, busy: false, externalBusy: false, error: '', notice: '', screen: '' as string, parent: '',
@@ -21,32 +23,44 @@ let generation = 0;
 let disposed = false;
 let pendingConfig: GameConfig | null = null, serverAnchor = 0, monotonicAnchor = 0;
 let requestSerial = 0, configSerial = 0;
+let liveResultId='';
+let bootstrapHash='',bootstrapIdentity:OfflineIdentity|null=null,profileReceivedAt=0;
+let initializationFlight:Promise<void>|undefined;
+let bootstrapRetry:ReturnType<typeof setTimeout>|undefined,bootstrapFlight:Promise<void>|undefined;
+function cacheBootstrap(){
+  if(!state.profile||!state.config||!bootstrapHash)return;
+  const cached:Bootstrap={version:1,namespace:api.cacheNamespace(),profile:state.profile,config:state.config,platform:state.platform,identity:bootstrapIdentity,sessionHash:bootstrapHash,receivedAt:profileReceivedAt};
+  try{storage.set('bootstrap:v1',cached);}catch{/* Optional startup cache must not prevent persisting a game proof. */}
+}
 const writerHost = window as Window & { __untouchWriter?: { owner: string; release: () => void } };
 async function acquireWriter(owner: string) {
+  if(disposed)return;
   if (writerHost.__untouchWriter?.owner === owner) return;
   if (!navigator.locks) throw new Error('browser_update_required');
   writerHost.__untouchWriter?.release();
   await new Promise<void>((resolve, reject) => {
     void navigator.locks.request(`untouch_tg_v2:writer:${owner}`, { ifAvailable: true }, async lock => {
       if (!lock) { reject(new Error('another_window_active')); return; }
+      if(disposed){resolve();return;}
       let releaseCurrent!: () => void;
       await new Promise<void>(release => { releaseCurrent = release; writerHost.__untouchWriter = { owner, release }; resolve(); });
       if (writerHost.__untouchWriter?.release === releaseCurrent) writerHost.__untouchWriter = undefined;
     }).catch(reject);
   });
 }
-export const energy = computed(() => Math.max(0, (state.profile?.wallet.energy ?? 0) - state.history.filter(a => a.phase === 'prepared').reduce((sum, a) => sum + a.cost, 0)));
+export const energy = computed(() => Math.max(0, (state.profile?.wallet.energy ?? 0) - state.history.filter(a => a.phase === 'prepared'||a.debitWalletVersion!==undefined&&a.debitWalletVersion>(state.profile?.walletVersion??0)).reduce((sum, a) => sum + a.cost, 0)));
 export const attemptCost = computed(() => { const e = state.profile?.wallet.energyConfig; return e ? e.baseAttemptCost + (state.helmet ? e.helmetExtraCost : 0) + (state.jump ? e.jumpExtraCost : 0) : 0; });
 export function now() { return serverAnchor ? serverAnchor + performance.now() - monotonicAnchor : Date.now(); }
 export function applyPendingConfig() { if (pendingConfig) { state.config = pendingConfig; pendingConfig = null; } }
 function history() { state.history = journal?.all ?? []; }
 function accept(result: ApiResult, serial: number) {
+  if(result.offlineIdentity?.environment==='production'&&/^\d{5,15}$/.test(result.offlineIdentity.botId??'')&&/^\d+$/.test(result.offlineIdentity.subject??''))bootstrapIdentity=result.offlineIdentity;
   if (result.profile) {
     if (state.profile && state.profile.id !== result.profile.id) { generation++; journal = null; throw new Error('owner_changed'); }
     if (state.profile && (result.profile.walletVersion < state.profile.walletVersion ||
       (result.profile.walletVersion === state.profile.walletVersion && result.profile.serverNow < state.profile.serverNow))) return;
     if (!state.profile || result.profile.walletVersion >= state.profile.walletVersion) {
-      storage.set(`profile:${result.profile.id}`, result.profile); state.profile = result.profile;
+      storage.set(`profile:${result.profile.id}`, result.profile); state.profile = result.profile;profileReceivedAt=Date.now();
       state.serverOffset = result.profile.serverNow - Date.now();
       serverAnchor = result.profile.serverNow; monotonicAnchor = performance.now();
     }
@@ -56,6 +70,7 @@ function accept(result: ApiResult, serial: number) {
     if (result.gameConfig) { storage.set(`config:${result.profile?.id ?? state.profile!.id}`, result.gameConfig); if (world.value?.playing) pendingConfig = result.gameConfig; else { pendingConfig = null; state.config = result.gameConfig; } }
     if (result.platformConfig) state.platform = result.platformConfig;
   }
+  cacheBootstrap();
 }
 export const errorText = (error: unknown) => {
   const code = error instanceof Error ? error.message : String(error);
@@ -73,18 +88,63 @@ export const errorText = (error: unknown) => {
   if (code === 'ad_age_restricted') return 'Реклама доступна только совершеннолетним. Другие способы получения энергии остаются доступны.';
   return labels[code] ?? 'Не удалось подтвердить действие. Повторите.';
 };
-export async function request(body: Record<string, unknown>) {
-  if (disposed) throw new Error('store_disposed'); const serial = ++requestSerial; const result = await api.execute(body); if (disposed) throw new Error('store_disposed'); accept(result, serial); return result;
+export async function request(body: Record<string, unknown>,beforeAccept?:(result:ApiResult)=>void) {
+  if(disposed)throw new Error('store_disposed');
+  const serial=++requestSerial,epoch=generation;
+  try{
+    const result=await api.execute(body);
+    if(disposed)throw new Error('store_disposed');
+    if(epoch!==generation)throw new Error('store_session_changed');
+    beforeAccept?.(result);accept(result,serial);return result;
+  }catch(error){
+    if(!disposed&&(epoch===generation||(error instanceof Error&&error.message==='owner_changed')))blockRevokedSession(error);
+    throw error;
+  }
 }
-export async function initialize() {
+function blockRevokedSession(error:unknown){
+  const code=error instanceof Error?error.message:String(error);
+  if(!['telegram_unauthorized','telegram_session_expired','profile_disabled','owner_changed','platform_owner_invalid','telegram_bot_namespace_invalid'].includes(code))return;
+  generation++;state.initialized=false;
+  if(bootstrapRetry){clearTimeout(bootstrapRetry);bootstrapRetry=undefined;}
+  try{storage.set('bootstrap-revoked:v1',api.cacheNamespace());}catch{/* Current session remains blocked even if the marker cannot be saved. */}
+  state.error=errorText(error);
+}
+async function openJournal(owner:string){if(disposed)return;await acquireWriter(owner);if(disposed)return;journal=new RoundJournal(storage,owner);journal.recoverUnfinished();history();state.initialized=true;}
+function refreshBootstrap():Promise<void>{
+  if(disposed)return Promise.resolve();
+  if(bootstrapFlight)return bootstrapFlight;
+  const epoch=generation;
+  bootstrapFlight=(async()=>{
+    try{
+      const result=await request({action:'guest',includeGameConfig:true,nicknameAutoLocked:state.history.length>0});
+      if(!state.initialized)await openJournal(result.profile!.id);
+      if(disposed||epoch!==generation)return;
+      storage.set('bootstrap-revoked:v1',null);cacheBootstrap();
+      state.error='';if(result.inviteError)state.notice=errorText(new Error(result.inviteError));void flush();
+    }catch(error){
+      if(disposed||epoch!==generation)return;
+      if(error instanceof ApiError&&(error.source==='transport'||error.code==='service_unavailable'))bootstrapRetry=setTimeout(()=>{bootstrapRetry=undefined;void refreshBootstrap();},5000);
+      else {
+        state.error=errorText(error);
+      }
+    }
+  })().finally(()=>{bootstrapFlight=undefined;});return bootstrapFlight;
+}
+export function initialize():Promise<void>{
+  if(initializationFlight)return initializationFlight;
+  initializationFlight=initializeOnce().finally(()=>{initializationFlight=undefined;});return initializationFlight;
+}
+async function initializeOnce() {
+  const epoch=generation,isCurrent=()=>!disposed&&epoch===generation;
+  if(!isCurrent())return;
   try {
-    const prefs = storage.get('preferences', null as null | typeof state.preferences); if (prefs) state.preferences = prefs;
+    const prefs = storage.get('preferences', null as null | Partial<typeof state.preferences>); state.preferences={sound:typeof prefs?.sound==='boolean'?prefs.sound:true,music:typeof prefs?.music==='boolean'?prefs.music:true,vibration:typeof prefs?.vibration==='boolean'?prefs.vibration:true};
     state.helmet = storage.get('helmet', false); state.jump = storage.get('jump', false);
     const locale=storage.get('locale','ru');state.locale=['ru','en'].includes(locale)?locale:'ru';
-    await api.initialize(); const result = await request({ action: 'guest', includeGameConfig: true });
-    if(result.inviteError)state.notice=errorText(new Error(result.inviteError));
-    await acquireWriter(result.profile!.id); if (disposed) return; journal = new RoundJournal(storage, result.profile!.id); journal.recoverUnfinished(); history(); state.initialized = true;
-    void flush();
+    await api.initialize();if(!isCurrent())return;bootstrapHash=await sessionHash(api.sessionMaterial());if(!isCurrent())return;
+    const cached=await readBootstrap(storage,api.sessionMaterial(),api.cacheNamespace());if(!isCurrent())return;
+    if(cached){await acquireWriter(cached.profile.id);if(!isCurrent())return;state.profile=cached.profile;state.config=cached.config;state.platform=cached.platform;bootstrapIdentity=cached.identity;profileReceivedAt=cached.receivedAt;serverAnchor=cached.profile.serverNow+Math.max(0,Date.now()-cached.receivedAt);monotonicAnchor=performance.now();await openJournal(cached.profile.id);if(isCurrent())void refreshBootstrap();}
+    else await refreshBootstrap();
   } catch (error) { if (!disposed) state.error = errorText(error); }
 }
 export function setPreference(key: keyof typeof state.preferences, value: boolean) { const next = { ...state.preferences, [key]: value }; storage.set('preferences', next); state.preferences = next; }
@@ -93,20 +153,31 @@ export function selectAbility(key: 'helmet' | 'jump', value: boolean) { storage.
 export function prepareAttempt(id: string) {
   if (failedFinish.value) throw new Error('storage_unavailable');
   if (!journal || !state.config || !state.profile) throw new Error('profile_unavailable');
-  const entry = journal.prepare(id, state.config, state.helmet, state.jump, state.profile.wallet.energy, now(), state.profile.wallet.bestTimeMs); history();
+  const entry = journal.prepare(id, state.config, state.helmet, state.jump, state.profile.wallet.energy, now(), state.profile.wallet.bestTimeMs,state.profile.walletVersion); history();
   void flush(); return entry;
 }
 export function finishAttempt(id: string, s: WorldState, proof: RoundProof) {
   const payload = { id, owner: state.profile!.id, finishedAt: now(), result: { timeMs: s.timeMs, runDistance: s.runDistance, riskCount: s.riskCount, proof } };
   try { journal!.update(id, { finishedAt: payload.finishedAt, result: payload.result }); }
   catch (error) { failedFinish.value = payload; throw error; }
-  history(); void flush();
+  history();liveResultId=id; void flush();
+}
+export function presentResultReward(id:string){
+  if(id!==liveResultId||state.screen!=='result'||state.resultId!==id||document.hidden||telegram()?.isActive===false||failedFinish.value||!journal||!state.profile)return;
+  const entry=journal.all.find(a=>a.requestId===id);
+  if(!entry?.result||entry.rewardVisualShown||entry.phase==='rejected')return;
+  const r=entry.result,d=entry.rewardDivisors,amount=entry.phase==='confirmed'?entry.reward??0:
+    d&&Number.isFinite(d.run)&&d.run>0&&Number.isFinite(d.risk)&&d.risk>0?Math.floor(r.runDistance/d.run)+Math.floor(r.riskCount/d.risk):0;
+  if(!Number.isSafeInteger(amount)||amount<=0)return;
+  // Persist before announcing: reopening a result or a late ACK cannot replay it.
+  journal.update(id,{rewardVisualShown:true});history();
+  emitResultReward({key:id,owner:entry.owner,amount,after:state.profile.wallet.energy,provisional:entry.phase!=='confirmed',kind:'round'});
 }
 export async function retryFailedFinish() {
   const pending = failedFinish.value; if (!pending) return;
   if (pending.owner !== state.profile?.id) throw new Error('owner_changed');
   journal!.update(pending.id, { finishedAt: pending.finishedAt, result: pending.result });
-  failedFinish.value = null; history(); await flush();
+  failedFinish.value = null; history();liveResultId=pending.id; await flush();
 }
 let needsWork = false;
 let retryAt = Infinity;
@@ -126,7 +197,7 @@ function deliveryNotice(error: unknown) {
   state.notice = errorText(error);
 }
 export async function flush() {
-  if (disposed) return;
+  if (disposed||!state.initialized) return;
   needsWork = true;
   if (flushing || !journal) return flushing;
   const current = journal, owner = state.profile!.id, epoch = generation;
@@ -137,8 +208,10 @@ export async function flush() {
       if (disposed || epoch !== generation || owner !== state.profile?.id) return;
       try {
         if (entry.phase === 'prepared') {
-          const result = await request({ action: 'round_start', requestId: entry.requestId, proofVersion: 1, rulesRevision: entry.config.revision, revision: entry.config.config.economy.androidEnergyV2.revision, helmet: entry.helmet, jump: entry.jump });
-          current.update(entry.requestId, { phase: 'started', roundId: result.roundId }); history();
+          await request({ action: 'round_start', requestId: entry.requestId, proofVersion: 1, rulesRevision: entry.config.revision, revision: entry.config.config.economy.androidEnergyV2.revision, helmet: entry.helmet, jump: entry.jump },result=>{
+            if(!result.profile||!Number.isSafeInteger(result.profile.walletVersion))throw new Error('profile_unavailable');
+            current.update(entry.requestId,{phase:'started',roundId:result.roundId,debitWalletVersion:result.profile.walletVersion});history();
+          });
         }
         entry = current.all.find(a => a.requestId === entry.requestId)!;
         if (entry.phase === 'started') { await request({ action: 'round_activate', requestId: entry.requestId }); current.update(entry.requestId, { phase: 'activated' }); activationAge.set(entry.requestId, now()); history(); }
@@ -186,6 +259,14 @@ export async function walletOperation(kind: string, args: Record<string, unknown
   const owner = state.profile!.id, key = `pending-op:${owner}:${kind}:${JSON.stringify(args)}`;
   const old = storage.get<string | null>(key, null), id = operation ?? old ?? operationId(); storage.set(key, id);
   const result = await request({ action: 'wallet_operation', kind, args, operationId: id });
+  const grant=result.energyGrant??result.bonusClaim??result.adReward;
+  if(grant?.operationId===id&&Number.isSafeInteger(grant.amount)&&grant.amount>0&&state.profile?.id===owner){
+    const shown=storage.get<string[]>(`rewarded-operations:${owner}`,[]);
+    if(!shown.includes(id)){
+      storage.set(`rewarded-operations:${owner}`,[...shown,id].slice(-600));
+      emitResultReward({key:id,owner,amount:grant.amount,after:state.profile.wallet.energy,provisional:false,kind:'wallet'});
+    }
+  }
   storage.set(key, null); return result;
 }
 let boardSerial = 0, inviteSerial = 0;
@@ -224,7 +305,7 @@ const beforeUnload = (event: BeforeUnloadEvent) => { if (failedFinish.value) { e
 window.addEventListener('online', online); window.addEventListener('offline', offline); window.addEventListener('beforeunload', beforeUnload);
 document.addEventListener('visibilitychange',activity); telegram()?.onEvent('activated',activity); telegram()?.onEvent('deactivated',activity); activity();
 export function disposeStore() {
-  disposed = true; generation++; needsWork = false; if (retryTimer) clearTimeout(retryTimer);
+  disposed = true; generation++; needsWork = false; if (retryTimer) clearTimeout(retryTimer);if(bootstrapRetry)clearTimeout(bootstrapRetry);
   api.dispose(); document.removeEventListener('visibilitychange',activity); telegram()?.offEvent('activated',activity); telegram()?.offEvent('deactivated',activity);
   window.removeEventListener('online', online); window.removeEventListener('offline', offline); window.removeEventListener('beforeunload', beforeUnload);
 }

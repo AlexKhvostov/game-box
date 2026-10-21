@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
-import { state, world, initialize, attemptCost, back, refreshBoards, action, errorText, openScreen, failedFinish } from '../services/game-store';
-import { localQa } from '../services/api';
+import { state, world, initialize, attemptCost, back, refreshBoards, errorText, openScreen, failedFinish } from '../services/game-store';
+import { ApiError, localQa } from '../services/api';
 import { loadKernel } from '../domain/kernel';
 import { viewportGeometry, textScale } from '../domain/viewport';
 import { GameController } from '../game/controller';
@@ -38,6 +38,7 @@ const geometry = computed(() => viewportGeometry(usableWidth.value, height.value
 const css = computed(() => ({ '--scale': geometry.value.scale, '--logical-height': `${geometry.value.logicalHeight}px`, '--hud-height': `${geometry.value.hudHeight / geometry.value.scale}px`, '--text-scale': textScale(usableWidth.value, height.value, 1, insets.value.top + insets.value.bottom), width: `${geometry.value.width}px`, height: `${Math.max(0,height.value - insets.value.top - insets.value.bottom)}px`, marginTop: `${insets.value.top}px`, left:`${(insets.value.left-insets.value.right)/2}px` }));
 const t=(ru:string,en:string)=>state.locale==='ru'?ru:en;
 let controller: GameController | undefined;
+const resourcesReady=ref(false);
 let disposeAudio:(()=>void)|undefined;
 let previewResultId='';
 function openLastResult(){if(failedFinish.value)return;const last=state.history.find(row=>!!row.result);if(last){previewResultId=last.requestId;state.resultId=last.requestId;openScreen('result','motion-diagnostics');}}
@@ -45,8 +46,15 @@ function resize() { controller?.reanchor(); width.value = window.innerWidth; hei
 async function start() {
   warmArtwork();
   state.error = ''; await Promise.all([loadKernel(), initialize(), prepareImpactGlyphs(),prepareAudio(),prepareResultFonts()]); await nextTick();
-  if (state.initialized && canvas.value && touchpad.value) { controller?.dispose(); controller = new GameController(canvas.value, touchpad.value); offerStartupAge(); void action(refreshBoards); void deliverAdReward().catch(error => state.notice = errorText(error)); }
+  resourcesReady.value=true;await attachController();
 }
+async function attachController(){
+  if(!resourcesReady.value||!state.initialized||controller)return;
+  await nextTick();
+  if (state.initialized && !controller && canvas.value && touchpad.value) { controller = new GameController(canvas.value, touchpad.value); offerStartupAge(); void refreshBoards().catch(backgroundError); void deliverAdReward().catch(backgroundError); }
+}
+function backgroundError(error:unknown){if(error instanceof ApiError&&(error.source==='transport'||error.code==='service_unavailable'))return;state.notice=errorText(error);}
+watch(()=>state.initialized,ready=>{if(ready)void attachController();else{controller?.dispose();controller=undefined;}});
 watch(() => [state.helmet, state.jump, state.config?.revision], () => { if (!world.value?.playing && !world.value?.dead) controller?.reset(); }, { flush: 'sync' });
 watch(() => state.screen, (screen, before) => {
   if (before==='result') adPresenter.destroy();
@@ -62,13 +70,14 @@ onBeforeUnmount(() => { controller?.dispose(); disposeAudio?.(); adPresenter.des
     <EnergyRewardMotion />
     <div class="game-shell">
       <TouchpadFloor :height="geometry.logicalHeight - geometry.hudHeight / geometry.scale - 133 - 16" />
-      <div class="gameplay-layer" :inert="state.screen ? true : undefined" :aria-hidden="state.screen ? true : undefined">
+      <div class="gameplay-layer" :inert="state.screen || !state.initialized || !resourcesReady ? true : undefined" :aria-hidden="state.screen || !state.initialized || !resourcesReady ? true : undefined">
       <GameHud />
       <div ref="touchpad" class="touchpad" :aria-label="t('Игровое поле. Перемещайте палец; второй палец — прыжок.','Game field. Move your finger; a second finger jumps.')">
         <canvas ref="canvas" class="game-field" width="760" height="760" :aria-label="t('Поле Untouch','Untouch field')"></canvas>
         <div v-if="!world?.playing && !world?.dead" class="start-caption"><strong><img src="/assets/branding/ui/hero-ready-v1.png" alt="">Untouch</strong><p class="attempt-caption"><template v-if="state.initialized">{{t('Попытка:','Run:')}} <EnergyAmount :amount="attemptCost"/> · {{t('коснитесь поля','touch the field')}}</template><template v-else>{{t('Подключение…','Connecting…')}}</template></p><small>{{ t('Двигайте палец, чтобы уклоняться','Move your finger to dodge') }}</small></div>
       </div>
       </div>
+      <div v-if="(!state.initialized || !resourcesReady) && !state.error" class="startup-loading" role="status" aria-live="polite"><span class="loading-spinner" aria-hidden="true"></span><strong>{{t(state.initialized?'Загружаем игру…':'Подключаемся…',state.initialized?'Loading game…':'Connecting…')}}</strong></div>
       <div v-if="!state.initialized && state.error" class="startup-error" role="alert"><p>{{ state.error }}</p><button class="primary" @click="start">{{ t('Повторить','Retry') }}</button></div>
       <button v-if="localQa||nativeQa" class="qa-label" style="pointer-events:auto;border:0;background:none;padding:0;min-height:0" :disabled="world?.playing" @click="openScreen('motion-diagnostics',state.screen)">{{ nativeQa?`Telegram QA · ${appVersion}`:'Локальная проверка · тестовые данные' }}</button>
       <GameWindow v-if="(localQa||nativeQa)&&state.screen==='motion-diagnostics'" title="QA · Плавность"><label><input :checked="legacyInputPaint" type="checkbox" @change="legacyInputPaint=($event.target as HTMLInputElement).checked;motionProbe.setLegacyInputPaint(legacyInputPaint)"> QA: прежняя отрисовка на каждом касании</label><button class="secondary full" @click="openScreen('audio-diagnostics','motion-diagnostics')">Проверка звуков без энергии</button><button v-if="state.history.some(row=>!!row.result)" class="secondary full" @click="openLastResult">Последний сохранённый результат</button><pre style="white-space:pre-wrap;overflow-wrap:anywhere;font-size:9px">{{motionReportText}}</pre></GameWindow>

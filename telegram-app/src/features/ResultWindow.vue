@@ -1,15 +1,24 @@
 <script setup lang="ts">
-import { computed, ref, nextTick, onBeforeUnmount } from 'vue';
+import { computed, ref, nextTick, watch, onMounted, onBeforeUnmount } from 'vue';
 import GameWindow from '../components/GameWindow.vue';
 import EnergyAmount from '../components/EnergyAmount.vue';
 import GameArt from '../components/GameArt.vue';
 import { loadArtwork, resultArtwork } from '../services/artwork';
-import { state, openScreen, action, flush, failedFinish, retryFailedFinish, returnToPlay } from '../services/game-store';
+import { state, openScreen, action, flush, failedFinish, retryFailedFinish, returnToPlay, presentResultReward } from '../services/game-store';
 import { telegram } from '../platform/telegram';
 import {registerOverlayBack} from '../services/ui-overlays';
 const t = (ru: string, en: string) => state.locale === 'ru' ? ru : en;
 const imageUrl=ref(''),artFailed=ref(false),artAttempt=ref(0);
 const run = computed(() => state.history.find(a => a.requestId === state.resultId));
+function presentWhenVisible(){
+  const id=state.resultId;
+  if(state.screen==='result'&&!document.hidden&&telegram()?.isActive!==false)void nextTick(()=>{
+    if(state.screen==='result'&&state.resultId===id&&!document.hidden&&telegram()?.isActive!==false)try{presentResultReward(id);}catch{/* Saving the proof remains guarded separately. */}
+  });
+}
+watch(()=>[state.screen,state.resultId,!!run.value?.result,!!failedFinish.value],presentWhenVisible,{immediate:true,flush:'post'});
+onMounted(()=>{document.addEventListener('visibilitychange',presentWhenVisible);telegram()?.onEvent('activated',presentWhenVisible);});
+onBeforeUnmount(()=>{document.removeEventListener('visibilitychange',presentWhenVisible);telegram()?.offEvent('activated',presentWhenVisible);});
 const result = computed(() => failedFinish.value?.result ?? run.value?.result);
 const seconds = computed(() => ((result.value?.timeMs ?? 0) / 1000).toFixed(3));
 const previousBest = computed(() => run.value?.previousBestTimeMs);

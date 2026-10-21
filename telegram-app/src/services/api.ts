@@ -11,6 +11,8 @@ export class TelegramApi {
   checkConnection() { return this.transport.check(); }
   setActive(active: boolean) { this.transport.setActive(active); }
   dispose() { this.transport.dispose(); }
+  sessionMaterial() {return this.initData;}
+  cacheNamespace() {return `telegram-v2|${this.endpoint}|${import.meta.env.VITE_TELEGRAM_APP_URL??''}`;}
   async initialize() {
     if (typeof structuredClone !== 'function' || !navigator.locks || !Array.prototype.at) throw new ApiError('browser_update_required');
     if (isNativeTelegram()) this.initData = telegram()!.initData;
