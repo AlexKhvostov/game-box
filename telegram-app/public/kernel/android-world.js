@@ -1785,9 +1785,9 @@ _.e=_.d=_.c=_.b=_.a=$
 _.r=_.f=0
 _.y=_.x=_.w=!1
 _.z=null
-_.as=_.Q=0
-_.at=a
-_.ax=null},
+_.at=_.as=_.Q=0
+_.ax=a
+_.ay=null},
 dC(a,b){var t,s
 if(a.V(b))return 0
 t=Math.max(0,Math.max(a.a-b.c,b.a-a.c))
@@ -2901,7 +2901,7 @@ case"start":if(n.w||n.x)A.J(A.bP("start"))
 p=n.b
 p===$&&A.j()
 p.aT()
-n.ax=p.gaU()
+n.ay=p.gaU()
 n.as=n.Q=0
 n.w=!0
 break
@@ -2917,7 +2917,7 @@ case"jump":n.bi()
 break
 case"snapshot":break
 case"proof":q=u.N
-h=B.e.a0(A.K(["ok",!0,"proof",A.K(["version",1,"events",n.at,"startPose",n.ax],q,u.z)],q,u.K),b1)
+h=B.e.a0(A.K(["ok",!0,"proof",A.K(["version",1,"events",n.ax,"startPose",n.ay],q,u.z)],q,u.K),b1)
 return h
 case"guard":q=p.a(t)
 p=u.j
@@ -3012,15 +3012,15 @@ if(s.w){t=s.d
 t===$&&A.j()
 if(t){r=s.b
 r===$&&A.j()
-r=!r.bw(s.r)}}if(r)return
-B.a.l(s.at,A.n([2],u.a))},
+r=!r.bw(s.r)}}if(r)return;++s.at
+B.a.l(s.ax,A.n([2],u.a))},
 aj(a){var t,s,r,q,p,o,n,m,l,k,j,i=this
-if(!i.w||i.x||i.at.length>=6e5)throw A.c(A.bP("event"))
+if(!i.w||i.x||i.ax.length>=6e5)throw A.c(A.bP("event"))
 if(0>=a.length)return A.f(a,0)
 if(J.T(a[0],0)){if(1>=a.length)return A.f(a,1)
 t=A.t(a[1])
 if(!isFinite(t)||t<=0||t>50||i.r+t>36e5)throw A.c(A.br("tick"))
-B.a.l(i.at,A.n([0,t],u.a))
+B.a.l(i.ax,A.n([0,t],u.a))
 i.r+=t
 s=t/1000
 r=i.b
@@ -3039,7 +3039,7 @@ p=A.t(a[1])
 if(2>=r)return A.f(a,2)
 o=A.t(a[2])
 if(!isFinite(p)||!isFinite(o)||Math.abs(p)>2000||Math.abs(o)>2000)throw A.c(A.br("move"))
-B.a.l(i.at,A.n([1,p,o],u.a))
+B.a.l(i.ax,A.n([1,p,o],u.a))
 r=i.b
 r===$&&A.j()
 r.bj(new A.b(p,o),!i.ga1())}else throw A.c(A.br("event"))}r=i.b
@@ -3053,32 +3053,33 @@ j=Math.max(l,n.b-l-m)
 n=r.e
 n===$&&A.j()
 r.e=new A.b(B.b.m(n.a,l,k),B.b.m(r.e.b,l,j))}i.ba()},
-gaS(){var t,s,r,q,p,o,n,m,l,k,j,i,h,g,f,e,d,c,b,a,a0=this,a1=a0.w,a2=a0.x,a3=B.b.ak(a0.r),a4=a0.b
-a4===$&&A.j()
-t=B.b.bp(Math.max(0,a4.y/Math.max(0.000001,a4.a.b.a*1.2*0.1)))
-s=a4.z
-r=a0.c
+gaS(){var t,s,r,q,p,o,n,m,l,k,j,i,h,g,f,e,d,c,b,a,a0,a1=this,a2=a1.w,a3=a1.x,a4=B.b.ak(a1.r),a5=a1.b
+a5===$&&A.j()
+t=B.b.bp(Math.max(0,a5.y/Math.max(0.000001,a5.a.b.a*1.2*0.1)))
+s=a5.z
+r=a1.c
 r===$&&A.j()
-q=a0.ga1()
-p=a4.aI(a0.r)
-o=a4.e
-o===$&&A.j()
-n=u.N
-m=u.i
-o=A.K(["x",o.a,"y",o.b,"size",a4.a.b.a*1.2,"visualScale",a4.gbx(),"jumpLift",a4.gaJ()],n,m)
-l=u.O
-k=A.n([],l)
-for(j=a4.f,i=j.length,h=0;h<j.length;j.length===i||(0,A.O)(j),++h){g=j[h]
-f=g.a
-k.push(A.K(["x",f.a,"y",f.b,"w",g.y,"h",g.z,"angle",g.CW,"speed",g.ay+g.ch*(a0.r/1000)],n,m))}j=a0.Q
-i=a0.as
-f=a0.y
-e=a0.z
-d=a4.gbf()
-l=A.n([],l)
-for(a4=a4.Q,c=a4.length,h=0;h<a4.length;a4.length===c||(0,A.O)(a4),++h){b=a4[h]
-a=b.a
-l.push(A.K(["x",a.a,"y",a.b,"age",b.b],n,m))}return A.K(["playing",a1,"dead",a2,"timeMs",a3,"runDistance",t,"riskCount",s,"helmet",r,"invulnerable",q,"jumpCooldownMs",p,"player",o,"enemies",k,"wallBounces",j,"enemyBounces",i,"againstWall",f,"impactOrigin",e,"startled",d,"nearMissFx",l],n,u.z)}}
+q=a1.ga1()
+p=a5.aI(a1.r)
+o=a1.at
+n=a5.e
+n===$&&A.j()
+m=u.N
+l=u.i
+n=A.K(["x",n.a,"y",n.b,"size",a5.a.b.a*1.2,"visualScale",a5.gbx(),"jumpLift",a5.gaJ()],m,l)
+k=u.O
+j=A.n([],k)
+for(i=a5.f,h=i.length,g=0;g<i.length;i.length===h||(0,A.O)(i),++g){f=i[g]
+e=f.a
+j.push(A.K(["x",e.a,"y",e.b,"w",f.y,"h",f.z,"angle",f.CW,"speed",f.ay+f.ch*(a1.r/1000)],m,l))}i=a1.Q
+h=a1.as
+e=a1.y
+d=a1.z
+c=a5.gbf()
+k=A.n([],k)
+for(a5=a5.Q,b=a5.length,g=0;g<a5.length;a5.length===b||(0,A.O)(a5),++g){a=a5[g]
+a0=a.a
+k.push(A.K(["x",a0.a,"y",a0.b,"age",a.b],m,l))}return A.K(["playing",a2,"dead",a3,"timeMs",a4,"runDistance",t,"riskCount",s,"helmet",r,"invulnerable",q,"jumpCooldownMs",p,"jumpCount",o,"player",n,"enemies",j,"wallBounces",i,"enemyBounces",h,"againstWall",e,"impactOrigin",d,"startled",c,"nearMissFx",k],m,u.z)}}
 A.aF.prototype={}
 A.a5.prototype={}
 A.ac.prototype={
@@ -3191,7 +3192,7 @@ t=r.a.d
 r.r=Math.max(0.12,t.f)
 s=t.r
 t=isFinite(s)?s:2
-r.x=a+Math.max(2,t)*1000
+r.x=a+Math.max(0,t)*1000
 r.at.E(0)
 r.as.E(0)
 r.ac()

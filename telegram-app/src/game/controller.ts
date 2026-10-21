@@ -127,8 +127,11 @@ export class GameController {
   };
   jump() {
     if (!this.snapshot.playing || !state.jump) return;
-    const previous = this.snapshot.jumpCooldownMs; this.snapshot = kernel({ op: 'jump' });
-    if (this.snapshot.jumpCooldownMs > previous) sound('jump'); if(motionProbe.paintOnInput())this.draw(); world.value = this.snapshot;
+    const before=this.snapshot;this.snapshot=kernel({op:'jump'});
+    const accepted=this.snapshot.jumpCount!==undefined&&before.jumpCount!==undefined
+      ? this.snapshot.jumpCount>before.jumpCount
+      : this.snapshot.jumpCooldownMs>before.jumpCooldownMs;
+    if(accepted)sound('jump');if(motionProbe.paintOnInput())this.draw();world.value=this.snapshot;
   }
   private key = (event: KeyboardEvent) => {
     if (['INPUT', 'TEXTAREA', 'SELECT'].includes((event.target as HTMLElement)?.tagName) || state.screen) return;
