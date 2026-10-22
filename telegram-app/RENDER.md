@@ -1,4 +1,4 @@
-# Telegram test deployment
+# Telegram deployment
 
 Render project: `untouch_telegramm_mini_app` (`prj-dbbiadrncjis738rltqg`).
 
@@ -10,8 +10,17 @@ Static Site settings:
 - Publish Directory: `dist`.
 - `NODE_VERSION=24`; `SKIP_INSTALL_DEPS=true`.
 - `VITE_TELEGRAM_API_URL=https://exinizzxqtjnysgibide.supabase.co/functions/v1/telegram-api`.
-- `VITE_TELEGRAM_APP_URL=https://t.me/TestUntouch_bot`.
-- `VITE_QA_MODE=true` (test build label; does not bypass Telegram authentication).
+- `VITE_TELEGRAM_APP_URL=https://t.me/UntouchGameBot`.
+- `VITE_QA_MODE=false` (main-bot release).
+
+The accepted test variant uses `VITE_TELEGRAM_APP_URL=https://t.me/TestUntouch_bot`
+with `VITE_QA_MODE=true`. The API validates both configured bot signatures and
+maps accounts by verified bot ID plus Telegram user ID; wallets and histories
+are independent. This is account separation, not a separate QA database or ranking.
+Existing test identities retain their UIDs and data. The additional main credential
+is `TELEGRAM_MAIN_BOT_TOKEN`; referrals use `TELEGRAM_MAIN_MINIAPP_LINK`.
+The existing `TELEGRAM_BOT_TOKEN` remains the test credential. Neither credential
+belongs in Render's frontend environment or repository.
 
 Only public client sources/assets belong in the delivery branch. Do not include
 `.private`, environment files, backend credentials, local QA fixtures, player

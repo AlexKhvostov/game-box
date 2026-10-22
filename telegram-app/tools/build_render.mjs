@@ -5,9 +5,11 @@ import {spawnSync} from 'node:child_process';
 const root=path.resolve(import.meta.dirname,'..');
 const api=process.env.VITE_TELEGRAM_API_URL??'';
 const app=process.env.VITE_TELEGRAM_APP_URL??'';
-if(api!=='https://exinizzxqtjnysgibide.supabase.co/functions/v1/telegram-api'
-  ||app!=='https://t.me/TestUntouch_bot'||process.env.VITE_QA_MODE!=='true'){
-  throw Error('Render client configuration invalid; expected the accepted test-bot deployment.');
+const qa=process.env.VITE_QA_MODE;
+const accepted=app==='https://t.me/UntouchGameBot'&&qa==='false'
+  ||app==='https://t.me/TestUntouch_bot'&&qa==='true';
+if(api!=='https://exinizzxqtjnysgibide.supabase.co/functions/v1/telegram-api'||!accepted){
+  throw Error('Render client configuration invalid; expected an accepted main or test bot deployment.');
 }
 const npm=process.platform==='win32'?'npm.cmd':'npm';
 const build=spawnSync(npm,['run','build'],{cwd:root,stdio:'inherit',shell:process.platform==='win32'});
@@ -16,5 +18,5 @@ const {version}=JSON.parse(await fs.readFile(path.join(root,'package.json'),'utf
 const commit=process.env.RENDER_GIT_COMMIT??'local';
 if(!/^(?:local|[a-f0-9]{40})$/.test(commit))throw Error('Invalid deployment commit');
 await fs.writeFile(path.join(root,'dist/version.json'),JSON.stringify({version,
-  buildId:`render-v${version}-${commit.slice(0,12)}`,artifact:'telegram-vue',qa:true,
+  buildId:`render-v${version}-${commit.slice(0,12)}`,artifact:'telegram-vue',qa:qa==='true',
   apiUrl:api,appUrl:app,commit,paymentsEnabled:false,createdAt:new Date().toISOString()},null,2)+'\n');
