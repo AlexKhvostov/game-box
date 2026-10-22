@@ -1,4 +1,4 @@
-import { reactive } from 'vue';
+import { reactive, watch } from 'vue';
 import { state, walletOperation, now, energy, request } from './game-store';
 import { DurableStorage, operationId } from './storage';
 import { ensureResourceAge, requestRewardedAds, canShowRewardedAds, canShowAds } from '../platform/audience';
@@ -64,22 +64,54 @@ export async function watchRewardedAd() {
   } finally { telegram()?.offEvent('deactivated',cancel); adsState.showing = false; state.externalBusy = false; if (!document.hidden && telegram()?.isActive !== false) syncMusic(); }
   }finally{adsState.showing=false;}
 }
-const sessionStarted = performance.now(); let lastInterstitial = -Infinity, completedRounds = 0;
+let sessionStarted = performance.now(), lastInterstitial = -Infinity, completedRounds = 0;
+let interstitialOwner: string | null = null, ownerEpoch = 0, interstitialInFlight = false;
+let latestRound: string | null = null, attemptedRound: string | null = null;
 const completedIds = new Set<string>();
-export function completedRound(id: string) { if (!completedIds.has(id)) { completedIds.add(id); completedRounds++; } }
+watch(() => state.profile?.id ?? null, owner => {
+  interstitialOwner = owner; ownerEpoch++;
+  sessionStarted = performance.now(); lastInterstitial = -Infinity; completedRounds = 0;
+  latestRound = attemptedRound = null; completedIds.clear();
+  if (interstitialInFlight) adPresenter.destroy();
+}, {immediate:true, flush:'sync'});
+watch(() => state.platform?.ads.interstitialEnabled, enabled => {
+  if (enabled !== true && interstitialInFlight) adPresenter.destroy();
+}, {flush:'sync'});
+export function completedRound(id: string) {
+  if (state.profile?.id !== interstitialOwner || !id || completedIds.has(id)) return;
+  completedIds.add(id); completedRounds++; latestRound = id;
+}
+function interstitialReady() {
+  const config = state.config?.config.economy, profile = state.profile, ads = state.platform?.ads;
+  if (!config || !profile || profile.id !== interstitialOwner || !ads || ads.enabled !== true || ads.interstitialEnabled !== true ||
+      !/^int-\d+$/.test(ads.interstitialBlockId) || !canShowAds() || !isNativeTelegram() || document.hidden ||
+      telegram()?.isActive === false || state.screen !== 'result' || !latestRound || state.resultId !== latestRound) return false;
+  const keys = ['interstitialSessionGraceSec','interstitialSessionFreeRounds','interstitialGraceSec','interstitialCooldownSec','interstitialMinLives'];
+  if (keys.some(key => !Number.isFinite(config[key]) || config[key] < 0)) return false;
+  const stamp = performance.now(), wallNow = now(), wallet = profile.wallet, subscription = wallet.energySubscription;
+  if (subscription && (subscription.expiresAt > wallNow || subscription.awaitingReconciliation)) return false;
+  // Energy-v2 records the actual simple-bonus receipt. Before the first receipt,
+  // use this account's session clock instead of requiring a legacy daily claim.
+  const claimed = wallet.simpleBonus?.lastClaimAt;
+  const graceElapsed = typeof claimed === 'number' && Number.isFinite(claimed) && claimed > 0 ? wallNow - claimed : stamp - sessionStarted;
+  return stamp - sessionStarted >= Math.max(180,config.interstitialSessionGraceSec)*1000 &&
+    completedRounds > Math.max(10,config.interstitialSessionFreeRounds) &&
+    Number.isFinite(energy.value) && energy.value >= config.interstitialMinLives &&
+    stamp - lastInterstitial >= config.interstitialCooldownSec*1000 && graceElapsed >= config.interstitialGraceSec*1000;
+}
 export async function maybeResultInterstitial() {
-  const config = state.config?.config.economy, w = state.profile?.wallet;
-  if (!config || !w || adsState.showing || !canShowAds() || !isNativeTelegram() || !state.platform?.ads.enabled || document.hidden || telegram()?.isActive===false || state.screen !== 'result') return;
-  const stamp = performance.now(), sinceStart = (stamp-sessionStarted)/1000;
-  // Android's current gate arms only from legacy lastDailyAt. Fresh energy-v2
-  // profiles do not have it; preserve that behavior rather than invent an ad.
-  const armed = (w as typeof w & { lastDailyAt?: number }).lastDailyAt;
-  if (!armed || w.energySubscription && w.energySubscription.expiresAt > now() || sinceStart < Math.max(180,config.interstitialSessionGraceSec) || completedRounds <= Math.max(10,config.interstitialSessionFreeRounds) || energy.value < config.interstitialMinLives || stamp-lastInterstitial < config.interstitialCooldownSec*1000 || now()-armed < config.interstitialGraceSec*1000) return;
+  if (adsState.showing || attemptedRound === latestRound || !interstitialReady()) return;
+  // At most one automatic SDK attempt for a result, including no-fill/errors.
+  attemptedRound = latestRound;
   adsState.showing = true; state.externalBusy = true; stopAudio();
-  const owner=state.profile!.id,blockId=state.platform.ads.interstitialBlockId,revision=state.config?.revision;
-  const canShow=()=>state.screen==='result'&&!document.hidden&&telegram()?.isActive!==false&&canShowAds()&&state.profile?.id===owner&&state.platform?.ads.enabled===true&&state.platform.ads.interstitialBlockId===blockId&&state.config?.revision===revision;
+  interstitialInFlight = true;
+  const epoch=ownerEpoch,roundId=latestRound,blockId=state.platform!.ads.interstitialBlockId,revision=state.config?.revision;
+  const canShow=()=>epoch===ownerEpoch&&latestRound===roundId&&state.platform?.ads.interstitialBlockId===blockId&&state.config?.revision===revision&&interstitialReady();
   const cancel=()=>adPresenter.destroy();telegram()?.onEvent('deactivated',cancel);
-  try { if (await adPresenter.show(blockId, false, false, canShow)) lastInterstitial = performance.now(); }
-  finally { telegram()?.offEvent('deactivated',cancel);adsState.showing = false; state.externalBusy = false; if (!document.hidden) syncMusic(); }
+  try {
+    if (await adPresenter.show(blockId, false, false, canShow) && epoch===ownerEpoch) {
+      lastInterstitial = performance.now();
+    }
+  } finally { telegram()?.offEvent('deactivated',cancel);interstitialInFlight=false;adsState.showing=false;state.externalBusy=false;if(!document.hidden&&telegram()?.isActive!==false)syncMusic(); }
 }
 window.addEventListener('online', () => { void deliverAdReward().catch(() => {}); });

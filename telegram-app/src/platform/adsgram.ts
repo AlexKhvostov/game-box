@@ -16,14 +16,16 @@ function loadSdk() {
 export function createAdPresenter(load: () => Promise<AdsgramSdk> = loadSdk) {
   let active: AdController | null = null, activeCancel: (() => void) | null = null;
   let generation=0, pending: number | null=null;
+  let cancelLoading: (() => void) | null = null;
   return {
     async show(blockId: string, rewarded: boolean, debug = false, canShow = () => true) {
       if (active || pending!==null) throw Error('ad_busy');
       if (!(rewarded ? /^\d+$/ : /^int-\d+$/).test(blockId)) throw Error('ad_unavailable');
       const epoch=++generation;pending=epoch;
-      let sdk:AdsgramSdk;
-      try{sdk=await load();}finally{if(pending===epoch)pending=null;}
-      if(epoch!==generation||!canShow())return false;
+      let sdk:AdsgramSdk|null;
+      const loadingCanceled = new Promise<null>(resolve => cancelLoading = () => resolve(null));
+      try{sdk=await Promise.race([load(),loadingCanceled]);}finally{if(pending===epoch){pending=null;cancelLoading=null;}}
+      if(!sdk||epoch!==generation||!canShow())return false;
       if (active) throw Error('ad_busy');
       const controller = sdk.init({ blockId, debug, debugConsole: false }); active = controller;
       let earned = false, canceled = false;
@@ -42,7 +44,7 @@ export function createAdPresenter(load: () => Promise<AdsgramSdk> = loadSdk) {
       } catch { return false; }
       finally { clearTimeout(watchdog); controller.removeEventListener('onReward', reward); document.removeEventListener('visibilitychange', visibility); controller.destroy(); if (active === controller) { active = null; activeCancel = null; } }
     },
-    destroy() { generation++;pending=null;activeCancel?.(); active = null; activeCancel = null; }
+    destroy() { generation++;pending=null;cancelLoading?.();cancelLoading=null;activeCancel?.(); active = null; activeCancel = null; }
   };
 }
 export const adPresenter = createAdPresenter();

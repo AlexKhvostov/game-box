@@ -3,17 +3,16 @@ import {computed, ref, watch, nextTick, onMounted, useId} from 'vue';
 import GameWindow from '../components/GameWindow.vue';
 import GameArt from '../components/GameArt.vue';
 import AverageInfoDialog from '../components/AverageInfoDialog.vue';
-import {state, refreshBoards} from '../services/game-store';
+import {state, refreshAttemptHistory, moreAttemptHistory, retryAttemptHistory} from '../services/game-store';
 import {myAttemptsModel, attemptWindow} from '../domain/my-attempts';
 import type {Attempt} from '../services/contracts';
 const emit = defineEmits<{detail: [attempt: Attempt]}>();
 const t = (ru: string, en: string) => state.locale === 'ru' ? ru : en;
-const model = computed(() => myAttemptsModel({attempts: state.history, profile: state.profile, board: state.average, allTime: state.periods.all ?? []}));
+const model = computed(() => myAttemptsModel({attempts: state.history, profile: state.profile, board: state.average, allTime: state.periods.all ?? [], server:state.serverHistory,config:state.config}));
 const expanded = ref(true), showInfo = ref(false), selectedId = ref<string | null>(null), meanButton = ref<HTMLButtonElement>(), list = ref<HTMLElement>();
 const plotId = useId(), missingBest = ref(false);
-const selected = computed(() => model.value.rows.find(row => row.attempt.requestId === selectedId.value));
 const visible = computed(() => attemptWindow(model.value.rows, selectedId.value));
-const ceiling = computed(() => Math.max(5000, Math.ceil(Math.max(0, ...visible.value.map(row => Math.max(row.attempt.result!.timeMs, row.averageMs ?? 0))) / 5000) * 5000));
+const ceiling = computed(() => Math.max(5000, Math.ceil(Math.max(...visible.value.map(row => Math.max(row.attempt.result!.timeMs, row.averageMs ?? 0))) / 5000) * 5000));
 const x = (index: number) => 36 + (index + .5) * 314 / Math.max(1, visible.value.length);
 const y = (ms: number) => 172 - 160 * ms / ceiling.value;
 const barWidth = computed(() => Math.min(22, 314 / Math.max(1, visible.value.length) * .58));
@@ -58,7 +57,7 @@ watch(() => !!model.value.rules, available => {if (!available) showInfo.value = 
 watch(() => model.value.rows.map(row => row.attempt.requestId).join(','), () => {
   if (!model.value.rows.some(row => row.attempt.requestId === selectedId.value)) selectedId.value = model.value.rows.at(-1)?.attempt.requestId ?? null;
 }, {immediate: true});
-onMounted(() => {void refreshBoards().catch(() => {/* Keep the available history usable offline. */});});
+onMounted(() => {void refreshAttemptHistory();});
 </script>
 <template>
   <GameWindow class="my-attempts-window" :title="t('Мои попытки','My attempts')" tall :inactive="showInfo">
@@ -66,16 +65,21 @@ onMounted(() => {void refreshBoards().catch(() => {/* Keep the available history
     <template v-if="state.parent" #back>‹</template>
     <section class="ma-graph" :aria-label="t('Результаты попыток','Attempt results')">
       <div class="ma-summary">
-        <button ref="meanButton" type="button" class="ma-stat ma-mean" :disabled="!model.rules" aria-haspopup="dialog" :aria-expanded="showInfo" @click="showInfo=true">
-          <span class="ma-stat-label">{{t('Среднее','Average')}} <span aria-hidden="true" class="ma-info">ⓘ</span></span>
-          <strong class="ma-value">{{seconds(model.averageMs)}} <small>{{t('с','s')}}</small></strong>
-          <span class="ma-stat-sub">{{model.rules?t(`Последние ${model.rules.windowSize} попыток`,`Latest ${model.rules.windowSize} attempts`):t('Подключаем данные…','Loading rules…')}}</span>
-        </button>
+        <div class="ma-stat ma-total">
+          <span class="ma-stat-label">{{t('Всего попыток','Total attempts')}}</span>
+          <strong class="ma-value" :style="{'--characters':String(model.totalCount ?? '—').length}">{{model.totalCount ?? '—'}}</strong>
+          <span class="ma-stat-sub">{{t('За всё время','All time')}}</span>
+        </div>
         <button type="button" class="ma-stat ma-best" :disabled="!model.best" @click="selectBest">
           <span class="ma-stat-label"><img src="/assets/branding/ranking/trophy.svg" alt="">{{t('Лучшая попытка','Best attempt')}}</span>
-          <strong class="ma-value">{{seconds(model.best?.timeMs)}} <small>{{t('с','s')}}</small></strong>
+          <strong class="ma-value" :style="{'--characters':seconds(model.best?.timeMs).length+1}">{{seconds(model.best?.timeMs)}} <small>{{t('с','s')}}</small></strong>
           <span class="ma-stat-sub ma-best-date">{{model.best?stamp(model.best.createdAt):t('Пока нет рекорда','No record yet')}}</span>
           <span v-if="model.best?.source==='confirmed-local'" class="ma-stat-sub">{{t('Подтверждено на устройстве','Confirmed on this device')}}</span>
+        </button>
+        <button ref="meanButton" type="button" class="ma-stat ma-mean" :disabled="!model.rules" aria-haspopup="dialog" :aria-expanded="showInfo" @click="showInfo=true">
+          <span class="ma-stat-label">{{t('Среднее','Average')}} <span aria-hidden="true" class="ma-info">ⓘ</span></span>
+          <strong class="ma-value" :style="{'--characters':seconds(model.averageMs).length+1}">{{seconds(model.averageMs)}} <small>{{t('с','s')}}</small></strong>
+          <span class="ma-stat-sub">{{model.rules?t(`Учтено попыток: ${model.usedCount}`,`Attempts counted: ${model.usedCount}`):t('Подключаем данные…','Loading rules…')}}</span>
         </button>
       </div>
       <div class="ma-chart-shell">
@@ -87,22 +91,24 @@ onMounted(() => {void refreshBoards().catch(() => {/* Keep the available history
             <polyline v-if="averageLine" :points="averageLine" class="ma-average-line"/>
             <circle v-for="(row,i) in visible.filter(row=>row.averageMs!==null)" :key="`point-${row.attempt.requestId}`" :cx="x(visible.indexOf(row))" :cy="y(row.averageMs!)" :r="row.attempt.requestId===selectedId?3.8:2" class="ma-average-dot" :data-point="i"/>
           </svg>
-          <p v-else class="ma-empty-chart">{{t('Здесь появится ваш прогресс','Your progress will appear here')}}</p>
+          <p v-else class="ma-empty-chart"><span v-if="state.historyLoading" class="loading-spinner" aria-hidden="true"/>{{state.historyLoading?t('Загружаем историю…','Loading history…'):state.historyError?t('Не удалось загрузить историю','Could not load history'):t('Здесь появится ваш прогресс','Your progress will appear here')}}</p>
         </div>
       </div>
-      <div v-show="expanded" class="ma-selection" aria-live="polite"><span>{{selected?`#${selected.number} · ${seconds(selected.attempt.result!.timeMs)} ${t('с','s')}`:t('Пока нет попыток','No attempts yet')}}</span><strong v-if="selected?.averageMs!=null">{{t('Среднее','Average')}} {{seconds(selected.averageMs)}} {{t('с','s')}}</strong></div>
-      <div v-show="expanded" class="ma-legend"><span><b class="ma-line-swatch"/>{{t('Среднее','Average')}}</span><span><b class="ma-bar-swatch"/>{{t('Попытка','Attempt')}}</span><span v-if="model.rules">{{model.activeCount}} {{t('в расчёте здесь','included here')}}</span></div>
+      <div v-show="expanded" class="ma-selection" aria-live="polite"><strong v-if="model.averageMs!==null">{{t('Среднее','Average')}} {{seconds(model.averageMs)}} {{t('с','s')}}</strong></div>
+      <div v-show="expanded" class="ma-legend"><span v-if="model.chartMode!=='none'"><b class="ma-line-swatch"/>{{t('Среднее','Average')}}</span><span><b class="ma-bar-swatch"/>{{t('Попытка','Attempt')}}</span></div>
     </section>
-    <section class="ma-history" :aria-label="t('История на устройстве','History on this device')">
-      <header class="ma-history-heading"><h2>{{t('История','History')}} <span>· {{model.history.length}}</span></h2><small>{{t('На устройстве · новые сверху','On this device · newest first')}}</small></header>
+    <section class="ma-history" :aria-label="t('История попыток','Attempt history')">
+      <header class="ma-history-heading"><h2>{{t('История','History')}} <span>· {{model.history.length}} / {{model.totalCount ?? '—'}}</span></h2><small>{{t('Новые сверху','Newest first')}}</small></header>
       <div ref="list" class="ma-list">
         <div v-for="row in model.history" :key="row.attempt.requestId" class="ma-row" :class="{'is-selected':selectedId===row.attempt.requestId,'is-best':row.attempt.requestId===model.best?.localId}" :data-attempt-id="row.attempt.requestId">
           <button type="button" class="ma-row-select" :aria-pressed="selectedId===row.attempt.requestId" @click="select(row.attempt.requestId)"><span class="ma-number">#{{row.number}}</span><span class="ma-row-meta"><span class="ma-date">{{stamp(row.attempt.createdAt)}}</span><small>{{t('Шаги','Steps')}} {{row.attempt.result!.runDistance}} · {{t('Риск','Risk')}} {{row.attempt.result!.riskCount}}{{phase(row.attempt)}}</small></span><strong class="ma-time">{{seconds(row.attempt.result!.timeMs)}} <small>{{t('с','s')}}</small></strong></button>
           <button type="button" class="ma-details" :aria-label="t(`Подробности попытки ${row.number}`,`Details of attempt ${row.number}`)" @click="emit('detail',row.attempt)">ⓘ</button>
         </div>
-        <p v-if="!model.history.length" class="ma-empty">{{t('Ваши попытки будут здесь. Пока нет результатов.','Your attempts will appear here. No results yet.')}}</p>
+        <p v-if="!model.history.length&&!state.historyLoading&&!state.historyError" class="ma-empty">{{t('Ваши попытки будут здесь. Пока нет результатов.','Your attempts will appear here. No results yet.')}}</p>
+        <button v-if="state.historyError||state.serverHistory?.history.nextCursor" class="ma-load-more" type="button" :disabled="state.historyLoading" @click="state.historyError?retryAttemptHistory():moreAttemptHistory()">{{state.historyLoading?t('Загружаем…','Loading…'):state.historyError?t('Повторить загрузку','Retry loading'):t('Загрузить ещё','Load more')}}</button>
+        <div v-if="model.pending.length" class="ma-pending"><strong>{{t('На устройстве · ещё не подтверждены','On this device · not confirmed yet')}}</strong><div v-for="attempt in model.pending" :key="attempt.requestId">{{stamp(attempt.createdAt)}} · {{seconds(attempt.result!.timeMs)}} {{t('с','s')}}{{phase(attempt)}}</div></div>
       </div>
-      <p v-if="missingBest||!model.rules||!model.historyComplete" class="ma-history-note" role="status">{{missingBest?t('Рекорд не сохранён в истории этого устройства. Его значение получено с сервера.','This record is not stored on this device. Its value comes from the server.'):!model.rules?t('Правила среднего загружаются. История уже доступна.','Average rules are loading. Your history is already available.'):t('История может быть неполной. Линия — по доступным попыткам; среднее сверху — с сервера.','History may be incomplete. The line uses available attempts; the summary average comes from the server.')}}</p>
+      <p v-if="missingBest||state.historyError||state.historyLoading" class="ma-history-note" role="status">{{missingBest?t('Рекорд в более ранней истории. Загрузите ещё попытки.','Your record is in earlier history. Load more attempts.'):state.historyError?(state.serverHistory?t('Связь прервалась. Загруженная история сохранена — повторите загрузку.','Connection interrupted. Loaded history is kept — retry loading.'):t('Не удалось загрузить историю. Повторите загрузку.','Could not load history. Please retry.')):t('Загружаем историю с сервера…','Loading history from the server…')}}</p>
     </section>
   </GameWindow>
   <AverageInfoDialog v-if="showInfo&&model.rules" :rules="model.rules" :incomplete="!model.historyComplete" @close="closeInfo"/>

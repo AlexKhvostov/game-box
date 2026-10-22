@@ -9,10 +9,13 @@ import { telegram } from '../platform/telegram';
 import {closeTopOverlay} from './ui-overlays';
 import {readBootstrap,sessionHash,type Bootstrap,type OfflineIdentity} from './bootstrap-cache';
 import {emitResultReward} from './reward-events';
+import {ServerHistoryLoader} from '../domain/server-attempt-history';
+import type {AttemptHistorySnapshot} from './contracts';
 const storage = new DurableStorage();
 export const state = reactive({ profile: null as Profile | null, config: null as GameConfig | null, platform: null as PlatformConfig | null,
   initialized: false, online: true, connection: 'unknown' as ConnectionStatus, busy: false, externalBusy: false, error: '', notice: '', screen: '' as string, parent: '',
   helmet: false, jump: false, history: [] as Attempt[], periods: {} as Record<string, Score[]>, average: null as AverageBoard | null,
+  serverHistory: null as AttemptHistorySnapshot | null, historyLoading: false, historyError: '',
   invites: null as InviteState | null, period: 'all', rankingTab: 'record', locale: 'ru',
   preferences: { sound: true, music: true, vibration: true }, serverOffset: 0, resultId: '', selectedScore: null as Score | null, selectedPlayer:null as {userId:string;playerName:string}|null, rulesAccepted: false });
 export const api = new TelegramApi(status => { state.connection = status; state.online = status !== 'offline'; });
@@ -27,6 +30,10 @@ let liveResultId='';
 let bootstrapHash='',bootstrapIdentity:OfflineIdentity|null=null,profileReceivedAt=0;
 let initializationFlight:Promise<void>|undefined;
 let bootstrapRetry:ReturnType<typeof setTimeout>|undefined,bootstrapFlight:Promise<void>|undefined;
+const serverHistory=new ServerHistoryLoader(body=>request(body),value=>{state.serverHistory=value.snapshot;state.historyLoading=value.loading;state.historyError=value.error;},storage);
+export function refreshAttemptHistory(){serverHistory.setOwner(state.profile?.id??'');return serverHistory.refresh();}
+export function moreAttemptHistory(){serverHistory.setOwner(state.profile?.id??'');return serverHistory.more();}
+export function retryAttemptHistory(){serverHistory.setOwner(state.profile?.id??'');return serverHistory.retry();}
 function cacheBootstrap(){
   if(!state.profile||!state.config||!bootstrapHash)return;
   const cached:Bootstrap={version:1,namespace:api.cacheNamespace(),profile:state.profile,config:state.config,platform:state.platform,identity:bootstrapIdentity,sessionHash:bootstrapHash,receivedAt:profileReceivedAt};
@@ -56,7 +63,7 @@ function history() { state.history = journal?.all ?? []; }
 function accept(result: ApiResult, serial: number) {
   if(result.offlineIdentity?.environment==='production'&&/^\d{5,15}$/.test(result.offlineIdentity.botId??'')&&/^\d+$/.test(result.offlineIdentity.subject??''))bootstrapIdentity=result.offlineIdentity;
   if (result.profile) {
-    if (state.profile && state.profile.id !== result.profile.id) { generation++; journal = null; throw new Error('owner_changed'); }
+    if (state.profile && state.profile.id !== result.profile.id) { generation++; journal = null; serverHistory.setOwner(''); throw new Error('owner_changed'); }
     if (state.profile && (result.profile.walletVersion < state.profile.walletVersion ||
       (result.profile.walletVersion === state.profile.walletVersion && result.profile.serverNow < state.profile.serverNow))) return;
     if (!state.profile || result.profile.walletVersion >= state.profile.walletVersion) {
@@ -104,12 +111,12 @@ export async function request(body: Record<string, unknown>,beforeAccept?:(resul
 function blockRevokedSession(error:unknown){
   const code=error instanceof Error?error.message:String(error);
   if(!['telegram_unauthorized','telegram_session_expired','profile_disabled','owner_changed','platform_owner_invalid','telegram_bot_namespace_invalid'].includes(code))return;
-  generation++;state.initialized=false;
+  generation++;state.initialized=false;serverHistory.setOwner('');
   if(bootstrapRetry){clearTimeout(bootstrapRetry);bootstrapRetry=undefined;}
   try{storage.set('bootstrap-revoked:v1',api.cacheNamespace());}catch{/* Current session remains blocked even if the marker cannot be saved. */}
   state.error=errorText(error);
 }
-async function openJournal(owner:string){if(disposed)return;await acquireWriter(owner);if(disposed)return;journal=new RoundJournal(storage,owner);journal.recoverUnfinished();history();state.initialized=true;}
+async function openJournal(owner:string){if(disposed)return;await acquireWriter(owner);if(disposed)return;journal=new RoundJournal(storage,owner);journal.recoverUnfinished();history();serverHistory.setOwner(owner);state.initialized=true;}
 function refreshBootstrap():Promise<void>{
   if(disposed)return Promise.resolve();
   if(bootstrapFlight)return bootstrapFlight;
@@ -227,6 +234,7 @@ export async function flush() {
           const result = await request({ action: 'round_finish', roundId: entry.roundId, ...entry.result, hadHelmet: entry.helmet, hadJump: entry.jump });
           current.update(entry.requestId, { phase: 'confirmed', reward: result.energyReward }); history();
           void refreshBoards().catch(() => {});
+          if(state.screen==='history'){serverHistory.invalidate(true);void refreshAttemptHistory();}
         }
       } catch (error) {
         if (disposed) return;
@@ -305,6 +313,7 @@ const beforeUnload = (event: BeforeUnloadEvent) => { if (failedFinish.value) { e
 window.addEventListener('online', online); window.addEventListener('offline', offline); window.addEventListener('beforeunload', beforeUnload);
 document.addEventListener('visibilitychange',activity); telegram()?.onEvent('activated',activity); telegram()?.onEvent('deactivated',activity); activity();
 export function disposeStore() {
+  serverHistory.setOwner('');
   disposed = true; generation++; needsWork = false; if (retryTimer) clearTimeout(retryTimer);if(bootstrapRetry)clearTimeout(bootstrapRetry);
   api.dispose(); document.removeEventListener('visibilitychange',activity); telegram()?.offEvent('activated',activity); telegram()?.offEvent('deactivated',activity);
   window.removeEventListener('online', online); window.removeEventListener('offline', offline); window.removeEventListener('beforeunload', beforeUnload);
