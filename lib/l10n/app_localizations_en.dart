@@ -136,7 +136,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get playInfoSpeed => 'Speed';
 
   @override
-  String get playInfoRun => 'Run';
+  String get playInfoRun => 'Steps';
 
   @override
   String get playInfoNear => 'Risk';
@@ -148,7 +148,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String runCrystalHint(int every, int reward) {
-    return '$every run = $reward crystal';
+    return '$every steps = $reward crystal';
   }
 
   @override
@@ -356,7 +356,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get runTipHow =>
-      'Run is distance in steps. 1 step = 0.1 of hero width (same on all screens).';
+      'Steps measure the distance traveled. 1 step = 0.1 of hero width (same on all screens).';
 
   @override
   String runTipConvert(int every, int reward) {

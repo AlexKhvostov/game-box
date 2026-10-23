@@ -29,6 +29,7 @@ import '../../l10n/app_localizations.dart';
 import '../../telegram/telegram_bridge.dart';
 import '../../ui/game_sfx.dart';
 import '../../ui/game_ui.dart';
+import '../../ui/game_status_overlay.dart';
 import '../../ui/game_viewport.dart';
 import '../../ui/audience_gate.dart';
 import '../../data/audience_policy.dart';
@@ -203,10 +204,40 @@ class _GameHomeScreenState extends State<GameHomeScreen>
 
   bool _exchangeOpen = false;
   final _modalBackdrop = SnapshotController();
+  EconomyStore? _receiptEconomy;
+  int _receiptCorrection = 0;
+  void _receiptUpdated() {
+    final serial = _receiptEconomy?.energyPresentation.correctionSerial ?? 0;
+    if (serial == _receiptCorrection) return;
+    _receiptCorrection = serial;
+    final owner = _receiptEconomy?.energyOwner;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted ||
+          !_routeCurrent ||
+          _backgrounded ||
+          owner != _receiptEconomy?.energyOwner) {
+        return;
+      }
+      showGameStatus(
+        context,
+        message: Localizations.localeOf(context).languageCode == 'ru'
+            ? 'Награда уточнена после проверки сервера. Баланс обновлён.'
+            : 'The reward was adjusted after server verification. Balance updated.',
+      );
+    });
+    WidgetsBinding.instance.ensureVisualUpdate();
+  }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    final receiptEconomy = context.read<EconomyStore>();
+    if (!identical(_receiptEconomy, receiptEconomy)) {
+      _receiptEconomy?.removeListener(_receiptUpdated);
+      _receiptEconomy = receiptEconomy;
+      _receiptCorrection = receiptEconomy.energyPresentation.correctionSerial;
+      receiptEconomy.addListener(_receiptUpdated);
+    }
     final account = context.read<MobileAccount?>();
     if (!identical(account, _settingsAccount)) {
       _settingsAccount?.removeListener(_queueIdleSettingsCheck);
@@ -248,6 +279,7 @@ class _GameHomeScreenState extends State<GameHomeScreen>
 
   @override
   void dispose() {
+    _receiptEconomy?.removeListener(_receiptUpdated);
     _settingsAccount?.removeListener(_queueIdleSettingsCheck);
     _debugFrame.dispose();
     WidgetsBinding.instance.removeObserver(this);
@@ -723,7 +755,7 @@ class _GameHomeScreenState extends State<GameHomeScreen>
     if (_phase == _Phase.idle) {
       // The HUD sits outside this listener. Every touch in the play area opens
       // the exchange while the recovery invitation is shown.
-      if (!context.read<EconomyStore>().canPlay && !_canResumeEnergyRound) {
+      if (!_hasAttemptEnergy && !_canResumeEnergyRound) {
         _openLivesExchange();
         return;
       }
@@ -815,6 +847,36 @@ class _GameHomeScreenState extends State<GameHomeScreen>
   bool _startingRound = false;
   Map<String, dynamic>? _waitingEnergyRound;
 
+  // Match the loadout actually accepted by the current gameplay rules. Stale
+  // selections for a remotely disabled ability must not block a base attempt.
+  int get _effectiveAttemptEnergyCost {
+    final economy = context.read<EconomyStore>();
+    final gameplay = context.read<GameplayConfig>();
+    return economy.energyConfig.baseAttemptCost +
+        (gameplay.helmetEnabled && economy.helmetSelected
+            ? economy.energyConfig.helmetExtraCost
+            : 0) +
+        (gameplay.jumpEnabled && economy.jumpSelected
+            ? economy.energyConfig.jumpExtraCost
+            : 0);
+  }
+
+  bool get _hasAttemptEnergy {
+    final economy = context.read<EconomyStore>();
+    return economy.energyEnabled
+        ? economy.energy >= _effectiveAttemptEnergyCost
+        : economy.canPlay;
+  }
+
+  void _replayFromResult() {
+    _resetToIdle();
+    if (context.read<EconomyStore>().energyEnabled &&
+        !_hasAttemptEnergy &&
+        !_canResumeEnergyRound) {
+      unawaited(_openLivesExchange());
+    }
+  }
+
   bool get _canResumeEnergyRound {
     final economy = context.read<EconomyStore>();
     if (!economy.energyEnabled) return false;
@@ -864,18 +926,14 @@ class _GameHomeScreenState extends State<GameHomeScreen>
   void _showGeometryIssue(String issue) {
     _clearPointers();
     debugPrint('Arcade start blocked: $issue');
-    final messenger = ScaffoldMessenger.of(context);
-    messenger.hideCurrentSnackBar();
-    messenger.showSnackBar(
-      SnackBar(
-        duration: const Duration(seconds: 8),
-        content: Text(
-          Localizations.localeOf(context).languageCode == 'ru'
-              ? 'Техническая неполадка игрового поля. Попытка не началась. Попробуйте перезапустить приложение.'
-              : 'There is a technical problem with the game field. The run has not started. Please restart the app.',
-          key: const ValueKey('game-start-technical-error'),
-        ),
-      ),
+    showGameStatus(
+      context,
+      message: Localizations.localeOf(context).languageCode == 'ru'
+          ? 'Техническая неполадка игрового поля. Попытка не началась. Попробуйте перезапустить приложение.'
+          : 'There is a technical problem with the game field. The run has not started. Please restart the app.',
+      isError: true,
+      messageKey: const ValueKey('game-start-technical-error'),
+      duration: const Duration(seconds: 8),
     );
   }
 
@@ -929,14 +987,12 @@ class _GameHomeScreenState extends State<GameHomeScreen>
       if (!mounted) return false;
       _clearPointers();
       if (showError) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              Localizations.localeOf(context).languageCode == 'ru'
-                  ? 'Не удалось обновить настройки. Проверьте подключение и коснитесь поля ещё раз.'
-                  : 'Could not update settings. Check your connection and tap the field again.',
-            ),
-          ),
+        showGameStatus(
+          context,
+          message: Localizations.localeOf(context).languageCode == 'ru'
+              ? 'Не удалось обновить настройки. Проверьте подключение и коснитесь поля ещё раз.'
+              : 'Could not update settings. Check your connection and tap the field again.',
+          isError: true,
         );
       }
       setState(() => _startingRound = false);
@@ -961,7 +1017,7 @@ class _GameHomeScreenState extends State<GameHomeScreen>
       return;
     }
     final economy = context.read<EconomyStore>();
-    if (!economy.canPlay && !_canResumeEnergyRound) {
+    if (!_hasAttemptEnergy && !_canResumeEnergyRound) {
       _clearPointers();
       _openLivesExchange();
       return;
@@ -969,29 +1025,25 @@ class _GameHomeScreenState extends State<GameHomeScreen>
     final gameplay = context.read<GameplayConfig>();
     if (!scores.localHistoryReadable) {
       _clearPointers();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            RoundDelivery.message(
-              'round_storage_failed',
-              ru: Localizations.localeOf(context).languageCode == 'ru',
-            ),
-          ),
+      showGameStatus(
+        context,
+        message: RoundDelivery.message(
+          'round_storage_failed',
+          ru: Localizations.localeOf(context).languageCode == 'ru',
         ),
+        isError: true,
       );
       return;
     }
     if (scores.rulesUpdateRequired) {
       _clearPointers();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            RoundDelivery.message(
-              'rules_changed',
-              ru: Localizations.localeOf(context).languageCode == 'ru',
-            ),
-          ),
+      showGameStatus(
+        context,
+        message: RoundDelivery.message(
+          'rules_changed',
+          ru: Localizations.localeOf(context).languageCode == 'ru',
         ),
+        isError: true,
       );
       return;
     }
@@ -1009,10 +1061,7 @@ class _GameHomeScreenState extends State<GameHomeScreen>
         gameplay.helmetEnabled &&
         (energyRun ? economy.helmetSelected : economy.hasHelmetRental);
     if (energyRun && scores.instantRoundsEnabled) {
-      final cost =
-          economy.energyConfig.baseAttemptCost +
-          (selectedHelmet ? economy.energyConfig.helmetExtraCost : 0) +
-          (selectedJump ? economy.energyConfig.jumpExtraCost : 0);
+      final cost = _effectiveAttemptEnergyCost;
       final key = scores.beginInstantRound(
         helmet: selectedHelmet,
         jump: selectedJump,
@@ -1021,14 +1070,12 @@ class _GameHomeScreenState extends State<GameHomeScreen>
       );
       if (key == null) {
         _clearPointers();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              Localizations.localeOf(context).languageCode == 'ru'
-                  ? 'Не удалось сохранить новую попытку на телефоне. Попробуйте ещё раз.'
-                  : 'Could not save a new run on this device. Please try again.',
-            ),
-          ),
+        showGameStatus(
+          context,
+          message: Localizations.localeOf(context).languageCode == 'ru'
+              ? 'Не удалось сохранить новую попытку на телефоне. Попробуйте ещё раз.'
+              : 'Could not save a new run on this device. Please try again.',
+          isError: true,
         );
         return;
       }
@@ -1097,18 +1144,16 @@ class _GameHomeScreenState extends State<GameHomeScreen>
         _openLivesExchange();
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            Localizations.localeOf(context).languageCode == 'ru'
-                ? (error == 'rules_changed'
-                      ? 'Настройки обновляются. Коснитесь поля ещё раз.'
-                      : 'Не удалось начать попытку. Проверьте подключение.')
-                : (error == 'rules_changed'
-                      ? 'Updating settings. Tap the field again.'
-                      : 'Could not start a run. Check your connection.'),
-          ),
-        ),
+      showGameStatus(
+        context,
+        message: Localizations.localeOf(context).languageCode == 'ru'
+            ? (error == 'rules_changed'
+                  ? 'Настройки обновляются. Коснитесь поля ещё раз.'
+                  : 'Не удалось начать попытку. Проверьте подключение.')
+            : (error == 'rules_changed'
+                  ? 'Updating settings. Tap the field again.'
+                  : 'Could not start a run. Check your connection.'),
+        isError: true,
       );
       return;
     }
@@ -1124,14 +1169,12 @@ class _GameHomeScreenState extends State<GameHomeScreen>
         if (!mounted) return;
         setState(() => _startingRound = false);
         _clearPointers();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              Localizations.localeOf(context).languageCode == 'ru'
-                  ? 'Подтверждаем попытку. Коснитесь поля ещё раз.'
-                  : 'Confirming the run. Touch the field again.',
-            ),
-          ),
+        showGameStatus(
+          context,
+          message: Localizations.localeOf(context).languageCode == 'ru'
+              ? 'Подтверждаем попытку. Коснитесь поля ещё раз.'
+              : 'Confirming the run. Touch the field again.',
+          isError: false,
         );
         return;
       }
@@ -1157,21 +1200,19 @@ class _GameHomeScreenState extends State<GameHomeScreen>
     }
     if ((scores.account == null || localPractice) &&
         !(energyRun
-            ? economy.spendEnergyForPractice()
+            ? economy.spendEnergyForPractice(cost: _effectiveAttemptEnergyCost)
             : economy.tryStartGame())) {
       setState(() => _startingRound = false);
       _clearPointers();
       return;
     }
     if (localPractice && scores.account?.onlineAllowed != false) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            Localizations.localeOf(context).languageCode == 'ru'
-                ? 'Локальная попытка без общего рейтинга. Подключитесь к сети для сохранения.'
-                : 'Local run without shared ranking. Connect to save ranked runs.',
-          ),
-        ),
+      showGameStatus(
+        context,
+        message: Localizations.localeOf(context).languageCode == 'ru'
+            ? 'Локальная попытка без общего рейтинга. Подключитесь к сети для сохранения.'
+            : 'Local run without shared ranking. Connect to save ranked runs.',
+        isError: false,
       );
     }
     final accepted =
@@ -1431,6 +1472,21 @@ class _GameHomeScreenState extends State<GameHomeScreen>
                                                         _phase == _Phase.idle,
                                                     impacts: _impacts,
                                                     hasHelmet: _runHelmetActive,
+                                                    hasJump:
+                                                        world
+                                                            .config
+                                                            .jumpEnabled &&
+                                                        (_phase == _Phase.idle
+                                                            ? (economy.energyEnabled
+                                                                  ? economy
+                                                                        .jumpSelected
+                                                                  : economy
+                                                                        .hasJumpRental)
+                                                            : _runHadJump),
+                                                    jumpNowMs: () =>
+                                                        _proofEvents == null
+                                                        ? null
+                                                        : _elapsedPreciseMs,
                                                     invulnerable:
                                                         _isInvulnerable,
                                                     shadowBrightness: config
@@ -1462,12 +1518,12 @@ class _GameHomeScreenState extends State<GameHomeScreen>
                                   fit: StackFit.expand,
                                   children: [
                                     if (_phase == _Phase.idle &&
-                                        (!(economy.canPlay ||
+                                        (!(_hasAttemptEnergy ||
                                                 _canResumeEnergyRound) ||
                                             config.game.startHintEnabled))
                                       SingleChildScrollView(
                                         child:
-                                            !(economy.canPlay ||
+                                            !(_hasAttemptEnergy ||
                                                 _canResumeEnergyRound)
                                             ? LivesRecoveryBanner(
                                                 onGetLives: _openLivesExchange,
@@ -1479,8 +1535,8 @@ class _GameHomeScreenState extends State<GameHomeScreen>
                                                                 context,
                                                               ).languageCode ==
                                                               'ru'
-                                                          ? 'Попытка: ${economy.attemptEnergyCost} ⚡ · коснитесь поля'
-                                                          : 'Run: ${economy.attemptEnergyCost} ⚡ · touch the field')
+                                                          ? 'Попытка: $_effectiveAttemptEnergyCost ⚡ · коснитесь поля'
+                                                          : 'Run: $_effectiveAttemptEnergyCost ⚡ · touch the field')
                                                     : l10n.tapHintPlayful,
                                               ),
                                       ),
@@ -1496,7 +1552,7 @@ class _GameHomeScreenState extends State<GameHomeScreen>
                 ),
                 // Подсказка: полупрозрачный палец водит внизу до первого касания
                 if (_phase == _Phase.idle &&
-                    (economy.canPlay || _canResumeEnergyRound) &&
+                    (_hasAttemptEnergy || _canResumeEnergyRound) &&
                     config.game.startHintEnabled &&
                     economy.showSwipeHint)
                   const Positioned.fill(
@@ -1562,14 +1618,11 @@ class _GameHomeScreenState extends State<GameHomeScreen>
                           final w = _world;
                           return w == null
                               ? 1.0
-                              : (1 -
-                                        w.jumpCooldownRemaining(
-                                              nowMs: _proofEvents == null
-                                                  ? null
-                                                  : _elapsedPreciseMs,
-                                            ) /
-                                            w.jumpCooldownMs)
-                                    .clamp(0.0, 1.0);
+                              : w.jumpCooldownProgress(
+                                  nowMs: _proofEvents == null
+                                      ? null
+                                      : _elapsedPreciseMs,
+                                );
                         },
                         jumpRemainingMs: () =>
                             _world?.jumpCooldownRemaining(
@@ -1672,6 +1725,7 @@ class _GameHomeScreenState extends State<GameHomeScreen>
                     riskCount: _resultRisk,
                     newlyUnlockedEarnIds: List<String>.from(_runEarnUnlocks),
                     onOk: _resetToIdle,
+                    onReplay: _replayFromResult,
                     onShare: () async {
                       await showLeaderboardSheet(context);
                     },

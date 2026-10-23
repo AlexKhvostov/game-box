@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../ui/hero_face.dart';
 import 'game_world.dart';
 import 'impact_burst.dart';
+import 'jump_glow.dart';
 
 abstract final class GameFieldColors {
   static const floor = Color(0xFF08253B);
@@ -32,6 +33,8 @@ class GameFieldPainter extends CustomPainter {
     this.playerPreview = false,
     this.impacts = const [],
     this.hasHelmet = false,
+    this.hasJump = false,
+    this.jumpNowMs,
     this.invulnerable = false,
     this.invulnerableFactor,
     this.shadowBrightness = 1.0,
@@ -40,10 +43,16 @@ class GameFieldPainter extends CustomPainter {
     this.drawSurface = true,
     this.eyeLook = Offset.zero,
     this.showFace = false,
-    super.repaint,
+    Listenable? repaint,
     this.frameValue,
     this.invulnerableNow,
-  });
+  }) : super(
+         repaint: hasJump
+             ? Listenable.merge([repaint, JumpGlowArtwork.repaint])
+             : repaint,
+       ) {
+    if (hasJump) JumpGlowArtwork.prewarm();
+  }
   final int Function()? frameValue;
   final bool Function()? invulnerableNow;
   late final _surface = GameFieldSurfacePainter(
@@ -82,6 +91,10 @@ class GameFieldPainter extends CustomPainter {
 
   /// Активный шлем (1 заряд) — обводка на кубе.
   final bool hasHelmet;
+
+  /// Uses the same purchased/selected round ability and clock as jump controls.
+  final bool hasJump;
+  final double? Function()? jumpNowMs;
 
   /// Мигание после разрушения шлема — неуязвимость.
   final bool invulnerable;
@@ -244,6 +257,25 @@ class GameFieldPainter extends CustomPainter {
         _heroFill,
       );
       canvas.restore();
+      if (hasJump && world.config.jumpEnabled) {
+        canvas.save();
+        canvas.clipRRect(pr);
+        JumpGlowArtwork.draw(
+          canvas,
+          visualRect,
+          progress: jumpGlowProgress(
+            enabled: true,
+            cooldownMs: world.jumpCooldownMs,
+            cooldownRemainingMs: world.jumpCooldownRemaining(
+              nowMs: jumpNowMs?.call(),
+            ),
+            jumpDurationMs: world.config.jumpDurationSec * 1000,
+            jumpRemainingMs: world.jumpRemaining * 1000,
+          ),
+          opacity: bodyAlpha,
+        );
+        canvas.restore();
+      }
       if (hasHelmet) {
         canvas.drawRRect(
           pr.inflate(2.5),
@@ -406,6 +438,8 @@ class GameFieldPainter extends CustomPainter {
         oldDelegate.playerPreview != playerPreview ||
         oldDelegate.impacts != impacts ||
         oldDelegate.hasHelmet != hasHelmet ||
+        oldDelegate.hasJump != hasJump ||
+        oldDelegate.jumpNowMs != jumpNowMs ||
         oldDelegate.invulnerable != invulnerable ||
         oldDelegate.invulnerableFactor != invulnerableFactor ||
         oldDelegate.drawBorder != drawBorder ||

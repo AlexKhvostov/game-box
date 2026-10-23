@@ -1,5 +1,6 @@
 import 'dart:async';
 import '../../ui/game_ui.dart';
+import '../../ui/game_status_overlay.dart';
 import '../../ui/ad_privacy_settings.dart';
 import '../../ui/audience_gate.dart';
 import 'package:flutter/material.dart';
@@ -1082,7 +1083,7 @@ class _NicknameEditor extends StatefulWidget {
 
 class _NicknameEditorState extends State<_NicknameEditor> {
   late final TextEditingController _controller;
-  String? _error;
+  String? _error, _actionError;
   bool _saving = false;
   bool _rejected = false;
   late String _committedName;
@@ -1106,6 +1107,7 @@ class _NicknameEditorState extends State<_NicknameEditor> {
         (_controller.text.trim() == _committedName && !_saving)) {
       _controller.text = widget.account.nickname ?? '';
       _error = null;
+      _actionError = null;
       _rejected = false;
     }
     _profileId = widget.account.id;
@@ -1142,6 +1144,7 @@ class _NicknameEditorState extends State<_NicknameEditor> {
     setState(() {
       _saving = true;
       _error = null;
+      _actionError = null;
     });
     try {
       if (!await ensureCommunityRules(context, widget.account)) return;
@@ -1157,6 +1160,13 @@ class _NicknameEditorState extends State<_NicknameEditor> {
           code == 'nickname_taken' ||
           code == 'nickname_invalid' ||
           code == 'nickname_prohibited';
+      if (!_rejected) {
+        _error = null;
+        _actionError = widget.ru
+            ? 'Не удалось сохранить. Попробуйте ещё раз.'
+            : 'Could not save. Please try again.';
+        return;
+      }
       _error = switch (code) {
         'nickname_taken' =>
           widget.ru
@@ -1187,131 +1197,142 @@ class _NicknameEditorState extends State<_NicknameEditor> {
     const mint = GameUi.mint;
     final touch = GameUi.touchTarget(context);
     final fieldHeight = touch * MediaQuery.textScalerOf(context).scale(16) / 16;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Wrap(
-          spacing: 8,
-          runSpacing: 2,
-          children: [
-            Text(
-              widget.ru ? 'Игровой ник' : 'Game nickname',
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: GameUi.text,
+    return GameStatusOverlay(
+      message:
+          _actionError ??
+          (_saving ? (widget.ru ? 'Сохраняем…' : 'Saving…') : null),
+      messageKey: const ValueKey('profile-nickname-action-error'),
+      busy: _saving && _actionError == null,
+      isError: _actionError != null,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Wrap(
+            spacing: 8,
+            runSpacing: 2,
+            children: [
+              Text(
+                widget.ru ? 'Игровой ник' : 'Game nickname',
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: GameUi.text,
+                ),
               ),
-            ),
-            Text(
-              widget.ru ? '2–24 символа' : '2–24 characters',
-              style: const TextStyle(fontSize: 9, color: GameUi.muted),
-            ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        if (widget.account.publicNameRestricted)
-          Text(
-            widget.ru
-                ? 'Публичное имя скрыто модератором. Сохраните новый ник по правилам; игра и баланс доступны.'
-                : 'Your public name was hidden by a moderator. Save a new name that follows the rules; gameplay and your balance remain available.',
-            key: const ValueKey('public-name-restricted'),
-            style: const TextStyle(fontSize: 11, color: GameUi.muted),
+              Text(
+                widget.ru ? '2–24 символа' : '2–24 characters',
+                style: const TextStyle(fontSize: 9, color: GameUi.muted),
+              ),
+            ],
           ),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: SizedBox(
+          const SizedBox(height: 4),
+          if (widget.account.publicNameRestricted)
+            Text(
+              widget.ru
+                  ? 'Публичное имя скрыто модератором. Сохраните новый ник по правилам; игра и баланс доступны.'
+                  : 'Your public name was hidden by a moderator. Save a new name that follows the rules; gameplay and your balance remain available.',
+              key: const ValueKey('public-name-restricted'),
+              style: const TextStyle(fontSize: 11, color: GameUi.muted),
+            ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: fieldHeight,
+                  child: TextField(
+                    key: const ValueKey('profile-nickname-input'),
+                    controller: _controller,
+                    enabled: widget.account.ready && !_saving,
+                    textInputAction: TextInputAction.done,
+                    maxLength: 24,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                    decoration: InputDecoration(
+                      labelStyle: const TextStyle(fontSize: 12),
+                      filled: true,
+                      fillColor: const Color(0xFF001B30),
+                      isDense: true,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 14,
+                      ),
+                      counterText: '',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: invalid
+                              ? const Color(0xFFB95771)
+                              : const Color(0xFFB9F0FF),
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: invalid ? const Color(0xFFB95771) : mint,
+                          width: 2,
+                        ),
+                      ),
+                    ),
+                    onChanged: (_) => setState(() {
+                      _rejected = false;
+                      _error = _validation();
+                      _actionError = null;
+                    }),
+                    onSubmitted: (_) => _save(),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              SizedBox(
+                width: touch,
                 height: fieldHeight,
-                child: TextField(
-                  key: const ValueKey('profile-nickname-input'),
-                  controller: _controller,
-                  enabled: widget.account.ready && !_saving,
-                  textInputAction: TextInputAction.done,
-                  maxLength: 24,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                  decoration: InputDecoration(
-                    labelStyle: const TextStyle(fontSize: 12),
-                    filled: true,
-                    fillColor: const Color(0xFF001B30),
-                    isDense: true,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 14,
+                child: FilledButton(
+                  key: const ValueKey('profile-nickname-save'),
+                  style: FilledButton.styleFrom(
+                    minimumSize: Size(touch, touch),
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    foregroundColor: GameUi.text,
+                    disabledForegroundColor: GameUi.muted,
+                  ).copyWith(backgroundBuilder: _profileSaveLayer),
+                  onPressed: canSave ? _save : null,
+                  child: Tooltip(
+                    message: widget.ru ? 'Сохранить ник' : 'Save nickname',
+                    child: Icon(
+                      _saving
+                          ? Icons.hourglass_top_rounded
+                          : Icons.check_rounded,
                     ),
-                    counterText: '',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(
-                        color: invalid
-                            ? const Color(0xFFB95771)
-                            : const Color(0xFFB9F0FF),
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(
-                        color: invalid ? const Color(0xFFB95771) : mint,
-                        width: 2,
-                      ),
-                    ),
-                  ),
-                  onChanged: (_) => setState(() {
-                    _rejected = false;
-                    _error = _validation();
-                  }),
-                  onSubmitted: (_) => _save(),
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            SizedBox(
-              width: touch,
-              height: fieldHeight,
-              child: FilledButton(
-                key: const ValueKey('profile-nickname-save'),
-                style: FilledButton.styleFrom(
-                  minimumSize: Size(touch, touch),
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  foregroundColor: GameUi.text,
-                  disabledForegroundColor: GameUi.muted,
-                ).copyWith(backgroundBuilder: _profileSaveLayer),
-                onPressed: canSave ? _save : null,
-                child: Tooltip(
-                  message: widget.ru ? 'Сохранить ник' : 'Save nickname',
-                  child: Icon(
-                    _saving ? Icons.hourglass_top_rounded : Icons.check_rounded,
                   ),
                 ),
               ),
-            ),
-          ],
-        ),
-        if (_error != null)
-          SizedBox(
-            key: const ValueKey('profile-nickname-message'),
-            height: 32 * MediaQuery.textScalerOf(context).scale(11) / 11,
-            child: Padding(
-              padding: const EdgeInsets.only(top: 2, left: 2),
-              child: Text(
-                _error ?? '',
-                maxLines: 2,
-                style: TextStyle(
-                  fontSize: 11,
-                  height: 1.2,
-                  color: _error != null ? GameUi.heart : GameUi.muted,
-                ),
-              ),
-            ),
+            ],
           ),
-      ],
+          if (_error != null)
+            SizedBox(
+              key: const ValueKey('profile-nickname-message'),
+              height: 32 * MediaQuery.textScalerOf(context).scale(11) / 11,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 2, left: 2),
+                child: Text(
+                  _error ?? '',
+                  maxLines: 2,
+                  style: TextStyle(
+                    fontSize: 11,
+                    height: 1.2,
+                    color: _error != null ? GameUi.heart : GameUi.muted,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

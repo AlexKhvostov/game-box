@@ -211,7 +211,7 @@ class _ArcadeHudState extends State<ArcadeHud> {
           remainingMs: () =>
               widget.jumpRemainingMs?.call() ??
               (1 - widget.jumpProgress()).clamp(0.0, 1.0) *
-                  config.jumpCooldownSec.clamp(2.0, 3600.0) *
+                  config.jumpCooldownSec.clamp(0.0, 3600.0) *
                   1000,
           frame: widget.animationFrame ?? widget.frame,
           onTap: widget.isPlaying
@@ -244,7 +244,7 @@ class _ArcadeHudState extends State<ArcadeHud> {
                     ),
                     const SizedBox(height: 1),
                     Text(
-                      '${ru ? 'Риск' : 'Risk'} ${widget.riskCount?.call() ?? 0} · ${ru ? 'Пробег' : 'Run'} ${widget.runDistance?.call() ?? 0}',
+                      '${ru ? 'Риск' : 'Risk'} ${widget.riskCount?.call() ?? 0} · ${ru ? 'Шаги' : 'Steps'} ${widget.runDistance?.call() ?? 0}',
                       style: const TextStyle(
                         fontSize: 11,
                         height: 1.1,

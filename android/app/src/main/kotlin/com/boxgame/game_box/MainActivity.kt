@@ -42,7 +42,24 @@ class MainActivity : FlutterActivity() {
         // Only fixed public destinations; account credentials never enter a URL.
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "untouch/support")
             .setMethodCallHandler { call, result ->
-                if (call.method != "openPage") {
+                if (call.method == "appVersion") {
+                    try {
+                        @Suppress("DEPRECATION")
+                        val info = packageManager.getPackageInfo(packageName, 0)
+                        @Suppress("DEPRECATION")
+                        val buildNumber = if (Build.VERSION.SDK_INT >= 28) {
+                            info.longVersionCode
+                        } else {
+                            info.versionCode.toLong()
+                        }
+                        result.success(mapOf(
+                            "version" to (info.versionName ?: ""),
+                            "buildNumber" to buildNumber.toString()
+                        ))
+                    } catch (error: Exception) {
+                        result.error("version_unavailable", "App version unavailable", null)
+                    }
+                } else if (call.method != "openPage") {
                     result.notImplemented()
                 } else {
                     val russian = call.argument<String>("language") == "ru"

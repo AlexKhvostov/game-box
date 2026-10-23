@@ -9,6 +9,7 @@ import '../../ui/crystal_cube_icon.dart';
 import '../../ui/game_sheet.dart';
 import '../../ui/game_toast.dart';
 import '../../ui/game_ui.dart';
+import '../../ui/game_status_overlay.dart';
 
 /// Injectable only for verification; normal gameplay uses Clipboard and the native share sheet.
 class InvitationActions {
@@ -273,31 +274,6 @@ class _InvitationsDialogState extends State<InvitationsDialog> {
     super.dispose();
   }
 
-  Widget _error(String text, VoidCallback retry, String key) => Padding(
-    padding: const EdgeInsets.only(bottom: 4),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(
-          text,
-          key: ValueKey(key),
-          style: const TextStyle(color: GameUi.text, fontSize: 12),
-        ),
-        const SizedBox(height: 4),
-        OutlinedButton.icon(
-          onPressed: retry,
-          style: OutlinedButton.styleFrom(
-            foregroundColor: GameUi.ink,
-            minimumSize: const Size.fromHeight(48),
-            side: const BorderSide(color: GameUi.line),
-          ),
-          icon: const Icon(Icons.refresh_rounded, size: 20),
-          label: Text(_tr('Повторить', 'Retry')),
-        ),
-      ],
-    ),
-  );
-
   @override
   Widget build(BuildContext context) {
     final service = widget.invites;
@@ -308,360 +284,374 @@ class _InvitationsDialogState extends State<InvitationsDialog> {
     final owner = service.account.id;
     final epoch = _viewEpoch;
     final unavailable = _tr('Недоступно в тесте', 'Unavailable in this test');
-    return Dialog(
-      key: const ValueKey('invitations-dialog'),
-      backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 440),
-        child: GameSheetChrome(
-          modal: true,
-          fitContent: true,
-          glass: GameGlass.none,
-          backgroundGradient: GameUi.navySheetGradient,
-          child: Padding(
-            padding: const EdgeInsets.all(6),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                MediaQuery.withClampedTextScaling(
-                  maxScaleFactor: 1.2,
-                  child: GameSheetHeader(
-                    title: _tr('Приглашения', 'Invitations'),
-                    trailing: IconButton(
-                      key: const ValueKey('invitation-info'),
-                      tooltip: _tr(
-                        'Как пригласить друга',
-                        'How to invite a friend',
-                      ),
-                      padding: const EdgeInsets.all(4),
-                      style: _compactIconStyle,
-                      constraints: const BoxConstraints(
-                        minWidth: 36,
-                        minHeight: 36,
-                      ),
-                      onPressed: _infoOpen ? null : _showInfo,
-                      icon: const Icon(
-                        Icons.info_outline_rounded,
-                        size: 20,
-                        color: GameUi.cyan,
+    final pageError = error == null && _pageError != null;
+    final pending = loading || _paging;
+    final statusMessage = pending
+        ? _tr('Обновляем…', 'Refreshing…')
+        : error == 'invites_unavailable'
+        ? _tr(
+            'Приглашения пока недоступны.',
+            'Invitations are unavailable for now.',
+          )
+        : error == 'copy'
+        ? _tr('Не удалось скопировать.', 'Could not copy.')
+        : error == 'share'
+        ? _tr(
+            'Не удалось открыть отправку. Можно скопировать ссылку.',
+            'Could not open sharing. You can copy the link.',
+          )
+        : error != null
+        ? _tr(
+            'Не удалось обновить. Проверьте соединение.',
+            'Could not refresh. Check your connection.',
+          )
+        : pageError
+        ? _tr(
+            'Не удалось загрузить ещё. Бонусы сохранены.',
+            'Could not load more. Your earned rewards are still here.',
+          )
+        : null;
+    final retry = error == 'copy' && state != null
+        ? () => unawaited(_copy(state, code: _lastCopyWasCode))
+        : error == 'share' && state != null
+        ? () => unawaited(_share(state))
+        : pageError
+        ? _more
+        : _refresh;
+    return GameStatusOverlay(
+      message: statusMessage,
+      messageKey: ValueKey(
+        pending
+            ? 'invitations-loading'
+            : pageError
+            ? 'invitation-page-error'
+            : 'invitations-error',
+      ),
+      busy: pending,
+      isError: !pending && statusMessage != null,
+      action: !pending && statusMessage != null
+          ? TextButton.icon(
+              onPressed: retry,
+              icon: const Icon(Icons.refresh_rounded, size: 18),
+              label: Text(_tr('Повторить', 'Retry')),
+            )
+          : null,
+      child: Dialog(
+        key: const ValueKey('invitations-dialog'),
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 440),
+          child: GameSheetChrome(
+            modal: true,
+            fitContent: true,
+            glass: GameGlass.none,
+            backgroundGradient: GameUi.navySheetGradient,
+            child: Padding(
+              padding: const EdgeInsets.all(6),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  MediaQuery.withClampedTextScaling(
+                    maxScaleFactor: 1.2,
+                    child: GameSheetHeader(
+                      title: _tr('Приглашения', 'Invitations'),
+                      trailing: IconButton(
+                        key: const ValueKey('invitation-info'),
+                        tooltip: _tr(
+                          'Как пригласить друга',
+                          'How to invite a friend',
+                        ),
+                        padding: const EdgeInsets.all(4),
+                        style: _compactIconStyle,
+                        constraints: const BoxConstraints(
+                          minWidth: 36,
+                          minHeight: 36,
+                        ),
+                        onPressed: _infoOpen ? null : _showInfo,
+                        icon: const Icon(
+                          Icons.info_outline_rounded,
+                          size: 20,
+                          color: GameUi.cyan,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 4),
-                Flexible(
-                  child: ListView(
-                    key: const ValueKey('invitations-scroll'),
-                    shrinkWrap: true,
-                    padding: EdgeInsets.zero,
-                    children: [
-                      _InvitePanel(
-                        key: const ValueKey('invitation-invite-group'),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Text(
-                              _tr('Пригласить', 'Invite'),
-                              style: const TextStyle(
-                                color: GameUi.cyan,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w800,
+                  const SizedBox(height: 4),
+                  Flexible(
+                    child: ListView(
+                      key: const ValueKey('invitations-scroll'),
+                      shrinkWrap: true,
+                      padding: EdgeInsets.zero,
+                      children: [
+                        _InvitePanel(
+                          key: const ValueKey('invitation-invite-group'),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Text(
+                                _tr('Пригласить', 'Invite'),
+                                style: const TextStyle(
+                                  color: GameUi.cyan,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w800,
+                                ),
                               ),
-                            ),
-                            if (loading)
-                              const LinearProgressIndicator(
-                                key: ValueKey('invitations-loading'),
-                                minHeight: 2,
-                              ),
-                            if (error != null)
-                              _error(
-                                error == 'invites_unavailable'
-                                    ? _tr(
-                                        'Приглашения пока недоступны.',
-                                        'Invitations are unavailable for now.',
-                                      )
-                                    : error == 'copy'
-                                    ? _tr(
-                                        'Не удалось скопировать.',
-                                        'Could not copy.',
-                                      )
-                                    : error == 'share'
-                                    ? _tr(
-                                        'Не удалось открыть отправку. Можно скопировать ссылку.',
-                                        'Could not open sharing. You can copy the link.',
-                                      )
-                                    : _tr(
-                                        'Не удалось обновить. Проверьте соединение.',
-                                        'Could not refresh. Check your connection.',
-                                      ),
-                                error == 'copy' && state != null
-                                    ? () => unawaited(
-                                        _copy(state, code: _lastCopyWasCode),
-                                      )
-                                    : error == 'share' && state != null
-                                    ? () => unawaited(_share(state))
-                                    : _refresh,
-                                'invitations-error',
-                              ),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        _tr('Ваш код', 'Your code'),
-                                        style: const TextStyle(
-                                          color: GameUi.muted,
-                                          fontSize: 11,
-                                        ),
-                                      ),
-                                      FittedBox(
-                                        fit: BoxFit.scaleDown,
-                                        alignment: Alignment.centerLeft,
-                                        child: Text(
-                                          state?.ownCode ?? unavailable,
-                                          key: const ValueKey(
-                                            'invitation-own-code',
-                                          ),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          _tr('Ваш код', 'Your code'),
                                           style: const TextStyle(
-                                            color: GameUi.text,
-                                            fontSize: 18,
-                                            letterSpacing: .5,
-                                            fontWeight: FontWeight.w800,
+                                            color: GameUi.muted,
+                                            fontSize: 11,
                                           ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                IconButton(
-                                  key: const ValueKey('invitation-copy-code'),
-                                  tooltip: _tr('Копировать код', 'Copy code'),
-                                  padding: const EdgeInsets.all(4),
-                                  style: _compactIconStyle,
-                                  constraints: const BoxConstraints(
-                                    minWidth: 36,
-                                    minHeight: 36,
-                                  ),
-                                  onPressed: () => state == null
-                                      ? _unavailable(owner, epoch)
-                                      : _copy(state, code: true),
-                                  icon: const Icon(
-                                    Icons.copy_rounded,
-                                    color: GameUi.cyan,
-                                    size: 20,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const Divider(height: 4, color: GameUi.line),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        _tr('Ваша ссылка', 'Your link'),
-                                        style: const TextStyle(
-                                          color: GameUi.muted,
-                                          fontSize: 11,
+                                        FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          alignment: Alignment.centerLeft,
+                                          child: Text(
+                                            state?.ownCode ?? unavailable,
+                                            key: const ValueKey(
+                                              'invitation-own-code',
+                                            ),
+                                            style: const TextStyle(
+                                              color: GameUi.text,
+                                              fontSize: 18,
+                                              letterSpacing: .5,
+                                              fontWeight: FontWeight.w800,
+                                            ),
+                                          ),
                                         ),
-                                      ),
-                                      Text(
-                                        state?.inviteUrl ?? unavailable,
-                                        key: const ValueKey(
-                                          'invitation-own-link',
-                                        ),
-                                        maxLines: 3,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(
-                                          color: GameUi.text,
-                                          fontSize: 12,
-                                          height: 1.15,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                IconButton(
-                                  key: const ValueKey('invitation-copy-link'),
-                                  tooltip: _tr(
-                                    'Копировать ссылку',
-                                    'Copy link',
-                                  ),
-                                  padding: const EdgeInsets.all(4),
-                                  style: _compactIconStyle,
-                                  constraints: const BoxConstraints(
-                                    minWidth: 36,
-                                    minHeight: 36,
-                                  ),
-                                  onPressed: () => state == null
-                                      ? _unavailable(owner, epoch)
-                                      : _copy(state, code: false),
-                                  icon: const Icon(
-                                    Icons.link_rounded,
-                                    color: GameUi.cyan,
-                                    size: 20,
-                                  ),
-                                ),
-                                IconButton(
-                                  key: _shareKey,
-                                  tooltip: _tr('Поделиться', 'Share'),
-                                  padding: const EdgeInsets.all(4),
-                                  style: _compactIconStyle,
-                                  constraints: const BoxConstraints(
-                                    minWidth: 36,
-                                    minHeight: 36,
-                                  ),
-                                  onPressed: _sharing
-                                      ? null
-                                      : () => state == null
-                                            ? _unavailable(owner, epoch)
-                                            : _share(state),
-                                  icon: const Icon(
-                                    Icons.ios_share_rounded,
-                                    key: ValueKey('invitation-share'),
-                                    color: GameUi.cyan,
-                                    size: 20,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      _InvitePanel(
-                        key: const ValueKey('invitation-history-group'),
-                        accent: GameUi.mint,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    _tr('Начисленные бонусы', 'Reward history'),
-                                    style: const TextStyle(
-                                      color: GameUi.mint,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w800,
+                                      ],
                                     ),
                                   ),
-                                ),
-                                const SizedBox(width: 4),
-                                const CrystalCubeIcon(
-                                  size: 16,
-                                  glow: false,
-                                  onLightBackground: false,
-                                ),
-                                const SizedBox(width: 4),
-                                Flexible(
-                                  child: FittedBox(
-                                    fit: BoxFit.scaleDown,
+                                  IconButton(
+                                    key: const ValueKey('invitation-copy-code'),
+                                    tooltip: _tr('Копировать код', 'Copy code'),
+                                    padding: const EdgeInsets.all(4),
+                                    style: _compactIconStyle,
+                                    constraints: const BoxConstraints(
+                                      minWidth: 36,
+                                      minHeight: 36,
+                                    ),
+                                    onPressed: () => state == null
+                                        ? _unavailable(owner, epoch)
+                                        : _copy(state, code: true),
+                                    icon: const Icon(
+                                      Icons.copy_rounded,
+                                      color: GameUi.cyan,
+                                      size: 20,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const Divider(height: 4, color: GameUi.line),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          _tr('Ваша ссылка', 'Your link'),
+                                          style: const TextStyle(
+                                            color: GameUi.muted,
+                                            fontSize: 11,
+                                          ),
+                                        ),
+                                        Text(
+                                          state?.inviteUrl ?? unavailable,
+                                          key: const ValueKey(
+                                            'invitation-own-link',
+                                          ),
+                                          maxLines: 3,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            color: GameUi.text,
+                                            fontSize: 12,
+                                            height: 1.15,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  IconButton(
+                                    key: const ValueKey('invitation-copy-link'),
+                                    tooltip: _tr(
+                                      'Копировать ссылку',
+                                      'Copy link',
+                                    ),
+                                    padding: const EdgeInsets.all(4),
+                                    style: _compactIconStyle,
+                                    constraints: const BoxConstraints(
+                                      minWidth: 36,
+                                      minHeight: 36,
+                                    ),
+                                    onPressed: () => state == null
+                                        ? _unavailable(owner, epoch)
+                                        : _copy(state, code: false),
+                                    icon: const Icon(
+                                      Icons.link_rounded,
+                                      color: GameUi.cyan,
+                                      size: 20,
+                                    ),
+                                  ),
+                                  IconButton(
+                                    key: _shareKey,
+                                    tooltip: _tr('Поделиться', 'Share'),
+                                    padding: const EdgeInsets.all(4),
+                                    style: _compactIconStyle,
+                                    constraints: const BoxConstraints(
+                                      minWidth: 36,
+                                      minHeight: 36,
+                                    ),
+                                    onPressed: _sharing
+                                        ? null
+                                        : () => state == null
+                                              ? _unavailable(owner, epoch)
+                                              : _share(state),
+                                    icon: const Icon(
+                                      Icons.ios_share_rounded,
+                                      key: ValueKey('invitation-share'),
+                                      color: GameUi.cyan,
+                                      size: 20,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        _InvitePanel(
+                          key: const ValueKey('invitation-history-group'),
+                          accent: GameUi.mint,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
                                     child: Text(
-                                      state == null
-                                          ? '—'
-                                          : '${state.rewardTotal}',
-                                      key: state == null
-                                          ? null
-                                          : const ValueKey(
-                                              'invitation-reward-total',
-                                            ),
+                                      _tr(
+                                        'Начисленные бонусы',
+                                        'Reward history',
+                                      ),
                                       style: const TextStyle(
-                                        color: GameUi.text,
-                                        fontSize: 18,
+                                        color: GameUi.mint,
+                                        fontSize: 14,
                                         fontWeight: FontWeight.w800,
                                       ),
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            if (state == null)
-                              Text(
-                                _tr(
-                                  'История пока недоступна.',
-                                  'History is not available yet.',
-                                ),
-                                style: const TextStyle(
-                                  color: GameUi.muted,
-                                  fontSize: 12,
-                                ),
-                              )
-                            else ...[
-                              if (state.paidRows.isEmpty)
+                                  const SizedBox(width: 4),
+                                  const CrystalCubeIcon(
+                                    size: 16,
+                                    glow: false,
+                                    onLightBackground: false,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Flexible(
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Text(
+                                        state == null
+                                            ? '—'
+                                            : '${state.rewardTotal}',
+                                        key: state == null
+                                            ? null
+                                            : const ValueKey(
+                                                'invitation-reward-total',
+                                              ),
+                                        style: const TextStyle(
+                                          color: GameUi.text,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w800,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              if (state == null)
                                 Text(
                                   _tr(
-                                    'Пока нет начисленных бонусов.',
-                                    'No invitation rewards yet.',
-                                  ),
-                                  key: const ValueKey(
-                                    'invitation-history-empty',
+                                    'История пока недоступна.',
+                                    'History is not available yet.',
                                   ),
                                   style: const TextStyle(
                                     color: GameUi.muted,
                                     fontSize: 12,
                                   ),
-                                ),
-                              for (final row in state.paidRows)
-                                _PaidRow(
-                                  row: row,
-                                  removedLabel: _tr(
-                                    'Игрок удалён',
-                                    'Deleted player',
-                                  ),
-                                ),
-                              if (_pageError != null)
-                                _error(
-                                  _tr(
-                                    'Не удалось загрузить ещё. Бонусы сохранены.',
-                                    'Could not load more. Your earned rewards are still here.',
-                                  ),
-                                  _more,
-                                  'invitation-page-error',
-                                ),
-                              if (state.nextCursor != null)
-                                OutlinedButton.icon(
-                                  key: const ValueKey('invitation-load-more'),
-                                  onPressed: _paging ? null : _more,
-                                  style: OutlinedButton.styleFrom(
-                                    foregroundColor: GameUi.ink,
-                                    minimumSize: const Size.fromHeight(48),
-                                    side: const BorderSide(color: GameUi.line),
-                                  ),
-                                  icon: _paging
-                                      ? const SizedBox(
-                                          width: 18,
-                                          height: 18,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                          ),
-                                        )
-                                      : const Icon(Icons.expand_more_rounded),
-                                  label: Text(
+                                )
+                              else ...[
+                                if (state.paidRows.isEmpty)
+                                  Text(
                                     _tr(
-                                      _paging ? 'Загружаем…' : 'Показать ещё',
-                                      _paging ? 'Loading…' : 'Load more',
+                                      'Пока нет начисленных бонусов.',
+                                      'No invitation rewards yet.',
+                                    ),
+                                    key: const ValueKey(
+                                      'invitation-history-empty',
+                                    ),
+                                    style: const TextStyle(
+                                      color: GameUi.muted,
+                                      fontSize: 12,
                                     ),
                                   ),
-                                ),
+                                for (final row in state.paidRows)
+                                  _PaidRow(
+                                    row: row,
+                                    removedLabel: _tr(
+                                      'Игрок удалён',
+                                      'Deleted player',
+                                    ),
+                                  ),
+                                if (state.nextCursor != null)
+                                  OutlinedButton.icon(
+                                    key: const ValueKey('invitation-load-more'),
+                                    onPressed: _paging ? null : _more,
+                                    style: OutlinedButton.styleFrom(
+                                      foregroundColor: GameUi.ink,
+                                      minimumSize: const Size.fromHeight(48),
+                                      side: const BorderSide(
+                                        color: GameUi.line,
+                                      ),
+                                    ),
+                                    icon: _paging
+                                        ? const SizedBox(
+                                            width: 18,
+                                            height: 18,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                            ),
+                                          )
+                                        : const Icon(Icons.expand_more_rounded),
+                                    label: Text(
+                                      _tr(
+                                        _paging ? 'Загружаем…' : 'Показать ещё',
+                                        _paging ? 'Loading…' : 'Load more',
+                                      ),
+                                    ),
+                                  ),
+                              ],
                             ],
-                          ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

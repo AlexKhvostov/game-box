@@ -246,5 +246,45 @@
   {
     "path": "ranking.average.minDurationMs",
     "value": 1500
+  },
+  {
+    "path": "enemyPace.initialSpeed",
+    "value": 8
+  },
+  {
+    "path": "enemyPace.growthMultiplier",
+    "value": 60
+  },
+  {
+    "path": "enemyPace.growthExponent",
+    "value": 0.25
+  },
+  {
+    "path": "enemyPace.startSmoothingSec",
+    "value": 4
+  },
+  {
+    "path": "enemyPace.initialCompensation",
+    "value": 0.8
+  },
+  {
+    "path": "enemyPace.brakeCooldownSec",
+    "value": 7
+  },
+  {
+    "path": "enemyPace.brakeFirstReadySec",
+    "value": 5
+  },
+  {
+    "path": "enemyPace.brakeRewindSec",
+    "value": 4
+  },
+  {
+    "path": "enemyPace.brakeEnabled",
+    "value": false
+  },
+  {
+    "path": "enemyPace.speedBarEnabled",
+    "value": false
   }
 ]

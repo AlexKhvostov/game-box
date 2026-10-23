@@ -32,7 +32,7 @@ export async function uncachedAverageRanking({db,config,uid,stamp}){
           row_number() over(order by coalesce((recent.body->>'attemptAt')::bigint,(recent.body->>'createdAt')::bigint) desc,recent.key desc) as age
         from (
           select s.body,s.key from untouch.documents s
-          where s.parent='scores' and s.body->>'platform'='android' and s.body->>'uid'=p.key
+          where s.parent='scores' and s.body->>'platform' in ('android','telegram') and s.body->>'uid'=p.key
             and (s.body->>'timeMs')::numeric > $1
           order by coalesce((s.body->>'attemptAt')::bigint,(s.body->>'createdAt')::bigint) desc,s.key desc
           limit $3

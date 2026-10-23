@@ -15,6 +15,7 @@ import '../../ui/billing_unavailable.dart';
 import '../../ui/energy_reward_motion.dart';
 import '../../ui/energy_widgets.dart';
 import '../../ui/game_ui.dart';
+import '../../ui/game_status_overlay.dart';
 import '../../ui/neon_chrome.dart';
 export '../../ui/neon_chrome.dart' show NeonGlass;
 import '../../ui/watch_rewarded_ad.dart';
@@ -232,128 +233,127 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
         economy: e,
         sourceKey: _bonusOrigin,
         owner: e.energyOwner,
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: _ability ? 340 : 390),
-          child: NeonGlass(
-            key: const ValueKey('simple-energy-window'),
-            radius: 20,
-            padding: const EdgeInsets.fromLTRB(17, 10, 17, 15),
-            child: LayoutBuilder(
-              builder: (c, constraints) {
-                final available = constraints.maxHeight;
-                return SingleChildScrollView(
-                  key: const ValueKey('energy-accessibility-scroll'),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: GestureDetector(
-                              key: const ValueKey('energy-hidden-title'),
-                              behavior: HitTestBehavior.opaque,
-                              onTap: _page == EnergyPage.energy
-                                  ? _hiddenEnergyTap
-                                  : null,
-                              child: _text(
-                                _title,
-                                size: _page == EnergyPage.video
-                                    ? 20
-                                    : _page == EnergyPage.packs ||
-                                          _page == EnergyPage.subscription
-                                    ? 22
-                                    : 24,
-                                weight: FontWeight.w900,
+        child: GameStatusOverlay(
+          message: _page == EnergyPage.feedback
+              ? null // The feedback form owns its progress/error status.
+              : _error ??
+                    (_busy || e.energyBusy
+                        ? _tr(context, 'Подтверждаем…', 'Confirming…')
+                        : null),
+          busy: _error == null && (_busy || e.energyBusy),
+          isError: _error != null,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: _ability ? 340 : 390),
+            child: NeonGlass(
+              key: const ValueKey('simple-energy-window'),
+              radius: 20,
+              padding: const EdgeInsets.fromLTRB(17, 10, 17, 15),
+              child: LayoutBuilder(
+                builder: (c, constraints) {
+                  final available = constraints.maxHeight;
+                  return SingleChildScrollView(
+                    key: const ValueKey('energy-accessibility-scroll'),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: GestureDetector(
+                                key: const ValueKey('energy-hidden-title'),
+                                behavior: HitTestBehavior.opaque,
+                                onTap: _page == EnergyPage.energy
+                                    ? _hiddenEnergyTap
+                                    : null,
+                                child: _text(
+                                  _title,
+                                  size: _page == EnergyPage.video
+                                      ? 20
+                                      : _page == EnergyPage.packs ||
+                                            _page == EnergyPage.subscription
+                                      ? 22
+                                      : 24,
+                                  weight: FontWeight.w900,
+                                ),
                               ),
                             ),
-                          ),
-                          if (showBalance)
-                            SizedBox(
-                              key: const ValueKey('energy-window-balance'),
-                              width: math.min(
-                                (e.energy.toString().length * 17.0 + 30).clamp(
-                                  70.0,
-                                  145.0,
+                            if (showBalance)
+                              SizedBox(
+                                key: const ValueKey('energy-window-balance'),
+                                width: math.min(
+                                  (e.energy.toString().length * 17.0 + 30)
+                                      .clamp(70.0, 145.0),
+                                  constraints.maxWidth * .41,
                                 ),
-                                constraints.maxWidth * .41,
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.only(left: 5),
-                                child: FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: EnergyRewardCounter(
-                                    economy: e,
-                                    builder: (amount) =>
-                                        EnergyRewardBalance(amount: amount),
+                                child: Padding(
+                                  padding: const EdgeInsets.only(left: 5),
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: EnergyRewardCounter(
+                                      economy: e,
+                                      builder: (amount) =>
+                                          EnergyRewardBalance(amount: amount),
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                          if (_page == EnergyPage.friends)
-                            Tooltip(
-                              triggerMode: TooltipTriggerMode.tap,
-                              message: _tr(
-                                context,
-                                'Вы получите ${e.energyConfig.reward('invite')} энергии после 5 игр друга. У обоих должен быть подключён Google.',
-                                'You receive ${e.energyConfig.reward('invite')} energy after your friend finishes 5 games. Both players need Google connected.',
+                            if (_page == EnergyPage.friends)
+                              Tooltip(
+                                triggerMode: TooltipTriggerMode.tap,
+                                message: _tr(
+                                  context,
+                                  'Вы получите ${e.energyConfig.reward('invite')} энергии после 5 игр друга. У обоих должен быть подключён Google.',
+                                  'You receive ${e.energyConfig.reward('invite')} energy after your friend finishes 5 games. Both players need Google connected.',
+                                ),
+                                child: const SizedBox(
+                                  width: 32,
+                                  height: 44,
+                                  child: Icon(
+                                    Icons.info_outline,
+                                    color: _cyan,
+                                    size: 23,
+                                  ),
+                                ),
                               ),
-                              child: const SizedBox(
-                                width: 32,
-                                height: 44,
-                                child: Icon(
-                                  Icons.info_outline,
+                            SizedBox(
+                              width: 40,
+                              height: 44,
+                              child: IconButton(
+                                key: const ValueKey('simple-energy-close'),
+                                padding: EdgeInsets.zero,
+                                tooltip: _tr(context, 'Закрыть', 'Close'),
+                                onPressed: _back,
+                                icon: const Icon(
+                                  Icons.close_rounded,
                                   color: _cyan,
-                                  size: 23,
+                                  size: 29,
                                 ),
                               ),
                             ),
-                          SizedBox(
-                            width: 40,
-                            height: 44,
-                            child: IconButton(
-                              key: const ValueKey('simple-energy-close'),
-                              padding: EdgeInsets.zero,
-                              tooltip: _tr(context, 'Закрыть', 'Close'),
-                              onPressed: _back,
-                              icon: const Icon(
-                                Icons.close_rounded,
-                                color: _cyan,
-                                size: 29,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      if (_page == EnergyPage.video)
-                        const SizedBox(height: 5)
-                      else
-                        _line(),
-                      switch (_page) {
-                        EnergyPage.energy => _energy(e),
-                        EnergyPage.subscription => _subscription(e),
-                        EnergyPage.video => _video(e),
-                        EnergyPage.friends => _friends(e, available),
-                        EnergyPage.feedback => EnergyFeedbackForm(
-                          onBack: () => _open(EnergyPage.energy),
+                          ],
                         ),
-                        EnergyPage.packs => _packs(e),
-                        EnergyPage.helmet ||
-                        EnergyPage.jump => _abilityContent(e),
-                      },
-                      if (_error != null)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8),
-                          child: _text(
-                            _error!,
-                            size: 12,
-                            color: const Color(0xFFFFBCAC),
+                        if (_page == EnergyPage.video)
+                          const SizedBox(height: 5)
+                        else
+                          _line(),
+                        switch (_page) {
+                          EnergyPage.energy => _energy(e),
+                          EnergyPage.subscription => _subscription(e),
+                          EnergyPage.video => _video(e),
+                          EnergyPage.friends => _friends(e, available),
+                          EnergyPage.feedback => EnergyFeedbackForm(
+                            onBack: () => _open(EnergyPage.energy),
                           ),
-                        ),
-                    ],
-                  ),
-                );
-              },
+                          EnergyPage.packs => _packs(e),
+                          EnergyPage.helmet ||
+                          EnergyPage.jump => _abilityContent(e),
+                        },
+                      ],
+                    ),
+                  );
+                },
+              ),
             ),
           ),
         ),

@@ -6,8 +6,30 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../domain/economy_config.dart';
 import '../domain/android_energy.dart';
 import '../domain/arcade_rules.dart';
+import 'energy_presentation.dart';
 
 class EconomyStore extends ChangeNotifier {
+  final energyPresentation = EnergyPresentation();
+  int get presentedEnergy => energyPresentation.balance;
+  void presentEnergyCredit(String key, int amount, {bool animate = true}) {
+    energyPresentation.wallet(energyOwner, energy);
+    if (energyPresentation.begin(key, amount, animate: animate)) {
+      notifyListeners();
+    }
+  }
+
+  void settleEnergyCredit(String key, {bool rejected = false, int? amount}) {
+    energyPresentation.wallet(energyOwner, energy);
+    energyPresentation.settle(key, rejected: rejected, amount: amount);
+    notifyListeners();
+  }
+
+  @override
+  void notifyListeners() {
+    energyPresentation.wallet(energyOwner, energy);
+    super.notifyListeners();
+  }
+
   EconomyStore({
     EconomyConfig? config,
     DateTime Function()? now,
@@ -70,12 +92,21 @@ class EconomyStore extends ChangeNotifier {
       ((_practiceEnergy ?? _confirmedEnergy) -
               _pendingRunCosts.values.fold<int>(0, (a, b) => a + b))
           .clamp(0, 1000000000);
-  void setPendingRunCosts(String owner, Map<String, int> costs) {
+  void setPendingRunCosts(
+    String owner,
+    Map<String, int> costs, {
+    bool notify = true,
+  }) {
     if (_energyOwner != owner) return;
+    for (final entry in costs.entries) {
+      if (!_pendingRunCosts.containsKey(entry.key)) {
+        energyPresentation.debit(entry.key, entry.value);
+      }
+    }
     _pendingRunCosts
       ..clear()
       ..addAll(costs);
-    notifyListeners();
+    if (notify) notifyListeners();
   }
 
   int get confirmedEnergy => _confirmedEnergy;
@@ -229,9 +260,12 @@ class EconomyStore extends ChangeNotifier {
   }
 
   /// Cached energy is a disposable practice budget, never uploaded or rewarded.
-  bool spendEnergyForPractice() {
-    if (!energyEnabled || energy < attemptEnergyCost) return false;
-    _practiceEnergy = energy - attemptEnergyCost;
+  bool spendEnergyForPractice({int? cost}) {
+    final effectiveCost = cost ?? attemptEnergyCost;
+    if (!energyEnabled || effectiveCost <= 0 || energy < effectiveCost) {
+      return false;
+    }
+    _practiceEnergy = energy - effectiveCost;
     gamesStartedCount++;
     notifyListeners();
     return true;
@@ -284,6 +318,30 @@ class EconomyStore extends ChangeNotifier {
       energyBusy = _energyInFlight > 0;
       notifyListeners();
     }
+  }
+
+  int expectedEnergyCredit(String kind, Map<String, dynamic> args) {
+    if (kind == 'energy_bonus_claim' && simpleBonusReady) {
+      return simpleEnergyBonus!.reward;
+    }
+    if (kind == 'energy_claim') return accumulatedEnergy;
+    if (kind == 'energy_hidden_tap') return 20;
+    if (kind == 'watch_ad') return energyConfig.rewards['ad'] ?? 0;
+    if (kind == 'energy_feedback' &&
+        canSendEnergyFeedback &&
+        !energyRewardClaimed('feedback')) {
+      return energyConfig.rewards['feedback'] ?? 0;
+    }
+    final id = args['id'];
+    if (kind == 'energy_reward' &&
+        id is String &&
+        energyRewardReady(id) &&
+        !energyRewardClaimed(id)) {
+      return energyConfig.rewards[id] ??
+          energyConfig.rewards['achievement'] ??
+          0;
+    }
+    return 0;
   }
 
   Future<void> claimEnergy() async {
@@ -401,6 +459,8 @@ class EconomyStore extends ChangeNotifier {
     if (fromCache) {
       notifyListeners();
     } else {
+      // Render the received wallet before local cache I/O finishes.
+      notifyListeners();
       await _persist();
     }
   }

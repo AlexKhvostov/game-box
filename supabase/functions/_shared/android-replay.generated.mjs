@@ -2894,7 +2894,7 @@ r=s.a.d
 s.r=Math.max(0.12,r.f)
 t=r.r
 r=isFinite(t)?t:2
-s.x=a+Math.max(2,r)*1000
+s.x=a+Math.max(0,r)*1000
 s.at.D(0)
 s.as.D(0)
 s.a8()

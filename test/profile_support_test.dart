@@ -18,6 +18,9 @@ void main() {
             ProfileSupport.channel,
             (call) async {
               calls.add(call);
+              if (call.method == 'appVersion') {
+                return {'version': '1.2.3', 'buildNumber': '456'};
+              }
               if (fail) throw PlatformException(code: 'browser_unavailable');
               return null;
             },
@@ -57,6 +60,13 @@ void main() {
             ),
           );
           await tester.pumpAndSettle();
+          expect(
+            find.text(
+              '${language == 'ru' ? 'Версия' : 'Version'}: 1.2.3 (456)',
+            ),
+            findsOneWidget,
+          );
+          expect(find.text('User ID: android:123'), findsOneWidget);
           for (final page in ['privacy', 'deletion', 'support']) {
             final button = find.byKey(ValueKey('profile-$page'));
             await tester.ensureVisible(button);
@@ -71,7 +81,8 @@ void main() {
           await tester.tap(find.byKey(const ValueKey('profile-copy-id')));
           await tester.pumpAndSettle();
           expect(copied, 'android:123');
-          expect(calls.length, 3);
+          expect(calls.where((call) => call.method == 'appVersion').length, 1);
+          expect(calls.length, 4);
           fail = true;
           await tester.ensureVisible(
             find.byKey(const ValueKey('profile-deletion')),

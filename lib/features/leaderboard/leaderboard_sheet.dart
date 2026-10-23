@@ -2,6 +2,7 @@ import '../../ui/game_ui.dart';
 import 'package:flutter/material.dart';
 import 'leaderboard_panel.dart';
 import 'ranking_frame.dart';
+import 'my_attempts_panel.dart';
 import 'package:provider/provider.dart';
 import '../../data/scores_store.dart';
 
@@ -20,18 +21,7 @@ Future<void> showLeaderboardSheet(
 );
 
 Future<void> showMyAttemptsSheet(BuildContext context) =>
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      sheetAnimationStyle: GameUi.windowAnimationStyle,
-      builder: (c) => RankingFrame(
-        title: Localizations.localeOf(c).languageCode == 'ru'
-            ? 'Мои попытки'
-            : 'My attempts',
-        child: const RankingAttemptsPanel(),
-      ),
-    );
+    openMyAttemptsWindow(context, panel: const RankingAttemptsPanel());
 
 class LeaderboardSheet extends StatelessWidget {
   const LeaderboardSheet({

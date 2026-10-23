@@ -28,7 +28,9 @@ class EnergyRewardFrame {
   double get scale =>
       reduced ? 1 : (.82 + .18 * _pop(appearance)) * (1 - .78 * fly);
   double get opacity => appearance * (1 - _clamp((flight - .76) / .24));
-  double get roll => reduced ? p : _clamp((p - .8) / .2);
+  // The full receipt lands at the end of the flight, without a second wait
+  // for the server or a delayed count-up after the light has arrived.
+  double get roll => p + 1e-9 >= (reduced ? .5 : .8) ? 1 : 0;
   double get hit => reduced ? 0 : math.sin(math.pi * _clamp((p - .83) / .17));
   Offset position(Offset from, Offset to) => Offset(
     from.dx + (to.dx - from.dx) * fly,
@@ -65,8 +67,8 @@ class EnergyRewardMotion extends StatefulWidget {
   final Widget child;
   final Object? owner;
 
-  /// Optional shared observer: all confirmed credits, independent of their
-  /// source (bonus, video, purchase, feedback or invite), use one presentation.
+  /// Shared observer for named local receipts and otherwise confirmed credits.
+  /// Bonuses, results and other reward sources use the same presentation.
   final EconomyStore? economy;
   final GlobalKey? sourceKey;
   @override
@@ -102,7 +104,7 @@ class EnergyRewardMotionState extends State<EnergyRewardMotion>
   }
 
   /// Returns false for an overlapping/replayed event. Coordinates are global
-  /// anchors of the visible source and main HUD, captured after the wallet ACK.
+  /// anchors of the visible source and main HUD; network ACK is independent.
   bool play({
     required Offset from,
     required Offset to,
@@ -361,16 +363,18 @@ class EnergyRewardMotionState extends State<EnergyRewardMotion>
 }
 
 class _EnergyCredit {
-  _EnergyCredit(this.owner, this.before, this.after, this.id);
+  _EnergyCredit(this.owner, this.before, this.after, this.id, {this.receiptId});
   final String? owner;
   final int before, after, id;
+  final String? receiptId;
 }
 
 /// One observer per wallet prevents duplicate effects when both the game and
 /// its energy dialog are mounted. Cached/initial wallets and owner switches
-/// establish a baseline; only subsequent confirmed positive deltas celebrate.
+/// establish a baseline; named receipts may celebrate before a network ACK.
 class _EnergyReceipts {
-  _EnergyReceipts(this.economy) : display = ValueNotifier(economy.energy) {
+  _EnergyReceipts(this.economy)
+    : display = ValueNotifier(economy.presentedEnergy) {
     _remember();
     economy.addListener(_updated);
   }
@@ -381,6 +385,7 @@ class _EnergyReceipts {
   final ValueNotifier<int> display;
   final _hosts = <EnergyRewardMotionState>[];
   final _queue = <_EnergyCredit>[];
+  final _seen = <String>{};
   String? _owner;
   int _balance = 0, _serial = 0, _held = 0, _revealed = 0, _generation = 0;
   bool _live = false, _draining = false;
@@ -393,10 +398,10 @@ class _EnergyReceipts {
         _owner != null;
   }
 
-  // The wallet is already confirmed/persisted. This projection alone delays
-  // the visible receipt; spending, persistence and authorization use the wallet.
+  // Hold only the visual receipt until its arrival. The presentation ledger
+  // may lead the wallet; spending and authorization still use confirmed data.
   void _paintBalance() =>
-      display.value = math.max(0, economy.energy - _held + _revealed);
+      display.value = math.max(0, economy.presentedEnergy - _held + _revealed);
   void add(EnergyRewardMotionState host) => _hosts.add(host);
   void remove(EnergyRewardMotionState host) {
     _hosts.remove(host);
@@ -412,21 +417,51 @@ class _EnergyReceipts {
   void _updated() {
     final owner = _owner, before = _balance, live = _live;
     _remember();
-    if (_owner != owner || !_live) {
+    if (_owner != owner || !economy.energyEnabled) {
       _queue.clear();
       _held = _revealed = 0;
       _generation++;
+      _seen.clear();
       for (final host in List<EnergyRewardMotionState>.of(_hosts)) {
         host.cancel();
       }
     }
-    final credit = live && _live && owner == _owner && _balance > before;
+    var named = false;
+    for (final receipt in economy.energyPresentation.credits) {
+      if (!_seen.add(receipt.id)) continue;
+      named = true;
+      if (!receipt.animate ||
+          receipt.rejected ||
+          receipt.amount <= 0 ||
+          receipt.scheduled) {
+        continue;
+      }
+      receipt.scheduled = true;
+      _held += receipt.amount;
+      final end = economy.presentedEnergy;
+      _queue.add(
+        _EnergyCredit(
+          _owner,
+          end - receipt.amount,
+          end,
+          ++_serial,
+          receiptId: receipt.id,
+        ),
+      );
+    }
+    final credit =
+        !named &&
+        !economy.energyPresentation.pending &&
+        live &&
+        _live &&
+        owner == _owner &&
+        _balance > before;
     if (credit) {
       _held += _balance - before;
       _queue.add(_EnergyCredit(owner, before, _balance, ++_serial));
     }
     _paintBalance();
-    if (!credit || _draining) return;
+    if (_queue.isEmpty || _draining) return;
     _draining = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       unawaited(_drain());
@@ -439,6 +474,19 @@ class _EnergyReceipts {
       while (_queue.isNotEmpty && _hosts.isNotEmpty) {
         final credit = _queue.removeAt(0), generation = _generation;
         if (credit.owner != economy.energyOwner) continue;
+        bool refused() =>
+            credit.receiptId != null &&
+            economy.energyPresentation.credits.any(
+              (c) =>
+                  c.id == credit.receiptId &&
+                  (c.rejected ||
+                      c.acceptedAmount != null && c.acceptedAmount != c.amount),
+            );
+        if (refused()) {
+          _held -= credit.after - credit.before;
+          _paintBalance();
+          continue;
+        }
         final host =
             _hosts.reversed
                 .where(
@@ -459,16 +507,26 @@ class _EnergyReceipts {
         }
         void roll() {
           if (generation != _generation) return;
+          if (refused()) {
+            host.cancel();
+            return;
+          }
           _revealed = ((credit.after - credit.before) * host.frame.roll)
               .round();
           _paintBalance();
         }
 
         host._clock.addListener(roll);
+        void checkRefusal() {
+          if (refused()) host.cancel();
+        }
+
+        economy.addListener(checkRefusal);
         try {
           await host._presentReceipt(credit);
         } finally {
           host._clock.removeListener(roll);
+          economy.removeListener(checkRefusal);
           if (generation == _generation) {
             _held -= credit.after - credit.before;
             _revealed = 0;
@@ -495,7 +553,7 @@ class EnergyRewardCounter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final receipts = _EnergyReceipts._stores[economy];
-    if (receipts == null) return builder(economy.energy);
+    if (receipts == null) return builder(economy.presentedEnergy);
     return ValueListenableBuilder<int>(
       valueListenable: receipts.display,
       builder: (_, amount, child) => builder(amount),

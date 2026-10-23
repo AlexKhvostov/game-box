@@ -198,31 +198,30 @@ void main() {
 
   for (final width in [320.0, 360.0]) {
     testWidgets(
-      'Mine retains date and status with seven compact rows width$width',
+      'Mine retains dates and details while collapse gives history more space width$width',
       (tester) async {
         final account = MobileAccount()..id = 'ranking-mine-fixture';
         final store = DenseMineFixtures(account);
         await mountRanking(tester, store, size: Size(width, 740));
         await tester.tap(find.byKey(const ValueKey('leaderboard-filter-5')));
         await tester.pumpAndSettle();
-        final viewport = tester.getRect(find.byType(ListView));
-        final seventh = find.byKey(const ValueKey('ranking-row-7'));
-        expect(seventh, findsOneWidget);
-        expect(
-          tester.getRect(seventh).bottom,
-          lessThanOrEqualTo(viewport.bottom),
-          reason: 'Seven full Mine rows, including date/status',
-        );
-        expect(find.text('В рейтинге'), findsWidgets);
+        final history = find.byKey(const ValueKey('my-attempts-history'));
+        final expandedHeight = tester.getSize(history).height;
+        await tester.tap(find.byKey(const ValueKey('my-attempts-toggle')));
+        await tester.pumpAndSettle();
+        expect(tester.getSize(history).height, greaterThan(expandedHeight));
+        expect(find.text('На этом устройстве'), findsOneWidget);
         expect(find.textContaining('17.10'), findsWidgets);
-        await capture(tester, 'flutter-mine-seven-${width.toInt()}');
-        await tester.tap(find.byType(MyAttemptRow).first);
+        await capture(tester, 'flutter-mine-collapsed-${width.toInt()}');
+        await tester.tap(
+          find.byKey(const ValueKey('my-attempt-detail-mine-11')),
+        );
         await tester.pumpAndSettle();
         expect(find.byType(PlayerResultSheet), findsOneWidget);
         await tester.binding.handlePopRoute();
         await tester.pumpAndSettle();
         expect(
-          find.byKey(const PageStorageKey('ranking-mine')),
+          find.byKey(const ValueKey('my-attempts-history')),
           findsOneWidget,
         );
         expect(tester.takeException(), isNull);
@@ -352,18 +351,21 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('leaderboard-filter-5')));
       await tester.pumpAndSettle();
       expect(find.text('Ожидает сети'), findsOneWidget);
-      expect(find.text('Отправится автоматически'), findsOneWidget);
+      expect(find.byKey(const ValueKey('my-attempt-pending')), findsOneWidget);
       await capture(tester, 'flutter-mine-pending');
-      await tester.tap(find.byType(MyAttemptRow).first);
+      await tester.tap(find.byKey(const ValueKey('my-attempt-detail-shared')));
       await tester.pumpAndSettle();
       expect(find.text('Это ваш личный результат'), findsOneWidget);
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('my-attempts-sheet')), findsOneWidget);
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
       expect(
         tester
             .state<LeaderboardPanelState>(find.byType(LeaderboardPanel))
             .filter,
-        5,
+        4,
       );
       await tester.tap(find.byKey(const ValueKey('leaderboard-filter-4')));
       await tester.pumpAndSettle();

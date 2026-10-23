@@ -38,6 +38,7 @@ android {
             // Separate acceptance package preserves an older probe installed
             // under another signature/user. Never uninstall it to capture UI.
             when (System.getenv("UNTOUCH_PROBE_FLAVOR")) {
+                "ui-backport" -> "com.best4u.untouch.uiprobe.uibackport"
                 "simple-energy" -> "com.best4u.untouch.uiprobe.simpleenergy"
                 "review" -> "com.best4u.untouch.uiprobe.review"
                 else -> "com.best4u.untouch.uiprobe"

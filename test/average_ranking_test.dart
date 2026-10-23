@@ -77,6 +77,13 @@ class AverageFixture extends ScoresStore {
   }) async {}
   @override
   Future<void> load() async {}
+  // This fixture exercises ranking navigation, not the separately tested
+  // history endpoint. Its in-memory board must not be replaced by empty prefs.
+  @override
+  Future<void> loadAttemptHistory({
+    bool more = false,
+    bool refresh = false,
+  }) async {}
 }
 
 class CachedBoardAccount extends AverageAccount {
@@ -352,7 +359,11 @@ void main() {
           await t.tap(find.byKey(const ValueKey('ranking-my-attempts')));
           await t.pumpAndSettle();
           expect(
-            find.byKey(const ValueKey('attempts-average-card')),
+            find.byKey(const ValueKey('my-attempts-mean')),
+            findsOneWidget,
+          );
+          expect(
+            find.byKey(const ValueKey('my-attempts-sheet')),
             findsOneWidget,
           );
           Navigator.of(t.element(find.byType(RankingAttemptsPanel))).pop();

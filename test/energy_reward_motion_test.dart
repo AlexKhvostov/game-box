@@ -42,7 +42,7 @@ void main() {
         .handleAppLifecycleStateChanged(AppLifecycleState.resumed),
   );
   test(
-    'Final JS choreography: read until640ms, arc midpoint960, counter rolls1280–1600',
+    'Receipt: read until640ms, arc midpoint960, full counter at arrival1280',
     () {
       final read = EnergyRewardFrame(.4, reduced: false);
       expect(read.flight, 0);
@@ -58,7 +58,8 @@ void main() {
       expect(midpoint.dy, closeTo(170, .0001));
       expect(mid.scale, closeTo(.61, .0001));
       expect(EnergyRewardFrame(.75, reduced: false).roll, 0);
-      expect(EnergyRewardFrame(.95, reduced: false).roll, closeTo(.75, .0001));
+      expect(EnergyRewardFrame(.8, reduced: false).roll, 1);
+      expect(EnergyRewardFrame(.95, reduced: false).roll, 1);
       final reduced = EnergyRewardFrame(.6, reduced: true);
       expect(
         reduced.position(const Offset(100, 300), const Offset(300, 100)),
@@ -66,7 +67,7 @@ void main() {
       );
       expect(reduced.scale, 1);
       expect(reduced.hit, 0);
-      expect(reduced.roll, .6);
+      expect(reduced.roll, 1);
     },
   );
 

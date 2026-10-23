@@ -8,7 +8,8 @@ import 'mobile_account.dart';
 
 /// Game input never waits for this worker. Each run has a durable, unique
 /// request, frozen equipment and an owner; only server acknowledgements publish
-/// scores or grant rewards. The original server validation remains unchanged.
+/// scores or authorize rewards. A saved result may display a provisional UI
+/// receipt while that acknowledgement is pending; validation is unchanged.
 class InstantRoundJournal {
   InstantRoundJournal({
     required this.account,
@@ -40,6 +41,7 @@ class InstantRoundJournal {
   SharedPreferences? _prefs;
   String? _owner, _active;
   Future<void> _writes = Future.value();
+  final _savedSnapshots = <String, String>{};
   Future<void> _binding = Future.value();
   Timer? _retry;
   bool _running = false, _disposed = false, _loaded = false;
@@ -54,6 +56,15 @@ class InstantRoundJournal {
   bool get hasPending => _rows.any((r) => r['rejected'] == null);
   bool pendingAttempt(String id) =>
       _rows.any((r) => r['requestId'] == id && r['rejected'] == null);
+
+  /// Read-only identity for merging an acknowledged server result with a
+  /// still-pending local receipt. Never rewrites or acknowledges the journal.
+  String? serverRoundIdFor(String requestId) {
+    if (!ready) return null;
+    final row = _rows.where((r) => r['requestId'] == requestId).firstOrNull;
+    return row?['roundId'] as String?;
+  }
+
   String _key(String owner) =>
       '${account.storagePrefix}instant_rounds_v1_$owner';
 
@@ -104,6 +115,15 @@ class InstantRoundJournal {
                   }
                 }
                 _rows.add(row);
+                if (row['result'] != null &&
+                    row['rewardPresented'] == true &&
+                    (row['presentationAmount'] as int? ?? 0) > 0) {
+                  economy.presentEnergyCredit(
+                    'round:${row['requestId']}',
+                    0,
+                    animate: false,
+                  );
+                }
               }
             }
           }
@@ -154,6 +174,8 @@ class InstantRoundJournal {
       'revision': economy.energyConfig.revision,
       'rulesRevision': account.rulesRevision,
       'proofVersion': 1,
+      'rewardRunEvery': economy.config.runRewardEvery,
+      'rewardRiskEvery': economy.config.riskRewardEvery,
     });
     _active = requestId;
     lastError = null;
@@ -170,23 +192,42 @@ class InstantRoundJournal {
   }
 
   Future<void> complete(String key, Map<String, dynamic> result) async {
+    final owner = _owner;
     final row = _rows.where((r) => r['requestId'] == key).firstOrNull;
     if (row == null) return;
     row['result'] = Map<String, dynamic>.from(result);
+    final runEvery = row['rewardRunEvery'] as int?;
+    final riskEvery = row['rewardRiskEvery'] as int?;
+    final amount =
+        runEvery != null && runEvery > 0 && riskEvery != null && riskEvery > 0
+        ? (result['runDistance'] as int) ~/ runEvery +
+              (result['riskCount'] as int) ~/ riskEvery
+        : 0;
+    row['rewardPresented'] = true;
+    row['presentationAmount'] = amount;
     if (_active == key) _active = null;
     await _save();
+    if (_disposed ||
+        owner != _owner ||
+        owner != account.id ||
+        owner != economy.energyOwner) {
+      return;
+    }
+    if (row['rejected'] == null) {
+      economy.presentEnergyCredit('round:$key', amount);
+    }
     changed();
     retry();
   }
 
-  void _costs() {
+  void _costs({bool notify = true}) {
     final owner = _owner;
     if (owner == null) return;
     economy.setPendingRunCosts(owner, {
       for (final row in _rows)
         if (row['charged'] != true && row['rejected'] == null)
           row['requestId'] as String: row['cost'] as int,
-    });
+    }, notify: notify);
   }
 
   Future<void> _save() {
@@ -194,9 +235,11 @@ class InstantRoundJournal {
     if (owner == null || _prefs == null) return Future.value();
     final encoded = jsonEncode(_rows);
     final job = _writes.catchError((Object _) {}).then((_) async {
+      if (_savedSnapshots[owner] == encoded) return;
       if (!await _prefs!.setString(_key(owner), encoded)) {
         throw StateError('round_storage_failed');
       }
+      _savedSnapshots[owner] = encoded;
     });
     _writes = job;
     return job;
@@ -235,7 +278,7 @@ class InstantRoundJournal {
 
   Future<void> _wallet() async {
     if (_disposed || _owner != account.id || account.wallet == null) return;
-    _costs();
+    _costs(notify: false);
     await economy.applyServerWallet(
       account.wallet!,
       owner: _owner,
@@ -295,6 +338,7 @@ class InstantRoundJournal {
       return;
     }
     final key = row['requestId'] as String;
+    economy.settleEnergyCredit('round:$key', rejected: true);
     await rejected?.call(owner, key, code);
     final archiveKey = '${_key(owner)}_rejected';
     final archived = _prefs!.getStringList(archiveKey) ?? [];
@@ -351,7 +395,6 @@ class InstantRoundJournal {
             row['charged'] = true;
             // Lost replies replay this exact ID. The wallet and projected cost
             // now describe the same charge; subsequent profile loads retain it.
-            _costs();
             await _wallet();
             await _save();
           }
@@ -382,13 +425,17 @@ class InstantRoundJournal {
               _later(remaining);
               continue;
             }
-            await _request(owner, {
+            final finished = await _request(owner, {
               'action': 'round_finish',
               'roundId': row['roundId'],
               ...Map<String, dynamic>.from(result),
             });
             if (owner != _owner || _disposed) return;
             await _wallet();
+            economy.settleEnergyCredit(
+              'round:$key',
+              amount: (finished['energyReward'] as num?)?.toInt(),
+            );
             await published(owner, key);
           }
           _rows.remove(row);

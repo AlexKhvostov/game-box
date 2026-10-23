@@ -16,6 +16,7 @@ class MobileWalletBridge {
   final Set<String> _confirmed = {};
   final Map<String, MobileApiError> _rejected = {};
   Future<void> _job = Future.value();
+  Future<void> _writes = Future.value();
   bool _sending = false;
   String? _walletOwner;
 
@@ -39,6 +40,14 @@ class MobileWalletBridge {
     }
     economy.sendOperation = _enqueue;
     economy.sendEnergyOperation = _enqueueEnergy;
+    // Recovered operations reconcile silently; a restarted process must not
+    // replay a celebration whose previous arrival cannot be observed now.
+    for (final op in _pending) {
+      if (op['owner'] == economy.energyOwner &&
+          (op['presentationAmount'] as int? ?? 0) > 0) {
+        economy.presentEnergyCredit('wallet:${op['id']}', 0, animate: false);
+      }
+    }
     account.beforeRound = flush;
     account.addListener(_updated);
   }
@@ -74,7 +83,18 @@ class MobileWalletBridge {
         'args': args,
         'owner': owner,
         'awaited': true,
+        'presentationAmount': economy.expectedEnergyCredit(kind, args),
       });
+    }
+    // Persist the canonical operation ID before the UI receipt; never wait
+    // for a previous HTTP request merely to display this local interaction.
+    await _savePending();
+    if (owner == account.id && owner == economy.energyOwner) {
+      final row = _pending.where((op) => op['id'] == id).firstOrNull;
+      final amount = row?['presentationAmount'];
+      if (amount is int && amount > 0) {
+        economy.presentEnergyCredit('wallet:$id', amount);
+      }
     }
     // flush serializes every durable write and persists this command before POST.
     await flush();
@@ -89,8 +109,16 @@ class MobileWalletBridge {
     if (!await write) throw const MobileApiError('wallet_storage_failed');
   }
 
-  Future<void> _savePending() =>
-      _checked(_prefs.setString(_key, jsonEncode(_pending)));
+  Future<void> _writePending(List<Map<String, dynamic>> rows) {
+    final encoded = jsonEncode(rows);
+    final write = _writes
+        .catchError((Object _) {})
+        .then((_) => _checked(_prefs.setString(_key, encoded)));
+    _writes = write;
+    return write;
+  }
+
+  Future<void> _savePending() => _writePending(_pending);
 
   void _updated() {
     if (!account.ready || _sending) return;
@@ -145,6 +173,9 @@ class MobileWalletBridge {
     // Always retry the archive write, even when that cache contains the row.
     await _checked(_prefs.setStringList(key, records));
     await _remove(op);
+    if (op['owner'] == economy.energyOwner) {
+      economy.settleEnergyCredit('wallet:${op['id']}', rejected: true);
+    }
     if (op['awaited'] == true) {
       _rejected[op['id'] as String] = MobileApiError(reason);
     }
@@ -152,7 +183,7 @@ class MobileWalletBridge {
 
   Future<void> _remove(Map<String, dynamic> op) async {
     final remaining = _pending.where((item) => item['id'] != op['id']).toList();
-    await _checked(_prefs.setString(_key, jsonEncode(remaining)));
+    await _writePending(remaining);
     _pending.removeWhere((item) => item['id'] == op['id']);
   }
 
@@ -254,6 +285,13 @@ class MobileWalletBridge {
             throw const MobileApiError('wallet_owner_changed');
           }
           await _applyWallet();
+          final grant = account.energyGrantFor(op['id'] as String);
+          economy.settleEnergyCredit(
+            'wallet:${op['id']}',
+            amount: grant?['operationId'] == op['id']
+                ? (grant?['amount'] as num?)?.toInt()
+                : null,
+          );
           await _remove(op);
           if (op['awaited'] == true) {
             _confirmed.add(op['id'] as String);

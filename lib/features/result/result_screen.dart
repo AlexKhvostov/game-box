@@ -28,6 +28,7 @@ class ResultOverlay extends StatefulWidget {
     required this.riskCount,
     this.newlyUnlockedEarnIds = const [],
     required this.onOk,
+    this.onReplay,
     required this.onShare,
     this.rewardClaimed = true,
     this.onClaimReward,
@@ -39,6 +40,7 @@ class ResultOverlay extends StatefulWidget {
   final int riskCount;
   final List<String> newlyUnlockedEarnIds;
   final VoidCallback onOk;
+  final VoidCallback? onReplay;
   final VoidCallback onShare;
   final bool rewardClaimed;
   final Future<bool> Function()? onClaimReward;
@@ -162,11 +164,15 @@ class _ResultOverlayState extends State<ResultOverlay>
   String _formatTime(int ms) => (ms / 1000.0).toStringAsFixed(3);
 
   bool _closed = false;
-  void _onOk() {
+  void _onOk() => _close(widget.onOk);
+
+  void _onReplay() => _close(widget.onReplay ?? widget.onOk);
+
+  void _close(VoidCallback action) {
     if (_closed) return;
     _closed = true;
     _flushPendingCrystals();
-    widget.onOk();
+    action();
   }
 
   void _onOpenLeaderboard() {
@@ -259,7 +265,7 @@ class _ResultOverlayState extends State<ResultOverlay>
                         ? _tr('За что награда', 'How you earned it')
                         : tip == 'risk'
                         ? _tr('Что такое риск', 'What is risk?')
-                        : _tr('Как считается пробег', 'How distance works'),
+                        : _tr('Как считаются шаги', 'How steps work'),
                     style: const TextStyle(
                       fontSize: 17,
                       color: GameUi.ink,
@@ -271,12 +277,12 @@ class _ResultOverlayState extends State<ResultOverlay>
                     reward
                         ? economy.energyEnabled
                               ? _tr(
-                                  'Энергия складывается из риска и пробега этой попытки.',
-                                  'Energy comes from risk and distance in this run.',
+                                  'Энергия складывается из риска и шагов этой попытки.',
+                                  'Energy comes from risk and steps in this attempt.',
                                 )
                               : _tr(
-                                  'Кристаллы складываются из риска и пробега этой попытки.',
-                                  'Crystals come from risk and distance in this run.',
+                                  'Кристаллы складываются из риска и шагов этой попытки.',
+                                  'Crystals come from risk and steps in this attempt.',
                                 )
                         : tip == 'risk'
                         ? l10n.riskTipHow
@@ -487,7 +493,7 @@ class _ResultOverlayState extends State<ResultOverlay>
                         ),
                         FilledButton.icon(
                           key: const ValueKey('result-replay'),
-                          onPressed: _onOk,
+                          onPressed: _onReplay,
                           style: GameUi.replayStyle(context),
                           icon: const Icon(Icons.replay_rounded, size: 24),
                           label: Text(_tr('Ещё раз', 'Play again')),

@@ -2,6 +2,7 @@ import {GoogleAuth} from 'google-auth-library';
 import {defaults,hash,validatePolicy,ApiError,requireThat} from './core/policy.mjs';
 import {RC_KEY,applyChanges,changesBetween} from './config-schema.mjs';
 import {averageRules} from './average-config.mjs';
+import {PLATFORMS_RC_KEY,patchScopedTemplate,readPlatformTemplate,materializePlatform,configFieldScope} from './platform-config.mjs';
 
 const PROJECT='game-box-b30d4';
 const URL=`https://firebaseremoteconfig.googleapis.com/v1/projects/${PROJECT}/remoteConfig`;
@@ -23,6 +24,18 @@ export function readAndroidTemplate(template){
   return{snapshot,initialized:true};
 }
 export function patchAndroidTemplate(template,patches){
+  const split=Object.hasOwn(template.parameters??{},PLATFORMS_RC_KEY)||Object.values(template.parameterGroups??{}).some(g=>Object.hasOwn(g.parameters??{},PLATFORMS_RC_KEY));
+  if(split){
+    const before=readAndroidTemplate(template).snapshot;
+    let next=template;
+    for(const scope of ['common','android']){
+      const filtered=patches.filter(p=>(configFieldScope(p.path)==='common'?'common':'android')===scope)
+        .map(p=>scope==='android'?{path:p.path.replace('economy.','ads.'),value:p.value}:p);
+      if(filtered.length)next=patchScopedTemplate(next,readAndroidTemplate(next).snapshot,scope,filtered).template;
+    }
+    const snapshot=readAndroidTemplate(next).snapshot;
+    return{template:next,before,snapshot,changes:changesBetween(before.config,snapshot.config)};
+  }
   const before=readAndroidTemplate(template),config=applyChanges(before.snapshot,patches);
   const snapshot=validatePolicy({ok:true,config,revision:hash(config)});
   const next=structuredClone(template);delete next.version;
@@ -31,7 +44,7 @@ export function patchAndroidTemplate(template,patches){
     description:location[RC_KEY]?.description??'Android Untouch: reviewed game settings. Managed by the Untouch admin console.'};
   return{template:next,before:before.snapshot,snapshot,changes:changesBetween(before.snapshot.config,config)};
 }
-export function createRemoteConfig({credentials,request=fetch}={}){
+export function createRemoteConfig({credentials,request=fetch,telegramStarsAccepted=false}={}){
   let auth;
   async function invoke(method,body,etag,validateOnly=false){
     requireThat(credentials?.project_id===PROJECT,'firebase_credentials_missing',503);
@@ -46,6 +59,18 @@ export function createRemoteConfig({credentials,request=fetch}={}){
   }
   return{
     async get(){const result=await invoke('GET');requireThat(result.etag&&result.etag!=='*','remote_config_etag_missing',503);return{...result,...readAndroidTemplate(result.template)};},
+    async getPlatform(platform){
+      const result=await this.get();
+      const envelope=readPlatformTemplate(result.template,result.snapshot);
+      return{...result,snapshot:materializePlatform(envelope,platform),platformConfig:envelope.platforms[platform]};
+    },
+    async publishScoped(current,scope,patches){
+      requireThat(typeof current.etag==='string'&&current.etag!=='*','remote_config_etag_missing',400);
+      const candidate=patchScopedTemplate(current.template,current.snapshot,scope,patches,{telegramStarsAccepted});
+      await invoke('PUT',candidate.template,current.etag,true);
+      const result=await invoke('PUT',candidate.template,current.etag);
+      return{...result,...candidate,publishedVersion:result.template.version?.versionNumber??null};
+    },
     async publish(current,patches){
       requireThat(typeof current.etag==='string'&&current.etag.length<512&&current.etag!=='*','remote_config_etag_missing',400);
       const candidate=patchAndroidTemplate(current.template,patches);

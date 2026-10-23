@@ -8,6 +8,7 @@ import '../../data/invite_code.dart';
 import '../../data/mobile_account.dart';
 import '../../data/mobile_invites.dart';
 import '../../ui/game_ui.dart';
+import '../../ui/game_status_overlay.dart';
 import '../../ui/neon_chrome.dart';
 
 /// The existing profile owns its panel and scroll; this section owns only invitations.
@@ -157,6 +158,41 @@ class _InviterSectionState extends State<InviterSection> {
     }
   }
 
+  // Input feedback and known feature availability belong beside the field.
+  // Transport/session failures must not expand the account or rules window.
+  bool _technicalError(String? error) =>
+      error != null &&
+      !const {
+        'empty',
+        'invite_code_invalid',
+        'invite_not_found',
+        'invite_self',
+        'invite_already_bound',
+        'invites_unavailable',
+        'action_invalid',
+        'invite_schema_not_ready',
+      }.contains(error);
+
+  String _editorMessage(String error) => switch (error) {
+    'empty' => _tr('Введите код.', 'Enter a code.'),
+    'invite_code_invalid' => _tr(
+      '6 или 12 латинских букв и цифр.',
+      '6 or 12 Latin letters and digits.',
+    ),
+    'invite_not_found' => _tr('Такого кода нет.', 'Code not found.'),
+    'invite_self' => _tr('Это ваш код.', 'This is your code.'),
+    'invite_already_bound' => _tr(
+      'Код уже закреплён. Обновите в i.',
+      'Code already fixed. Refresh from i.',
+    ),
+    'profile_changed' ||
+    'profile_unavailable' ||
+    'online_disabled' => _tr('Дождитесь профиля.', 'Wait for your profile.'),
+    'invites_unavailable' || 'action_invalid' || 'invite_schema_not_ready' =>
+      _tr('Недоступно в тесте', 'Unavailable in this test'),
+    _ => _tr('Нет связи. Повторить можно в i.', 'No connection. Retry from i.'),
+  };
+
   String _message(String error) => switch (error) {
     'empty' => _tr('Введите код пригласившего.', 'Enter your inviter’s code.'),
     'invite_code_invalid' => _tr(
@@ -245,123 +281,143 @@ class _InviterSectionState extends State<InviterSection> {
                           builder: (_, _) {
                             final current = _state;
                             final error = _error ?? _service.error;
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Column(
-                                  key: const ValueKey('inviter-rules'),
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.stretch,
-                                  children: [
+                            return GameStatusOverlay(
+                              message: _technicalError(error)
+                                  ? _message(error!)
+                                  : null,
+                              messageKey: const ValueKey('inviter-info-error'),
+                              isError: true,
+                              action: _technicalError(error)
+                                  ? TextButton.icon(
+                                      key: const ValueKey('inviter-retry'),
+                                      onPressed: _blocked ? null : _refresh,
+                                      icon: const Icon(
+                                        Icons.refresh_rounded,
+                                        size: 18,
+                                      ),
+                                      label: Text(_tr('Повторить', 'Retry')),
+                                    )
+                                  : null,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Column(
+                                    key: const ValueKey('inviter-rules'),
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: [
+                                      Text(
+                                        _tr(
+                                          'Друг пригласил вас?',
+                                          'Invited by a friend?',
+                                        ),
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w800,
+                                          color: GameUi.text,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        _tr(
+                                          'Код состоит из 6 или 12 латинских букв и цифр и закрепляется один раз.',
+                                          'The code has 6 or 12 Latin letters and digits and is fixed once.',
+                                        ),
+                                        style: const TextStyle(
+                                          color: GameUi.text,
+                                          fontSize: 13,
+                                          height: 1.4,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      _InviteRuleStep(
+                                        '1',
+                                        _tr(
+                                          'Введите код друга в аккаунте.',
+                                          'Enter your friend’s code in your account.',
+                                        ),
+                                      ),
+                                      _InviteRuleStep(
+                                        '2',
+                                        _tr(
+                                          'Завершите 5 игр. Предыдущие игры учитываются.',
+                                          'Finish 5 games. Previous finished games count.',
+                                        ),
+                                      ),
+                                      _InviteRuleStep(
+                                        '3',
+                                        _tr(
+                                          'Подключите Google — вы и друг.',
+                                          'Both you and your friend connect Google.',
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        _tr(
+                                          'Награда начисляется после выполнения действующих условий игры.',
+                                          'The reward is granted after meeting the current game rules.',
+                                        ),
+                                        style: const TextStyle(
+                                          color: GameUi.muted,
+                                          fontSize: 12,
+                                          height: 1.4,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  if (error != null &&
+                                      !_technicalError(error)) ...[
+                                    const SizedBox(height: 4),
                                     Text(
-                                      _tr(
-                                        'Друг пригласил вас?',
-                                        'Invited by a friend?',
-                                      ),
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w800,
-                                        color: GameUi.text,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      _tr(
-                                        'Код состоит из 6 или 12 латинских букв и цифр и закрепляется один раз.',
-                                        'The code has 6 or 12 Latin letters and digits and is fixed once.',
-                                      ),
-                                      style: const TextStyle(
-                                        color: GameUi.text,
-                                        fontSize: 13,
-                                        height: 1.4,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    _InviteRuleStep(
-                                      '1',
-                                      _tr(
-                                        'Введите код друга в аккаунте.',
-                                        'Enter your friend’s code in your account.',
-                                      ),
-                                    ),
-                                    _InviteRuleStep(
-                                      '2',
-                                      _tr(
-                                        'Завершите 5 игр. Предыдущие игры учитываются.',
-                                        'Finish 5 games. Previous finished games count.',
-                                      ),
-                                    ),
-                                    _InviteRuleStep(
-                                      '3',
-                                      _tr(
-                                        'Подключите Google — вы и друг.',
-                                        'Both you and your friend connect Google.',
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      _tr(
-                                        'Награда начисляется после выполнения действующих условий игры.',
-                                        'The reward is granted after meeting the current game rules.',
-                                      ),
+                                      _message(error),
+                                      key: const ValueKey('inviter-info-error'),
                                       style: const TextStyle(
                                         color: GameUi.muted,
                                         fontSize: 12,
-                                        height: 1.4,
+                                      ),
+                                    ),
+                                    OutlinedButton.icon(
+                                      key: const ValueKey('inviter-retry'),
+                                      onPressed: _blocked ? null : _refresh,
+                                      style: OutlinedButton.styleFrom(
+                                        minimumSize: const Size.fromHeight(48),
+                                        foregroundColor: GameUi.text,
+                                      ),
+                                      icon: const Icon(
+                                        Icons.refresh_rounded,
+                                        size: 18,
+                                      ),
+                                      label: Text(_tr('Повторить', 'Retry')),
+                                    ),
+                                  ],
+                                  if (current?.inviterAssigned == true) ...[
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      current!.bonusStatus == 'rewarded'
+                                          ? _tr(
+                                              'Бонус начислен: по 10 кристаллов вам и другу.',
+                                              'Reward credited: 10 crystals for you and your friend.',
+                                            )
+                                          : _tr(
+                                              'Код закреплён и больше не меняется.',
+                                              'This code is fixed and cannot be changed.',
+                                            ),
+                                      key: const ValueKey('inviter-success'),
+                                      style: const TextStyle(
+                                        color: GameUi.mint,
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w700,
                                       ),
                                     ),
                                   ],
-                                ),
-                                if (error != null) ...[
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    _message(error),
-                                    key: const ValueKey('inviter-info-error'),
-                                    style: const TextStyle(
-                                      color: GameUi.muted,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                  OutlinedButton.icon(
-                                    key: const ValueKey('inviter-retry'),
-                                    onPressed: _blocked ? null : _refresh,
-                                    style: OutlinedButton.styleFrom(
-                                      minimumSize: const Size.fromHeight(48),
-                                      foregroundColor: GameUi.text,
-                                    ),
-                                    icon: const Icon(
-                                      Icons.refresh_rounded,
-                                      size: 18,
-                                    ),
-                                    label: Text(_tr('Повторить', 'Retry')),
+                                  const SizedBox(height: 10),
+                                  FilledButton(
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(),
+                                    child: Text(_tr('Понятно', 'Got it')),
                                   ),
                                 ],
-                                if (current?.inviterAssigned == true) ...[
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    current!.bonusStatus == 'rewarded'
-                                        ? _tr(
-                                            'Бонус начислен: по 10 кристаллов вам и другу.',
-                                            'Reward credited: 10 crystals for you and your friend.',
-                                          )
-                                        : _tr(
-                                            'Код закреплён и больше не меняется.',
-                                            'This code is fixed and cannot be changed.',
-                                          ),
-                                    key: const ValueKey('inviter-success'),
-                                    style: const TextStyle(
-                                      color: GameUi.mint,
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ],
-                                const SizedBox(height: 10),
-                                FilledButton(
-                                  onPressed: () => Navigator.of(context).pop(),
-                                  child: Text(_tr('Понятно', 'Got it')),
-                                ),
-                              ],
+                              ),
                             );
                           },
                         ),
@@ -501,82 +557,69 @@ class _InviterSectionState extends State<InviterSection> {
               ),
             ),
     );
-    return Column(
-      key: const ValueKey('profile-inviter-section'),
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        if (widget.compact)
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  _tr('Код пригласившего', 'Inviter code'),
-                  style: const TextStyle(fontSize: 11, color: GameUi.muted),
-                ),
-              ),
-              info,
-            ],
-          ),
-        LayoutBuilder(
-          builder: (context, constraints) {
-            final inline =
-                assigned ||
-                ((widget.compact || constraints.maxWidth >= 300) &&
-                    MediaQuery.textScalerOf(context).scale(14) <= 19.6);
-            final fieldAndInfo = Row(
+    return GameStatusOverlay(
+      message: !assigned && !_infoOpen && _technicalError(error)
+          ? _editorMessage(error!)
+          : null,
+      messageKey: const ValueKey('inviter-error'),
+      isError: true,
+      child: Column(
+        key: const ValueKey('profile-inviter-section'),
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (widget.compact)
+            Row(
               children: [
-                Expanded(child: editor),
-                if (!widget.compact) info,
+                Expanded(
+                  child: Text(
+                    _tr('Код пригласившего', 'Inviter code'),
+                    style: const TextStyle(fontSize: 11, color: GameUi.muted),
+                  ),
+                ),
+                info,
               ],
-            );
-            return inline
-                ? Row(
-                    children: [
-                      Expanded(child: editor),
-                      if (!widget.compact) info,
-                      if (widget.compact && !assigned) const SizedBox(width: 7),
-                      if (!assigned)
-                        SizedBox(width: widget.compact ? 48 : 96, child: apply),
-                    ],
-                  )
-                : Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [fieldAndInfo, apply],
-                  );
-          },
-        ),
-        if (!assigned && error != null)
-          Text(
-            switch (error) {
-              'empty' => _tr('Введите код.', 'Enter a code.'),
-              'invite_code_invalid' => _tr(
-                '6 или 12 латинских букв и цифр.',
-                '6 or 12 Latin letters and digits.',
-              ),
-              'invite_not_found' => _tr('Такого кода нет.', 'Code not found.'),
-              'invite_self' => _tr('Это ваш код.', 'This is your code.'),
-              'invite_already_bound' => _tr(
-                'Код уже закреплён. Обновите в i.',
-                'Code already fixed. Refresh from i.',
-              ),
-              'profile_changed' || 'profile_unavailable' || 'online_disabled' =>
-                _tr('Дождитесь профиля.', 'Wait for your profile.'),
-              'invites_unavailable' ||
-              'action_invalid' ||
-              'invite_schema_not_ready' => _tr(
-                'Недоступно в тесте',
-                'Unavailable in this test',
-              ),
-              _ => _tr(
-                'Нет связи. Повторить можно в i.',
-                'No connection. Retry from i.',
-              ),
+            ),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final inline =
+                  assigned ||
+                  ((widget.compact || constraints.maxWidth >= 300) &&
+                      MediaQuery.textScalerOf(context).scale(14) <= 19.6);
+              final fieldAndInfo = Row(
+                children: [
+                  Expanded(child: editor),
+                  if (!widget.compact) info,
+                ],
+              );
+              return inline
+                  ? Row(
+                      children: [
+                        Expanded(child: editor),
+                        if (!widget.compact) info,
+                        if (widget.compact && !assigned)
+                          const SizedBox(width: 7),
+                        if (!assigned)
+                          SizedBox(
+                            width: widget.compact ? 48 : 96,
+                            child: apply,
+                          ),
+                      ],
+                    )
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [fieldAndInfo, apply],
+                    );
             },
-            key: const ValueKey('inviter-error'),
-            style: const TextStyle(color: GameUi.muted, fontSize: 12),
           ),
-      ],
+          if (!assigned && error != null && !_technicalError(error))
+            Text(
+              _editorMessage(error),
+              key: const ValueKey('inviter-error'),
+              style: const TextStyle(color: GameUi.muted, fontSize: 12),
+            ),
+        ],
+      ),
     );
   }
 }

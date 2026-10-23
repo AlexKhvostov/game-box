@@ -15,6 +15,7 @@ Future<void> showPlayerResultSheet(
   required int place,
   String? periodLabel,
   bool own = false,
+  bool showPlace = true,
 }) => showDialog<void>(
   animationStyle: GameUi.windowAnimationStyle,
   context: context,
@@ -26,6 +27,7 @@ Future<void> showPlayerResultSheet(
     place: place,
     periodLabel: periodLabel,
     own: own,
+    showPlace: showPlace,
   ),
 );
 
@@ -36,11 +38,13 @@ class PlayerResultSheet extends StatefulWidget {
     required this.place,
     this.periodLabel,
     this.own = false,
+    this.showPlace = true,
   });
   final ScoreEntry entry;
   final int place;
   final String? periodLabel;
   final bool own;
+  final bool showPlace;
   @override
   State<PlayerResultSheet> createState() => _PlayerResultSheetState();
 }
@@ -219,7 +223,8 @@ class _PlayerResultSheetState extends State<PlayerResultSheet> {
             ],
           );
     final contextLabel =
-        '${widget.periodLabel ?? (ru ? "Попытка" : "Run")} · #${widget.place}';
+        '${widget.periodLabel ?? (ru ? "Попытка" : "Run")}'
+        '${widget.showPlace ? ' · #${widget.place}' : ''}';
     return Dialog(
       backgroundColor: Colors.transparent,
       surfaceTintColor: Colors.transparent,

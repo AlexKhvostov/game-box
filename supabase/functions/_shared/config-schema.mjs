@@ -59,7 +59,7 @@ const rules={
   'field.borderWidth':[0,24,0.5,'px'],'field.brightness':[0.4,1.8,0.05],'field.shadowBrightness':[0.4,2.5,0.05],
   'field.cornerRadius':[0,200,1,'px'],'field.maxSide':[100,2000,1,'px'],
   'game.idleSpeedMultiplier':[0.05,1,0.05],'game.jumpDurationSec':[0.12,5,0.01,'с'],'game.jumpScale':[1.05,1.8,0.01],
-  'game.helmetInvulnSec':[0,30,0.1,'с'],'game.startInvulnSec':[0,30,0.1,'с'],'game.jumpCooldownSec':[2,60,1,'с'],
+  'game.helmetInvulnSec':[0,30,0.1,'с'],'game.startInvulnSec':[0,30,0.1,'с'],'game.jumpCooldownSec':[0,20,0.1,'с'],
   'game.hudSpeedScaleMax':[1,4000,1],'audio.musicVolume':[0,1,0.05],'audio.sfxVolume':[0,1,0.05],
   'economy.androidEnergyV2.chargeHours':[1,12,1,'ч'],'economy.androidEnergyV2.baseAttemptCost':[1,1000,1,'энергии'],
   'economy.androidEnergyV2.helmetExtraCost':[0,1000,1,'энергии'],'economy.androidEnergyV2.jumpExtraCost':[0,1000,1,'энергии'],
@@ -85,6 +85,7 @@ function meta(path,value){
   if(path==='ranking.average.previousWeightPercent')help='Вес предыдущей относительно следующей: 92% означает веса 1, 0,92, 0,8464… Новые попытки влияют сильнее; 100% — обычное среднее.';
   if(path==='ranking.average.minAttempts')help='Допуск после этого числа подтверждённых попыток дольше порога. До допуска игрок видит предварительное среднее и прогресс.';
   if(path==='ranking.average.minDurationMs')help='Строго больше указанного времени. 1000 мс = 1 секунда: ровно 1 секунда не учитывается. Пропущенные попытки не вытесняют историю и не меняют веса.';
+  if(path==='game.jumpCooldownSec')help='От 0 до 20 секунд. 0 — следующий прыжок доступен сразу после приземления. Длительность самого прыжка не меняется. Значения меньше 2 секунд требуют обновлённой версии Google-приложения; прежние версии ограничивают откат двумя секундами.';
   if(path==='economy.androidEnergyV2.simpleBonus.periodSec')help='Через сколько часов после получения бонус станет доступен снова. Уже начавшийся период сохраняет свои условия.';
   if(path==='economy.androidEnergyV2.simpleBonus.initialEnergy')help='Начисляется один раз новым аккаунтам. Балансы существующих игроков не меняются.';
   if(path==='economy.androidEnergyV2.rewards.feedback')help='Однократная награда за внутреннее сообщение об опыте игры после траты 100 энергии. Оценка необязательна; от её значения награда не зависит. Не является отзывом Google Play.';

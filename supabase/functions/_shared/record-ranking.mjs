@@ -15,7 +15,7 @@ export async function recordRankings({db,uid,stamp,period='allPeriods'}) {
       from untouch.documents p cross join windows w
       cross join lateral (
         select s.key,s.body from untouch.documents s
-        where s.parent='scores' and s.body->>'platform'='android'
+        where s.parent='scores' and s.body->>'platform' in ('android','telegram')
           and s.body->>'uid'=p.key and (s.body->>'timeMs')::bigint>=1
           and (s.body->>'createdAt')::bigint>=w.since
         order by (s.body->>'timeMs')::bigint desc,(s.body->>'createdAt')::bigint desc,s.key desc

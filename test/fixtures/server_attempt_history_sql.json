@@ -1,0 +1,107 @@
+{
+  "average": {
+    "rules": {
+      "windowSize": 50,
+      "previousWeightPercent": 92,
+      "minAttempts": 1,
+      "minDurationMs": 0,
+      "algorithm": "weighted_rms_v1"
+    },
+    "rows": [],
+    "mine": {
+      "userId": "supabase:tg_history_owner",
+      "playerName": "New history name",
+      "averageMs": 5665.183990622241,
+      "usedCount": 4,
+      "eligibleCount": 4,
+      "totalAttempts": 5,
+      "place": null
+    }
+  },
+  "history": {
+    "userId": "supabase:tg_history_owner",
+    "snapshot": "0878af81f6d05e651ee67dd683a201dcf7900414b0a935541fafea3d0f55ac3d",
+    "totalCount": 5,
+    "rows": [
+      {
+        "id": "tg_history_zero",
+        "number": 5,
+        "timeMs": 0,
+        "hadJump": false,
+        "included": false,
+        "averageMs": 5665.183990622241,
+        "createdAt": 1792627200010,
+        "hadHelmet": false,
+        "riskCount": 0,
+        "runDistance": 0,
+        "windowCount": 4
+      },
+      {
+        "id": "tg_history_owner_3",
+        "number": 4,
+        "timeMs": 8000,
+        "hadJump": true,
+        "included": true,
+        "averageMs": 5665.183990622241,
+        "createdAt": 1792627200003,
+        "hadHelmet": false,
+        "riskCount": 3,
+        "runDistance": 3,
+        "windowCount": 4
+      },
+      {
+        "id": "tg_history_owner_2",
+        "number": 3,
+        "timeMs": 6000,
+        "hadJump": true,
+        "included": true,
+        "averageMs": 4422.457018947937,
+        "createdAt": 1792627200002,
+        "hadHelmet": false,
+        "riskCount": 2,
+        "runDistance": 2,
+        "windowCount": 3
+      },
+      {
+        "id": "tg_history_owner_1",
+        "number": 2,
+        "timeMs": 4000,
+        "hadJump": true,
+        "included": true,
+        "averageMs": 3201.5621187164243,
+        "createdAt": 1792627200001,
+        "hadHelmet": false,
+        "riskCount": 1,
+        "runDistance": 1,
+        "windowCount": 2
+      },
+      {
+        "id": "tg_history_owner_0",
+        "number": 1,
+        "timeMs": 2000,
+        "hadJump": true,
+        "included": true,
+        "averageMs": 2000,
+        "createdAt": 1792627200000,
+        "hadHelmet": false,
+        "riskCount": 0,
+        "runDistance": 0,
+        "windowCount": 1
+      }
+    ],
+    "nextCursor": null,
+    "best": {
+      "id": "tg_history_owner_3",
+      "number": 4,
+      "timeMs": 8000,
+      "hadJump": true,
+      "included": true,
+      "averageMs": 5665.183990622241,
+      "createdAt": 1792627200003,
+      "hadHelmet": false,
+      "riskCount": 3,
+      "runDistance": 3,
+      "windowCount": 4
+    }
+  }
+}

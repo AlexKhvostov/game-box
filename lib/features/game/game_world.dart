@@ -265,7 +265,15 @@ class GameWorld {
 
   double get jumpCooldownMs {
     final seconds = config.jumpCooldownSec;
-    return max(2.0, seconds.isFinite ? seconds : 2.0) * 1000;
+    return max(0.0, seconds.isFinite ? seconds : 2.0) * 1000;
+  }
+
+  double jumpCooldownProgress({double? nowMs}) {
+    final duration = jumpCooldownMs;
+    return duration <= 0
+        ? 1.0
+        : (1 - jumpCooldownRemaining(nowMs: nowMs) / duration)
+              .clamp(0.0, 1.0);
   }
 
   double jumpCooldownRemaining({double? nowMs}) => max(

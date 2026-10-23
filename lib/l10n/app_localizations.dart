@@ -317,7 +317,7 @@ abstract class AppLocalizations {
   /// No description provided for @playInfoRun.
   ///
   /// In en, this message translates to:
-  /// **'Run'**
+  /// **'Steps'**
   String get playInfoRun;
 
   /// No description provided for @playInfoNear.
@@ -335,7 +335,7 @@ abstract class AppLocalizations {
   /// No description provided for @runCrystalHint.
   ///
   /// In en, this message translates to:
-  /// **'{every} run = {reward} crystal'**
+  /// **'{every} steps = {reward} crystal'**
   String runCrystalHint(int every, int reward);
 
   /// No description provided for @riskCrystalsEarned.
@@ -683,7 +683,7 @@ abstract class AppLocalizations {
   /// No description provided for @runTipHow.
   ///
   /// In en, this message translates to:
-  /// **'Run is distance in steps. 1 step = 0.1 of hero width (same on all screens).'**
+  /// **'Steps measure the distance traveled. 1 step = 0.1 of hero width (same on all screens).'**
   String get runTipHow;
 
   /// No description provided for @runTipConvert.

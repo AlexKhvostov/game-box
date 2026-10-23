@@ -37,8 +37,8 @@ class MobileAccount extends ChangeNotifier {
     String rulesRevision = '',
     this.mayUseOnline,
     this.storagePrefix = '',
-  // Preserve the named constructor argument while allowing a getter override.
-  // ignore: prefer_initializing_formals
+    // Preserve the named constructor argument while allowing a getter override.
+    // ignore: prefer_initializing_formals
   }) : _rulesRevision = rulesRevision,
        _vault = vault ?? SecureAccountVault(storagePrefix: storagePrefix),
        _client = client ?? http.Client(),
@@ -133,6 +133,9 @@ class MobileAccount extends ChangeNotifier {
   }
 
   String operationId() => _randomHex(32);
+  final _energyGrants = <String, Map<String, dynamic>>{};
+  Map<String, dynamic>? energyGrantFor(String operationId) =>
+      _energyGrants[operationId];
   Future<void> walletOperation(
     String operationId,
     String kind,
@@ -159,6 +162,15 @@ class MobileAccount extends ChangeNotifier {
       'args': args,
     });
     if (id != owner) throw const MobileApiError('wallet_owner_changed');
+    if (response['energyGrant'] is Map) {
+      final grant = Map<String, dynamic>.from(response['energyGrant'] as Map);
+      if (grant['operationId'] == operationId) {
+        _energyGrants[operationId] = grant;
+      }
+      if (_energyGrants.length > 128) {
+        _energyGrants.remove(_energyGrants.keys.first);
+      }
+    }
     _apply(response);
     notifyListeners();
     return response;

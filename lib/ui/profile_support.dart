@@ -81,18 +81,20 @@ class ProfileSupport extends StatelessWidget {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          const _AppVersionLabel(dark: true),
+          const SizedBox(height: 4),
           if (playerId != null)
             Row(
               children: [
                 Expanded(
                   child: Text(
-                    '${ru ? 'ID игрока' : 'Player ID'}: $playerId',
+                    'User ID: $playerId',
                     style: const TextStyle(fontSize: 11, color: GameUi.muted),
                   ),
                 ),
                 IconButton(
                   key: const ValueKey('profile-copy-id'),
-                  tooltip: ru ? 'Скопировать ID' : 'Copy ID',
+                  tooltip: ru ? 'Скопировать User ID' : 'Copy User ID',
                   onPressed: () => _copy(context, playerId!, ru),
                   icon: const Icon(
                     Icons.copy_rounded,
@@ -180,9 +182,11 @@ class ProfileSupport extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              const _AppVersionLabel(dark: false),
+              const SizedBox(height: 4),
               if (playerId != null) ...[
                 Text(
-                  ru ? 'ID игрока: $playerId' : 'Player ID: $playerId',
+                  'User ID: $playerId',
                   style: TextStyle(
                     fontSize: 11,
                     color: dark ? GameUi.muted : GameUi.inkMuted,
@@ -192,7 +196,7 @@ class ProfileSupport extends StatelessWidget {
                   key: const ValueKey('profile-copy-id'),
                   onPressed: () => _copy(context, playerId!, ru),
                   icon: const Icon(Icons.copy, size: 18),
-                  label: Text(ru ? 'Скопировать ID' : 'Copy player ID'),
+                  label: Text(ru ? 'Скопировать User ID' : 'Copy User ID'),
                 ),
               ],
               TextButton.icon(
@@ -234,6 +238,49 @@ class ProfileSupport extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Reads the installed package, including --build-name/--build-number overrides.
+/// Keep the lookup outside build so profile rebuilds do not repeat the call.
+class _AppVersionLabel extends StatefulWidget {
+  const _AppVersionLabel({required this.dark});
+  final bool dark;
+
+  @override
+  State<_AppVersionLabel> createState() => _AppVersionLabelState();
+}
+
+class _AppVersionLabelState extends State<_AppVersionLabel> {
+  late final Future<String?> _version = _readVersion();
+
+  Future<String?> _readVersion() async {
+    try {
+      final info = await ProfileSupport.channel
+          .invokeMapMethod<String, dynamic>('appVersion');
+      final version = (info?['version'] as String?)?.trim();
+      final build = (info?['buildNumber'] as String?)?.trim();
+      if (version == null || version.isEmpty) return null;
+      return build == null || build.isEmpty ? version : '$version ($build)';
+    } catch (_) {
+      return null;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ru = Localizations.localeOf(context).languageCode == 'ru';
+    return FutureBuilder<String?>(
+      future: _version,
+      builder: (context, snapshot) => Text(
+        '${ru ? 'Версия' : 'Version'}: ${snapshot.data ?? '—'}',
+        key: const ValueKey('profile-app-version'),
+        style: TextStyle(
+          fontSize: 11,
+          color: widget.dark ? GameUi.muted : GameUi.inkMuted,
         ),
       ),
     );

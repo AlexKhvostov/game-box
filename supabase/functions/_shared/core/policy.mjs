@@ -33,7 +33,7 @@ function validatePolicy(snapshot) {
   const range=(v,min,max) => requireThat(typeof v === 'number' && Number.isFinite(v) && v >= min && v <= max,'policy_invalid',503);
   range(c.mobileEnemies.startSpeedSteps,0.01,250);range(c.mobileEnemies.accelerationSteps,0,50);
   range(c.mobileEnemies.speedVariation,0,0.5);range(c.mobileEnemies.accelerationVariation,0,0.5);
-  range(c.game.jumpCooldownSec,2,60);range(c.game.jumpDurationSec,0.05,5);range(c.game.jumpScale,1,3);
+  range(c.game.jumpCooldownSec,0,60);range(c.game.jumpDurationSec,0.05,5);range(c.game.jumpScale,1,3);
   range(c.game.startInvulnSec,0,30);range(c.game.helmetInvulnSec,0,30);range(c.game.idleSpeedMultiplier,0,2);
   range(c.field.borderWidth,0,24);range(c.field.brightness,0,2);range(c.field.maxSide,100,2000);range(c.field.cornerRadius,0,200);
   range(c.enemies.areaMultiplier,0.1,20);range(c.enemies.angleMinDeg,0,180);range(c.enemies.angleMaxDeg,c.enemies.angleMinDeg,180);

@@ -183,11 +183,11 @@ void main() {
             .distance,
         lessThan(.01),
       );
-      expectBalances(t, 50);
+      expectBalances(t, 80);
       expect(operations, 1);
-      for (final value in [51, 52, 53]) {
+      for (var i = 0; i < 3; i++) {
         await t.pump(const Duration(milliseconds: 10));
-        expectBalances(t, value);
+        expectBalances(t, 80);
         expect(
           e.energy,
           80,

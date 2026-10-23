@@ -220,7 +220,7 @@ class LeaderboardDetailRow extends StatelessWidget {
               ),
             ),
             Semantics(
-              label: '${ru ? "Пробег" : "Distance"}: $runDistance',
+              label: '${ru ? "Шаги" : "Steps"}: $runDistance',
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -441,7 +441,7 @@ class _NeonDetailRow extends StatelessWidget {
     );
     Widget metric(bool risk, int value) => Semantics(
       label:
-          '${risk ? (ru ? "Риск" : "Risk") : (ru ? "Пробег" : "Distance")}: $value',
+          '${risk ? (ru ? "Риск" : "Risk") : (ru ? "Шаги" : "Steps")}: $value',
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

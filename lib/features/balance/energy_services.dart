@@ -6,6 +6,7 @@ import '../../data/mobile_account.dart';
 import '../../data/play_billing_service.dart';
 import '../../data/google_identity.dart';
 import '../../ui/game_ui.dart';
+import '../../ui/game_status_overlay.dart';
 import '../../ui/energy_widgets.dart';
 import '../../ui/billing_unavailable.dart';
 import '../../ui/test_service_preview.dart';
@@ -334,169 +335,169 @@ class _FeedbackContentState extends State<EnergyFeedbackForm> {
         ],
       );
     }
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(
-          _tr(
-            c,
-            'Что понравилось? Что можно улучшить?',
-            'What did you enjoy? What could we improve?',
+    return GameStatusOverlay(
+      message: _error ?? (_busy ? _tr(c, 'Отправляем…', 'Sending…') : null),
+      busy: _busy && _error == null,
+      isError: _error != null,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            _tr(
+              c,
+              'Что понравилось? Что можно улучшить?',
+              'What did you enjoy? What could we improve?',
+            ),
+            style: const TextStyle(color: GameUi.text, fontSize: 14),
           ),
-          style: const TextStyle(color: GameUi.text, fontSize: 14),
-        ),
-        const SizedBox(height: 7),
-        Row(
-          children: List.generate(5, (i) {
-            return Expanded(
-              child: Padding(
-                padding: EdgeInsets.only(right: i == 4 ? 0 : 6),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: () => setState(() => _rating = i + 1),
-                    borderRadius: BorderRadius.circular(8),
-                    child: Container(
-                      height: 48,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: _rating == i + 1
-                            ? const Color(0xFF124D7D)
-                            : GameUi.ink,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: _rating == i + 1 ? energyNeon : _outline,
+          const SizedBox(height: 7),
+          Row(
+            children: List.generate(5, (i) {
+              return Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(right: i == 4 ? 0 : 6),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () => setState(() => _rating = i + 1),
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        height: 48,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: _rating == i + 1
+                              ? const Color(0xFF124D7D)
+                              : GameUi.ink,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: _rating == i + 1 ? energyNeon : _outline,
+                          ),
                         ),
-                      ),
-                      child: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(
-                          '${i + 1} ★',
-                          style: TextStyle(
-                            color: _rating == i + 1 ? energyNeon : GameUi.muted,
-                            fontSize: 17,
-                            fontWeight: FontWeight.w800,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            '${i + 1} ★',
+                            style: TextStyle(
+                              color: _rating == i + 1
+                                  ? energyNeon
+                                  : GameUi.muted,
+                              fontSize: 17,
+                              fontWeight: FontWeight.w800,
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            );
-          }),
-        ),
-        const SizedBox(height: 7),
-        Text(
-          _tr(
-            c,
-            'Оценка по желанию. Награда одинакова.',
-            'Rating is optional. The reward stays the same.',
+              );
+            }),
           ),
-          textAlign: TextAlign.center,
-          style: const TextStyle(color: GameUi.muted, fontSize: 11),
-        ),
-        const SizedBox(height: 9),
-        Text(
-          _tr(c, 'Впечатления', 'Your impressions'),
-          style: const TextStyle(
-            color: GameUi.text,
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        const SizedBox(height: 6),
-        TextField(
-          key: const ValueKey('energy-feedback-text'),
-          controller: _text,
-          minLines: 3,
-          maxLines: 5,
-          maxLength: 1000,
-          onChanged: (_) => setState(() {}),
-          style: const TextStyle(color: GameUi.text),
-          decoration: InputDecoration(
-            hintText: _tr(c, 'От 20 символов', 'At least 20 characters'),
-            hintStyle: const TextStyle(color: GameUi.muted),
-            filled: true,
-            fillColor: _panel,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-            counterText: '$count / 20 · ${_tr(c, 'минимум', 'minimum')}',
-          ),
-        ),
-        if (_error != null)
+          const SizedBox(height: 7),
           Text(
-            _error!,
-            style: const TextStyle(color: GameUi.heart, fontSize: 12),
+            _tr(
+              c,
+              'Оценка по желанию. Награда одинакова.',
+              'Rating is optional. The reward stays the same.',
+            ),
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: GameUi.muted, fontSize: 11),
           ),
-        const SizedBox(height: 10),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: _outline),
-            color: _panel,
+          const SizedBox(height: 9),
+          Text(
+            _tr(c, 'Впечатления', 'Your impressions'),
+            style: const TextStyle(
+              color: GameUi.text,
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+            ),
           ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  _tr(c, 'За первый отзыв', 'For your first feedback'),
-                  style: const TextStyle(color: GameUi.muted, fontSize: 12),
+          const SizedBox(height: 6),
+          TextField(
+            key: const ValueKey('energy-feedback-text'),
+            controller: _text,
+            minLines: 3,
+            maxLines: 5,
+            maxLength: 1000,
+            onChanged: (_) => setState(() {}),
+            style: const TextStyle(color: GameUi.text),
+            decoration: InputDecoration(
+              hintText: _tr(c, 'От 20 символов', 'At least 20 characters'),
+              hintStyle: const TextStyle(color: GameUi.muted),
+              filled: true,
+              fillColor: _panel,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              counterText: '$count / 20 · ${_tr(c, 'минимум', 'minimum')}',
+            ),
+          ),
+          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: _outline),
+              color: _panel,
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    _tr(c, 'За первый отзыв', 'For your first feedback'),
+                    style: const TextStyle(color: GameUi.muted, fontSize: 12),
+                  ),
                 ),
-              ),
-              EnergyText(
-                e.energyConfig.reward('feedback'),
-                prefix: '+',
-                size: 20,
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 10),
-        OutlinedButton(
-          key: const ValueKey('energy-feedback-send'),
-          style: energyButtonStyle(),
-          onPressed: count >= 20 && count <= 1000 && !_busy && !e.energyBusy
-              ? _send
-              : null,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                _tr(
-                  c,
-                  _busy ? 'Отправляем…' : 'Отправить ',
-                  _busy ? 'Sending…' : 'Send ',
+                EnergyText(
+                  e.energyConfig.reward('feedback'),
+                  prefix: '+',
+                  size: 20,
                 ),
-                style: const TextStyle(color: GameUi.text),
-              ),
-              EnergyText(
-                e.energyConfig.reward('feedback'),
-                prefix: '+',
-                size: 18,
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-        const SizedBox(height: 9),
-        Text(
-          _tr(
-            c,
-            'Это сообщение команде игры. Оно не публикуется в Google Play.',
-            'This is a message to the game team. It is not posted to Google Play.',
+          const SizedBox(height: 10),
+          OutlinedButton(
+            key: const ValueKey('energy-feedback-send'),
+            style: energyButtonStyle(),
+            onPressed: count >= 20 && count <= 1000 && !_busy && !e.energyBusy
+                ? _send
+                : null,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  _tr(c, 'Отправить ', 'Send '),
+                  style: const TextStyle(color: GameUi.text),
+                ),
+                EnergyText(
+                  e.energyConfig.reward('feedback'),
+                  prefix: '+',
+                  size: 18,
+                ),
+              ],
+            ),
           ),
-          style: const TextStyle(color: GameUi.muted, fontSize: 10),
-        ),
-        TextButton(
-          key: const ValueKey('energy-feedback-form-back'),
-          onPressed: _busy ? null : widget.onBack ?? () => Navigator.pop(c),
-          child: Text(
-            _tr(c, '← К энергии', '← Back to energy'),
-            style: const TextStyle(color: GameUi.cyan, fontSize: 12),
+          const SizedBox(height: 9),
+          Text(
+            _tr(
+              c,
+              'Это сообщение команде игры. Оно не публикуется в Google Play.',
+              'This is a message to the game team. It is not posted to Google Play.',
+            ),
+            style: const TextStyle(color: GameUi.muted, fontSize: 10),
           ),
-        ),
-      ],
+          TextButton(
+            key: const ValueKey('energy-feedback-form-back'),
+            onPressed: _busy ? null : widget.onBack ?? () => Navigator.pop(c),
+            child: Text(
+              _tr(c, '← К энергии', '← Back to energy'),
+              style: const TextStyle(color: GameUi.cyan, fontSize: 12),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

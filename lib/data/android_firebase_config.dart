@@ -71,7 +71,7 @@ abstract final class AndroidFirebaseConfig {
       'enemies.areaMultiplier': [0.1, 20],
       'enemies.angleMinDeg': [0, 180],
       'enemies.angleMaxDeg': [0, 180],
-      'game.jumpCooldownSec': [2, 60],
+      'game.jumpCooldownSec': [0, 60],
       'game.jumpDurationSec': [0.05, 5],
       'game.jumpScale': [1, 3],
       'game.startInvulnSec': [0, 30],

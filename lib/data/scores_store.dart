@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../domain/score_entry.dart';
 import '../domain/average_ranking.dart';
+import '../domain/server_attempt_history.dart';
 import 'legacy_scores_source.dart';
 import 'mobile_account.dart';
 import 'economy_store.dart';
@@ -81,13 +82,15 @@ class ScoresStore extends ChangeNotifier {
   String? _attemptOwner;
   Future<void> _ownerChange = Future.value();
   void _accountUpdated() {
-    if (account?.id == null || _attemptOwner == account!.id) return;
-    _attemptOwner = account!.id;
+    if (_attemptOwner == account?.id) return;
+    _attemptOwner = account?.id;
+    _resetServerHistory();
     _periodScores.clear();
     _scores.clear();
     averageRanking = null;
     try {
       _loadAverageCache();
+      _loadServerHistoryCache();
     } catch (_) {
       averageRanking = null;
       _periodScores.clear();
@@ -104,6 +107,134 @@ class ScoresStore extends ChangeNotifier {
   bool get supportsAverage =>
       account?.storagePrefix.startsWith('supabase_android_') ?? false;
   AverageRanking? averageRanking;
+  ServerAttemptHistory? serverAttemptHistory;
+  bool historyLoading = false;
+  String? historyError;
+  int _historyEpoch = 0;
+  Future<void>? _historyFlight;
+  String get _serverHistoryKey =>
+      '${storagePrefix}server_attempt_history_v1_${_attemptOwner ?? 'pending'}';
+  void _resetServerHistory() {
+    _historyEpoch++;
+    _historyFlight = null;
+    serverAttemptHistory = null;
+    historyLoading = false;
+    historyError = null;
+  }
+
+  void _loadServerHistoryCache() {
+    serverAttemptHistory = null;
+    final owner = _attemptOwner;
+    if (!supportsAverage || owner == null) return;
+    try {
+      final raw = _prefs?.getString(_serverHistoryKey);
+      if (raw != null) {
+        final cached = ServerAttemptHistory.fromJson(
+          Map<String, dynamic>.from(jsonDecode(raw) as Map),
+          owner: owner,
+        );
+        if (cached.rows.isNotEmpty &&
+            cached.rows.first.number != cached.totalCount) {
+          return;
+        }
+        serverAttemptHistory = cached;
+      }
+    } catch (_) {
+      // Disposable read cache; never touch the local delivery journal here.
+    }
+  }
+
+  /// Read-only server history, independent of the local result outbox.
+  Future<void> loadAttemptHistory({bool more = false, bool refresh = false}) {
+    if (!supportsAverage || account?.id == null) return Future.value();
+    if (refresh) {
+      _historyEpoch++;
+      _historyFlight = null;
+      historyLoading = false;
+    }
+    if (_historyFlight != null) return _historyFlight!;
+    final previous = serverAttemptHistory;
+    if (more && (previous == null || previous.nextCursor == null)) {
+      return Future.value();
+    }
+    final epoch = _historyEpoch, owner = account!.id!;
+    final operation = _loadAttemptHistoryBody(
+      owner,
+      epoch,
+      more ? previous : null,
+    );
+    _historyFlight = operation;
+    return operation.whenComplete(() {
+      if (_historyEpoch == epoch && _attemptOwner == owner) {
+        _historyFlight = null;
+      }
+    });
+  }
+
+  Future<void> _loadAttemptHistoryBody(
+    String owner,
+    int epoch,
+    ServerAttemptHistory? previous,
+  ) async {
+    bool current() =>
+        !_disposed &&
+        _historyEpoch == epoch &&
+        account?.id == owner &&
+        _attemptOwner == owner;
+    historyLoading = true;
+    historyError = null;
+    _changed();
+    var changed = false;
+    try {
+      await _ensureLocalReady();
+      if (!current()) return;
+      final reply = await account!.request({
+        'action': 'attempts_history',
+        'limit': 100,
+        if (previous != null) 'cursor': previous.nextCursor,
+      });
+      if (!current()) return;
+      final page = ServerAttemptHistory.fromJson(reply, owner: owner);
+      if (previous == null &&
+          page.rows.isNotEmpty &&
+          page.rows.first.number != page.totalCount) {
+        throw const FormatException('Incomplete history first page');
+      }
+      final next = previous == null ? page : previous.append(page);
+      serverAttemptHistory = next;
+      if (previous == null) {
+        final key = _serverHistoryKey;
+        // Only the newest page is durable. Loading a long history must not
+        // repeatedly serialize and grow the preferences database.
+        // A failed disposable cache write does not hide a valid response.
+        try {
+          await _prefs!.setString(key, jsonEncode(page.toJson()));
+        } catch (_) {}
+      }
+    } catch (error) {
+      if (!current()) return;
+      final code = error is MobileApiError
+          ? error.code
+          : 'attempt_history_unavailable';
+      if (previous != null &&
+          (code == 'attempt_history_changed' ||
+              code == 'attempt_history_cursor_invalid')) {
+        changed = true;
+      } else {
+        historyError = code;
+      }
+    } finally {
+      if (current()) {
+        historyLoading = false;
+        _changed();
+      }
+    }
+    if (changed && current()) {
+      // The old snapshot stays visible until a coherent replacement arrives.
+      await loadAttemptHistory(refresh: true);
+    }
+  }
+
   String get _averageCacheKey =>
       // Old clients discarded the formula marker when persisting their reply.
       // Start a tagged cache so a stale RMS number cannot be plotted as linear.
@@ -218,6 +349,9 @@ class ScoresStore extends ChangeNotifier {
     _publishedRefresh = Timer(const Duration(milliseconds: 350), () {
       _publishedRefresh = null;
       if (!_disposed && owner == _attemptOwner) unawaited(load());
+      if (!_disposed && owner == _attemptOwner) {
+        unawaited(loadAttemptHistory(refresh: true));
+      }
     });
   }
 
@@ -226,6 +360,11 @@ class ScoresStore extends ChangeNotifier {
   bool isAttemptPending(String id) =>
       _outbox.any((item) => item['attemptId'] == id) ||
       (_instant?.pendingAttempt(id) ?? false);
+  String serverAttemptKey(String id) =>
+      _outbox.where((item) => item['attemptId'] == id).firstOrNull?['roundId']
+          as String? ??
+      _instant?.serverRoundIdFor(id) ??
+      id;
   Future<void> retryPendingResults() async {
     _instant?.retry();
     await _scheduleDelivery();
@@ -491,6 +630,7 @@ class ScoresStore extends ChangeNotifier {
     _scores.clear();
     try {
       _loadAverageCache();
+      _loadServerHistoryCache();
     } catch (_) {
       averageRanking = null;
       _periodScores.clear();
@@ -644,6 +784,9 @@ class ScoresStore extends ChangeNotifier {
     if (!_historyWritable) throw const MobileApiError('round_storage_failed');
     _prefs ??= await SharedPreferences.getInstance();
     _scores.clear();
+    final oldServerCache = _serverHistoryKey;
+    _resetServerHistory();
+    await _prefs!.remove(oldServerCache);
     // Do not discard confirmed rounds awaiting acknowledgement during a reset.
     _attempts.removeWhere((attempt) => !isAttemptPending(attempt.id));
     _lastRemoteOkAt = null;
@@ -651,6 +794,7 @@ class ScoresStore extends ChangeNotifier {
     await _persistAttempts();
     _changed();
     await load();
+    await loadAttemptHistory(refresh: true);
   }
 
   /// Каждая партия (даже без Share) попадает в «Мои попытки».
@@ -791,6 +935,7 @@ class ScoresStore extends ChangeNotifier {
           }
           if (acknowledged) {
             _lastRemoteOkAt = null;
+            _schedulePublishedRefresh();
             // A lost PROFILE response must not turn an accepted score into a
             // pending score. Round acknowledgement is the publication boundary.
             try {

@@ -136,7 +136,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get playInfoSpeed => 'Скор.';
 
   @override
-  String get playInfoRun => 'Пробег';
+  String get playInfoRun => 'Шаги';
 
   @override
   String get playInfoNear => 'Риск';
@@ -148,7 +148,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String runCrystalHint(int every, int reward) {
-    return '$every пробега = $reward кристалл';
+    return '$every шагов = $reward кристалл';
   }
 
   @override
@@ -357,7 +357,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get runTipHow =>
-      'Пробег — путь кубика в шагах. 1 шаг = 0,1 ширины героя (на всех экранах одинаково).';
+      'Шаги — путь кубика. 1 шаг = 0,1 ширины героя (на всех экранах одинаково).';
 
   @override
   String runTipConvert(int every, int reward) {

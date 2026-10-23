@@ -3,6 +3,7 @@ import 'ranking_art.dart';
 import 'ranking_tabs.dart';
 import 'ranking_summary.dart';
 import 'average_ranking_panel.dart';
+import 'my_attempts_panel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -237,7 +238,7 @@ class LeaderboardPanelState extends State<LeaderboardPanel> {
                               ? const RankingArt("footsteps", width: 12)
                               : const GameMetricIcon(risk: false, size: 12),
                           Text(
-                            ru ? 'Пробег' : 'Distance',
+                            ru ? 'Шаги' : 'Steps',
                             style: TextStyle(
                               fontSize: 10,
                               color: LeaderboardTone.text(context),
@@ -253,7 +254,10 @@ class LeaderboardPanelState extends State<LeaderboardPanel> {
                     selected: isMine,
                     accent: true,
                     compact: true,
-                    onTap: () => setState(() => filter = 5),
+                    onTap: () => openMyAttemptsWindow(
+                      context,
+                      panel: const RankingAttemptsPanel(),
+                    ),
                   );
                   return large
                       ? Column(
@@ -402,7 +406,7 @@ class _CompactRankingLegend extends StatelessWidget {
               ('jump', ru ? 'Прыжок' : 'Jump'),
               ('helmet', ru ? 'Шлем' : 'Helmet'),
               ('risk', ru ? 'Риск' : 'Risk'),
-              ('footsteps', ru ? 'Пробег' : 'Distance'),
+              ('footsteps', ru ? 'Шаги' : 'Steps'),
             ])
               Row(
                 mainAxisSize: MainAxisSize.min,
@@ -960,21 +964,5 @@ class RankingRecordColumns extends StatelessWidget {
 class RankingAttemptsPanel extends StatelessWidget {
   const RankingAttemptsPanel({super.key});
   @override
-  Widget build(BuildContext context) {
-    final store = context.watch<ScoresStore>();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        AverageHistoryCard(store: store),
-        const Padding(
-          padding: EdgeInsets.fromLTRB(5, 6, 5, 6),
-          child: _CompactRankingLegend(),
-        ),
-        const RankingRecordColumns(mine: true),
-        Expanded(
-          child: _MineList(store: store, padding: const EdgeInsets.all(1)),
-        ),
-      ],
-    );
-  }
+  Widget build(BuildContext context) => const MyAttemptsPanel();
 }
