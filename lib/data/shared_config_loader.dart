@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../domain/economy_config.dart';
 import '../domain/gameplay_config.dart';
+import '../domain/enemy_pace.dart';
 
 /// Immutable startup snapshot: active rounds never change their rules.
 class SharedConfigs {
@@ -68,6 +69,7 @@ class SharedConfigs {
         field: FieldConfig.fromJson(raw['field']),
         game: GameConfig.fromJson(raw['game']),
         audio: AudioConfig.fromJson(raw['audio']),
+        enemyPace: EnemyPaceSettings.fromJson(raw['enemyPace']),
         mobileEnemies: raw['mobileEnemies'] is Map<String, dynamic>
             ? MobileEnemyPace.fromJson(raw['mobileEnemies'])
             : const MobileEnemyPace(),

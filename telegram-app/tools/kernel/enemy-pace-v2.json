@@ -1,0 +1,14 @@
+{
+  "id": "enemy-pace-v2",
+  "description": "Optional shared speed override; null preserves legacy physics. Browser and proof-v2 server use identical reviewed world.",
+  "patches": [
+    {
+      "before": "    bool checkPlayerHits = true,\n  }) {\n    final safeDt",
+      "after": "    bool checkPlayerHits = true,\n    double? enemySpeedOverride,\n  }) {\n    final safeDt"
+    },
+    {
+      "before": "final speed = (e.speedAt(t) * mult).clamp(0.0, 4000.0);",
+      "after": "final speed = ((enemySpeedOverride ?? e.speedAt(t)) * mult).clamp(0.0, 4000.0);"
+    }
+  ]
+}

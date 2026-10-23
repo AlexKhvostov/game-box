@@ -1,6 +1,7 @@
 // Canonical Supabase game core. Maintained and tested here; no Firebase runtime dependency.
 import {androidGeometryIssues} from '../android-constraints.mjs';
 import crypto from 'node:crypto';
+import {enemyPaceValid} from '../enemy-pace-config.mjs';
 import defaults from './defaults.json' with {type:'json'};
 const hash = value => crypto.createHash('sha256').update(typeof value === 'string' ? value : JSON.stringify(value)).digest('hex');
 class ApiError extends Error {
@@ -22,6 +23,7 @@ function validatePolicy(snapshot) {
     else requireThat(v === null || typeof v === 'string' || typeof v === 'boolean', 'policy_invalid', 503);
   }
   walk(c);
+  requireThat(enemyPaceValid(c),'policy_invalid',503);
   function types(candidate, original, path='') {
     if(candidate===undefined && path==='economy.androidEnergyV2.simpleBonus.videoDailyLimit')return;
     // Published pre-ranking snapshots remain valid for identical game rules.

@@ -1,0 +1,6 @@
+{
+  "id": "jump-cooldown-zero-v1",
+  "file": "lib/features/game/game_world.dart",
+  "before": "    return max(2.0, seconds.isFinite ? seconds : 2.0) * 1000;\n  }\n",
+  "after": "    return max(0.0, seconds.isFinite ? seconds : 2.0) * 1000;\n  }\n\n  double jumpCooldownProgress({double? nowMs}) {\n    final duration = jumpCooldownMs;\n    return duration <= 0\n        ? 1.0\n        : (1 - jumpCooldownRemaining(nowMs: nowMs) / duration)\n              .clamp(0.0, 1.0);\n  }\n"
+}

@@ -1,8 +1,9 @@
 {
-  "lib/features/game/game_world.dart": "f7513a283406de18c1e440a3e875c33754f5ba9ce6363ac041c1776e80e71bb1",
-  "lib/domain/gameplay_config.dart": "7a705c37201d0a34ffb9870800ac1a5fca8e151e3e03f8254197f8ff7e72a967",
+  "lib/domain/enemy_pace.dart": "3c1d415877b1202530a3e1292f2b3483590baf7e189dd49b596a554f351dfa0c",
+  "lib/features/game/game_world.dart": "2609b954bb634425ef250df6b1ba7df87ccfb2bfa85cbdb8096e332628e79206",
+  "lib/domain/gameplay_config.dart": "cc0065649988a96db2462a6e3445e9b847ace211267b4da51ab70cfda9fc502d",
   "lib/domain/replay_random.dart": "8a4326a81f2450541f9438d7ad9ca3d0044dcfe26d353970deef86b43e4e5db2",
-  "lib/app/mobile_gameplay_tuning.dart": "3df7cadd0ec437f4884bba2ae7846c7bdf4ed34490c3add6b63cc69ed82c185d",
+  "lib/app/mobile_gameplay_tuning.dart": "8fbf2ccd44df6e7b1fc557ea06134abba967a6b61017055e3e29cef82cdff3f4",
   "lib/domain/arcade_rules.dart": "c75401265070b14ce604441fbcfe595048a78258c70ac2424a9d737342cbe5b4",
   "tools/replay/geometry.dart": "36a4b15686fcee04777325461cf11033d9236f6073591a5d1ccf1ab432507831",
   "tools/replay/session.dart": "7fa58cf9a82e3e00a082769ec53db9e9612ebc2dc31296fc863170bd156c2933",

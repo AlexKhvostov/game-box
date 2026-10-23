@@ -56,7 +56,7 @@ void main() {
   for (final change in cases.where(
     (c) =>
         !c['path'].toString().contains('.simpleBonus.') &&
-        !c['path'].toString().startsWith('ranking.') && !c['path'].toString().startsWith('enemyPace.'),
+        !c['path'].toString().startsWith('ranking.'),
   )) {
     final path = change['path'] as String;
     test(
@@ -80,6 +80,7 @@ void main() {
         );
         final tuned = MobileGameplayTuning.apply(parsed.gameplay);
         final model = <String, dynamic>{
+          'enemyPace': tuned.enemyPace?.toJson(),
           'mobileEnemies': {
             'startSpeedSteps': tuned.mobileEnemies.startSpeedSteps,
             'accelerationSteps': tuned.mobileEnemies.accelerationSteps,

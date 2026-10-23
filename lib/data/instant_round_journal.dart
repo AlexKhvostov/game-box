@@ -147,6 +147,7 @@ class InstantRoundJournal {
     required bool jump,
     required int cost,
     String? preparedKey,
+    int proofVersion = 1,
   }) {
     final owner = _owner;
     if (!ready ||
@@ -173,7 +174,7 @@ class InstantRoundJournal {
       'cost': cost,
       'revision': economy.energyConfig.revision,
       'rulesRevision': account.rulesRevision,
-      'proofVersion': 1,
+      'proofVersion': proofVersion,
       'rewardRunEvery': economy.config.runRewardEvery,
       'rewardRiskEvery': economy.config.riskRewardEvery,
     });

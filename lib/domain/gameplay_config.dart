@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'enemy_pace.dart';
 
 /// Сводка геймплея: собирается из блоков Remote Config (enemies / player / field / game / audio).
 class GameplayConfig {
@@ -9,6 +10,7 @@ class GameplayConfig {
     this.game = const GameConfig(),
     this.audio = const AudioConfig(),
     this.mobileEnemies = const MobileEnemyPace(),
+    this.enemyPace,
   });
 
   final EnemiesConfig enemies;
@@ -17,6 +19,7 @@ class GameplayConfig {
   final GameConfig game;
   final AudioConfig audio;
   final MobileEnemyPace mobileEnemies;
+  final EnemyPaceSettings? enemyPace;
 
   double get enemyAreaMultiplier => enemies.areaMultiplier;
   double get playerSize => player.size;
@@ -61,6 +64,7 @@ class GameplayConfig {
     required GameConfig game,
     AudioConfig audio = const AudioConfig(),
     MobileEnemyPace mobileEnemies = const MobileEnemyPace(),
+    EnemyPaceSettings? enemyPace,
   }) {
     return GameplayConfig(
       enemies: enemies,
@@ -69,6 +73,7 @@ class GameplayConfig {
       game: game,
       audio: audio,
       mobileEnemies: mobileEnemies,
+      enemyPace: enemyPace,
     );
   }
 

@@ -1,0 +1,11 @@
+{
+  "installedVersionCode": 195,
+  "newApkVersionCode": 196,
+  "installedCertificateSha256": "a1282130e301ebabb44f8804f4a6f69ae98d3de9e464f56a034c9da0f1f0d701",
+  "apkCertificateSha256": "d1e6c24577de4870860938c0acf5c84f039f2a740daa0c02a33342b23b9ecdde",
+  "sameCertificate": false,
+  "installerIsGooglePlay": true,
+  "installedMainUnchanged": true,
+  "dataCleared": false,
+  "safeUpdatePath": "Google Play AAB signed by Play App Signing"
+}

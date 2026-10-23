@@ -23,6 +23,7 @@ config=(root/'lib/domain/gameplay_config.dart').read_text(encoding='utf-8').repl
 config=omit_method(config,'  Color resolveSurfaceColor(')
 config=omit_method(config,'Color? parseHexColor(')
 (out/'config.dart').write_text(config,encoding='utf-8')
+shutil.copyfile(root/'lib/domain/enemy_pace.dart',out/'enemy_pace.dart')
 for name in ['geometry','session','main']:
     shutil.copyfile(root/f'tools/replay/{name}.dart',out/f'{name}.dart')
 shutil.copyfile(root/'lib/domain/replay_random.dart',out/'random.dart')
@@ -31,7 +32,7 @@ subprocess.run([args.dart,'compile','js','-O2','--no-source-maps','-o',str(targe
 license_file=Path(args.dart).resolve().parents[1]/'LICENSE'
 target.write_text('/* Dart SDK runtime license:\n'+license_file.read_text(encoding='utf-8')+'\n*/\n'+target.read_text(encoding='utf-8'),encoding='utf-8')
 # Dart VM and JS Random intentionally differ; the explicit PRNG is shared.
-files=['lib/features/game/game_world.dart','lib/domain/gameplay_config.dart','lib/domain/replay_random.dart','lib/app/mobile_gameplay_tuning.dart','lib/domain/arcade_rules.dart',*[f'tools/replay/{n}.dart'for n in ['geometry','session','main']]]
+files=['lib/domain/enemy_pace.dart','lib/features/game/game_world.dart','lib/domain/gameplay_config.dart','lib/domain/replay_random.dart','lib/app/mobile_gameplay_tuning.dart','lib/domain/arcade_rules.dart',*[f'tools/replay/{n}.dart'for n in ['geometry','session','main']]]
 def source_hash(file):
     # Git may check text out as CRLF on Windows; code identity ignores EOLs.
     return hashlib.sha256(file.read_bytes().replace(b'\r\n',b'\n')).hexdigest()

@@ -115,6 +115,47 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUp(() => SharedPreferences.setMockInitialValues({}));
   test(
+    'new v2 intent preserves its protocol across offline persistence and recovery',
+    () async {
+      final server = RunServer()..offline = true;
+      final e = EconomyStore();
+      await e.load();
+      await e.applyServerWallet(
+        server.wallet(),
+        owner: owner,
+        serverNow: energy_fixture.stamp,
+      );
+      final a = RunAccount(server),
+          prefs = await SharedPreferences.getInstance();
+      final j = InstantRoundJournal(
+        account: a,
+        economy: e,
+        published: (_, _) async {},
+        recoverResult: (_) => null,
+        changed: () {},
+      );
+      await j.bindOwner();
+      final key = j.begin(helmet: false, jump: false, cost: 1, proofVersion: 2);
+      expect(key, isNotNull);
+      await flush();
+      final rows =
+          jsonDecode(
+                prefs.getString('${a.storagePrefix}instant_rounds_v1_$owner')!,
+              )
+              as List;
+      expect(rows.single['proofVersion'], 2);
+      expect(
+        server.commands
+            .where((c) => c['action'] == 'round_start')
+            .every((c) => c['proofVersion'] == 2),
+        true,
+      );
+      j.dispose();
+      a.dispose();
+      e.dispose();
+    },
+  );
+  test(
     'obsolete unaccepted protocol row is retained diagnostically without blocking updated client',
     () async {
       final server = RunServer()..refusal = 'update_required';

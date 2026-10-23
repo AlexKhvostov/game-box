@@ -523,13 +523,14 @@ class GameWorld {
     double secondsAlive, {
     double speedMult = 1.0,
     bool checkPlayerHits = true,
+    double? enemySpeedOverride,
   }) {
     final safeDt = dt.clamp(0.0, 0.05);
     final mult = speedMult.clamp(0.0, 2.0);
     final t = secondsAlive.clamp(0.0, 3600.0);
     var wall = 0;
     for (final e in enemies) {
-      final speed = (e.speedAt(t) * mult).clamp(0.0, 4000.0);
+      final speed = ((enemySpeedOverride ?? e.speedAt(t)) * mult).clamp(0.0, 4000.0);
       final dist = e.vel.distance;
       final dir = dist < 1e-6
           ? const Offset(1, 1)

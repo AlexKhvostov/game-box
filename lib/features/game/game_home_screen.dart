@@ -22,6 +22,8 @@ import '../../data/scores_store.dart';
 import '../../data/android_config_session.dart';
 import '../../data/mobile_account.dart';
 import '../../domain/gameplay_config.dart';
+import '../../domain/enemy_pace.dart';
+import 'enemy_speed_meter.dart';
 import '../../domain/arcade_rules.dart';
 import '../../domain/round_delivery.dart';
 import '../../domain/replay_random.dart';
@@ -70,6 +72,7 @@ class _GameHomeScreenState extends State<GameHomeScreen>
   late final ValueNotifier<int> _hudFrame;
   double _hudAccumMs = 0;
   GameWorld? _world;
+  EnemyPace? _enemyPace;
   String? _preparedRoundKey;
   List<List<double>>? _proofStartPose;
   Size _fieldSize = Size.zero;
@@ -328,6 +331,7 @@ class _GameHomeScreenState extends State<GameHomeScreen>
         before != null &&
         _fieldSize == field &&
         jsonEncode([
+              before.enemyPace?.toJson(),
               before.enemies.toJson(),
               before.player.toJson(),
               before.field.toJson(),
@@ -340,6 +344,7 @@ class _GameHomeScreenState extends State<GameHomeScreen>
               ],
             ]) ==
             jsonEncode([
+              config.enemyPace?.toJson(),
               config.enemies.toJson(),
               config.player.toJson(),
               config.field.toJson(),
@@ -361,6 +366,7 @@ class _GameHomeScreenState extends State<GameHomeScreen>
   }
 
   GameWorld _createIdleWorld(Size field, GameplayConfig config) {
+    _enemyPace = config.enemyPace == null ? null : EnemyPace(config.enemyPace);
     final scores = context.read<ScoresStore>();
     _preparedRoundKey = scores.instantRoundsEnabled
         ? scores.account?.operationId()
@@ -510,12 +516,16 @@ class _GameHomeScreenState extends State<GameHomeScreen>
         _recordProof([0, dtMs]);
         _elapsedPreciseMs += dtMs;
         _aliveMs = _elapsedPreciseMs.floor();
+        _enemyPace?.advance(dt);
         world.tickJump(dt);
         final bounces = world.tickPlay(
           dt,
           _elapsedPreciseMs / 1000.0,
           speedMult: speedMult,
           checkPlayerHits: !_isInvulnerable,
+          enemySpeedOverride: _enemyPace == null
+              ? null
+              : _enemyPace!.speed * world.playerSize * .1,
         );
         if (bounces.wall > 0) GameSfx.mobWall();
         if (bounces.enemy > 0) GameSfx.mobCollide();
@@ -532,16 +542,17 @@ class _GameHomeScreenState extends State<GameHomeScreen>
             world.clampPlayerToField();
           } else if (!_isInvulnerable) {
             _triggerImpact(againstWall: true);
-            return;
+            if (_phase != _Phase.playing) return;
           }
         }
         if (!_isInvulnerable && world.playerHitsEnemy()) {
           _triggerImpact(againstWall: false);
-          return;
+          if (_phase != _Phase.playing) return;
         }
         if (_impacts.isNotEmpty) {
           _impacts.removeWhere((b) => !b.update(dt));
         }
+        _updateBrake(world.player);
         _maybeUnlockGameplayEarn();
         _frame.value++;
       }
@@ -723,7 +734,7 @@ class _GameHomeScreenState extends State<GameHomeScreen>
       replayProof: _proofEvents == null
           ? null
           : {
-              'version': 1,
+              'version': _enemyPace == null ? 1 : 2,
               'events': _proofEvents,
               if (_proofStartPose != null) 'startPose': _proofStartPose,
             },
@@ -805,6 +816,7 @@ class _GameHomeScreenState extends State<GameHomeScreen>
     final simulationDelta =
         delta * (GameViewport.referenceFieldSide / _visualFieldSide);
     _recordProof([1, simulationDelta.dx, simulationDelta.dy]);
+    final previousPlayer = _world!.player;
     _world!.movePlayerBy(simulationDelta, checkEnemies: !_isInvulnerable);
     // Paint a new finger position in this frame, including events delivered
     // after the simulation ticker. Never interpolate or delay a sharp dodge.
@@ -814,12 +826,28 @@ class _GameHomeScreenState extends State<GameHomeScreen>
         _world!.clampPlayerToField();
       } else if (!_isInvulnerable) {
         _triggerImpact(againstWall: true);
-        return;
+        if (_phase != _Phase.playing) return;
       }
     }
-    if (_isInvulnerable) return;
-    if (_world!.playerHitsEnemy()) {
+    if (!_isInvulnerable && _world!.playerHitsEnemy()) {
       _triggerImpact(againstWall: false);
+    }
+    _updateBrake(previousPlayer);
+  }
+
+  void _updateBrake(Offset previous) {
+    final world = _world;
+    if (_phase != _Phase.playing || world == null) return;
+    if (_enemyPace?.pressOnFloor(
+          fromX: previous.dx,
+          fromY: previous.dy,
+          toX: world.player.dx,
+          toY: world.player.dy,
+          playerSize: world.playerSize,
+          grounded: !world.isJumping,
+        ) ==
+        true) {
+      _hudFrame.value++;
     }
   }
 
@@ -1067,6 +1095,7 @@ class _GameHomeScreenState extends State<GameHomeScreen>
         jump: selectedJump,
         cost: cost,
         preparedKey: _preparedRoundKey,
+        proofVersion: gameplay.enemyPace == null ? 1 : 2,
       );
       if (key == null) {
         _clearPointers();
@@ -1229,6 +1258,9 @@ class _GameHomeScreenState extends State<GameHomeScreen>
     _hintPulse.stop();
     GameSfx.gameStart();
     final gameplay = context.read<GameplayConfig>();
+    _enemyPace = gameplay.enemyPace == null
+        ? null
+        : EnemyPace(gameplay.enemyPace);
     final proofKey = context.read<ScoresStore>().activeInstantRoundKey;
     _proofEvents = proofKey == null ? null : [];
     // The field already owns this run's seeded layout. Continue its visible
@@ -1370,6 +1402,11 @@ class _GameHomeScreenState extends State<GameHomeScreen>
                         onPointerCancel: _onPointerCancel,
                         child: Column(
                           children: [
+                            if (config.enemyPace?.speedBarEnabled == true)
+                              EnemySpeedMeter(
+                                pace: () => _enemyPace,
+                                repaint: _hudFrame,
+                              ),
                             Padding(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16,
@@ -1447,6 +1484,14 @@ class _GameHomeScreenState extends State<GameHomeScreen>
                                                     drawGrid: AppTargetConfig
                                                         .isMobile,
                                                     world: world,
+                                                    enemyPace: _enemyPace,
+                                                    roundPlaying: () =>
+                                                        _phase ==
+                                                        _Phase.playing,
+                                                    reducedMotion:
+                                                        MediaQuery.disableAnimationsOf(
+                                                          context,
+                                                        ),
                                                     accent: heroColor,
                                                     danger: enemyColor,
                                                     fieldColor: config.field

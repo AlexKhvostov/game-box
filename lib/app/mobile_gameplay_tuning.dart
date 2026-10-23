@@ -25,8 +25,10 @@ abstract final class MobileGameplayTuning {
         angleMaxDeg: enemies.angleMaxDeg,
         speedMin: speed * (1 - source.mobileEnemies.speedVariation),
         speedMax: speed * (1 + source.mobileEnemies.speedVariation),
-        accelMin: acceleration * (1 - source.mobileEnemies.accelerationVariation),
-        accelMax: acceleration * (1 + source.mobileEnemies.accelerationVariation),
+        accelMin:
+            acceleration * (1 - source.mobileEnemies.accelerationVariation),
+        accelMax:
+            acceleration * (1 + source.mobileEnemies.accelerationVariation),
         collideWithEachOther: enemies.collideWithEachOther,
         spinDegPerSec: enemies.spinDegPerSec,
       ),
@@ -35,6 +37,7 @@ abstract final class MobileGameplayTuning {
       game: GameConfig.fromJson(game),
       audio: source.audio,
       mobileEnemies: source.mobileEnemies,
+      enemyPace: source.enemyPace,
     );
   }
 }

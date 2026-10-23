@@ -1,8 +1,10 @@
 import defaults from './core/defaults.json' with {type:'json'};
 import {averageDefaults,averageRules} from './average-config.mjs';
+import {enemyPaceDefaults,enemyPaceRanges,enemyPaceValid} from './enemy-pace-config.mjs';
 import {androidGeometryIssues} from './android-constraints.mjs';
 export const RC_KEY='android_config_v1';
 export const sections=[
+  ['enemyPace','Скорость и торможение','Новая модель Telegram: v(x)=начальная + множитель × ((x + сглаживание)^степень − компенсация). Общие настройки для будущего Google-клиента; прежние версии используют старую скорость.'],
   ['ranking','Рейтинг «Среднее»','История попыток, веса и допуск в рейтинг'],
   ['energy','Энергия','Стоимость попыток и усилений'],['bonus','Бонус','Размер бонуса, интервал получения и другие награды'],
   ['enemies','Враги','Движение, форма и столкновения'],['player','Игрок','Размер и внешний вид'],
@@ -11,6 +13,9 @@ export const sections=[
   ['technical','Служебные параметры','Справочные и фиксированные значения']
 ];
 const labels={
+  'enemyPace.brakeEnabled':'Кнопка торможения',
+  'enemyPace.speedBarEnabled':'Шкала скорости врагов',
+"enemyPace.initialSpeed":"Начальная скорость","enemyPace.growthMultiplier":"Множитель роста","enemyPace.growthExponent":"Степень роста","enemyPace.startSmoothingSec":"Сглаживание начала","enemyPace.initialCompensation":"Компенсация начального значения","enemyPace.brakeCooldownSec":"Перезарядка кнопки","enemyPace.brakeFirstReadySec":"Первая готовность кнопки","enemyPace.brakeRewindSec":"Отброс расчётного времени",
   'ranking.average.windowSize':'Попыток в расчёте среднего',
   'ranking.average.previousWeightPercent':'Вес предыдущей попытки',
   'ranking.average.minAttempts':'Минимум попыток для допуска',
@@ -48,6 +53,7 @@ const labels={
   'economy.interstitialCooldownSec':'Пауза между полноэкранными показами','economy.interstitialMinLives':'Порог для полноэкранной рекламы'
 };
 const rules={
+  ...Object.fromEntries(Object.entries(enemyPaceRanges).map(([k,v])=>['enemyPace.'+k,v])),
   'ranking.average.windowSize':[1,500,1,'попыток'],
   'ranking.average.previousWeightPercent':[50,100,0.1,'%'],
   'ranking.average.minAttempts':[1,10000,1,'попыток'],
@@ -81,6 +87,11 @@ function meta(path,value){
   const readOnly=!labels[path]||retired;const type=typeof value;
   let range=rules[path];if(!range&&type==='number')range=[path.startsWith('economy.')&&!path.includes('rewards')&&!path.includes('simpleBonus')?1:0,path.startsWith('economy.')?100000:1000000,1];
   let help=type==='boolean'?'Включите или выключите эту возможность.':range?`Допустимо от ${range[0]} до ${range[1]}${range[3]?' '+range[3]:''}.`:'Изменение применяется после публикации.';
+  if(path==='enemyPace.brakeEnabled')help='Включает центральную педаль и замедление врагов. Если выключено, педали и её эффектов нет, расчётное время и скорость продолжают расти по формуле. Шкала включается отдельно.';
+  if(path==='enemyPace.speedBarEnabled')help='Показывает шкалу скорости над полем. Не меняет скорость и работу педали торможения. При выключении место под шкалу не резервируется.';
+  if(path.startsWith('mobileEnemies.'))help+=' Эти параметры используются прежней моделью Android. Новая модель Telegram настраивается в разделе «Скорость и торможение».';
+  if(path==='enemyPace.initialSpeed')help+=' Это добавка к формуле; при 0 фактическая стартовая скорость может быть положительной.';
+  if(path==='enemyPace.brakeRewindSec')help+=' Откатывает только расчётное время роста скорости, минимум до 0. Секундомер партии продолжает идти.';
   if(path==='ranking.average.windowSize')help='Число последних подходящих попыток. При изменении сервер пересчитывает рейтинг по сохранённой истории.';
   if(path==='ranking.average.previousWeightPercent')help='Вес предыдущей относительно следующей: 92% означает веса 1, 0,92, 0,8464… Новые попытки влияют сильнее; 100% — обычное среднее.';
   if(path==='ranking.average.minAttempts')help='Допуск после этого числа подтверждённых попыток дольше порога. До допуска игрок видит предварительное среднее и прогресс.';
@@ -104,10 +115,11 @@ function meta(path,value){
 const leaves=[];
 function walk(value,path=''){if(value&&typeof value==='object')for(const [key,item]of Object.entries(value))walk(item,path?`${path}.${key}`:key);else leaves.push(meta(path,value));}
 walk(defaults.config);
+if(!defaults.config.enemyPace)walk({enemyPace:enemyPaceDefaults});
 if(!defaults.config.ranking?.average)walk({ranking:{average:averageDefaults}});
 export const fields=Object.freeze(leaves);
 export const defaultsSnapshot=defaults;
-export const getValue=(object,path)=>path.split('.').reduce((value,key)=>value?.[key],object)??(path.startsWith('ranking.average.')?averageDefaults[path.split('.').at(-1)]:undefined);
+export const getValue=(object,path)=>path.split('.').reduce((value,key)=>value?.[key],object)??(path.startsWith('ranking.average.')?averageDefaults[path.split('.').at(-1)]:path.startsWith('enemyPace.')?enemyPaceDefaults[path.split('.').at(-1)]:undefined);
 export function setValue(object,path,value){const parts=path.split('.');let target=object;for(const part of parts.slice(0,-1))target=target[part]??={};target[parts.at(-1)]=value;}
 export class ConfigInputError extends Error{constructor(code,details=[]){super(code);this.code=code;this.status=400;this.details=details;}}
 export function validateField(field,value){
@@ -125,6 +137,8 @@ export function applyChanges(snapshot,patches){
   for(const patch of patches){const field=fields.find(f=>f.path===patch?.path);if(!field||seen.has(patch.path)){errors.push({path:patch?.path,error:'Неизвестное или повторяющееся поле'});continue;}seen.add(patch.path);
     const error=validateField(field,patch.value);if(error)errors.push({path:patch.path,error});else setValue(config,patch.path,patch.value);
   }
+  if(config.enemyPace||patches.some(p=>p.path.startsWith('enemyPace.')))config.enemyPace={...enemyPaceDefaults,...config.enemyPace};
+  if(!enemyPaceValid(config))errors.push({path:'enemyPace',error:'Недопустимые параметры скорости и торможения'});
   if(config.enemies.angleMaxDeg<config.enemies.angleMinDeg)errors.push({path:'enemies.angleMaxDeg',error:'Максимальный угол должен быть не меньше минимального'});
   try{averageRules(config);}catch{errors.push({path:'ranking.average',error:'Недопустимые параметры среднего'});}
   errors.push(...androidGeometryIssues(config));

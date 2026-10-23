@@ -1,0 +1,238 @@
+{
+  "isolated": true,
+  "realAccountUsed": false,
+  "checks": [
+    {
+      "case": {
+        "brake": true,
+        "meter": true
+      },
+      "state": {
+        "isolated": true,
+        "errors": [],
+        "playing": true,
+        "brake": {
+          "enabled": true,
+          "speedBarEnabled": true,
+          "effectiveSec": 0.11876099999997923,
+          "speed": 25.450824645946398,
+          "targetSpeed": 17.880892517860346,
+          "charge": 0.019397833333333114,
+          "ready": false,
+          "presses": 1,
+          "pressAgeMs": 116.3869999999987,
+          "readyAgeMs": -1,
+          "beforeSpeed": 38.63492036278562,
+          "afterSpeed": 17.21496244450695
+        },
+        "meterPresent": true,
+        "field": {
+          "x": 13.980582524271844,
+          "y": 137.09708737864077,
+          "w": 380.0,
+          "h": 379.99999999999994
+        },
+        "dpr": 3.0,
+        "player": {
+          "x": 168.4,
+          "y": 168.4,
+          "size": 43.199999999999996
+        }
+      },
+      "frames": 371,
+      "buildP95Us": 6115,
+      "rasterP95Us": 17852
+    },
+    {
+      "case": {
+        "brake": true,
+        "meter": false
+      },
+      "state": {
+        "isolated": true,
+        "errors": [],
+        "playing": true,
+        "brake": {
+          "enabled": true,
+          "speedBarEnabled": false,
+          "effectiveSec": 0.03601299999998064,
+          "speed": 34.87119981993285,
+          "targetSpeed": 17.40952604256902,
+          "charge": 0.005542333333333242,
+          "ready": false,
+          "presses": 1,
+          "pressAgeMs": 33.25399999999945,
+          "readyAgeMs": -1,
+          "beforeSpeed": 38.63584953388837,
+          "afterSpeed": 17.217199077143537
+        },
+        "meterPresent": false,
+        "field": {
+          "x": 13.980582524271844,
+          "y": 124.86407766990291,
+          "w": 380.0,
+          "h": 380.0
+        },
+        "dpr": 3.0,
+        "player": {
+          "x": 168.4,
+          "y": 168.4,
+          "size": 43.199999999999996
+        }
+      },
+      "frames": 368,
+      "buildP95Us": 6339,
+      "rasterP95Us": 17594
+    },
+    {
+      "case": {
+        "brake": false,
+        "meter": true
+      },
+      "state": {
+        "isolated": true,
+        "errors": [],
+        "playing": true,
+        "brake": {
+          "enabled": false,
+          "speedBarEnabled": true,
+          "effectiveSec": 6.5013269999999705,
+          "speed": 39.81328743690494,
+          "targetSpeed": 39.81328743690494,
+          "charge": 0.0,
+          "ready": false,
+          "presses": 0,
+          "pressAgeMs": -1,
+          "readyAgeMs": -1,
+          "beforeSpeed": 0.0,
+          "afterSpeed": 0.0
+        },
+        "meterPresent": true,
+        "field": {
+          "x": 13.980582524271844,
+          "y": 137.09708737864077,
+          "w": 380.0,
+          "h": 379.99999999999994
+        },
+        "dpr": 3.0,
+        "player": {
+          "x": 168.4,
+          "y": 168.4,
+          "size": 43.199999999999996
+        }
+      },
+      "frames": 427,
+      "buildP95Us": 7181,
+      "rasterP95Us": 17826
+    },
+    {
+      "case": {
+        "brake": false,
+        "meter": false
+      },
+      "state": {
+        "isolated": true,
+        "errors": [],
+        "playing": true,
+        "brake": {
+          "enabled": false,
+          "speedBarEnabled": false,
+          "effectiveSec": 6.53460299999997,
+          "speed": 39.890098572706,
+          "targetSpeed": 39.890098572706,
+          "charge": 0.0,
+          "ready": false,
+          "presses": 0,
+          "pressAgeMs": -1,
+          "readyAgeMs": -1,
+          "beforeSpeed": 0.0,
+          "afterSpeed": 0.0
+        },
+        "meterPresent": false,
+        "field": {
+          "x": 13.980582524271844,
+          "y": 124.86407766990291,
+          "w": 380.0,
+          "h": 380.0
+        },
+        "dpr": 3.0,
+        "player": {
+          "x": 168.4,
+          "y": 168.4,
+          "size": 43.199999999999996
+        }
+      },
+      "frames": 486,
+      "buildP95Us": 6243,
+      "rasterP95Us": 17107
+    },
+    {
+      "case": "real-swipe-from-ready-to-brake",
+      "before": {
+        "isolated": true,
+        "errors": [],
+        "playing": true,
+        "brake": {
+          "enabled": true,
+          "speedBarEnabled": true,
+          "effectiveSec": 6.069011999999973,
+          "speed": 38.79527526220359,
+          "targetSpeed": 38.79527526220359,
+          "charge": 1.0,
+          "ready": true,
+          "presses": 0,
+          "pressAgeMs": -1,
+          "readyAgeMs": 69.0119999999732,
+          "beforeSpeed": 0.0,
+          "afterSpeed": 0.0
+        },
+        "meterPresent": true,
+        "field": {
+          "x": 13.980582524271844,
+          "y": 137.09708737864077,
+          "w": 380.0,
+          "h": 379.99999999999994
+        },
+        "dpr": 3.0,
+        "player": {
+          "x": 275.2148148148148,
+          "y": 275.2148148148148,
+          "size": 43.199999999999996
+        }
+      },
+      "after": {
+        "isolated": true,
+        "errors": [],
+        "playing": true,
+        "brake": {
+          "enabled": true,
+          "speedBarEnabled": true,
+          "effectiveSec": 2.529864999999951,
+          "speed": 28.546441329004665,
+          "targetSpeed": 28.546441329004665,
+          "charge": 0.03325483333333364,
+          "ready": false,
+          "presses": 1,
+          "pressAgeMs": 199.52900000000184,
+          "readyAgeMs": -1,
+          "beforeSpeed": 43.748740827975425,
+          "afterSpeed": 27.824797411578075
+        },
+        "meterPresent": true,
+        "field": {
+          "x": 13.980582524271844,
+          "y": 137.09708737864077,
+          "w": 380.0,
+          "h": 379.99999999999994
+        },
+        "dpr": 3.0,
+        "player": {
+          "x": 168.4,
+          "y": 168.4,
+          "size": 43.199999999999996
+        }
+      }
+    }
+  ],
+  "passed": true
+}

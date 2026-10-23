@@ -289,12 +289,14 @@ class ScoresStore extends ChangeNotifier {
     required bool jump,
     required int cost,
     String? preparedKey,
+    int proofVersion = 1,
   }) => _historyWritable
       ? _instant?.begin(
           helmet: helmet,
           jump: jump,
           cost: cost,
           preparedKey: preparedKey,
+          proofVersion: proofVersion,
         )
       : null;
   Map<String, dynamic> _attemptResult(LocalAttempt a) => {

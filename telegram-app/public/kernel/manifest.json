@@ -1,0 +1,25 @@
+{
+  "baselineId": "android-188-20261020",
+  "generatedSha256": "27156956e703009e18d1dd96f8260ffb90b4dc6c453ab8686def185cbb38cf49",
+  "bytes": 118655,
+  "method": "actual Dart GameWorld + MobileGameplayTuning, incremental browser adapter; rendering replaced",
+  "adapterSha256": "9cff20d7f9e98860cd834600628333d725e48d967d56429b5d5729d02a2467ec",
+  "extendedWorldSha256": "2609b954bb634425ef250df6b1ba7df87ccfb2bfa85cbdb8096e332628e79206",
+  "paceOverrideSha256": "f1ef8239f57ccab430a69323d693fdfe5742cb8bb2f52610f47bf3cb7e9cc2a6",
+  "paceModelSha256": "31ae1e4ef2c15706ce5f547f30568c11bcc567b20c1fe5631aa2497530b23ffc",
+  "serverGeneratedSha256": "aab71fc0ae660072b42c84883fa43cd286b23feda053f213ca57448e4b4e0349",
+  "gameplayOverrides": [
+    {
+      "id": "jump-cooldown-zero-v1",
+      "file": "telegram-app/tools/kernel/jump-cooldown-zero-v1.json",
+      "sha256": "d47a1797232e7db949202742a60d22ae91a25ed9dcfb9042744dc7c2a2f38d92",
+      "worldSha256": "f7513a283406de18c1e440a3e875c33754f5ba9ce6363ac041c1776e80e71bb1"
+    }
+  ],
+  "adapterInputs": {
+    "build_kernel.py": "e589df03691dcfd36b5be36b87f5f230cec48cdba14fb71c2ea5e0dc7b44475f",
+    "kernel/main.dart": "5d1e05916fa3617f200e09eeab7904f02c83330ee4ba2083f74638b2c7ea2062",
+    "kernel/session.dart": "9cff20d7f9e98860cd834600628333d725e48d967d56429b5d5729d02a2467ec",
+    "kernel/jump-cooldown-zero-v1.json": "d47a1797232e7db949202742a60d22ae91a25ed9dcfb9042744dc7c2a2f38d92"
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "previewPackage": "com.best4u.untouch.uiprobe.brake",
+  "applicationLabel": "Untouch · Тормоз",
+  "normalDifficulty": true,
+  "isolatedWallet": true,
+  "errors": [],
+  "afterStart": {
+    "isolated": true,
+    "errors": [],
+    "playing": false,
+    "brake": {
+      "enabled": true,
+      "speedBarEnabled": true,
+      "effectiveSec": 1.5131300000000008,
+      "speed": 24.622323618196333,
+      "targetSpeed": 24.622323618196333,
+      "charge": 0.25218833333333346,
+      "ready": false,
+      "presses": 0,
+      "pressAgeMs": -1,
+      "readyAgeMs": -1,
+      "beforeSpeed": 0.0,
+      "afterSpeed": 0.0
+    },
+    "meterPresent": true,
+    "field": {
+      "x": 13.980582524271844,
+      "y": 137.09708737864077,
+      "w": 380.0,
+      "h": 379.99999999999994
+    },
+    "dpr": 3.0,
+    "player": {
+      "x": 168.4,
+      "y": 168.4,
+      "size": 43.199999999999996
+    }
+  },
+  "mainVersionCode": 195,
+  "mainUpdated": false
+}

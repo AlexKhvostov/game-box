@@ -6,6 +6,8 @@ import '../../ui/hero_face.dart';
 import 'game_world.dart';
 import 'impact_burst.dart';
 import 'jump_glow.dart';
+import '../../domain/enemy_pace.dart';
+import 'brake_field_effects.dart';
 
 abstract final class GameFieldColors {
   static const floor = Color(0xFF08253B);
@@ -30,6 +32,9 @@ class GameFieldPainter extends CustomPainter {
     this.borderWidth = 3,
     this.cornerRadius = 18,
     this.frame = 0,
+    this.enemyPace,
+    this.roundPlaying,
+    this.reducedMotion = false,
     this.playerPreview = false,
     this.impacts = const [],
     this.hasHelmet = false,
@@ -75,6 +80,9 @@ class GameFieldPainter extends CustomPainter {
   final _enemyFills = <Size, Paint>{};
 
   final GameWorld world;
+  final EnemyPace? enemyPace;
+  final bool Function()? roundPlaying;
+  final bool reducedMotion;
   final Color accent;
   final Color danger;
   final Color fieldColor;
@@ -143,6 +151,13 @@ class GameFieldPainter extends CustomPainter {
       _surface.paint(canvas, size);
     }
 
+    paintBrakeField(
+      canvas,
+      enemyPace,
+      world.playerSize,
+      playing: roundPlaying?.call() ?? false,
+      reduced: reducedMotion,
+    );
     // Слой «пола»: только тень по форме объекта (без овала).
     const light = Offset(5.5, 7.0);
     final enemyShadowPaint = Paint()
@@ -211,6 +226,16 @@ class GameFieldPainter extends CustomPainter {
       if (collideFrame) {
         _paintEnemy(canvas, e, collideStroke, inflate: 1.2);
       }
+    }
+
+    for (final enemy in world.enemies) {
+      paintBrakeEnemyHit(
+        canvas,
+        enemyPace,
+        enemy,
+        playing: roundPlaying?.call() ?? false,
+        reduced: reducedMotion,
+      );
     }
 
     // В прыжке тень игрока падает на мобов
@@ -429,7 +454,10 @@ class GameFieldPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant GameFieldPainter oldDelegate) {
-    return oldDelegate.frame != frame ||
+    return oldDelegate.enemyPace != enemyPace ||
+        oldDelegate.reducedMotion != reducedMotion ||
+        oldDelegate.roundPlaying != roundPlaying ||
+        oldDelegate.frame != frame ||
         oldDelegate.world != world ||
         oldDelegate.accent != accent ||
         oldDelegate.danger != danger ||
