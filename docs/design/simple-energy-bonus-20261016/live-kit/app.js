@@ -1,3 +1,4 @@
+import {brakeKitPage,mountBrakeKitPage} from './brake-kit.js?v=2';
 import {averageChartPage,averageChartCard,selectAverageChart,addAverageChartButtons} from './average-chart.js?v=rms-live-1';
 import {connectRankingKit,openRankingDestination,rankingPage,rankingSheet,rankingMineSheet,rankingDetail,rankingResultPage,handleRankingAction} from "./ranking-kit.js?v=account-stat-navigation-12";
 import {hudHeaderPage,paintHudBonus} from "./hud-header.js?v=1";
@@ -88,15 +89,23 @@ function foundations() {
     '<div class="foundation-grid"><section class="foundation-card"><h2>Цвет имеет смысл</h2>'+
       [["#28d9ff","Интерактивный голубой","Кнопки, контуры, управление"],["#f9f45e","Энергия","Баланс, награда, цена в энергии"],["#061b2d","Тёмное стекло","Панели и модальные окна"],["#91a9bf","Вторичный текст","Условия и пояснения"]].map(([hex,title,note])=>'<div class="swatch"><i style="--swatch:'+hex+'"></i><span>'+title+'<small>'+hex+' · '+note+'</small></span></div>').join("")+'</section><section class="foundation-card"><h2>Свет и иерархия</h2><p>Тонкий светящийся контур, глубокая синяя заливка, мягкий внутренний свет. Свечение локальное: оно не заливает весь экран.<br><br>Баланс — цифра и молния без рамки внутри окна. Золотой круг обозначает готовую награду. Обычная информация не получает кнопку и объёмную подложку.</p><div style="margin-top:24px">'+balance(1500)+'</div><button class="neon-btn primary" data-action="open-energy" style="margin-top:25px">Действие</button></section><section class="foundation-card"><h2>Состояния и доступность</h2><p>Готово: тёплое свечение и «Забрать».<br><br>Откат: холодный приглушённый круг, крупный таймер, недоступное нажатие. Радиальный сектор отступает по часовой стрелке от 12 часов.<br><br>Фокус с клавиатуры виден; Escape закрывает окно; переключатели работают с клавиатуры. При сниженной анимации в системе пульсация отключена.</p></section></div>';
 }
+let disposeBrakeKit = null;
 function render() {
+  document.body.dataset.kitView=view;
+  disposeBrakeKit?.();disposeBrakeKit=null;
   const scroll=window.scrollY;
   const rankPositions=new Map([...workspace.querySelectorAll(".rank-list")].map(el=>[el.dataset.rankingKey,el.scrollTop]));
   const listPositions=[...workspace.querySelectorAll(".friend-list")].map(el=>el.scrollTop);
-  workspace.innerHTML=view==="average-chart"?averageChartPage():view==="rewarded-guide"?section("E03","Энергия за рекламу","Согласованный эскиз · два шага ожидания и бонус после закрытия")+'<div class="rewarded-guide-showcase"><div class="phone">'+videoSheet(state)+'</div></div>':view==="bonus-motion"?bonusMotionPage(state,{slow:receiptSlow,reduce:receiptReduce}):view==="library"?library():view==="scenario"?scenario():view==="references"?referencePage():view==="account"?accountPage():view==="abilities"?abilitiesPage():view==="ranking"?rankingPage():view==="result"?rankingResultPage():view==="hud"?hudHeaderPage(state,home(state)):foundations();
+  workspace.innerHTML=view==="brake"?brakeKitPage():view==="average-chart"?averageChartPage():view==="rewarded-guide"?section("E03","Энергия за рекламу","Согласованный эскиз · два шага ожидания и бонус после закрытия")+'<div class="rewarded-guide-showcase"><div class="phone">'+videoSheet(state)+'</div></div>':view==="bonus-motion"?bonusMotionPage(state,{slow:receiptSlow,reduce:receiptReduce}):view==="library"?library():view==="scenario"?scenario():view==="references"?referencePage():view==="account"?accountPage():view==="abilities"?abilitiesPage():view==="ranking"?rankingPage():view==="result"?rankingResultPage():view==="hud"?hudHeaderPage(state,home(state)):foundations();
+  if(view==='brake')disposeBrakeKit=mountBrakeKitPage(workspace);
   addAverageChartButtons(workspace);
-  document.querySelector(".lab").hidden=["references","account","ranking","result","average-chart"].includes(view);
+  document.querySelector(".lab").hidden=["references","account","ranking","result","average-chart","brake"].includes(view);
   document.querySelector(".intro h1").innerHTML=view==="account"?'Аккаунт. <span>Компактный неон.</span>':view==="hud"?'Главный экран. <span>Неоновая шапка.</span>':view==="result"?'Результат игрока. <span>Компактные подробности.</span>':introDefaults.title;
   document.querySelector(".intro-copy").innerHTML=view==="account"?'Все текущие функции аккаунта — в компактных игровых окнах.<br>Нажимайте на элементы и проверяйте переходы.':view==="hud"?'Баланс, рейтинг и аккаунт — живые компоненты по последнему эскизу.<br>Кольцо плюса повторяет готовность бонуса из окна энергии.':view==="result"?'Подробности выбранной попытки в едином стиле с рейтингом.<br>Проверьте показатели, усиления и пояснения по нажатию.':introDefaults.copy;
+  if(view==='brake'){
+    document.querySelector('.intro h1').innerHTML='Торможение. <span>Улитка и скорость.</span>';
+    document.querySelector('.intro-copy').innerHTML='Зарядка фона по часовой стрелке и короткий отклик на нажатие.<br>Светло-красная скорость, зелёный сбрасываемый участок.';
+  }
   if(view==='average-chart'){
     document.querySelector('.intro h1').innerHTML='Два графика. <span>Сравнение средних.</span>';
     document.querySelector('.intro-copy').innerHTML='Утверждённое квадратичное и прежнее среднее на тех же 100 попытках.<br>В обоих расчётах — окно 50 и одинаковые веса по давности.';
@@ -301,8 +310,8 @@ document.addEventListener("keydown",e=>{
     else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
   }
 });
-window.addEventListener("hashchange",()=>{const requested=location.hash.slice(1);if(["bonus-motion","library","scenario","foundations","references","account","abilities","ranking","hud","result","rewarded-guide","average-chart"].includes(requested)){cancelReceipt();view=requested;refresh();}});
-if(["bonus-motion","library","scenario","foundations","references","account","abilities","ranking","hud","result","rewarded-guide","average-chart"].includes(location.hash.slice(1)))view=location.hash.slice(1);
+window.addEventListener("hashchange",()=>{const requested=location.hash.slice(1);if(["brake","bonus-motion","library","scenario","foundations","references","account","abilities","ranking","hud","result","rewarded-guide","average-chart"].includes(requested)){cancelReceipt();view=requested;refresh();}});
+if(["brake","bonus-motion","library","scenario","foundations","references","account","abilities","ranking","hud","result","rewarded-guide","average-chart"].includes(location.hash.slice(1)))view=location.hash.slice(1);
 setInterval(()=>{
   if(adSession){
     const remaining=Math.max(0,Math.ceil((adSession.ends-Date.now())/1000));
