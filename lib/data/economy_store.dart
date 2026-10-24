@@ -658,6 +658,9 @@ class EconomyStore extends ChangeNotifier {
 
   Future<void> _persistJob = Future.value();
 
+  /// Commit the latest snapshot before a user-approved application restart.
+  Future<void> prepareForAppRestart() => _persist();
+
   Future<void> _persist() {
     final values = <String, Object?>{
       // A parsed snapshot awaiting credential verification must survive a

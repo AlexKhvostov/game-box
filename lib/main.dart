@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app/app.dart';
 import 'app/android_audience_startup.dart';
@@ -25,6 +26,7 @@ import 'data/scores_store.dart';
 import 'data/mobile_account.dart';
 import 'data/mobile_invites.dart';
 import 'data/android_invite_source.dart';
+import 'data/android_updates.dart';
 import 'data/mobile_connection.dart';
 import 'data/mobile_wallet_bridge.dart';
 import 'data/play_billing_service.dart';
@@ -164,6 +166,9 @@ Future<Widget> _createGame(AudiencePolicy audience) async {
     startupResolved: preferences.googleStartupSeen,
   );
 
+  final updatePreferences = useSupabase
+      ? await SharedPreferences.getInstance()
+      : null;
   return MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (_) => economy),
@@ -211,6 +216,18 @@ Future<Widget> _createGame(AudiencePolicy audience) async {
         dispose: (_, connection) => connection.dispose(),
       ),
       ChangeNotifierProvider(create: (_) => billing),
+      if (useSupabase)
+        ChangeNotifierProvider(
+          lazy: false,
+          create: (_) => AndroidUpdates(
+            source: const NativePlayUpdateSource(),
+            preferences: updatePreferences!,
+            prepareForRestart: () async {
+              await scores.prepareForAppRestart();
+              await economy.prepareForAppRestart();
+            },
+          )..start(),
+        ),
       ChangeNotifierProvider(
         create: (_) =>
             AdsService(YandexAdsDriver(audience: audience), audience: audience),

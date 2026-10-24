@@ -97,4 +97,5 @@ flutter {
 
 dependencies {
     implementation("com.android.installreferrer:installreferrer:2.2")
+    implementation("com.google.android.play:app-update:2.1.0")
 }

@@ -10,6 +10,7 @@ import io.flutter.embedding.engine.FlutterShellArgs
 
 class MainActivity : FlutterActivity() {
     private var invites: AndroidInvites? = null
+    private var updates: AndroidUpdates? = null
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
@@ -18,6 +19,8 @@ class MainActivity : FlutterActivity() {
     }
 
     override fun cleanUpFlutterEngine(flutterEngine: FlutterEngine) {
+        updates?.dispose()
+        updates = null
         invites?.dispose()
         invites = null
         super.cleanUpFlutterEngine(flutterEngine)
@@ -37,6 +40,7 @@ class MainActivity : FlutterActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        updates = AndroidUpdates(this, flutterEngine.dartExecutor.binaryMessenger)
         invites = AndroidInvites(this, MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "untouch/invites"))
         invites?.capture(intent?.dataString)
         // Only fixed public destinations; account credentials never enter a URL.

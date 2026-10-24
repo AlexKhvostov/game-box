@@ -231,6 +231,8 @@ class InstantRoundJournal {
     }, notify: notify);
   }
 
+  Future<void> prepareForAppRestart() => _save();
+
   Future<void> _save() {
     final owner = _owner;
     if (owner == null || _prefs == null) return Future.value();

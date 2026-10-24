@@ -1,0 +1,15 @@
+{
+  "checks": [
+    "Native Play channel compiled/responds; USB-installed QA correctly unsupported",
+    "Offer Later preserves play and manual download action",
+    "Downloaded event does not interrupt actual game/result or show a banner",
+    "Production result remains unobscured and attempt is recorded",
+    "Ready Later survives background/foreground; no automatic restart",
+    "Explicit restart waits for saved attempt; synthetic installer failure is recoverable",
+    "Main installation version preserved; both games stopped; ADB forward removed"
+  ],
+  "mainVersionBefore": 196,
+  "mainVersionAfter": 196,
+  "screenStayOn": "2",
+  "limitation": "Physical production UI, synthetic Play state. No real download or installation from Google Play."
+}

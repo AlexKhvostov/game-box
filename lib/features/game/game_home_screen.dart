@@ -20,6 +20,9 @@ import '../profile/profile_screen.dart';
 import 'arcade_hud.dart';
 import '../../data/scores_store.dart';
 import '../../data/android_config_session.dart';
+import '../../data/android_updates.dart';
+import '../../data/mobile_invites.dart';
+import '../../ui/android_update_host.dart';
 import '../../data/mobile_account.dart';
 import '../../domain/gameplay_config.dart';
 import '../../domain/enemy_pace.dart';
@@ -1356,7 +1359,7 @@ class _GameHomeScreenState extends State<GameHomeScreen>
               ? GameFieldColors.wall
               : theme.colorScheme.primary);
 
-    return EnergyRewardMotion(
+    final screen = EnergyRewardMotion(
       economy: AppTargetConfig.isMobile ? economy : null,
       owner: economy.energyOwner,
       child: Scaffold(
@@ -1790,6 +1793,15 @@ class _GameHomeScreenState extends State<GameHomeScreen>
           },
         ),
       ),
+    );
+    return AndroidUpdateHost(
+      controller: context.read<AndroidUpdates?>(),
+      safeToInterrupt:
+          _phase == _Phase.idle &&
+          !_startingRound &&
+          !_backgrounded &&
+          (context.watch<MobileInvites?>()?.startupResolved ?? true),
+      child: screen,
     );
   }
 }

@@ -338,6 +338,18 @@ class ScoresStore extends ChangeNotifier {
   Future<void> _delivery = Future.value();
   Future<void> _localWrites = Future.value();
   Future<void>? _recording;
+
+  /// Await durable local history/outbox, not a potentially offline server.
+  Future<void> prepareForAppRestart() async {
+    await _recording;
+    await _localWrites;
+    if (!_historyWritable) throw StateError('round_storage_failed');
+    // Recommit the latest in-memory data: the normal write queue intentionally
+    // absorbs old errors to remain usable, which is not sufficient for restart.
+    await _persistAttempts();
+    await _instant?.prepareForAppRestart();
+  }
+
   final List<Map<String, dynamic>> _outbox = [];
   Timer? _retryTimer;
   int _retrySeconds = 1;

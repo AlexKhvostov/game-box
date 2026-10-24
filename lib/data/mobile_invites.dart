@@ -196,9 +196,12 @@ class MobileInvites extends ChangeNotifier with WidgetsBindingObserver {
     unawaited(refresh());
   }
 
+  bool get startupResolved => _startupResolved;
+
   void markStartupResolved() {
     if (_startupResolved || _disposed) return;
     _startupResolved = true;
+    notifyListeners();
     unawaited(refresh());
   }
 
