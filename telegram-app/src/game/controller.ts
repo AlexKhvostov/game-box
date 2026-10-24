@@ -36,7 +36,7 @@ export class GameController {
     applyPendingConfig();
     if (!state.config) return;
     this.boundConfig = state.config;
-    this.requestId = operationId(); this.snapshot = kernel({ op: 'create', config: this.boundConfig.config, requestId: this.requestId, hadHelmet: state.helmet, hadJump: state.jump });
+    this.requestId = operationId(); this.snapshot = kernel({ op: 'create', proofVersion: 2, config: this.boundConfig.config, requestId: this.requestId, hadHelmet: state.helmet, hadJump: state.jump });
     this.impacts=[];this.painter.configure(this.boundConfig.config); world.value = this.snapshot; this.reanchor();
     this.draw();
   }

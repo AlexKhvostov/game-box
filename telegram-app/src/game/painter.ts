@@ -1,3 +1,4 @@
+import {paintBrake,paintBrakeHit} from './brake';
 import type {ImpactBurst} from './impact';
 import type { Body, WorldState } from '../domain/kernel';
 import {motionProbe} from './motion-probe';
@@ -18,6 +19,7 @@ function enemy(c: CanvasRenderingContext2D, e: Body, fill: string | CanvasGradie
 export class FieldPainter {
   private c: CanvasRenderingContext2D;
   private background: HTMLCanvasElement;
+  private reduced=matchMedia('(prefers-reduced-motion: reduce)');
   private jumpGlow: JumpGlowDrawer;
   constructor(private canvas: HTMLCanvasElement) {
     this.c = canvas.getContext('2d', { alpha: false })!;
@@ -42,6 +44,7 @@ export class FieldPainter {
     const pixels = Math.max(1, Math.round(side * dpr)); if (this.canvas.width !== pixels) { this.canvas.width = pixels; this.canvas.height = pixels; }
     const t1=t0?motionProbe.clock():0;
     c.setTransform(pixels / 380, 0, 0, pixels / 380, 0, 0); c.drawImage(this.background, 0, 0, 380, 380);c.save();rounded(c,0,0,380,380,config.field.cornerRadius);c.clip();
+    paintBrake(c,s,this.reduced.matches);
     const t2=t0?motionProbe.clock():0;
     const brightness = Math.max(.4, Math.min(2.5, config.field.shadowBrightness ?? 1));
     for (const e of s.enemies) enemy(c, e, `rgba(0,0,0,${Math.min(.85, .42 / brightness)})`, 5.5);
@@ -56,6 +59,7 @@ export class FieldPainter {
       rounded(c, -e.w / 2, -e.h / 2, e.w, e.h, 3); c.fillStyle = fill; c.fill(); c.strokeStyle = '#FFC8B9b3'; c.lineWidth = 1; c.stroke();
       if (config.enemies.collideWithEachOther) { rounded(c, -e.w / 2 - 1.2, -e.h / 2 - 1.2, e.w + 2.4, e.h + 2.4, 4.2); c.strokeStyle = '#ffffffd1'; c.lineWidth = 2; c.stroke(); } c.restore();
     }
+    for(const e of s.enemies)paintBrakeHit(c,s,e,this.reduced.matches);
     const t3=t0?motionProbe.clock():0;
     if (p.jumpLift > .02) shadow();
     c.save(); c.globalAlpha = s.invulnerable ? .22 + .78 * (Math.sin(frame * 1.35) + 1) / 2 : 1;

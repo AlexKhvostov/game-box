@@ -6,6 +6,7 @@ import { loadKernel } from '../domain/kernel';
 import { viewportGeometry, textScale } from '../domain/viewport';
 import { GameController } from '../game/controller';
 import { setupTelegram, telegram, safeInsets } from '../platform/telegram';
+import EnemySpeed from '../components/EnemySpeed.vue';
 import GameHud from '../components/GameHud.vue';
 import TouchpadFloor from '../components/TouchpadFloor.vue';
 import EnergyWindow from '../features/EnergyWindow.vue';
@@ -72,6 +73,7 @@ onBeforeUnmount(() => { controller?.dispose(); disposeAudio?.(); adPresenter.des
       <TouchpadFloor :height="geometry.logicalHeight - geometry.hudHeight / geometry.scale - 133 - 16" />
       <div class="gameplay-layer" :inert="state.screen || !state.initialized || !resourcesReady ? true : undefined" :aria-hidden="state.screen || !state.initialized || !resourcesReady ? true : undefined">
       <GameHud />
+      <EnemySpeed />
       <div ref="touchpad" class="touchpad" :aria-label="t('Игровое поле. Перемещайте палец; второй палец — прыжок.','Game field. Move your finger; a second finger jumps.')">
         <canvas ref="canvas" class="game-field" width="760" height="760" :aria-label="t('Поле Untouch','Untouch field')"></canvas>
         <div v-if="!world?.playing && !world?.dead" class="start-caption"><strong><img src="/assets/branding/ui/hero-ready-v1.png" alt="">Untouch</strong><p class="attempt-caption"><template v-if="state.initialized">{{t('Попытка:','Run:')}} <EnergyAmount :amount="attemptCost"/> · {{t('коснитесь поля','touch the field')}}</template><template v-else>{{t('Подключение…','Connecting…')}}</template></p><small>{{ t('Двигайте палец, чтобы уклоняться','Move your finger to dodge') }}</small></div>

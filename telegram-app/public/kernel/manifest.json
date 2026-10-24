@@ -1,9 +1,13 @@
 {
   "baselineId": "android-188-20261020",
-  "generatedSha256": "90d780bbbda4f46e09ee99452995dcd0e6a57105d3be8807ba366e168b96f30b",
-  "bytes": 113269,
+  "generatedSha256": "27156956e703009e18d1dd96f8260ffb90b4dc6c453ab8686def185cbb38cf49",
+  "bytes": 118655,
   "method": "actual Dart GameWorld + MobileGameplayTuning, incremental browser adapter; rendering replaced",
-  "adapterSha256": "dc3b857ed698e2d4f4a5c279d69a04a02c9d5f79cef76dca9b56fcf8cfee24ff",
+  "adapterSha256": "9cff20d7f9e98860cd834600628333d725e48d967d56429b5d5729d02a2467ec",
+  "extendedWorldSha256": "2609b954bb634425ef250df6b1ba7df87ccfb2bfa85cbdb8096e332628e79206",
+  "paceOverrideSha256": "f1ef8239f57ccab430a69323d693fdfe5742cb8bb2f52610f47bf3cb7e9cc2a6",
+  "paceModelSha256": "31ae1e4ef2c15706ce5f547f30568c11bcc567b20c1fe5631aa2497530b23ffc",
+  "serverGeneratedSha256": "aab71fc0ae660072b42c84883fa43cd286b23feda053f213ca57448e4b4e0349",
   "gameplayOverrides": [
     {
       "id": "jump-cooldown-zero-v1",
@@ -13,9 +17,9 @@
     }
   ],
   "adapterInputs": {
-    "build_kernel.py": "a8315e1fcabe23e1398ddc0319d7734fdf0637a1b0d095845a57504de4bc9a34",
-    "kernel/main.dart": "3bf36404fe203ed4b7406ce1976465e50a8721f2079bdb3eb173830c4a0bb0e4",
-    "kernel/session.dart": "dc3b857ed698e2d4f4a5c279d69a04a02c9d5f79cef76dca9b56fcf8cfee24ff",
+    "build_kernel.py": "e589df03691dcfd36b5be36b87f5f230cec48cdba14fb71c2ea5e0dc7b44475f",
+    "kernel/main.dart": "5d1e05916fa3617f200e09eeab7904f02c83330ee4ba2083f74638b2c7ea2062",
+    "kernel/session.dart": "9cff20d7f9e98860cd834600628333d725e48d967d56429b5d5729d02a2467ec",
     "kernel/jump-cooldown-zero-v1.json": "d47a1797232e7db949202742a60d22ae91a25ed9dcfb9042744dc7c2a2f38d92"
   }
 }

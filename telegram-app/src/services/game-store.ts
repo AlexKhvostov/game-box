@@ -160,7 +160,7 @@ export function selectAbility(key: 'helmet' | 'jump', value: boolean) { storage.
 export function prepareAttempt(id: string) {
   if (failedFinish.value) throw new Error('storage_unavailable');
   if (!journal || !state.config || !state.profile) throw new Error('profile_unavailable');
-  const entry = journal.prepare(id, state.config, state.helmet, state.jump, state.profile.wallet.energy, now(), state.profile.wallet.bestTimeMs,state.profile.walletVersion); history();
+  const entry = journal.prepare(id, state.config, state.helmet, state.jump, state.profile.wallet.energy, now(), state.profile.wallet.bestTimeMs,state.profile.walletVersion,2); history();
   void flush(); return entry;
 }
 export function finishAttempt(id: string, s: WorldState, proof: RoundProof) {
@@ -215,7 +215,7 @@ export async function flush() {
       if (disposed || epoch !== generation || owner !== state.profile?.id) return;
       try {
         if (entry.phase === 'prepared') {
-          await request({ action: 'round_start', requestId: entry.requestId, proofVersion: 1, rulesRevision: entry.config.revision, revision: entry.config.config.economy.androidEnergyV2.revision, helmet: entry.helmet, jump: entry.jump },result=>{
+          await request({ action: 'round_start', requestId: entry.requestId, proofVersion: entry.proofVersion??1, rulesRevision: entry.config.revision, revision: entry.config.config.economy.androidEnergyV2.revision, helmet: entry.helmet, jump: entry.jump },result=>{
             if(!result.profile||!Number.isSafeInteger(result.profile.walletVersion))throw new Error('profile_unavailable');
             current.update(entry.requestId,{phase:'started',roundId:result.roundId,debitWalletVersion:result.profile.walletVersion});history();
           });

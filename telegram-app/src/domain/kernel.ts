@@ -1,8 +1,10 @@
 import {version as appVersion} from '../../package.json';
 export type ProofEvent = [0, number] | [1, number, number] | [2];
-export interface RoundProof { version: 1; events: ProofEvent[]; startPose: number[][] }
+export interface RoundProof { version: 1 | 2; events: ProofEvent[]; startPose: number[][] }
 export interface Body { x: number; y: number; w: number; h: number; angle: number; speed: number }
+export interface BrakeState {enabled:boolean;speedBarEnabled:boolean;effectiveSec:number;speed:number;targetSpeed:number;charge:number;ready:boolean;presses:number;pressAgeMs:number;readyAgeMs:number;beforeSpeed:number;afterSpeed:number}
 export interface WorldState {
+  brake?: BrakeState | null;
   playing: boolean; dead: boolean; timeMs: number; runDistance: number; riskCount: number;
   helmet: boolean; invulnerable: boolean; jumpCooldownMs: number; jumpCount?:number;
   jumpEnabled?: boolean; jumpRemainingMs?: number;

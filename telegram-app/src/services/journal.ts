@@ -10,7 +10,7 @@ export class RoundJournal {
     if (data && (data.version !== 1 || data.owner !== owner || !Array.isArray(data.attempts) || data.attempts.some(a =>
       a.owner !== owner || !/^[a-f0-9]{64}$/.test(a.requestId) || !Number.isSafeInteger(a.cost) || a.cost < 1 ||
       !['prepared','started','activated','finished','confirmed','rejected','abandoned'].includes(a.phase) ||
-      typeof a.helmet !== 'boolean' || typeof a.jump !== 'boolean' || a.debitWalletVersion!==undefined&&(!Number.isSafeInteger(a.debitWalletVersion)||a.debitWalletVersion<0) || a.rewardVisualShown!==undefined&&typeof a.rewardVisualShown!=='boolean' || !/^[a-f0-9]{64}$/.test(a.config?.revision)))) throw new Error('journal_invalid');
+      a.proofVersion!==undefined&&a.proofVersion!==1&&a.proofVersion!==2 || typeof a.helmet !== 'boolean' || typeof a.jump !== 'boolean' || a.debitWalletVersion!==undefined&&(!Number.isSafeInteger(a.debitWalletVersion)||a.debitWalletVersion<0) || a.rewardVisualShown!==undefined&&typeof a.rewardVisualShown!=='boolean' || !/^[a-f0-9]{64}$/.test(a.config?.revision)))) throw new Error('journal_invalid');
     this.items = data?.attempts ?? [];
   }
   private save(items: Attempt[]) {
@@ -29,12 +29,12 @@ export class RoundJournal {
   get pending() { return this.all.filter(a => !['confirmed','rejected','abandoned'].includes(a.phase)); }
   recoverUnfinished() { this.save(this.items.map(a => !a.result && !['confirmed','rejected','abandoned'].includes(a.phase) ? { ...a, abandoned: true } : a)); }
   reserved(walletVersion=Number.MAX_SAFE_INTEGER) { return this.items.filter(a => a.phase === 'prepared'||a.debitWalletVersion!==undefined&&a.debitWalletVersion>walletVersion).reduce((n, a) => n + a.cost, 0); }
-  prepare(requestId: string, config: GameConfig, helmet: boolean, jump: boolean, balance: number, now: number, previousBestTimeMs?: number, walletVersion=Number.MAX_SAFE_INTEGER) {
+  prepare(requestId: string, config: GameConfig, helmet: boolean, jump: boolean, balance: number, now: number, previousBestTimeMs?: number, walletVersion=Number.MAX_SAFE_INTEGER, proofVersion:1|2=1) {
     if (this.items.some(a => a.requestId === requestId)) throw new Error('operation_conflict');
     const e = config.config.economy.androidEnergyV2;
     const cost = e.baseAttemptCost + (helmet ? e.helmetExtraCost : 0) + (jump ? e.jumpExtraCost : 0);
     if (!Number.isSafeInteger(cost) || cost < 1 || balance - this.reserved(walletVersion) < cost) throw new Error('insufficient_energy');
-    const entry: Attempt = { requestId, owner: this.owner, createdAt: now, config: JSON.parse(JSON.stringify(config)), helmet, jump, cost, phase: 'prepared', activatedAt: now, ...(previousBestTimeMs === undefined ? {} : { previousBestTimeMs }) };
+    const entry: Attempt = { proofVersion, requestId, owner: this.owner, createdAt: now, config: JSON.parse(JSON.stringify(config)), helmet, jump, cost, phase: 'prepared', activatedAt: now, ...(previousBestTimeMs === undefined ? {} : { previousBestTimeMs }) };
     entry.rewardDivisors = { risk: Math.max(1,config.config.economy.riskRewardEvery), run: Math.max(1,config.config.economy.runRewardEvery) };
     this.save([...this.items, entry]); return entry;
   }
