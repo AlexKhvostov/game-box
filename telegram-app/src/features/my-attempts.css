@@ -1,0 +1,68 @@
+.my-attempts-window{color:#f0fdff}
+.my-attempts-window :deep(.game-window){height:min(620px,calc(var(--logical-height) - 36px));border:3px solid #5eeaff;outline:1px solid #a1faff;outline-offset:3px;border-radius:25px;background:radial-gradient(ellipse at 15% 0,#0c4365,transparent 45%),linear-gradient(#07304a,#02172a);box-shadow:inset 0 0 0 2px #001c31,inset 0 0 0 3px #39bed780,0 0 15px #11d9ff66,0 0 40px #00bfff24,0 14px 28px #00101a66}
+.my-attempts-window :deep(.window-header){padding:8px 11px 5px;background:linear-gradient(#0a3c57,#07304a);gap:8px}
+.my-attempts-window :deep(.window-header h1){display:flex;align-items:center;gap:9px;font-size:24px;font-weight:900;letter-spacing:-.7px;color:#f1fcff;text-shadow:0 2px 0 #021625,0 0 12px #21bfff66}
+.ma-hero{width:41px;height:41px;object-fit:contain;filter:drop-shadow(0 0 5px #26ffe799);flex:none;transform:rotate(-7deg)}
+.my-attempts-window :deep(.window-body){padding:0;overflow:hidden;display:flex;flex-direction:column;flex:1;min-height:0}
+.my-attempts-window button{font:inherit;color:inherit}
+.ma-graph{padding:5px 13px 10px;flex:none;background:radial-gradient(circle at 8% 50%,#1bbce51a 0 1px,transparent 2px),radial-gradient(circle at 94% 24%,#28e5ff30 0 1px,transparent 2px),linear-gradient(#07304a,#032137)}
+.ma-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:2px 0 8px}
+.ma-stat{min-width:0;text-align:left;padding:5px 6px;border:1.5px solid #4deaff;border-radius:12px;background:linear-gradient(#1a6684 0,#0c415e 12%,#052a43 50%,#021c31);box-shadow:inset 0 2px 0 #d8ffff66,inset 0 0 0 3px #03243b,0 0 9px #1de9ff30}
+.ma-stat:disabled{opacity:.75}
+.ma-stat-label{display:flex;align-items:center;gap:4px;color:#b7f7ff;font-weight:700;font-size:10px;min-height:25px;line-height:1.15;white-space:normal}
+.ma-info{display:inline-grid;place-items:center;width:20px;height:19px;color:#7cf6ff;font-size:14px;filter:drop-shadow(0 0 3px #29dfff66)}
+.ma-value{display:flex;align-items:baseline;gap:3px;font-size:20px;font-weight:900;letter-spacing:-.4px;text-shadow:0 0 9px #62dcff55,0 2px 0 #001725;line-height:1.1;white-space:nowrap;font-variant-numeric:tabular-nums}
+.ma-value small{font-size:12px;color:#b9e9f4;font-weight:600}
+.ma-stat-sub{display:block;font-size:10px;color:#b8dce9;margin-top:2px;line-height:1.3}
+.ma-mean{border-color:#ffe368;background:radial-gradient(ellipse at 50% 0,#ffd44530,transparent 70%),linear-gradient(#42636b 0,#12394d 14%,#05273e 60%,#021a2d);box-shadow:inset 0 2px 0 #ffffd499,inset 0 0 0 3px #052a3a,0 0 11px #ffd72c38}
+.ma-mean .ma-stat-label,.ma-mean .ma-info{color:#fff0b9}
+.ma-mean .ma-info{filter:drop-shadow(0 0 3px #ffd33866)}
+.ma-best img{width:14px;height:14px;object-fit:contain;filter:drop-shadow(0 0 3px #ffb40099)}
+.ma-mean .ma-value{color:#fff4a3;text-shadow:0 0 10px #ffd33866,0 2px 0 #10242c}
+.ma-mean .ma-stat-sub{color:#e0d7ae}
+.ma-best-date{overflow-wrap:anywhere}
+.ma-chart-shell{border:1.5px solid #49d9f2;border-radius:17px;background:radial-gradient(ellipse at 50% 0,#0b3c59,#021a2e 80%);box-shadow:inset 0 0 0 3px #032b43,inset 0 1px 6px #48eeff2b,0 0 10px #14c5ff20;padding:6px 4px 0}
+.ma-chart-toggle{width:100%;min-height:30px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:3px 8px 5px;background:transparent;border:0;border-radius:9px;color:#bbf5ff!important;font-size:12px!important;text-align:left}
+.ma-chart-toggle>span:last-child{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;color:#64f2ff;font-size:11px;font-weight:700}
+.ma-chart-toggle svg{width:15px;height:15px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ma-chart-toggle svg.collapsed{transform:rotate(180deg)}
+.ma-chart-region{height:clamp(120px,calc(var(--logical-height) * .25),190px);position:relative}
+.ma-chart{display:block;width:100%;height:100%;touch-action:pan-y;overflow:visible}
+.ma-chart text{fill:#b2ddec;font-family:inherit;font-size:11px}
+.ma-grid{stroke:#17475e;stroke-width:1}
+.ma-bar{fill:#32e6f3;opacity:.57}
+.ma-bar.is-pending{fill:#7194a7;opacity:.4}
+.ma-bar.is-selected{fill:#c3ffff;opacity:1;filter:drop-shadow(0 0 3px #41f9ff)}
+.ma-average-line{stroke:#ffe36b;stroke-width:3.2;fill:none;stroke-linejoin:round;stroke-linecap:round;filter:drop-shadow(0 0 3px #ffd000a8)}
+.ma-average-dot{fill:#fff3a1;filter:drop-shadow(0 0 4px #ffcf00)}
+.ma-selection{min-height:30px;display:flex;align-items:center;justify-content:flex-end;gap:8px;font-size:12px;padding:5px 2px 0;font-variant-numeric:tabular-nums}
+.ma-selection strong{font-size:12px;font-weight:700;color:#ffe368;white-space:nowrap;text-shadow:0 0 6px #ffd83b44}
+.ma-legend{display:flex;flex-wrap:wrap;align-items:center;gap:4px 13px;font-size:11px;color:#b2ddec;padding:4px 1px 0}
+.ma-legend span{display:inline-flex;align-items:center;gap:6px}
+.ma-line-swatch{display:inline-block;width:19px;height:3px;background:#ffe368;border-radius:3px;box-shadow:0 0 6px #ffe346aa}
+.ma-bar-swatch{display:inline-block;width:7px;height:12px;background:#4df0ff;border-radius:2px;box-shadow:0 0 5px #21e9ff77}
+.ma-history{min-height:0;flex:1;display:flex;flex-direction:column;border-top:1px solid #39cde2;box-shadow:0 -1px 7px #00c8ff28;background:radial-gradient(ellipse at 50% 0,#073b54,transparent 75%),#031c30}
+.ma-load-more{display:block;width:100%;margin:8px 0;padding:10px;border:1px solid #49d9f2;border-radius:10px;background:#0a3d54;color:#b7f7ff!important;font-size:12px!important}.ma-load-more:disabled{opacity:.65}.ma-pending{padding:8px 4px;color:#aad4e4;font-size:11px;line-height:1.6}.ma-pending strong{font-weight:600}
+.ma-history-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 14px 8px;flex:none}
+.ma-history-heading h2{margin:0;font-size:16px;font-weight:800;line-height:1.2;color:#f0fdff;text-shadow:0 0 8px #38ceff44}
+.ma-history-heading h2 span{color:#b2ddec;font-weight:400}
+.ma-history-heading small{color:#b2ddec;font-size:10px;max-width:50%;text-align:right}
+.ma-list{position:relative;flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:0 8px 8px;scrollbar-width:thin;scrollbar-color:#32778b #062436}
+.ma-row{display:flex;align-items:center;border:1px solid transparent;border-bottom-color:#21627d;background:linear-gradient(90deg,#0a3e551f,transparent);font-variant-numeric:tabular-nums}
+.ma-row-select{flex:1;min-width:0;display:grid;grid-template-columns:29px minmax(0,1fr) auto;gap:8px;align-items:center;min-height:52px;text-align:left;background:transparent;border:0;padding:7px 3px 7px 6px}
+.ma-row.is-selected{border:1px solid #66f3ff;border-radius:12px;background:linear-gradient(#145d78,#06304a);box-shadow:inset 0 1px 0 #c4ffff77,inset 0 0 0 2px #03283e,0 0 8px #20dfff33}
+.ma-number{font-size:12px;color:#8ae4ee;font-weight:600}
+.ma-row-meta{min-width:0}
+.ma-date{display:block;font-size:11px;color:#f0fdff}
+.ma-row-meta small{display:block;font-size:10px;color:#aad4e4;margin-top:2px;overflow-wrap:anywhere}
+.ma-time{font-size:18px;font-weight:850;letter-spacing:-.3px;white-space:nowrap;text-shadow:0 0 6px #6be6ff33}
+.ma-time small{font-size:11px;font-weight:400;color:#b2ddec}
+.ma-row.is-best .ma-time{color:#fff09a;text-shadow:0 0 7px #ffd83d66}
+.ma-details{border:0;background:transparent;padding:0;min-width:24px;align-self:stretch;color:#79f1f5!important;font-size:16px!important}
+.ma-empty,.ma-empty-chart{padding:24px 10px;color:#b2ddec;font-size:13px;text-align:center;line-height:1.6}
+.ma-empty-chart{position:absolute;inset:0;display:grid;place-items:center;margin:0}
+.ma-history-note{padding:4px 13px 7px;margin:0;font-size:10px;line-height:1.3;color:#b2ddec;flex:none;min-height:37px}
+@media(prefers-reduced-motion:reduce){.ma-bar,.ma-average-line,.ma-average-dot{filter:none}}
+
+@media(max-width:360px){.ma-value{font-size:17px}.ma-stat{padding:5px}.ma-value small{font-size:10px}.ma-stat-label{font-size:9px}.ma-best img{width:11px;height:11px}.ma-info{width:15px}.ma-stat-sub{font-size:9px}}
+.ma-stat{container-type:inline-size}.ma-value{font-size:min(20px,calc(160cqw / var(--characters,7)))}@media(max-width:360px){.ma-value{font-size:min(17px,calc(160cqw / var(--characters,7)))}}

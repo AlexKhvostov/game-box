@@ -7,10 +7,44 @@ param([string]$Version = '', [switch]$LandingOnly, [switch]$LandingDesignOnly, [
   [string]$MobileApiSourceDirectory = '', [string[]]$MobileApiFiles = @(),
   [string]$MobileApiExpectedHashesFile = '', [string[]]$MobileAdminFiles = @(),
   [switch]$LegalPrivacyOnly, [string]$LegalExpectedHashesFile = '',
-  [string]$TelegramSourceDirectory = '')
+  [string]$TelegramSourceDirectory = '',
+  [switch]$RecruitmentLandingOnly, [switch]$RecruitmentApiOnly, [switch]$RecruitmentCompactOnly,
+  [string]$RecruitmentBaselineHashesFile = '',
+  [switch]$VueTelegram, [string]$TelegramApiUrl = '', [switch]$TelegramQa, [string]$TelegramAppUrl='')
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
 Set-Location $root
+if($VueTelegram){
+  if($LandingOnly -or $MobileApiOnly -or $LegalOnly -or $RecruitmentLandingOnly -or $RecruitmentApiOnly -or $RecruitmentCompactOnly -or $TelegramSourceDirectory){throw 'VueTelegram is a separate build mode'}
+  if($Version -notmatch '^\d+\.\d+\.\d+$'){throw 'Vue Telegram requires an explicit new major.minor.patch version'}
+  $taskVuePackageVersion=(Get-Content -LiteralPath (Join-Path $root 'telegram-app/package.json') -Raw|ConvertFrom-Json).version
+  if($taskVuePackageVersion -ne $Version){throw 'Vue package version must match the requested release version before building'}
+  if($TelegramApiUrl -notmatch '^(?:https://[A-Za-z0-9.-]+(?::\d+)?(?:/[A-Za-z0-9_/-]*)?|/[A-Za-z0-9_/-]+)$'){throw 'Set an HTTPS API URL or same-origin path without secrets/query'}
+  if($TelegramAppUrl -and $TelegramAppUrl -notmatch '^https://t\.me/[A-Za-z0-9_]{5,32}(?:/[A-Za-z0-9_]+)?$'){throw 'TelegramAppUrl must be a public bot or Main Mini App URL without query/secrets'}
+  $taskPreviousApi=$env:VITE_TELEGRAM_API_URL;$taskPreviousQa=$env:VITE_QA_MODE;$taskPreviousApp=$env:VITE_TELEGRAM_APP_URL
+  try{
+    $env:VITE_TELEGRAM_API_URL=$TelegramApiUrl;$env:VITE_QA_MODE=if($TelegramQa){'true'}else{'false'};$env:VITE_TELEGRAM_APP_URL=$TelegramAppUrl
+    & (Join-Path $root 'telegram-app/tools/run.ps1') -Task build
+    if($LASTEXITCODE -ne 0){throw 'Vue build failed'}
+  }finally{$env:VITE_TELEGRAM_API_URL=$taskPreviousApi;$env:VITE_QA_MODE=$taskPreviousQa;$env:VITE_TELEGRAM_APP_URL=$taskPreviousApp}
+  $taskBuiltAt=[DateTime]::UtcNow;$taskVueId="vue-v${Version}_$($taskBuiltAt.ToString('yyyyMMdd_HHmmss_fff'))"
+  $taskVueRelease=Join-Path $root "releases/$taskVueId";if(Test-Path -LiteralPath $taskVueRelease){throw 'Release already exists'}
+  $taskVueSite=Join-Path $taskVueRelease 'site';New-Item -ItemType Directory -Path $taskVueSite -Force|Out-Null
+  Copy-Item -Path (Join-Path $root 'telegram-app/dist/*') -Destination $taskVueSite -Recurse
+  [ordered]@{version=$Version;buildId=$taskVueId;artifact='telegram-vue';qa=[bool]$TelegramQa;apiUrl=$TelegramApiUrl;appUrl=$TelegramAppUrl;createdAt=$taskBuiltAt.ToString('o')}|ConvertTo-Json|Set-Content -LiteralPath (Join-Path $taskVueSite 'version.json') -Encoding utf8
+  $taskVueFiles=@(Get-ChildItem -LiteralPath $taskVueSite -Recurse -File|ForEach-Object{[ordered]@{path=$_.FullName.Substring($taskVueSite.Length+1).Replace('\','/');bytes=$_.Length;sha256=(Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()}})
+  if($taskVueFiles.path -match '\.(?:dpapi|php|deps|map|dart|env)$'){throw 'Non-public file in the static artifact'}
+  [ordered]@{version=$Version;buildId=$taskVueId;artifact='telegram-vue';qa=[bool]$TelegramQa;published=$false;files=$taskVueFiles}|ConvertTo-Json -Depth 8|Set-Content -LiteralPath (Join-Path $taskVueRelease 'manifest.json') -Encoding utf8
+  # Compress-Archive on Windows writes backslash entry names. Create explicit
+  # POSIX paths so extracting the Vue artifact on Linux preserves its layout.
+  Add-Type -AssemblyName System.IO.Compression
+  Add-Type -AssemblyName System.IO.Compression.FileSystem
+  $taskVueZip=[IO.Compression.ZipFile]::Open((Join-Path $taskVueRelease "untouch-$taskVueId.zip"),[IO.Compression.ZipArchiveMode]::Create)
+  try{foreach($taskVueFile in $taskVueFiles){[IO.Compression.ZipFileExtensions]::CreateEntryFromFile($taskVueZip,(Join-Path $taskVueSite $taskVueFile.path),$taskVueFile.path,[IO.Compression.CompressionLevel]::Optimal)|Out-Null}}
+  finally{$taskVueZip.Dispose()}
+  Write-Output "Vue Telegram local artifact: $taskVueRelease"
+  return
+}
 
 $src = Join-Path $root 'telegram-web'
 $out = Join-Path $root 'build\web'
@@ -21,6 +55,46 @@ if ($Version -notmatch '^\d+\.\d+\.\d+$') { throw 'Version must be major.minor.p
 $createdAt = [DateTime]::UtcNow
 $timestamp = $createdAt.ToString('yyyyMMdd_HHmmss_fff')
 $buildId = "v${Version}_$timestamp"
+if ($RecruitmentLandingOnly -or $RecruitmentApiOnly -or $RecruitmentCompactOnly) {
+  if ((@($RecruitmentLandingOnly,$RecruitmentApiOnly,$RecruitmentCompactOnly) | Where-Object { $_ }).Count -ne 1 -or $LandingOnly -or $MobileApiOnly -or $LegalOnly -or $TelegramSourceDirectory) { throw 'Choose a single bounded release mode' }
+  $taskRecruitKind = if ($RecruitmentLandingOnly -or $RecruitmentCompactOnly) { 'landing' } else { 'recruitment-api' }
+  $taskRecruitDir = Join-Path $root "releases/$taskRecruitKind-$buildId"
+  if (Test-Path -LiteralPath $taskRecruitDir) { throw 'Recruitment release already exists' }
+  $taskRecruitSite = Join-Path $taskRecruitDir 'site'
+  New-Item -ItemType Directory -Path $taskRecruitSite -Force | Out-Null
+  if ($RecruitmentLandingOnly -or $RecruitmentCompactOnly) {
+    $taskRecruitPaths = if ($RecruitmentCompactOnly) { @('testing/index.html','testing/testing.css','testing/testing.js') } else { @('index.html','privacy/index.html','testing/index.html','testing/testing.css','testing/testing.js') }
+    foreach ($taskRecruitName in $taskRecruitPaths) {
+      $taskRecruitDest = Join-Path $taskRecruitSite $taskRecruitName
+      New-Item -ItemType Directory -Path (Split-Path -Parent $taskRecruitDest) -Force | Out-Null
+      Copy-Item -LiteralPath (Join-Path $src "landing/$taskRecruitName") -Destination $taskRecruitDest
+    }
+    $taskRecruitBaselineFile = if ($RecruitmentBaselineHashesFile) { $RecruitmentBaselineHashesFile } elseif ($RecruitmentCompactOnly) { Join-Path $root 'tmp/closed-test-recruitment/compact-baseline/hashes.json' } else { Join-Path $root 'tmp/closed-test-recruitment/baseline/hashes.json' }
+    $taskRecruitExpected = Get-Content -Raw -LiteralPath $taskRecruitBaselineFile | ConvertFrom-Json -AsHashtable
+    if (-not $RecruitmentCompactOnly) { foreach ($taskRecruitName in @('testing/index.html','testing/testing.css','testing/testing.js')) { $taskRecruitExpected[$taskRecruitName] = $null } }
+    $taskRecruitHtmlFile = Join-Path $taskRecruitSite 'testing/index.html'
+    $taskRecruitHtml = [IO.File]::ReadAllText($taskRecruitHtmlFile)
+    $taskRecruitHtml = $taskRecruitHtml.Replace('href="testing.css"',"href=`"testing.css?v=$Version`"").Replace('src="testing.js"',"src=`"testing.js?v=$Version`"")
+    [IO.File]::WriteAllText($taskRecruitHtmlFile,$taskRecruitHtml,[Text.UTF8Encoding]::new($false))
+    $taskRecruitIdentityName = 'release.json'
+  } else {
+    New-Item -ItemType Directory -Path (Join-Path $taskRecruitSite 'api') -Force | Out-Null
+    Copy-Item -LiteralPath (Join-Path $src 'api/recruitment.php') -Destination (Join-Path $taskRecruitSite 'api')
+    Copy-Item -LiteralPath (Join-Path $root 'tmp/closed-test-recruitment/recruitment_settings.php') -Destination (Join-Path $taskRecruitSite 'api')
+    $taskRecruitIdentityName = 'api/recruitment-release.json'
+    $taskRecruitExpected = @{'api/recruitment.php'=$null;'api/recruitment_settings.php'=$null;'api/recruitment-release.json'=$null}
+  }
+  $taskRecruitIdentity = [ordered]@{version=$Version;buildId=$buildId;artifact=$taskRecruitKind;createdAt=$createdAt.ToString('o')}
+  $taskRecruitIdentity | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $taskRecruitSite $taskRecruitIdentityName) -Encoding UTF8
+  $taskRecruitFiles = @(Get-ChildItem -LiteralPath $taskRecruitSite -File -Recurse -Force | ForEach-Object {
+    [ordered]@{path=$_.FullName.Substring($taskRecruitSite.Length+1).Replace('\','/');bytes=$_.Length;sha256=(Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()}
+  })
+  $taskRecruitManifest = [ordered]@{version=$Version;buildId=$buildId;artifact=$taskRecruitKind;createdAt=$createdAt.ToString('o');files=$taskRecruitFiles;expectedBeforeHashes=$taskRecruitExpected}
+  $taskRecruitManifest | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $taskRecruitDir 'manifest.json') -Encoding UTF8
+  Compress-Archive -Path (Join-Path $taskRecruitSite '*') -DestinationPath (Join-Path $taskRecruitDir "untouch-$taskRecruitKind-$buildId.zip")
+  Write-Host "Recruitment release: $taskRecruitDir"
+  return
+}
 if ($TelegramSourceDirectory) {
   if ($LandingOnly -or $MobileApiOnly -or $LegalOnly) { throw 'Isolated Telegram source cannot be combined with other release modes' }
   $src = [System.IO.Path]::GetFullPath($TelegramSourceDirectory)

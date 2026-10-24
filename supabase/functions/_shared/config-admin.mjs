@@ -1,8 +1,11 @@
 import {randomUUID} from 'node:crypto';
 import {requireThat} from './core/policy.mjs';
 import {patchAndroidTemplate} from './remote-config.mjs';
-export function createConfigAdmin({db,remote}){
+import {createPlatformConfigAdmin} from './platform-config-admin.mjs';
+export function createConfigAdmin({db,remote,telegramStarsAccepted=false}){
+  const scoped=createPlatformConfigAdmin({db,remote,telegramStarsAccepted});
   return async function execute(actor,body){
+    if(body.scope!==undefined&&body.action!=='history')return scoped(actor,body);
     const permission=await db.query('select enabled from untouch.admin_users where id=$1',[actor]);
     requireThat(permission.rows[0]?.enabled===true,'admin_required',403);
     if(body.action==='history'){

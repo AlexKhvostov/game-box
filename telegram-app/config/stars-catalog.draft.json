@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "platform": "telegram",
+  "currency": "XTR",
+  "status": "provisional_prices_user_delegated",
+  "salesEnabled": false,
+  "integrationStatus": "not_connected",
+  "botUsername": "testuntouch_bot",
+  "botEnvironment": "production",
+  "telegramTestEnvironmentConfirmed": false,
+  "packages": [
+    { "sharedOfferId": "energy_100_v1", "energy": 100, "stars": 25 },
+    { "sharedOfferId": "energy_250_v1", "energy": 250, "stars": 55 },
+    { "sharedOfferId": "energy_500_v1", "energy": 500, "stars": 99 },
+    { "sharedOfferId": "energy_1000_v1", "energy": 1000, "stars": 179 }
+  ],
+  "subscriptions": [
+    { "sharedTierId": "energy_batteries_2_v1", "bonusMultiplier": 2, "periodSeconds": 2592000, "autoRenew": true, "stars": 149 },
+    { "sharedTierId": "energy_batteries_5_v1", "bonusMultiplier": 5, "periodSeconds": 2592000, "autoRenew": true, "stars": 399 }
+  ]
+}
