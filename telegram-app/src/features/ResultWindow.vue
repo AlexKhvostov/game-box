@@ -3,8 +3,11 @@ import { computed, ref, nextTick, watch, onMounted, onBeforeUnmount } from 'vue'
 import GameWindow from '../components/GameWindow.vue';
 import EnergyAmount from '../components/EnergyAmount.vue';
 import GameArt from '../components/GameArt.vue';
-import { loadArtwork, resultArtwork } from '../services/artwork';
-import { state, openScreen, action, flush, failedFinish, retryFailedFinish, returnToPlay, presentResultReward } from '../services/game-store';
+import GameIcon from '../components/GameIcon.vue';
+import ShareScoreCard from '../components/ShareScoreCard.vue';
+import {renderShareCard} from '../services/share-card';
+import { resultArtwork } from '../services/artwork';
+import { state, openScreen, back, action, flush, failedFinish, retryFailedFinish, returnToPlay, presentResultReward } from '../services/game-store';
 import { telegram } from '../platform/telegram';
 import {registerOverlayBack} from '../services/ui-overlays';
 const t = (ru: string, en: string) => state.locale === 'ru' ? ru : en;
@@ -41,25 +44,23 @@ function share() {
   const url = import.meta.env.VITE_TELEGRAM_APP_URL || 'https://untouch.fun/';
   telegram()?.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`);
 }
+let shareGeneration=0,shareAlive=true;
+watch(()=>[state.screen,state.resultId,result.value?.timeMs,result.value?.riskCount,result.value?.runDistance,state.locale],()=>{imageUrl.value='';shareGeneration++;});
+onBeforeUnmount(()=>{shareAlive=false;shareGeneration++;});
 async function saveImage() {
-  await document.fonts.ready;
-  const canvas = document.createElement('canvas'); canvas.width = 1080; canvas.height = 850;
-  const c = canvas.getContext('2d')!, art = await loadArtwork('/assets/branding/ui/run-scene-v1.png');
-  c.fillStyle = '#061B2B'; c.fillRect(0,0,1080,850);
-  c.textAlign = 'left';c.fillStyle='#43ECC0';c.font='bold 38px Roboto, sans-serif';c.fillText('untouch',40,60);
-  c.fillStyle='#F0FBFF';c.font='bold 120px Roboto, sans-serif';c.fillText(`${seconds.value} ${t('с','s')}`,40,190);
-  const cropHeight=art.naturalWidth/2.5;c.drawImage(art,0,(art.naturalHeight-cropHeight)/2,art.naturalWidth,cropHeight,0,220,1080,432);
-  c.fillStyle='#A9CBE4';c.font='34px Roboto, sans-serif';c.fillText(`${t('Риск','Risk')} ${result.value?.riskCount??0} · ${t('Шаги','Steps')} ${result.value?.runDistance??0}`,40,710);
-  c.font='30px Roboto, sans-serif';c.fillText(state.profile?.nickname??'Untouch',40,790);
+  const generation=++shareGeneration;
+  const data={timeMs:result.value?.timeMs??0,riskCount:result.value?.riskCount??0,steps:result.value?.runDistance??0,locale:state.locale==='ru'?'ru' as const:'en' as const};
+  const canvas=await renderShareCard(data);
+  if(!shareAlive||generation!==shareGeneration||state.screen!=='share')return;
   imageUrl.value=canvas.toDataURL('image/png');
-  const link = document.createElement('a'); link.download = `untouch-${seconds.value}.png`; link.href = imageUrl.value; link.click();
+  const link=document.createElement('a');link.download=`untouch-${(data.timeMs/1000).toFixed(3)}.png`;link.href=imageUrl.value;link.click();
 }
 </script>
 <template>
   <GameWindow :title="state.screen==='share'?t('Поделиться','Share'):t('Результат попытки','Run result')" :closable="!failedFinish" :inactive="!!metricTip" :class="state.screen==='result'?'result-window':'share-window'">
     <template v-if="state.screen==='share'" #back>‹</template>
     <template v-if="state.screen==='result'" #background><GameArt class="result-scene" :src="resultArtwork+(artAttempt?'?reload='+artAttempt:'')" @unavailable="artFailed=$event"/><div class="result-shade" aria-hidden="true"/></template>
-    <div v-if="state.screen==='share'" class="share-score-card"><header><small>untouch</small><strong>{{seconds}} {{t('с','s')}}</strong></header><GameArt class="result-banner" src="/assets/branding/ui/run-scene-v1.png"/><p>{{t('Риск','Risk')}} {{result?.riskCount??0}} · {{t('Шаги','Steps')}} {{result?.runDistance??0}}</p><p class="share-challenge">{{t('Сколько продержитесь вы?','How long can you survive?')}}</p></div>
+    <ShareScoreCard v-if="state.screen==='share'" :time-ms="result?.timeMs??0" :risk-count="result?.riskCount??0" :steps="result?.runDistance??0"/>
     <div v-else class="result-summary"><small>{{ isRecord?t('Новый рекорд!','New personal best!'):t('Ваш результат','Your result') }}</small><strong>{{ seconds }} {{ t('с','s') }}</strong><span class="best-chip">{{ isRecord&&(previousBest??0)>0?t('Предыдущий рекорд','Previous best'):t('Ваш рекорд','Your best') }}: {{ best }} {{t('с','s')}}</span></div>
     <div v-if="state.screen==='result'" class="result-actions">
       <div class="result-art-space"><button v-if="artFailed" class="secondary retry-result-art" @click="artAttempt++">{{t('Повторить загрузку картинки','Reload illustration')}}</button></div>
@@ -69,9 +70,15 @@ async function saveImage() {
       <template v-if="failedFinish"><p class="error-message">{{ t('Результат ещё не сохранён. Освободите место и повторите сохранение. Не закрывайте игру.','This result is not saved yet. Free storage space and retry saving. Keep the game open.') }}</p><button class="primary full" :disabled="state.busy" @click="action(retryFailedFinish)">{{ t('Повторить сохранение','Retry saving') }}</button></template>
 
     </div>
-    <div v-else class="result-actions"><button class="primary full" @click="share">Telegram</button><button class="secondary full" @click="action(saveImage)">{{ t('Сохранить картинку','Save image') }}</button><template v-if="imageUrl"><img class="share-preview" :src="imageUrl" :alt="t('Картинка вашего результата','Your result image')"><a class="secondary full share-download" :href="imageUrl" :download="`untouch-${seconds}.png`">{{ t('Скачать PNG','Download PNG') }}</a></template></div>
+
     
     <template v-if="state.screen==='result'" #footer><div class="button-row result-links"><button class="text-button" :disabled="!!failedFinish" @click="openScreen('ranking','result')">{{t('Рейтинг','Leaderboard')}}</button><button class="text-button" :disabled="!!failedFinish" @click="openScreen('share','result')">↥ {{t('Поделиться','Share')}}</button></div><button class="primary full replay-action" :disabled="!!failedFinish" @click="returnToPlay">↻ {{t('Ещё раз','Play again')}}</button></template>
+    <template v-if="state.screen==='share'" #footer>
+      <button class="primary share-send-action" @click="share"><GameIcon name="share"/><span>{{t('Отправить','Send')}}</span></button>
+      <button v-if="!imageUrl" class="text-button share-save-action" :disabled="state.busy" @click="action(saveImage)">{{t('Сохранить картинку','Save image')}}</button>
+      <a v-else class="share-save-action" :href="imageUrl" :download="`untouch-${seconds}.png`">{{t('Скачать PNG','Download PNG')}}</a>
+      <button class="text-button share-cancel-action" @click="back">{{t('Отмена','Cancel')}}</button>
+    </template>
   </GameWindow>
   <GameWindow v-if="metricTip" class="metric-tip-window" :title="metricTip==='risk'?t('Что такое риск','What is risk?'):t('Как считаются шаги','How steps are counted')">
     <p>{{metricTip==='risk'?t('Риск — успешное опасное сближение с врагом или прыжок через него. Награда начисляется после подтверждения попытки.','Risk counts a close escape from an enemy or a jump over one. Rewards are credited after run confirmation.'):t('Шаги — пройденное расстояние. Один шаг равен одной десятой ширины героя на любом экране.','Steps measure distance. One step equals one tenth of the hero’s width on every screen.')}}</p>
@@ -79,3 +86,5 @@ async function saveImage() {
     <template #footer><button class="secondary full" @click="closeMetric">{{t('Понятно','Got it')}}</button></template>
   </GameWindow>
 </template>
+
+<style src="./share-window.css"/>

@@ -8,9 +8,9 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../data/app_analytics.dart';
 import '../../l10n/app_localizations.dart';
-import '../../ui/game_sheet.dart';
+import '../../ui/neon_chrome.dart';
 import '../../ui/game_ui.dart';
-import '../../ui/game_run_scene.dart';
+import 'social_share_card.dart';
 
 /// Превью карточки для соцсетей + отправка (не скрин игрового UI).
 Future<void> showShareSocialSheet(
@@ -20,11 +20,11 @@ Future<void> showShareSocialSheet(
   int? riskCount,
   int? runSteps,
 }) {
-  return showModalBottomSheet<void>(
-    sheetAnimationStyle: GameUi.windowAnimationStyle,
+  return showDialog<void>(
+    animationStyle: GameUi.windowAnimationStyle,
     context: context,
-    isScrollControlled: true,
-    backgroundColor: Colors.transparent,
+    useRootNavigator: false,
+    barrierColor: GameUi.modalBarrier,
     builder: (_) => _ShareSocialSheet(
       timeMs: timeMs,
       betterPercent: betterPercent,
@@ -70,17 +70,8 @@ class _ShareSocialSheetState extends State<_ShareSocialSheet> {
       final boundary =
           _cardKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
       if (boundary == null) throw StateError('share_card_unavailable');
-      // Export the compact card only after its horizontal scene has
-      // decoded and the frame has painted; a fast tap must not share a blank.
-      await precacheImage(
-        GameRunScene.provider(
-          boundary.size.width - 3,
-          MediaQuery.devicePixelRatioOf(context) > 3
-              ? MediaQuery.devicePixelRatioOf(context)
-              : 3,
-        ),
-        context,
-      );
+      // Wait for the same full-card scene used by the preview and PNG export.
+      await precacheImage(SocialShareCard.imageProvider, context);
       await WidgetsBinding.instance.endOfFrame;
       if (!mounted) return;
       final image = await boundary.toImage(pixelRatio: 3);
@@ -135,28 +126,40 @@ class _ShareSocialSheetState extends State<_ShareSocialSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final time = _timeLabel();
-
-    return GameSheetChrome(
-      heightFactor: .92,
-      fitContent: true,
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
+    final media = MediaQuery.of(context);
+    const actionStyle = TextStyle(fontSize: 18, fontWeight: FontWeight.w800);
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: 430,
+          maxHeight: (media.size.height - media.padding.vertical - 24).clamp(
+            0,
+            double.infinity,
+          ),
+        ),
+        child: AccountGlass(
+          radius: 20,
+          padding: const EdgeInsets.fromLTRB(12, 7, 12, 5),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              GameSheetHeader(title: l10n.shareSocial),
+              NeonSheetHeader(
+                title: l10n.shareSocial,
+                titleSize: media.size.width < 340 ? 23 : 27,
+              ),
               Flexible(
                 fit: FlexFit.loose,
                 child: SingleChildScrollView(
+                  key: const ValueKey('share-content'),
                   child: RepaintBoundary(
                     key: _cardKey,
-                    child: _SocialShareCard(
+                    child: SocialShareCard(
                       appTitle: l10n.appTitle,
-                      timeLabel: time,
+                      timeLabel: _timeLabel(),
                       riskCount: widget.riskCount,
                       runSteps: widget.runSteps,
                       boast: _tr(
@@ -169,169 +172,91 @@ class _ShareSocialSheetState extends State<_ShareSocialSheet> {
               ),
               if (_feedback != null)
                 Padding(
-                  padding: const EdgeInsets.only(top: 8),
+                  padding: const EdgeInsets.only(top: 7),
                   child: Semantics(
                     liveRegion: true,
                     child: Container(
                       key: const ValueKey('share-feedback'),
-                      width: double.infinity,
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFFE5E8),
-                        borderRadius: BorderRadius.circular(9),
+                        color: const Color(0xFF072D43),
+                        border: Border.all(color: const Color(0xFFF58AA1)),
+                        borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
                         _feedback!,
                         style: const TextStyle(
-                          color: Color(0xFF6E1935),
+                          color: Color(0xFFFFBCCD),
                           fontSize: 12,
                         ),
                       ),
                     ),
                   ),
                 ),
-              const SizedBox(height: 8),
-              FilledButton.icon(
-                onPressed: _sending ? null : _send,
-                icon: _sending
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.ios_share_rounded, size: 20),
-                label: Text(l10n.shareSend),
-                key: const ValueKey('share-send'),
-                style: FilledButton.styleFrom(
-                  minimumSize: Size.fromHeight(GameUi.touchTarget(context)),
-                ),
-              ),
-              const SizedBox(height: 4),
-              OutlinedButton(
-                onPressed: _sending ? null : () => Navigator.pop(context),
-                style: OutlinedButton.styleFrom(
-                  minimumSize: Size.fromHeight(GameUi.touchTarget(context)),
-                ),
-                child: Text(l10n.cancel),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// The shared PNG contains the complete game scene and readable real values.
-class _SocialShareCard extends StatelessWidget {
-  const _SocialShareCard({
-    required this.appTitle,
-    required this.timeLabel,
-    required this.boast,
-    this.riskCount,
-    this.runSteps,
-  });
-  final String appTitle, timeLabel, boast;
-  final int? riskCount, runSteps;
-
-  @override
-  Widget build(BuildContext context) {
-    final ru = Localizations.localeOf(context).languageCode == 'ru';
-    final time = '$timeLabel ${ru ? 'с' : 's'}';
-    return Semantics(
-      label: '$appTitle $timeLabel ${AppLocalizations.of(context).seconds}',
-      child: Container(
-        key: const ValueKey('share-preview'),
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: const Color(0xFF061B2B),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: const Color(0xFF68D6E9), width: 1.5),
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(12.5),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(12, 10, 12, 6),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      appTitle.toLowerCase(),
-                      style: const TextStyle(
-                        color: GameUi.mint,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        time,
-                        style: const TextStyle(
-                          color: GameUi.text,
-                          fontSize: 40,
-                          height: 1.1,
-                          fontWeight: FontWeight.w900,
-                          fontFeatures: [FontFeature.tabularFigures()],
+              const SizedBox(height: 10),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final label = TextPainter(
+                    text: TextSpan(text: l10n.shareSend, style: actionStyle),
+                    textDirection: Directionality.of(context),
+                    textScaler: media.textScaler,
+                  )..layout();
+                  final width = (label.width + 64).clamp(
+                    constraints.maxWidth * .64,
+                    constraints.maxWidth,
+                  );
+                  label.dispose();
+                  return Align(
+                    child: SizedBox(
+                      width: width,
+                      child: FilledButton(
+                        key: const ValueKey('share-send'),
+                        onPressed: _sending ? null : _send,
+                        style: FilledButton.styleFrom(
+                          minimumSize: const Size(0, 48),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 10,
+                          ),
+                          foregroundColor: GameUi.text,
+                          textStyle: actionStyle,
+                        ).copyWith(backgroundBuilder: accountButtonLayer),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            if (_sending)
+                              const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            else
+                              const Icon(Icons.share_rounded, size: 21),
+                            const SizedBox(width: 8),
+                            Flexible(child: Text(l10n.shareSend)),
+                          ],
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  );
+                },
               ),
-              LayoutBuilder(
-                builder: (context, constraints) => AspectRatio(
-                  aspectRatio: GameRunScene.aspectRatio,
-                  child: Image(
-                    key: const ValueKey('share-scene'),
-                    image: GameRunScene.provider(constraints.maxWidth, 3),
-                    fit: BoxFit.cover,
-                    excludeFromSemantics: true,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (riskCount != null && runSteps != null) ...[
-                      Wrap(
-                        spacing: 16,
-                        runSpacing: 3,
-                        children: [
-                          Text(
-                            '${ru ? 'Риск' : 'Risk'} $riskCount',
-                            style: const TextStyle(
-                              fontSize: 11,
-                              color: GameUi.muted,
-                            ),
-                          ),
-                          Text(
-                            '${ru ? 'Шаги' : 'Steps'} $runSteps',
-                            style: const TextStyle(
-                              fontSize: 11,
-                              color: GameUi.muted,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                    ],
-                    Text(
-                      boast,
-                      style: const TextStyle(
-                        color: GameUi.text,
-                        fontSize: 14,
-                        height: 1.3,
-                        fontWeight: FontWeight.w700,
-                      ),
+              Align(
+                child: TextButton(
+                  key: const ValueKey('share-cancel'),
+                  onPressed: () => Navigator.pop(context),
+                  style: TextButton.styleFrom(
+                    minimumSize: const Size(100, 44),
+                    foregroundColor: const Color(0xFF82DBEF),
+                    textStyle: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
                     ),
-                  ],
+                  ),
+                  child: Text(l10n.cancel),
                 ),
               ),
             ],
