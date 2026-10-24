@@ -1,5 +1,6 @@
 import {paintBrake,paintBrakeHit} from './brake';
-import type {ImpactBurst} from './impact';
+import type {ImpactEffect} from './impact';
+import {paintHelmet} from './helmet';
 import type { Body, WorldState } from '../domain/kernel';
 import {motionProbe} from './motion-probe';
 import {createJumpGlowDrawer, type JumpGlowDrawer} from './jump-glow';
@@ -38,7 +39,7 @@ export class FieldPainter {
     c.save(); c.clip(); c.beginPath(); for (let i = 1; i < 12; i++) { const v = 380 * i / 12; c.moveTo(v, 0); c.lineTo(v, 380); c.moveTo(0, v); c.lineTo(380, v); } c.strokeStyle = '#58E2EC16'; c.lineWidth = .7; c.stroke(); c.restore();
     rounded(c, 0, 0, 380, 380, config.field.cornerRadius); c.strokeStyle = '#0000001f'; c.lineWidth = 380 * .08; c.stroke();
   }
-  draw(s: WorldState, config: Record<string, any>, frame: number, impacts:ImpactBurst[] = []) {
+  draw(s: WorldState, config: Record<string, any>, frame: number, impacts:ImpactEffect[] = []) {
     const t0=motionProbe.clock();
     const c = this.c, dpr = Math.min(devicePixelRatio || 1, 3), side = this.canvas.clientWidth;
     const pixels = Math.max(1, Math.round(side * dpr)); if (this.canvas.width !== pixels) { this.canvas.width = pixels; this.canvas.height = pixels; }
@@ -73,7 +74,7 @@ export class FieldPainter {
       this.jumpGlow(c, {x, y, size: vis, progress: jumpProgress});
       c.restore();
     }
-    if (s.helmet) { rounded(c, x - 2.5, y - 2.5, vis + 5, vis + 5, 6.5); c.strokeStyle = '#7EE0FFf2'; c.lineWidth = 2.6; c.stroke();rounded(c,x-5,y-5,vis+10,vis+10,9);c.strokeStyle='#ffffff59';c.lineWidth=1.2;c.stroke(); }
+    paintHelmet(c,s,x,y,vis,this.reduced.matches);
     c.beginPath(); c.moveTo(x + vis * .17, y + vis * .083); c.lineTo(x + vis * .83, y + vis * .083); c.strokeStyle = '#C4FFE3a6'; c.lineWidth = 1.2; c.stroke();
     if (config.player.showFace) {
       const center={x:p.x+p.size/2,y:p.y+p.size/2};
@@ -103,7 +104,7 @@ export class FieldPainter {
     rounded(c, inset, inset, 380 - inset * 2, 380 - inset * 2, Math.max(0, config.field.cornerRadius - inset));
     const wall = config.game.wallsKillPlayer ? '#F0363E' : '#58E2EC'; c.strokeStyle = `${wall}47`; c.lineWidth = border + 4; c.stroke(); c.strokeStyle = wall; c.lineWidth = border; c.stroke();
     const t5=t0?motionProbe.clock():0;
-    for(const impact of impacts)impact.paint(c);
+    for(const impact of impacts)impact.paint(c,this.reduced.matches);
     for(const fx of s.nearMissFx??[]){const t=Math.min(1,fx.age/.42),a=(1-t)*.9,r=6+t*26;c.save();c.globalAlpha=a;c.strokeStyle='#FFC107';c.lineWidth=2.4*(1-t*.5);c.beginPath();c.arc(fx.x,fx.y,r,0,Math.PI*2);c.stroke();c.globalAlpha=a*.55;c.fillStyle='#FFF59D';c.beginPath();c.arc(fx.x,fx.y,r*.35,0,Math.PI*2);c.fill();c.restore();}
     c.restore();
     if(t0)motionProbe.paint([t1-t0,t2-t1,t3-t2,t4-t3,t5-t4,motionProbe.clock()-t5]);

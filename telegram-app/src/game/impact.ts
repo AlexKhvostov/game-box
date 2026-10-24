@@ -1,5 +1,6 @@
 import type {WorldState} from '../domain/kernel';
 import {impactGlyph,paintImpactGlyph,type ImpactGlyph} from './impact-glyphs';
+export interface ImpactEffect {update(dt:number):boolean;paint(c:CanvasRenderingContext2D,reduced?:boolean):void}
 // Canvas port of frozen Android ImpactBurst. Cosmetic randomness is separate
 // from replay RNG and never feeds back into the simulation or proof.
 export class ImpactBurst {

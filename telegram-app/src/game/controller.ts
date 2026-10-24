@@ -1,5 +1,6 @@
 import { kernel, proof, type WorldState } from '../domain/kernel';
-import { ImpactBurst } from './impact';
+import {HelmetShatter} from './helmet';
+import { ImpactBurst, type ImpactEffect } from './impact';
 import { FieldPainter } from './painter';
 import { operationId } from '../services/storage';
 import { state, world, prepareAttempt, finishAttempt, errorText, openScreen, energy, failedFinish, applyPendingConfig } from '../services/game-store';
@@ -16,7 +17,7 @@ export class GameController {
   private debt = 0;
   private lastHud = 0;
   private frame = 0;
-  private impacts:ImpactBurst[]=[];
+  private impacts:ImpactEffect[]=[];
   private raf = 0;
   private pointers = new Map<number, { x: number; y: number }>();
   private primary: number | null = null;
@@ -36,7 +37,7 @@ export class GameController {
     applyPendingConfig();
     if (!state.config) return;
     this.boundConfig = state.config;
-    this.requestId = operationId(); this.snapshot = kernel({ op: 'create', proofVersion: 2, config: this.boundConfig.config, requestId: this.requestId, hadHelmet: state.helmet, hadJump: state.jump });
+    this.requestId = operationId(); this.snapshot = kernel({ op: 'create', proofVersion: 3, config: this.boundConfig.config, requestId: this.requestId, hadHelmet: state.helmet, hadJump: state.jump });
     this.impacts=[];this.painter.configure(this.boundConfig.config); world.value = this.snapshot; this.reanchor();
     this.draw();
   }
@@ -84,7 +85,7 @@ export class GameController {
   }
   private transitions(previous: WorldState) {
     if (this.snapshot.riskCount > previous.riskCount) sound('risk');
-    if (previous.helmet && !this.snapshot.helmet) { this.impacts.push(new ImpactBurst(this.snapshot,true));sound('helmet'); if (state.preferences.vibration) telegram()?.HapticFeedback?.impactOccurred('medium'); }
+    if ((this.snapshot.helmetCharge?.breaks??0) > (previous.helmetCharge?.breaks??0)) { this.impacts.push(new HelmetShatter(this.snapshot));sound('helmet'); if (state.preferences.vibration) telegram()?.HapticFeedback?.impactOccurred('medium'); }
     if (this.snapshot.dead && !previous.dead) {
       this.impacts=[new ImpactBurst(this.snapshot)];sound(this.snapshot.againstWall ? 'heroWall' : 'hit'); if (state.preferences.vibration) telegram()?.HapticFeedback?.notificationOccurred('error');
       this.pointers.clear(); this.primary = null; this.debt = 0; world.value = this.snapshot;

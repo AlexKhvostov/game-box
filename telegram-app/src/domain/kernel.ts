@@ -1,9 +1,10 @@
 import {version as appVersion} from '../../package.json';
 export type ProofEvent = [0, number] | [1, number, number] | [2];
-export interface RoundProof { version: 1 | 2; events: ProofEvent[]; startPose: number[][] }
+export interface RoundProof { version: 1 | 2 | 3; events: ProofEvent[]; startPose: number[][] }
 export interface Body { x: number; y: number; w: number; h: number; angle: number; speed: number }
 export interface BrakeState {enabled:boolean;speedBarEnabled:boolean;effectiveSec:number;speed:number;targetSpeed:number;charge:number;ready:boolean;presses:number;pressAgeMs:number;readyAgeMs:number;beforeSpeed:number;afterSpeed:number}
 export interface WorldState {
+  helmetCharge?: {equipped:boolean;cooldownMs:number;remainingMs:number;progress:number;readyAgeMs:number|null;breaks:number};
   brake?: BrakeState | null;
   playing: boolean; dead: boolean; timeMs: number; runDistance: number; riskCount: number;
   helmet: boolean; invulnerable: boolean; jumpCooldownMs: number; jumpCount?:number;
@@ -18,7 +19,7 @@ let loading: Promise<void> | undefined;
 export function loadKernel(): Promise<void> {
   return loading ??= new Promise<void>((resolve, reject) => {
     const script = document.createElement('script');
-    script.src = `${import.meta.env.BASE_URL}kernel/android-world.js?v=${appVersion}`;
+    script.src = `${import.meta.env.BASE_URL}kernel/helmet-world-v3.js?v=${appVersion}`;
     script.onload = () => globalThis.untouchKernel ? resolve() : reject(new Error('kernel_unavailable'));
     script.onerror = () => reject(new Error('kernel_unavailable'));
     document.head.append(script);
