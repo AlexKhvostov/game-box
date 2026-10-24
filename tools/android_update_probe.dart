@@ -26,6 +26,12 @@ class ProbeUpdates implements PlayUpdateSource {
   @override
   Stream<PlayUpdateInfo> get events => stream.stream;
   void state(String value) {
+    if (value == 'success') {
+      updates.successNotice = true;
+      current = const PlayUpdateInfo(supported: false);
+      stream.add(current);
+      return;
+    }
     current = PlayUpdateInfo(
       installedVersion: 197,
       availableVersion: 198,
@@ -99,6 +105,7 @@ Map<String, Object?> snapshot() => {
   'prompt': updates.prompt?.name,
   'dialog': firstWidget<AndroidUpdateDialog>()?.prompt.name,
   'banner': firstWidget<AndroidUpdateBanner>() != null,
+  'progress': firstWidget<LinearProgressIndicator>()?.value,
   'playing': firstWidget<ArcadeHud>()?.isPlaying,
   'timeMs': firstWidget<ArcadeHud>()?.timeMs(),
   'result': firstWidget<ResultOverlay>() != null,

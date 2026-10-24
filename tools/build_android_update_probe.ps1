@@ -16,11 +16,14 @@ $applicationPattern='(?s)applicationId = if \(System.getenv\("UNTOUCH_UI_PROBE"\
 if(-not [regex]::IsMatch($gradleText,$applicationPattern)){throw 'Unexpected Android applicationId'}
 $gradleText=[regex]::Replace($gradleText,$applicationPattern,'applicationId = "com.best4u.untouch.uiprobe.updates"')
 $gradleText=$gradleText.Replace('require(privateSigningPath != null)','require(true)')
+$gradleText=$gradleText.Replace('resValue("string", "app_name", phoneLabel)','resValue("string", "app_name", "QA197 Untouch · Обновление")')
 [IO.File]::WriteAllText($gradle,$gradleText)
 $manifest=Join-Path $probeRoot 'android/app/src/main/AndroidManifest.xml'
 [IO.File]::WriteAllText($manifest,[IO.File]::ReadAllText($manifest).Replace('<application','<application android:usesCleartextTraffic="true"'))
 $dart=Join-Path $FlutterRoot 'bin/cache/dart-sdk/bin/dart.exe'
 $flutter=Join-Path $FlutterRoot 'bin/cache/flutter_tools.snapshot'
+$probePreviousSigning=$env:UNTOUCH_SIGNING_PROPERTIES
+$env:UNTOUCH_SIGNING_PROPERTIES=$null
 Push-Location $probeRoot
 try {
   & $dart $flutter pub get --offline
@@ -28,4 +31,4 @@ try {
   & $dart $flutter build apk --release --no-pub --target=tools/android_update_probe.dart --build-name=1.0.196 --build-number=197 --dart-define=APP_TARGET=mobile
   if($LASTEXITCODE -ne 0){throw 'Probe build failed'}
   Write-Output ('PROBE_APK='+ (Join-Path $probeRoot 'build/app/outputs/flutter-apk/app-release.apk'))
-} finally {Pop-Location}
+} finally {Pop-Location;$env:UNTOUCH_SIGNING_PROPERTIES=$probePreviousSigning}

@@ -106,7 +106,7 @@ void main() {
       key.currentState!.setSafe(true);
       await t.pump();
       await t.pumpAndSettle();
-      expect(find.text('Обновление готово'), findsWidgets);
+      expect(find.text('Установить обновление?'), findsWidgets);
       expect(source.completions, 0);
       await stop(t);
     },
@@ -123,7 +123,7 @@ void main() {
     source.current = downloading;
     await t.tap(find.byKey(const ValueKey('update-primary')));
     await t.pumpAndSettle();
-    expect(find.text('Скачиваем обновление'), findsOneWidget);
+    expect(find.text('Обновление'), findsOneWidget);
     await t.tap(find.byKey(const ValueKey('play')));
     await t.pump();
     expect(find.byType(AndroidUpdateBanner), findsNothing);
@@ -136,12 +136,21 @@ void main() {
     await t.tap(find.byKey(const ValueKey('update-later')));
     await t.pumpAndSettle();
     expect(find.byType(AndroidUpdateDialog), findsNothing);
-    expect(find.text('Перезапустить и обновить'), findsOneWidget);
+    expect(find.text('Обновление загружено'), findsOneWidget);
+    expect(find.text('100%'), findsOneWidget);
+    expect(
+      t
+          .widget<LinearProgressIndicator>(
+            find.byKey(const ValueKey('update-download-progress')),
+          )
+          .value,
+      1,
+    );
     await updates.refresh(force: true);
     await t.pumpAndSettle();
     expect(find.byType(AndroidUpdateDialog), findsNothing);
     expect(source.completions, 0);
-    await t.tap(find.text('Перезапустить и обновить'));
+    await t.tap(find.byKey(const ValueKey('update-ready-action')));
     await t.pumpAndSettle();
     expect(find.byKey(const ValueKey('update-dialog-ready')), findsOneWidget);
     await stop(t);
@@ -184,6 +193,20 @@ void main() {
     await t.binding.handlePopRoute();
     await t.pumpAndSettle();
     expect(find.byType(AndroidUpdateDialog), findsNothing);
+    expect(updates.prompt, isNull);
+    expect(source.completions, 0);
+    await stop(t);
+  });
+  testWidgets('Neon close button defers a ready update without installing', (
+    t,
+  ) async {
+    source.current = downloaded;
+    await updates.start();
+    await mount(t);
+    await t.tap(find.byKey(const ValueKey('update-close')));
+    await t.pumpAndSettle();
+    expect(find.byType(AndroidUpdateDialog), findsNothing);
+    expect(find.text('Обновление загружено'), findsOneWidget);
     expect(updates.prompt, isNull);
     expect(source.completions, 0);
     await stop(t);

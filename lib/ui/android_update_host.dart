@@ -1,10 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../data/android_updates.dart';
+import 'android_update_neon.dart';
 import 'game_ui.dart';
 
-/// The game decides when it is idle. Route/lifecycle checks also protect other
-/// windows, Google startup, result presentation, and a new round starting.
+/// The game allows prompts before a round or while presenting its result.
+/// Route/lifecycle checks also protect other windows, startup, and round start.
 class AndroidUpdateHost extends StatefulWidget {
   const AndroidUpdateHost({
     super.key,
@@ -100,7 +101,8 @@ class _AndroidUpdateHostState extends State<AndroidUpdateHost>
     controller.markPromptShown(prompt);
     final accepted = await showDialog<bool>(
       context: context,
-      barrierColor: GameUi.modalBarrier,
+      barrierColor: const Color(0xD9000C1A),
+      animationStyle: GameUi.windowAnimationStyle,
       builder: (_) => AndroidUpdateDialog(prompt: prompt, russian: _ru),
     );
     _promptOpen = false;
@@ -178,7 +180,7 @@ class _AndroidUpdateHostState extends State<AndroidUpdateHost>
               ),
             ),
           ),
-        if (locked) ...[
+        if (safe && locked) ...[
           const ModalBarrier(dismissible: false, color: GameUi.modalBarrier),
           const Center(
             child: CircularProgressIndicator(
@@ -206,7 +208,7 @@ class AndroidUpdateDialog extends StatelessWidget {
     final title = switch (prompt) {
       UpdatePrompt.available =>
         ru ? 'Вышла новая версия' : 'A new version is available',
-      UpdatePrompt.ready => ru ? 'Обновление готово' : 'Update ready',
+      UpdatePrompt.ready => ru ? 'Установить обновление?' : 'Install update?',
       UpdatePrompt.failed => ru ? 'Не удалось обновить' : 'Could not update',
     };
     final body = switch (prompt) {
@@ -216,8 +218,8 @@ class AndroidUpdateDialog extends StatelessWidget {
             : 'Get the latest Untouch improvements. The update will download in the background.',
       UpdatePrompt.ready =>
         ru
-            ? 'Осталось перезапустить игру, чтобы установить новую версию.'
-            : 'Restart the game to install the new version.',
+            ? 'Новая версия загружена. Перезапустить игру и установить обновление?'
+            : 'The new version is downloaded. Restart the game and install it?',
       UpdatePrompt.failed =>
         ru
             ? 'Проверьте интернет и свободное место, затем попробуйте ещё раз. Играть можно в текущей версии.'
@@ -232,82 +234,118 @@ class AndroidUpdateDialog extends StatelessWidget {
     return Dialog(
       key: ValueKey('update-dialog-${prompt.name}'),
       backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 24),
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(23)),
+      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 360),
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Color(0xFF123E57), Color(0xFF062337)],
-            ),
-            border: Border.all(
-              color: prompt == UpdatePrompt.failed
-                  ? const Color(0xFFCC9C72)
-                  : GameUi.line,
-            ),
-            borderRadius: BorderRadius.circular(23),
-          ),
+        child: UpdateNeonSurface(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF0D4B5C),
-                    borderRadius: BorderRadius.circular(15),
-                    border: Border.all(color: GameUi.line),
-                  ),
-                  child: Icon(
-                    switch (prompt) {
-                      UpdatePrompt.available => Icons.download_rounded,
-                      UpdatePrompt.ready => Icons.check_rounded,
-                      UpdatePrompt.failed => Icons.priority_high_rounded,
-                    },
-                    color: GameUi.mint,
-                    size: 30,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  title,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontFamily: 'Roboto',
-                    fontSize: 23,
-                    height: 1.15,
-                    fontWeight: FontWeight.w700,
-                    color: GameUi.text,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  body,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontFamily: 'Roboto',
-                    fontSize: 14,
-                    height: 1.5,
-                    color: GameUi.muted,
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(13, 5, 9, 2),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          ru ? 'Обновление' : 'Update',
+                          style: const TextStyle(
+                            color: Color(0xFFF1F3FF),
+                            fontFamily: 'Roboto',
+                            fontSize: 20,
+                            height: 1.08,
+                            fontWeight: FontWeight.w800,
+                            shadows: [
+                              Shadow(color: Color(0x66397EFF), blurRadius: 8),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox.square(
+                        dimension: 44,
+                        child: IconButton(
+                          key: const ValueKey('update-close'),
+                          tooltip: ru ? 'Закрыть окно' : 'Close window',
+                          padding: EdgeInsets.zero,
+                          onPressed: () => Navigator.of(context).pop(false),
+                          icon: const Icon(
+                            Icons.close_rounded,
+                            color: Color(0xFF55D5FF),
+                            size: 28,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 18),
-                _UpdateButton(
-                  label: primary,
-                  onPressed: () => Navigator.of(context).pop(true),
-                ),
-                TextButton(
-                  key: const ValueKey('update-later'),
-                  onPressed: () => Navigator.of(context).pop(false),
-                  style: TextButton.styleFrom(
-                    foregroundColor: GameUi.muted,
-                    minimumSize: const Size.fromHeight(44),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      UpdateNeonSeal(
+                        ready: prompt == UpdatePrompt.ready,
+                        failed: prompt == UpdatePrompt.failed,
+                        size: MediaQuery.sizeOf(context).width < 350
+                            ? 76
+                            : prompt == UpdatePrompt.failed
+                            ? 82
+                            : 98,
+                      ),
+                      const SizedBox(height: 18),
+                      Text(
+                        title,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontFamily: 'Roboto',
+                          fontSize: 22,
+                          height: 1.15,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFFF1F3FF),
+                          shadows: [
+                            Shadow(color: Color(0x66397EFF), blurRadius: 8),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        body,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontFamily: 'Roboto',
+                          fontSize: 14,
+                          height: 1.5,
+                          color: Color(0xFFB7D8E9),
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+                      _UpdateButton(
+                        label: primary,
+                        onPressed: () => Navigator.of(context).pop(true),
+                      ),
+                      TextButton(
+                        key: const ValueKey('update-later'),
+                        onPressed: () => Navigator.of(context).pop(false),
+                        style: TextButton.styleFrom(
+                          foregroundColor: const Color(0xFF00DFFF),
+                          minimumSize: const Size.fromHeight(44),
+                        ),
+                        child: Text(
+                          ru ? 'Позже' : 'Later',
+                          style: const TextStyle(
+                            fontFamily: 'Roboto',
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            decoration: TextDecoration.underline,
+                            decorationColor: Color(0xFF00DFFF),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  child: Text(ru ? 'Позже' : 'Later'),
                 ),
               ],
             ),
@@ -339,73 +377,177 @@ class AndroidUpdateBanner extends StatelessWidget {
     final ru = russian;
     final downloading = phase == UpdatePhase.downloading;
     final ready = phase == UpdatePhase.ready;
+    if (!success && (downloading || ready)) {
+      return Material(
+        color: Colors.transparent,
+        child: _UpdateProgressBanner(
+          russian: ru,
+          ready: ready,
+          progress: progress,
+          onPressed: onPressed,
+        ),
+      );
+    }
+    if (success) {
+      return Material(
+        key: const ValueKey('update-banner'),
+        color: Colors.transparent,
+        child: UpdateNeonSurface(
+          radius: 14,
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Row(
+              children: [
+                const UpdateNeonSeal(ready: true, failed: false, size: 32),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        ru ? 'Untouch обновлён' : 'Untouch updated',
+                        style: const TextStyle(
+                          color: Color(0xFFF1F3FF),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        ru ? 'Можно играть!' : 'Ready to play!',
+                        style: const TextStyle(
+                          color: Color(0xFFA9CFE1),
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
     final title = success
         ? (ru ? 'Untouch обновлён' : 'Untouch updated')
-        : downloading
-        ? (ru ? 'Скачиваем обновление' : 'Downloading update')
-        : ready
-        ? (ru ? 'Обновление готово' : 'Update ready')
         : (ru ? 'Доступна новая версия' : 'A new version is available');
     return Material(
       key: const ValueKey('update-banner'),
       color: Colors.transparent,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: const Color(0xFF0A3047),
-          borderRadius: BorderRadius.circular(17),
-          border: Border.all(color: GameUi.line),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(
-                color: GameUi.text,
-                fontSize: 15,
-                fontWeight: FontWeight.w700,
+      child: UpdateNeonSurface(
+        radius: 14,
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  color: Color(0xFFF1F3FF),
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
-            ),
-            const SizedBox(height: 5),
-            Text(
-              success
-                  ? (ru ? 'Можно играть!' : 'Ready to play!')
-                  : downloading
-                  ? (ru ? 'Можно продолжать играть' : 'You can keep playing')
-                  : (ru
-                        ? 'Установите, когда будет удобно'
-                        : 'Update when it suits you'),
-              style: const TextStyle(color: GameUi.muted, fontSize: 13),
-            ),
-            if (downloading) ...[
-              const SizedBox(height: 12),
-              LinearProgressIndicator(
-                value: progress,
-                color: GameUi.mint,
-                backgroundColor: const Color(0xFF214A5C),
-                minHeight: 5,
+              const SizedBox(height: 5),
+              Text(
+                success
+                    ? (ru ? 'Можно играть!' : 'Ready to play!')
+                    : (ru
+                          ? 'Установите, когда будет удобно'
+                          : 'Update when it suits you'),
+                style: const TextStyle(color: Color(0xFFA9CFE1), fontSize: 13),
               ),
-              if (progress != null) ...[
-                const SizedBox(height: 7),
-                Text(
-                  '${(progress! * 100).floor()}% · '
-                  '${(downloadedBytes / 1000000).toStringAsFixed(1)} / '
-                  '${(totalBytes / 1000000).toStringAsFixed(1)} ${ru ? 'МБ' : 'MB'}',
-                  style: const TextStyle(color: GameUi.muted, fontSize: 12),
+              if (!success) ...[
+                const SizedBox(height: 10),
+                _UpdateButton(
+                  label: ru ? 'Скачать' : 'Download',
+                  onPressed: onPressed,
                 ),
               ],
-            ] else if (!success) ...[
-              const SizedBox(height: 10),
-              _UpdateButton(
-                label: ready
-                    ? (ru ? 'Перезапустить и обновить' : 'Restart and update')
-                    : (ru ? 'Скачать' : 'Download'),
-                onPressed: onPressed,
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The downloaded package retains the same quiet appearance as the download.
+/// It opens a confirmation on tap; reaching100% never installs by itself.
+class _UpdateProgressBanner extends StatelessWidget {
+  const _UpdateProgressBanner({
+    required this.russian,
+    required this.ready,
+    required this.progress,
+    required this.onPressed,
+  });
+  final bool russian, ready;
+  final double? progress;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final value = ready ? 1.0 : progress?.clamp(0.0, 1.0);
+    final label = ready
+        ? (russian ? 'Обновление загружено' : 'Update downloaded')
+        : (russian ? 'Обновление' : 'Update');
+    final content = Container(
+      key: const ValueKey('update-banner'),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 5),
+      decoration: BoxDecoration(
+        color: const Color(0xFF06131F),
+        borderRadius: BorderRadius.circular(3),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  label,
+                  style: const TextStyle(
+                    color: Color(0xFF8CA5B7),
+                    fontSize: 11,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                value == null ? '…' : '${(value * 100).floor()}%',
+                style: const TextStyle(color: Color(0xFF8CA5B7), fontSize: 11),
               ),
             ],
-          ],
+          ),
+          const SizedBox(height: 6),
+          LinearProgressIndicator(
+            key: const ValueKey('update-download-progress'),
+            value: value,
+            minHeight: 2,
+            color: const Color(0xFF4B8296),
+            backgroundColor: const Color(0xFF1B3041),
+            semanticsLabel: label,
+          ),
+        ],
+      ),
+    );
+    if (!ready) return IgnorePointer(child: content);
+    return Semantics(
+      button: true,
+      label: russian
+          ? 'Обновление загружено. Открыть подтверждение установки'
+          : 'Update downloaded. Open installation confirmation',
+      child: GestureDetector(
+        key: const ValueKey('update-ready-action'),
+        behavior: HitTestBehavior.opaque,
+        onTap: onPressed,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: content,
         ),
       ),
     );
@@ -417,29 +559,6 @@ class _UpdateButton extends StatelessWidget {
   final String label;
   final VoidCallback onPressed;
   @override
-  Widget build(BuildContext context) => DecoratedBox(
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(12),
-      gradient: const LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [Color(0xFF5EE4D3), Color(0xFF1CBAA9)],
-      ),
-    ),
-    child: TextButton(
-      key: const ValueKey('update-primary'),
-      onPressed: onPressed,
-      style: TextButton.styleFrom(
-        foregroundColor: const Color(0xFF032839),
-        minimumSize: const Size.fromHeight(46),
-        padding: const EdgeInsets.all(12),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-      child: Text(
-        label,
-        textAlign: TextAlign.center,
-        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
-      ),
-    ),
-  );
+  Widget build(BuildContext context) =>
+      UpdateNeonButton(label: label, onPressed: onPressed);
 }

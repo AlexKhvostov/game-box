@@ -6,7 +6,7 @@ ROOT=Path(__file__).resolve().parents[1]
 ADB=Path('C:/Users/alexe/AppData/Local/Android/Sdk/platform-tools/adb.exe')
 PACKAGE='com.best4u.untouch.uiprobe.updates'
 MAIN='com.best4u.untouch'
-OUT=ROOT/'docs/release-evidence/android-flexible-update-20261024'
+OUT=ROOT/'docs/release-evidence/android-update-neon-20261024'
 OUT.mkdir(parents=True,exist_ok=True)
 devices=subprocess.check_output([str(ADB),'devices'],text=True)
 connected=[line.split()[0] for line in devices.splitlines()[1:] if line.endswith('\tdevice')]
@@ -34,6 +34,8 @@ def tap(label):
     raw=shell('cat','/sdcard/untouch-update-qa.xml')
     tree=ET.fromstring(raw[raw.index('<?xml'):])
     matches=[node for node in tree.iter('node') if node.attrib.get('text')==label or node.attrib.get('content-desc')==label]
+    if not matches:matches=[node for node in tree.iter('node') if node.attrib.get('content-desc','').startswith(label)]
+    if not matches:matches=[node for node in tree.iter('node') if node.attrib.get('clickable')=='true' and label in node.attrib.get('content-desc','')]
     assert matches, f'Button not found: {label}'
     bounds=list(map(int,re.findall(r'\d+',matches[0].attrib['bounds'])))
     shell('input','tap',str((bounds[0]+bounds[2])//2),str((bounds[1]+bounds[3])//2))
@@ -62,19 +64,21 @@ try:
     playing=wait_for(lambda s:s['playing'] and s['timeMs']>0)
     api('/state?value=ready')
     during=api();assert during['dialog'] is None and during['banner'] is False,during
-    checks.append('Downloaded event does not interrupt actual game/result or show a banner')
+    screenshot('phone-playing100.png')
+    checks.append('Downloaded event does not interrupt actual game or show a banner')
     api('/finish');wait_for(lambda s:s['result'])
-    result=api();assert result['dialog'] is None,result
-    checks.append('Production result remains unobscured and attempt is recorded')
-    api('/result-close');wait_for(lambda s:s['dialog']=='ready')
+    result=wait_for(lambda s:s['result'] and s['dialog']=='ready');assert result['timeMs']>0,result
+    checks.append('Install offer appears on production result with nonzero final time, never during play/impact')
     screenshot('phone-ready.png');tap('Позже')
     deferred=wait_for(lambda s:s['dialog'] is None and s['banner'])
-    assert deferred['completions']==0
+    assert deferred['completions']==0 and deferred['progress']==1,deferred
+    screenshot('phone-ready-later-result.png')
+    api('/result-close');wait_for(lambda s:not s['result'] and s['banner'] and s['dialog'] is None)
     shell('input','keyevent','3');shell('am','start','-n',PACKAGE+'/com.best4u.untouch.MainActivity')
     restored=wait_for(lambda s:s['phase']=='ready' and s['dialog'] is None and s['banner'])
     screenshot('phone-ready-later.png')
     checks.append('Ready Later survives background/foreground; no automatic restart')
-    tap('Перезапустить и обновить');wait_for(lambda s:s['dialog']=='ready')
+    tap('Обновление загружено. Открыть подтверждение установки');wait_for(lambda s:s['dialog']=='ready')
     tap('Перезапустить и обновить')
     failed=wait_for(lambda s:s['dialog']=='failed')
     assert failed['completions']==1 and failed['attempt'] is not None,failed
@@ -82,6 +86,10 @@ try:
     final=wait_for(lambda s:s['dialog'] is None)
     assert not final['errors'],final['errors']
     checks.append('Explicit restart waits for saved attempt; synthetic installer failure is recoverable')
+    api('/state?value=success');success=wait_for(lambda s:s['banner'] and s['dialog'] is None)
+    assert not success['errors'],success['errors']
+    screenshot('phone-success.png')
+    checks.append('Neon success notice renders; all native Flutter errors remain empty')
 finally:
     shell('am','force-stop',PACKAGE)
     shell('am','force-stop',MAIN)

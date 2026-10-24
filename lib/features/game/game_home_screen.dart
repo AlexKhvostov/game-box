@@ -1797,7 +1797,8 @@ class _GameHomeScreenState extends State<GameHomeScreen>
     return AndroidUpdateHost(
       controller: context.read<AndroidUpdates?>(),
       safeToInterrupt:
-          _phase == _Phase.idle &&
+          (_phase == _Phase.result ||
+              (_phase == _Phase.idle && _elapsedPreciseMs == 0)) &&
           !_startingRound &&
           !_backgrounded &&
           (context.watch<MobileInvites?>()?.startupResolved ?? true),
