@@ -1,0 +1,9 @@
+{
+  "createdAt": "2026-10-24T17:50:41.781Z",
+  "kind": "proposal-only",
+  "files": {
+    "lib/features/game/jump_glow.dart": "eb2877b913a5ccd76a05722c8c411872c5f18868af8c52680997c694051da083",
+    "telegram-app/src/game/jump-glow.ts": "b8b6517ca31787368141a4e5b9cb64f1d524f30b3e3e7f15a98583b364fed529",
+    "lib/features/game/game_field_painter.dart": "a77e651a2d64e4bce6c6744836e9213f03f63f0ad9ccf0d0ee644ad38e60510e"
+  }
+}
