@@ -1,6 +1,13 @@
 import type {Attempt, AttemptHistorySnapshot, AverageBoard, GameConfig, Profile, Score} from '../services/contracts.ts';
 export type AttemptRow = {attempt: Attempt; number: number; averageMs: number | null; included: boolean; inCurrentWindow: boolean};
 export type PersonalBest = {timeMs: number; createdAt: number | null; localId: string | null; source: 'server' | 'confirmed-local'};
+/** The dedicated best record contains metrics even outside the loaded page. */
+export function bestAttemptScore(snapshot: AttemptHistorySnapshot | null, profile: Profile | null): Score | null {
+  const best = snapshot?.history.best;
+  if (!profile || snapshot?.history.userId !== profile.id || snapshot.average.mine.userId !== profile.id || !best) return null;
+  return {id: best.id, userId: profile.id, playerName: profile.nickname, timeMs: best.timeMs, createdAt: best.createdAt,
+    runDistance: best.runDistance, riskCount: best.riskCount, hadJump: best.hadJump, hadHelmet: best.hadHelmet};
+}
 /** Account-bound local history is only a delivery journal, never a server curve. */
 export function ownAttempts(attempts: Attempt[], owner?: string | null): Attempt[] {
   if (!owner) return [];

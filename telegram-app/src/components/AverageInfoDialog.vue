@@ -8,7 +8,7 @@ defineProps<{rules: AverageBoard['rules']; incomplete?: boolean}>();
 const emit = defineEmits<{close: []}>();
 const t = (ru: string, en: string) => state.locale === 'ru' ? ru : en;
 let removeBack: (() => void) | undefined;
-onMounted(() => {removeBack = registerOverlayBack(() => emit('close'));});
+onMounted(() => {removeBack = registerOverlayBack(() => emit('close'),'average_help');});
 onBeforeUnmount(() => removeBack?.());
 </script>
 <template>

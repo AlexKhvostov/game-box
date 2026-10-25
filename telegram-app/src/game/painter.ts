@@ -3,7 +3,7 @@ import type {ImpactEffect} from './impact';
 import {paintHelmet} from './helmet';
 import type { Body, WorldState } from '../domain/kernel';
 import {motionProbe} from './motion-probe';
-import {createJumpGlowDrawer, type JumpGlowDrawer} from './jump-glow';
+import {createJumpReadyDrawer} from './jump-ready-drawer';
 import {jumpGlowProgress} from './jump-glow-progress';
 // Direct Canvas translation of GameFieldPainter/paintHeroFace. Geometry comes
 // exclusively from the compiled Dart world; visible effects never alter bodies.
@@ -21,12 +21,12 @@ export class FieldPainter {
   private c: CanvasRenderingContext2D;
   private background: HTMLCanvasElement;
   private reduced=matchMedia('(prefers-reduced-motion: reduce)');
-  private jumpGlow: JumpGlowDrawer;
+  private jumpGlow: ReturnType<typeof createJumpReadyDrawer>;
   constructor(private canvas: HTMLCanvasElement) {
     this.c = canvas.getContext('2d', { alpha: false })!;
     this.background = document.createElement('canvas'); this.background.width = 760; this.background.height = 760;
     // Warm the approved artwork before play; no texture work in the frame loop.
-    this.jumpGlow = createJumpGlowDrawer({radius: .1});
+    this.jumpGlow = createJumpReadyDrawer();
   }
   configure(config: Record<string, any>) {
     const c = this.background.getContext('2d')!; c.setTransform(2, 0, 0, 2, 0, 0);
@@ -39,7 +39,7 @@ export class FieldPainter {
     c.save(); c.clip(); c.beginPath(); for (let i = 1; i < 12; i++) { const v = 380 * i / 12; c.moveTo(v, 0); c.lineTo(v, 380); c.moveTo(0, v); c.lineTo(380, v); } c.strokeStyle = '#58E2EC16'; c.lineWidth = .7; c.stroke(); c.restore();
     rounded(c, 0, 0, 380, 380, config.field.cornerRadius); c.strokeStyle = '#0000001f'; c.lineWidth = 380 * .08; c.stroke();
   }
-  draw(s: WorldState, config: Record<string, any>, frame: number, impacts:ImpactEffect[] = []) {
+  draw(s: WorldState, config: Record<string, any>, frame: number, impacts:ImpactEffect[] = [], jumpReadyAgeMs: number | null = null) {
     const t0=motionProbe.clock();
     const c = this.c, dpr = Math.min(devicePixelRatio || 1, 3), side = this.canvas.clientWidth;
     const pixels = Math.max(1, Math.round(side * dpr)); if (this.canvas.width !== pixels) { this.canvas.width = pixels; this.canvas.height = pixels; }
@@ -71,7 +71,9 @@ export class FieldPainter {
     if (jumpProgress > 0) {
       c.save();
       rounded(c, x, y, vis, vis, 4); c.clip();
-      this.jumpGlow(c, {x, y, size: vis, progress: jumpProgress});
+      this.jumpGlow(c, {x, y, size: vis, progress: jumpProgress,
+        ready: s.jumpCooldownMs === 0 && s.jumpRemainingMs === 0,
+        readyAgeMs: jumpReadyAgeMs, reduced: this.reduced.matches});
       c.restore();
     }
     paintHelmet(c,s,x,y,vis,this.reduced.matches);

@@ -8,8 +8,10 @@ import { sound, enableAudio, syncMusic, stopAudio } from '../platform/audio';
 import { telegram } from '../platform/telegram';
 import type { GameConfig } from '../services/contracts';
 import { motionProbe } from './motion-probe';
+import {JumpReadySignal} from './jump-ready-signal';
 export class GameController {
   private painter: FieldPainter;
+  private jumpReady = new JumpReadySignal();
   private snapshot!: WorldState;
   private boundConfig: GameConfig | null = null;
   private requestId = '';
@@ -34,14 +36,26 @@ export class GameController {
   }
   reset() {
     if (failedFinish.value) return;
+
     applyPendingConfig();
     if (!state.config) return;
     this.boundConfig = state.config;
+    this.jumpReady.reset();
     this.requestId = operationId(); this.snapshot = kernel({ op: 'create', proofVersion: 3, config: this.boundConfig.config, requestId: this.requestId, hadHelmet: state.helmet, hadJump: state.jump });
     this.impacts=[];this.painter.configure(this.boundConfig.config); world.value = this.snapshot; this.reanchor();
     this.draw();
   }
-  private draw() { if (this.snapshot && this.boundConfig) this.painter.draw(this.snapshot, this.boundConfig.config, this.frame, this.impacts); }
+  private observeJumpReady() {
+    const s = this.snapshot;
+    this.jumpReady.observe(s.jumpEnabled === true && this.boundConfig?.config.game.jumpEnabled === true,
+      Math.max(s.jumpCooldownMs, s.jumpRemainingMs ?? NaN), s.timeMs);
+  }
+  private draw() {
+    if (this.snapshot && this.boundConfig) {
+      this.observeJumpReady();
+      this.painter.draw(this.snapshot, this.boundConfig.config, this.frame, this.impacts, this.jumpReady.ageMs);
+    }
+  }
   reanchor() { this.lastTime = 0; this.debt = 0; this.pointers.clear(); this.primary = null; }
   private geometryIssue() {
     const rect = this.canvas.getBoundingClientRect(), vp = window.visualViewport;
@@ -80,13 +94,16 @@ export class GameController {
   };
   private advance(ms: number) {
     const previous = this.snapshot; this.snapshot = kernel({ op: 'tick', ms });
+    this.observeJumpReady();
     if (this.snapshot.wallBounces) sound('wall'); if (this.snapshot.enemyBounces) sound('collide');
     this.transitions(previous);
   }
   private transitions(previous: WorldState) {
+
     if (this.snapshot.riskCount > previous.riskCount) sound('risk');
     if ((this.snapshot.helmetCharge?.breaks??0) > (previous.helmetCharge?.breaks??0)) { this.impacts.push(new HelmetShatter(this.snapshot));sound('helmet'); if (state.preferences.vibration) telegram()?.HapticFeedback?.impactOccurred('medium'); }
     if (this.snapshot.dead && !previous.dead) {
+
       this.impacts=[new ImpactBurst(this.snapshot)];sound(this.snapshot.againstWall ? 'heroWall' : 'hit'); if (state.preferences.vibration) telegram()?.HapticFeedback?.notificationOccurred('error');
       this.pointers.clear(); this.primary = null; this.debt = 0; world.value = this.snapshot;
       try { finishAttempt(this.requestId, this.snapshot, proof()); } catch (error) { state.error = errorText(error); }
@@ -129,10 +146,11 @@ export class GameController {
   jump() {
     if (!this.snapshot.playing || !state.jump) return;
     const before=this.snapshot;this.snapshot=kernel({op:'jump'});
+    this.observeJumpReady();
     const accepted=this.snapshot.jumpCount!==undefined&&before.jumpCount!==undefined
       ? this.snapshot.jumpCount>before.jumpCount
       : this.snapshot.jumpCooldownMs>before.jumpCooldownMs;
-    if(accepted)sound('jump');if(motionProbe.paintOnInput())this.draw();world.value=this.snapshot;
+    if(accepted){sound('jump');}if(motionProbe.paintOnInput())this.draw();world.value=this.snapshot;
   }
   private key = (event: KeyboardEvent) => {
     if (['INPUT', 'TEXTAREA', 'SELECT'].includes((event.target as HTMLElement)?.tagName) || state.screen) return;

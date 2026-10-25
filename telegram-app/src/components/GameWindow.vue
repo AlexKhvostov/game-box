@@ -23,7 +23,7 @@ onBeforeUnmount(() => { window.removeEventListener('keydown', key); previous?.fo
   <div class="modal-backdrop" @pointerdown.self="closable === false ? undefined : back()">
     <section ref="panel" class="game-window" :class="{ tall }" :inert="inactive?true:undefined" :aria-hidden="inactive?true:undefined" role="dialog" aria-modal="true" :aria-labelledby="titleId" tabindex="-1">
       <slot name="background"/>
-      <header class="window-header"><button v-if="$slots.back" class="icon-button" :aria-label="state.locale==='ru'?'Назад':'Back'" :disabled="closable === false" @click="back">‹</button><h1 :id="titleId"><slot name="title"><span v-if="icon" aria-hidden="true">{{ icon }}</span>{{ title }}</slot></h1><slot name="header-extra"/><button class="icon-button close-window" :aria-label="state.locale==='ru'?'Закрыть':'Close'" :disabled="closable === false" @click="back">×</button></header>
+      <header class="window-header"><button v-analytics="{feature: 'back', placement: 'window'}" v-if="$slots.back" class="icon-button" :aria-label="state.locale==='ru'?'Назад':'Back'" :disabled="closable === false" @click="back">‹</button><h1 :id="titleId"><slot name="title"><span v-if="icon" aria-hidden="true">{{ icon }}</span>{{ title }}</slot></h1><slot name="header-extra"/><button v-analytics="{feature: 'close', placement: 'window'}" class="icon-button close-window" :aria-label="state.locale==='ru'?'Закрыть':'Close'" :disabled="closable === false" @click="back">×</button></header>
       <div class="window-body"><slot /></div>
       <footer v-if="$slots.footer" class="window-footer"><slot name="footer"/></footer>
       <StatusOverlay v-if="!inactive"/>

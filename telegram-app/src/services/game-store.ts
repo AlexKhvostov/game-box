@@ -16,7 +16,7 @@ export const state = reactive({ profile: null as Profile | null, config: null as
   initialized: false, online: true, connection: 'unknown' as ConnectionStatus, busy: false, externalBusy: false, error: '', notice: '', screen: '' as string, parent: '',
   helmet: false, jump: false, history: [] as Attempt[], periods: {} as Record<string, Score[]>, average: null as AverageBoard | null,
   serverHistory: null as AttemptHistorySnapshot | null, historyLoading: false, historyError: '',
-  invites: null as InviteState | null, period: 'all', rankingTab: 'record', locale: 'ru',
+  bestResult: null as Score | null, invites: null as InviteState | null, period: 'all', rankingTab: 'record', locale: 'ru',
   preferences: { sound: true, music: true, vibration: true }, serverOffset: 0, resultId: '', selectedScore: null as Score | null, selectedPlayer:null as {userId:string;playerName:string}|null, rulesAccepted: false });
 export const api = new TelegramApi(status => { state.connection = status; state.online = status !== 'offline'; });
 export const world = shallowRef<WorldState | null>(null);
@@ -104,6 +104,7 @@ export async function request(body: Record<string, unknown>,beforeAccept?:(resul
     if(epoch!==generation)throw new Error('store_session_changed');
     beforeAccept?.(result);accept(result,serial);return result;
   }catch(error){
+
     if(!disposed&&(epoch===generation||(error instanceof Error&&error.message==='owner_changed')))blockRevokedSession(error);
     throw error;
   }
@@ -170,6 +171,7 @@ export function finishAttempt(id: string, s: WorldState, proof: RoundProof) {
   history();liveResultId=id; void flush();
 }
 export function presentResultReward(id:string){
+  if(state.bestResult)return;
   if(id!==liveResultId||state.screen!=='result'||state.resultId!==id||document.hidden||telegram()?.isActive===false||failedFinish.value||!journal||!state.profile)return;
   const entry=journal.all.find(a=>a.requestId===id);
   if(!entry?.result||entry.rewardVisualShown||entry.phase==='rejected')return;
@@ -266,8 +268,10 @@ export async function action(callback: () => Promise<unknown>) {
 export async function walletOperation(kind: string, args: Record<string, unknown> = {}, operation?: string) {
   const owner = state.profile!.id, key = `pending-op:${owner}:${kind}:${JSON.stringify(args)}`;
   const old = storage.get<string | null>(key, null), id = operation ?? old ?? operationId(); storage.set(key, id);
-  const result = await request({ action: 'wallet_operation', kind, args, operationId: id });
+
+  const result=await request({ action: 'wallet_operation', kind, args, operationId: id });
   const grant=result.energyGrant??result.bonusClaim??result.adReward;
+
   if(grant?.operationId===id&&Number.isSafeInteger(grant.amount)&&grant.amount>0&&state.profile?.id===owner){
     const shown=storage.get<string[]>(`rewarded-operations:${owner}`,[]);
     if(!shown.includes(id)){
@@ -300,12 +304,18 @@ export function returnToPlay() {
 }
 export function openScreen(screen: string, parent = '') {
   if (failedFinish.value && screen !== 'result') return;
+  if (screen !== 'result' && screen !== 'share') state.bestResult = null;
   if (!parent) navigation = [];
   else if (parent === state.screen) navigation.push(parent);
   else navigation = [parent];
   state.error = ''; state.screen = screen; state.parent = navigation.at(-1) ?? '';
 }
-export function back() { if(closeTopOverlay())return; if (failedFinish.value) return; state.screen = navigation.pop() ?? ''; state.parent = navigation.at(-1) ?? ''; state.error = ''; }
+export function openBestAttemptResult(score: Score) {
+  if (failedFinish.value || !state.profile || score.userId !== state.profile.id) return;
+  state.bestResult = {...score};
+  openScreen('result', 'history');
+}
+export function back() { if(closeTopOverlay())return; if (failedFinish.value) return; state.screen = navigation.pop() ?? ''; if(state.screen!=='result'&&state.screen!=='share')state.bestResult=null; state.parent = navigation.at(-1) ?? ''; state.error = ''; }
 const online = () => { if (!disposed) { void api.checkConnection(); void flush(); } };
 const offline = () => { if (!disposed) void api.checkConnection(); };
 const activity = () => { if (!disposed) { const active = !document.hidden && telegram()?.isActive !== false; api.setActive(active); if (active) void flush(); } };

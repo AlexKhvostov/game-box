@@ -3,8 +3,8 @@ import {computed, ref, watch, nextTick, onMounted, useId} from 'vue';
 import GameWindow from '../components/GameWindow.vue';
 import GameArt from '../components/GameArt.vue';
 import AverageInfoDialog from '../components/AverageInfoDialog.vue';
-import {state, refreshAttemptHistory, moreAttemptHistory, retryAttemptHistory} from '../services/game-store';
-import {myAttemptsModel, attemptWindow} from '../domain/my-attempts';
+import {state, refreshAttemptHistory, moreAttemptHistory, retryAttemptHistory, openBestAttemptResult} from '../services/game-store';
+import {myAttemptsModel, attemptWindow, bestAttemptScore} from '../domain/my-attempts';
 import type {Attempt} from '../services/contracts';
 const emit = defineEmits<{detail: [attempt: Attempt]}>();
 const t = (ru: string, en: string) => state.locale === 'ru' ? ru : en;
@@ -36,7 +36,7 @@ function scrollSelected() {void nextTick(() => {
   else if (bottom > list.value.scrollTop + list.value.clientHeight) list.value.scrollTop = bottom - list.value.clientHeight;
 });}
 function select(id: string, scroll = false) {selectedId.value = id; missingBest.value = false; if (scroll) scrollSelected();}
-function selectBest() {const id = model.value.best?.localId; if (id) select(id, true); else missingBest.value = true;}
+function selectBest() {const score = bestAttemptScore(state.serverHistory, state.profile); if (score) openBestAttemptResult(score);}
 function closeInfo() {const owner = state.profile?.id; showInfo.value = false; void nextTick(() => {if (owner === state.profile?.id && state.screen === 'history') meanButton.value?.focus({preventScroll: true});});}
 function chartKey(event: KeyboardEvent) {
   const step = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
@@ -70,20 +70,20 @@ onMounted(() => {void refreshAttemptHistory();});
           <strong class="ma-value" :style="{'--characters':String(model.totalCount ?? '—').length}">{{model.totalCount ?? '—'}}</strong>
           <span class="ma-stat-sub">{{t('За всё время','All time')}}</span>
         </div>
-        <button type="button" class="ma-stat ma-best" :disabled="!model.best" @click="selectBest">
+        <button v-analytics="{feature: 'select_best', placement: 'my_attempts'}" type="button" class="ma-stat ma-best" :disabled="!model.best" @click="selectBest">
           <span class="ma-stat-label"><img src="/assets/branding/ranking/trophy.svg" alt="">{{t('Лучшая попытка','Best attempt')}}</span>
           <strong class="ma-value" :style="{'--characters':seconds(model.best?.timeMs).length+1}">{{seconds(model.best?.timeMs)}} <small>{{t('с','s')}}</small></strong>
           <span class="ma-stat-sub ma-best-date">{{model.best?stamp(model.best.createdAt):t('Пока нет рекорда','No record yet')}}</span>
           <span v-if="model.best?.source==='confirmed-local'" class="ma-stat-sub">{{t('Подтверждено на устройстве','Confirmed on this device')}}</span>
         </button>
-        <button ref="meanButton" type="button" class="ma-stat ma-mean" :disabled="!model.rules" aria-haspopup="dialog" :aria-expanded="showInfo" @click="showInfo=true">
+        <button v-analytics="{feature: 'show_info', placement: 'my_attempts'}" ref="meanButton" type="button" class="ma-stat ma-mean" :disabled="!model.rules" aria-haspopup="dialog" :aria-expanded="showInfo" @click="showInfo=true">
           <span class="ma-stat-label">{{t('Среднее','Average')}} <span aria-hidden="true" class="ma-info">ⓘ</span></span>
           <strong class="ma-value" :style="{'--characters':seconds(model.averageMs).length+1}">{{seconds(model.averageMs)}} <small>{{t('с','s')}}</small></strong>
           <span class="ma-stat-sub">{{model.rules?t(`Учтено попыток: ${model.usedCount}`,`Attempts counted: ${model.usedCount}`):t('Подключаем данные…','Loading rules…')}}</span>
         </button>
       </div>
       <div class="ma-chart-shell">
-        <button type="button" class="ma-chart-toggle" :aria-expanded="expanded" :aria-controls="plotId" @click="expanded=!expanded"><span>{{t('График · время, с','Chart · time, s')}}</span><span>{{expanded?t('Свернуть','Collapse'):t('Развернуть','Expand')}} <svg viewBox="0 0 24 24" aria-hidden="true" :class="{collapsed:!expanded}"><path d="m6 15 6-6 6 6"/></svg></span></button>
+        <button v-analytics="{feature: 'expanded', placement: 'my_attempts'}" type="button" class="ma-chart-toggle" :aria-expanded="expanded" :aria-controls="plotId" @click="expanded=!expanded"><span>{{t('График · время, с','Chart · time, s')}}</span><span>{{expanded?t('Свернуть','Collapse'):t('Развернуть','Expand')}} <svg viewBox="0 0 24 24" aria-hidden="true" :class="{collapsed:!expanded}"><path d="m6 15 6-6 6 6"/></svg></span></button>
         <div v-show="expanded" :id="plotId" class="ma-chart-region">
           <svg v-if="visible.length" viewBox="0 0 364 198" class="ma-chart" tabindex="0" role="img" :aria-label="t('Столбики — попытки, жёлтая линия — среднее. Стрелки выбирают попытку.','Bars show attempts; the yellow line shows the average. Arrow keys select an attempt.')" @click="chartClick" @keydown="chartKey">
             <g v-for="i in 6" :key="`grid-${i}`"><line x1="36" x2="350" :y1="y(ceiling*(i-1)/5)" :y2="y(ceiling*(i-1)/5)" class="ma-grid"/><text x="30" :y="y(ceiling*(i-1)/5)+4" text-anchor="end">{{ceiling*(i-1)/5000}}</text></g>
@@ -101,11 +101,11 @@ onMounted(() => {void refreshAttemptHistory();});
       <header class="ma-history-heading"><h2>{{t('История','History')}} <span>· {{model.history.length}} / {{model.totalCount ?? '—'}}</span></h2><small>{{t('Новые сверху','Newest first')}}</small></header>
       <div ref="list" class="ma-list">
         <div v-for="row in model.history" :key="row.attempt.requestId" class="ma-row" :class="{'is-selected':selectedId===row.attempt.requestId,'is-best':row.attempt.requestId===model.best?.localId}" :data-attempt-id="row.attempt.requestId">
-          <button type="button" class="ma-row-select" :aria-pressed="selectedId===row.attempt.requestId" @click="select(row.attempt.requestId)"><span class="ma-number">#{{row.number}}</span><span class="ma-row-meta"><span class="ma-date">{{stamp(row.attempt.createdAt)}}</span><small>{{t('Шаги','Steps')}} {{row.attempt.result!.runDistance}} · {{t('Риск','Risk')}} {{row.attempt.result!.riskCount}}{{phase(row.attempt)}}</small></span><strong class="ma-time">{{seconds(row.attempt.result!.timeMs)}} <small>{{t('с','s')}}</small></strong></button>
-          <button type="button" class="ma-details" :aria-label="t(`Подробности попытки ${row.number}`,`Details of attempt ${row.number}`)" @click="emit('detail',row.attempt)">ⓘ</button>
+          <button v-analytics="{feature: 'select', placement: 'my_attempts'}" type="button" class="ma-row-select" :aria-pressed="selectedId===row.attempt.requestId" @click="select(row.attempt.requestId)"><span class="ma-number">#{{row.number}}</span><span class="ma-row-meta"><span class="ma-date">{{stamp(row.attempt.createdAt)}}</span><small>{{t('Шаги','Steps')}} {{row.attempt.result!.runDistance}} · {{t('Риск','Risk')}} {{row.attempt.result!.riskCount}}{{phase(row.attempt)}}</small></span><strong class="ma-time">{{seconds(row.attempt.result!.timeMs)}} <small>{{t('с','s')}}</small></strong></button>
+          <button v-analytics="{feature: 'emit', placement: 'my_attempts'}" type="button" class="ma-details" :aria-label="t(`Подробности попытки ${row.number}`,`Details of attempt ${row.number}`)" @click="emit('detail',row.attempt)">ⓘ</button>
         </div>
         <p v-if="!model.history.length&&!state.historyLoading&&!state.historyError" class="ma-empty">{{t('Ваши попытки будут здесь. Пока нет результатов.','Your attempts will appear here. No results yet.')}}</p>
-        <button v-if="state.historyError||state.serverHistory?.history.nextCursor" class="ma-load-more" type="button" :disabled="state.historyLoading" @click="state.historyError?retryAttemptHistory():moreAttemptHistory()">{{state.historyLoading?t('Загружаем…','Loading…'):state.historyError?t('Повторить загрузку','Retry loading'):t('Загрузить ещё','Load more')}}</button>
+        <button v-analytics="{feature: 'state', placement: 'my_attempts'}" v-if="state.historyError||state.serverHistory?.history.nextCursor" class="ma-load-more" type="button" :disabled="state.historyLoading" @click="state.historyError?retryAttemptHistory():moreAttemptHistory()">{{state.historyLoading?t('Загружаем…','Loading…'):state.historyError?t('Повторить загрузку','Retry loading'):t('Загрузить ещё','Load more')}}</button>
         <div v-if="model.pending.length" class="ma-pending"><strong>{{t('На устройстве · ещё не подтверждены','On this device · not confirmed yet')}}</strong><div v-for="attempt in model.pending" :key="attempt.requestId">{{stamp(attempt.createdAt)}} · {{seconds(attempt.result!.timeMs)}} {{t('с','s')}}{{phase(attempt)}}</div></div>
       </div>
       <p v-if="missingBest||state.historyError||state.historyLoading" class="ma-history-note" role="status">{{missingBest?t('Рекорд в более ранней истории. Загрузите ещё попытки.','Your record is in earlier history. Load more attempts.'):state.historyError?(state.serverHistory?t('Связь прервалась. Загруженная история сохранена — повторите загрузку.','Connection interrupted. Loaded history is kept — retry loading.'):t('Не удалось загрузить историю. Повторите загрузку.','Could not load history. Please retry.')):t('Загружаем историю с сервера…','Loading history from the server…')}}</p>

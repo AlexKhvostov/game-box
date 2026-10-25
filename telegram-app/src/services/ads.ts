@@ -58,10 +58,11 @@ export async function watchRewardedAd() {
   try {
     const canShow = () => adsAvailable() && state.platform?.ads.rewardedBlockId===blockId && canShowRewardedAds() && state.profile?.id === owner && state.screen==='video' && !document.hidden && telegram()?.isActive !== false;
     if(!canShow())return;
+
     const watched = await adPresenter.show(blockId, true, false, canShow);
     if (watched && state.profile?.id === owner) { volatileReceipt = { ...receipt, watched: true }; adsState.pending = true; await deliverAdReward(); }
     else state.notice = state.locale === 'ru' ? 'Просмотр не завершён. Энергия не начислена.' : 'Viewing was not completed. No energy was added.';
-  } finally { telegram()?.offEvent('deactivated',cancel); adsState.showing = false; state.externalBusy = false; if (!document.hidden && telegram()?.isActive !== false) syncMusic(); }
+  } catch(error){throw error;} finally { telegram()?.offEvent('deactivated',cancel); adsState.showing = false; state.externalBusy = false; if (!document.hidden && telegram()?.isActive !== false) syncMusic(); }
   }finally{adsState.showing=false;}
 }
 let sessionStarted = performance.now(), lastInterstitial = -Infinity, completedRounds = 0;
@@ -109,9 +110,12 @@ export async function maybeResultInterstitial() {
   const canShow=()=>epoch===ownerEpoch&&latestRound===roundId&&state.platform?.ads.interstitialBlockId===blockId&&state.config?.revision===revision&&interstitialReady();
   const cancel=()=>adPresenter.destroy();telegram()?.onEvent('deactivated',cancel);
   try {
-    if (await adPresenter.show(blockId, false, false, canShow) && epoch===ownerEpoch) {
+
+    const completed=await adPresenter.show(blockId, false, false, canShow);
+
+    if (completed && epoch===ownerEpoch) {
       lastInterstitial = performance.now();
     }
-  } finally { telegram()?.offEvent('deactivated',cancel);interstitialInFlight=false;adsState.showing=false;state.externalBusy=false;if(!document.hidden&&telegram()?.isActive!==false)syncMusic(); }
+  } catch(error){throw error;} finally { telegram()?.offEvent('deactivated',cancel);interstitialInFlight=false;adsState.showing=false;state.externalBusy=false;if(!document.hidden&&telegram()?.isActive!==false)syncMusic(); }
 }
 window.addEventListener('online', () => { void deliverAdReward().catch(() => {}); });

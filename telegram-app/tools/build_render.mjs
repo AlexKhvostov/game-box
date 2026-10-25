@@ -6,6 +6,9 @@ const root=path.resolve(import.meta.dirname,'..');
 const api=process.env.VITE_TELEGRAM_API_URL??'';
 const app=process.env.VITE_TELEGRAM_APP_URL??'';
 const qa=process.env.VITE_QA_MODE;
+const analytics=qa==='true'?'qa':'production';
+if(process.env.VITE_ANALYTICS_ENV&&process.env.VITE_ANALYTICS_ENV!==analytics)throw Error('Analytics environment must match the main/test bot.');
+process.env.VITE_ANALYTICS_ENV=analytics;
 const accepted=app==='https://t.me/UntouchGameBot'&&qa==='false'
   ||app==='https://t.me/TestUntouch_bot'&&qa==='true';
 if(api!=='https://exinizzxqtjnysgibide.supabase.co/functions/v1/telegram-api'||!accepted){
@@ -19,4 +22,4 @@ const commit=process.env.RENDER_GIT_COMMIT??'local';
 if(!/^(?:local|[a-f0-9]{40})$/.test(commit))throw Error('Invalid deployment commit');
 await fs.writeFile(path.join(root,'dist/version.json'),JSON.stringify({version,
   buildId:`render-v${version}-${commit.slice(0,12)}`,artifact:'telegram-vue',qa:qa==='true',
-  apiUrl:api,appUrl:app,commit,paymentsEnabled:false,createdAt:new Date().toISOString()},null,2)+'\n');
+  apiUrl:api,appUrl:app,commit,paymentsEnabled:false,analyticsEnvironment:analytics,metrikaCounter:qa==='true'?113772106:113772090,createdAt:new Date().toISOString()},null,2)+'\n');
