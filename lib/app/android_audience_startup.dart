@@ -1,3 +1,4 @@
+import '../ui/analytics_navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -6,12 +7,25 @@ import '../ui/audience_gate.dart';
 import 'theme.dart';
 
 /// Start one game session for everyone. Age settings never recreate it.
-class AndroidAudienceStartup extends StatelessWidget {
+class AndroidAudienceStartup extends StatefulWidget {
   const AndroidAudienceStartup({super.key, required this.startGame});
   final Future<Widget> Function() startGame;
 
   @override
+  State<AndroidAudienceStartup> createState() => _AndroidAudienceStartupState();
+}
+
+class _AndroidAudienceStartupState extends State<AndroidAudienceStartup> {
+  final _analytics = AnalyticsNavigatorObserver();
+  @override
+  void dispose() {
+    _analytics.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) => MaterialApp(
+    navigatorObservers: [_analytics],
     debugShowCheckedModeBanner: false,
     theme: buildGameTheme(),
     supportedLocales: AppLocalizations.supportedLocales,
@@ -21,7 +35,7 @@ class AndroidAudienceStartup extends StatelessWidget {
       GlobalWidgetsLocalizations.delegate,
       GlobalCupertinoLocalizations.delegate,
     ],
-    home: AudienceGate(child: _StartGame(startGame: startGame)),
+    home: AudienceGate(child: _StartGame(startGame: widget.startGame)),
   );
 }
 

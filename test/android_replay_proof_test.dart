@@ -19,6 +19,8 @@ void main() {
                 File('assets/config/android-firebase.json').readAsStringSync(),
               )
               as Map<String, dynamic>;
+      // Version-one fixtures preserve the policy of old, already accepted rounds.
+      (snapshot['config']['game'] as Map).remove('helmetCooldownSec');
       final config = MobileGameplayTuning.apply(
         SharedConfigs.fromSnapshot(snapshot, 'fixture').gameplay,
       );
@@ -97,11 +99,7 @@ void main() {
             'requestId': key,
             'hadJump': jump,
             'hadHelmet': loadout & 1 != 0,
-            'proof': {
-              'version': 1,
-              'events': events,
-              'startPose': ?startPose,
-            },
+            'proof': {'version': 1, 'events': events, 'startPose': ?startPose},
             'timeMs': elapsed.floor(),
             'runDistance': ArcadeRules.runSteps(
               world.playerDistance,

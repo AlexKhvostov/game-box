@@ -1,3 +1,4 @@
+import 'app_analytics.dart';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
 
@@ -13,6 +14,11 @@ abstract interface class AdsDriver {
   Future<bool> showInterstitial({required bool Function() canShow});
 }
 
+abstract interface class AdsPrivacyDriver {
+  void updatePrivacy();
+  void dispose();
+}
+
 /// One fullscreen ad at a time. Yandex onRewarded consumes one server session.
 class AdsService extends ChangeNotifier {
   AdsService(this.driver, {required this.audience}) {
@@ -22,10 +28,21 @@ class AdsService extends ChangeNotifier {
   final AudiencePolicy audience;
   bool get available => audience.rewardedAdsEnabled;
   AdFailure? lastFailure;
-  void _policyChanged() => notifyListeners();
+  void _policyChanged() {
+    final privacy = driver;
+    if (privacy is AdsPrivacyDriver) {
+      (privacy as AdsPrivacyDriver).updatePrivacy();
+    }
+    notifyListeners();
+  }
+
   @override
   void dispose() {
     audience.removeListener(_policyChanged);
+    final privacy = driver;
+    if (privacy is AdsPrivacyDriver) {
+      (privacy as AdsPrivacyDriver).dispose();
+    }
     super.dispose();
   }
 
@@ -37,14 +54,23 @@ class AdsService extends ChangeNotifier {
   }) async {
     if (busy) return (outcome: AdOutcome.busy, reward: 0);
     lastFailure = null;
-    bool allowed() => available && (canShow?.call() ?? true);
+    final consentRevision = audience.adConsentRevision;
+    bool allowed() =>
+        available &&
+        audience.adConsentRevision == consentRevision &&
+        (canShow?.call() ?? true);
     if (!allowed() || !economy.canClaimWatchAd) {
+      AppAnalytics.event('ad_result', {
+        'format': 'rewarded',
+        'status': 'unavailable',
+      });
       lastFailure = AdFailure.disabled;
       return (outcome: AdOutcome.unavailable, reward: 0);
     }
     busy = true;
     notifyListeners();
     var confirming = false;
+    var reportedOutcome = false;
     try {
       final rewardOwner = economy.energyOwner;
       String? sessionId;
@@ -66,9 +92,16 @@ class AdsService extends ChangeNotifier {
         }
       }
       final outcome = await driver.showRewarded(canShow: allowed);
+      AppAnalytics.event('ad_result', {
+        'format': 'rewarded',
+        'status': outcome.name,
+      });
+      reportedOutcome = true;
       if (outcome == AdOutcome.unavailable) lastFailure = AdFailure.request;
       var reward = 0;
-      if (available && outcome == AdOutcome.rewarded) {
+      if (available &&
+          audience.adConsentRevision == consentRevision &&
+          outcome == AdOutcome.rewarded) {
         if (economy.energyEnabled) {
           // A fullscreen SDK can outlive the old signed-in profile. Never
           // submit its reward using a different profile's current wallet.
@@ -92,6 +125,12 @@ class AdsService extends ChangeNotifier {
       }
       return (outcome: outcome, reward: reward);
     } catch (_) {
+      if (!reportedOutcome) {
+        AppAnalytics.event('ad_result', {
+          'format': 'rewarded',
+          'status': confirming ? 'confirmation_failed' : 'error',
+        });
+      }
       lastFailure = confirming ? AdFailure.confirmation : AdFailure.request;
       return (outcome: AdOutcome.unavailable, reward: 0);
     } finally {
@@ -101,12 +140,21 @@ class AdsService extends ChangeNotifier {
   }
 
   Future<bool> showInterstitial({required bool Function() canShow}) async {
-    bool allowed() => audience.adsEnabled && canShow();
+    final consentRevision = audience.adConsentRevision;
+    bool allowed() =>
+        audience.adsEnabled &&
+        audience.adConsentRevision == consentRevision &&
+        canShow();
     if (busy || !allowed()) return false;
     busy = true;
     notifyListeners();
     try {
-      return await driver.showInterstitial(canShow: allowed);
+      final shown = await driver.showInterstitial(canShow: allowed);
+      AppAnalytics.event('ad_result', {
+        'format': 'interstitial',
+        'status': shown ? 'shown' : 'not_shown',
+      });
+      return shown;
     } catch (_) {
       return false;
     } finally {

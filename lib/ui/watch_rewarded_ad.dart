@@ -7,6 +7,7 @@ import '../data/economy_store.dart';
 import '../l10n/app_localizations.dart';
 import 'game_toast.dart';
 import 'audience_gate.dart';
+import 'ad_privacy_settings.dart';
 import 'test_service_preview.dart';
 
 Future<void> watchRewardedAd(
@@ -15,10 +16,10 @@ Future<void> watchRewardedAd(
 }) async {
   if (!context.read<EconomyStore>().canClaimWatchAd) return;
   final ads = context.read<AdsService?>();
-  if (ads != null && !ads.available && AudiencePolicy.adsBuildEnabled) {
-    // The clearly labelled reward-button tap is the user's request to show
-    // a contextual ad; no second confirmation and no automatic-ad opt-in.
-    ads.audience.requestRewardedAdsForSession();
+  if (ads != null &&
+      AudiencePolicy.adsBuildEnabled &&
+      ads.audience.isAdEligibleAge) {
+    if (!await ensureAdDataConsent(context) || !context.mounted) return;
   }
   if (ads == null || !ads.available) {
     if (testServicePreviewActive(context)) {
@@ -34,10 +35,10 @@ Future<void> watchRewardedAd(
           ? (ru
                 ? 'Реклама отключена в этой сборке.'
                 : 'Ads are disabled in this build.')
-          : policy!.revokedThisSession
+          : policy!.adDataConsent == false
           ? (ru
-                ? 'Запросы рекламы выключены в этом сеансе.'
-                : 'Ad requests are off for this session.')
+                ? 'Обработка рекламных данных не разрешена. Изменить выбор можно в аккаунте.'
+                : 'Advertising data processing was declined. Change your choice in Account.')
           : policy.needsSelection
           ? (ru
                 ? 'Укажите возраст в профиле, чтобы смотреть рекламу.'

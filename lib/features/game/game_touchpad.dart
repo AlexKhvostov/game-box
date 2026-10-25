@@ -24,6 +24,7 @@ class GameTouchpad extends StatelessWidget {
   Widget build(BuildContext context) => CustomPaint(
     key: const ValueKey('game-touchpad'),
     painter: const _TouchpadPainter(),
+    isComplex: true,
     child: const SizedBox.expand(),
   );
 }

@@ -41,7 +41,7 @@ Future<(AudiencePolicy, _Driver, AdsService)> _mount(
   });
   final policy = AudiencePolicy();
   await policy.load();
-  if (consent) policy.allowAdsForSession();
+  if (consent) await policy.setAdDataConsent(true);
   final driver = _Driver();
   final ads = AdsService(driver, audience: policy);
   final e = EconomyStore(storagePrefix: 'session_ads_ui_');
@@ -79,8 +79,8 @@ Future<(AudiencePolicy, _Driver, AdsService)> _mount(
                 TextButton(
                   onPressed: () async {
                     await Future.wait([
-                      ensureAdsForSession(c),
-                      ensureAdsForSession(c),
+                      ensureAdDataConsent(c),
+                      ensureAdDataConsent(c),
                     ]);
                   },
                   child: const Text('two prompts'),
@@ -106,201 +106,116 @@ Future<(AudiencePolicy, _Driver, AdsService)> _mount(
 }
 
 void main() {
+  for (final accepted in [true, false]) {
+    testWidgets(
+      'first video waits for explicit data choice: $accepted',
+      (t) async {
+        final (policy, driver, _) = await _mount(t, settings: true);
+        expect(find.byType(SwitchListTile), findsNothing);
+        expect(find.text('Реклама в этом сеансе'), findsNothing);
+        expect(driver.rewardedCalls, 0);
+        await t.tap(find.text('video'));
+        await t.pumpAndSettle();
+        expect(
+          find.byKey(const ValueKey('ad-data-consent-dialog')),
+          findsOneWidget,
+        );
+        expect(driver.rewardedCalls, 0);
+        await t.tap(
+          find.byKey(ValueKey(accepted ? 'ad-data-allow' : 'ad-data-decline')),
+        );
+        await t.pumpAndSettle();
+        expect(policy.adDataConsent, accepted);
+        expect(driver.rewardedCalls, accepted ? 1 : 0);
+        expect(driver.interstitialCalls, 0);
+        final reload = AudiencePolicy();
+        await reload.load();
+        expect(reload.adDataConsent, accepted);
+        await t.tap(find.text('video'));
+        await t.pumpAndSettle();
+        expect(
+          find.byKey(const ValueKey('ad-data-consent-dialog')),
+          findsNothing,
+        );
+        expect(driver.rewardedCalls, accepted ? 2 : 0);
+        expect(t.takeException(), null);
+      },
+      skip: !AudiencePolicy.adsBuildEnabled,
+    );
+  }
   testWidgets(
-    'Compact privacy opens consent and preserves cancel, revoke and session lock',
+    'Back rejects; repeated requests coalesce into one dialog',
     (t) async {
-      await t.binding.setSurfaceSize(const Size(320, 560));
-      addTearDown(() => t.binding.setSurfaceSize(null));
+      final (policy, driver, _) = await _mount(t);
+      await t.tap(find.text('two prompts'));
+      await t.pumpAndSettle();
+      expect(
+        find.byKey(const ValueKey('ad-data-consent-dialog')),
+        findsOneWidget,
+      );
+      await t.binding.handlePopRoute();
+      await t.pumpAndSettle();
+      expect(policy.adDataConsent, false);
+      expect(driver.rewardedCalls, 0);
+    },
+    skip: !AudiencePolicy.adsBuildEnabled,
+  );
+  testWidgets(
+    'data settings revoke and allow again without a session lock',
+    (t) async {
       final (policy, driver, _) = await _mount(
         t,
         settings: true,
-        compact: true,
+        consent: true,
       );
-      final row = find.byKey(const ValueKey('ad-privacy-compact'));
-      expect(find.byKey(const ValueKey('ad-privacy-switch')), findsNothing);
-      expect(t.getSize(row).height, lessThanOrEqualTo(56));
-      expect(find.text('Сейчас выключена'), findsOneWidget);
-      await t.tap(row);
+      await t.binding.setSurfaceSize(const Size(320, 560));
+      addTearDown(() => t.binding.setSurfaceSize(null));
+      await t.tap(find.byKey(const ValueKey('ad-privacy-compact')));
       await t.pumpAndSettle();
-      expect(find.text('Реклама в этом сеансе'), findsNWidgets(2));
-      expect(policy.adsEnabled, isFalse);
-      expect(driver.rewardedCalls, 0);
-      await t.tap(find.text('Без рекламы'));
+      await t.tap(find.byKey(const ValueKey('ad-data-revoke')));
       await t.pumpAndSettle();
-      expect(policy.adsEnabled, isFalse);
-      await t.tap(row);
-      await t.pumpAndSettle();
-      await t.tap(find.text('Включить'));
-      await t.pumpAndSettle();
-      expect(policy.adsEnabled, isTrue);
-      expect(driver.rewardedCalls, 0);
-      await t.tap(row);
-      await t.pumpAndSettle();
-      await t.tap(find.text('Закрыть'));
-      await t.pumpAndSettle();
-      expect(policy.adsEnabled, isTrue);
-      await t.tap(row);
-      await t.pumpAndSettle();
-      await t.tap(find.text('Выключить запросы'));
-      await t.pumpAndSettle();
-      expect(policy.adsEnabled, isFalse);
-      expect(policy.revokedThisSession, isTrue);
-      await t.tap(row);
-      await t.pumpAndSettle();
-      final disabled = find.ancestor(
-        of: find.text('Выключено в сеансе'),
-        matching: find.byType(FilledButton),
-      );
-      expect(t.widget<FilledButton>(disabled).onPressed, isNull);
+      expect(policy.adDataConsent, false);
       expect(
-        find.textContaining('Полностью закройте приложение'),
-        findsWidgets,
+        (await SharedPreferences.getInstance()).getBool(
+          AudiencePolicy.adDataConsentKey,
+        ),
+        false,
       );
-      expect(driver.rewardedCalls, 0);
-      expect(driver.interstitialCalls, 0);
-      expect(t.takeException(), isNull);
+      await t.tap(find.byKey(const ValueKey('ad-privacy-compact')));
+      await t.pumpAndSettle();
+      await t.tap(find.byKey(const ValueKey('ad-data-allow')));
+      await t.pumpAndSettle();
+      expect(policy.adsEnabled, true);
+      expect(driver.rewardedCalls + driver.interstitialCalls, 0);
+      expect(t.takeException(), null);
     },
     skip: !AudiencePolicy.adsBuildEnabled,
   );
-
+  for (final age in [null, AgeBand.under18]) {
+    testWidgets('ineligible age never asks data or loads SDK: $age', (t) async {
+      final (policy, driver, _) = await _mount(t, age: age, settings: true);
+      await t.tap(find.text('video'));
+      await t.pumpAndSettle();
+      expect(policy.adDataConsent, null);
+      expect(
+        find.byKey(const ValueKey('ad-data-consent-dialog')),
+        findsNothing,
+      );
+      expect(driver.rewardedCalls + driver.interstitialCalls, 0);
+    });
+  }
   testWidgets(
-    'Ads-off build cannot prompt or invoke advertising SDK',
+    'disabled build cannot request ad data or initialize SDK',
     (t) async {
-      final (policy, driver, _) = await _mount(t);
+      final (_, driver, _) = await _mount(t);
       await t.tap(find.text('two prompts'));
       await t.pumpAndSettle();
-      expect(policy.adsEnabled, isFalse);
-      expect(find.text('Включить рекламу?'), findsNothing);
-      expect(driver.rewardedCalls, 0);
+      expect(
+        find.byKey(const ValueKey('ad-data-consent-dialog')),
+        findsNothing,
+      );
+      expect(driver.rewardedCalls + driver.interstitialCalls, 0);
     },
     skip: AudiencePolicy.adsBuildEnabled,
-  );
-
-  for (final age in [
-    AgeBand.under6,
-    AgeBand.under18,
-    AgeBand.age13to15,
-    AgeBand.age16to17,
-    AgeBand.unknown,
-  ]) {
-    testWidgets(
-      'Ineligible $age never starts SDK or consents implicitly',
-      (t) async {
-        final (policy, driver, _) = await _mount(t, age: age, preview: true);
-        await t.tap(find.text('video'));
-        await t.pumpAndSettle();
-        expect(policy.adsEnabled, isFalse);
-        expect(driver.rewardedCalls, 0);
-        expect(find.text('Включить рекламу?'), findsNothing);
-        expect(
-          find.byKey(const ValueKey('test-service-unavailable')),
-          findsOneWidget,
-        );
-      },
-      skip: !AudiencePolicy.adsBuildEnabled,
-    );
-  }
-  testWidgets(
-    'Reward button directly invokes SDK without a second dialog or interstitial opt-in',
-    (t) async {
-      final (policy, driver, ads) = await _mount(t, settings: true);
-      await t.tap(find.text('video'));
-      await t.pumpAndSettle();
-      expect(find.byType(Dialog), findsNothing);
-      expect(policy.rewardedAdsEnabled, isTrue);
-      expect(policy.adsEnabled, isFalse);
-      expect(driver.rewardedCalls, 1);
-      expect(await ads.showInterstitial(canShow: () => true), isFalse);
-      expect(driver.interstitialCalls, 0);
-      await t.tap(find.text('video'));
-      await t.pumpAndSettle();
-      expect(find.byType(Dialog), findsNothing);
-      expect(driver.rewardedCalls, 2);
-      await t.tap(find.byKey(const ValueKey('ad-privacy-switch')));
-      await t.pumpAndSettle();
-      expect(policy.revokedThisSession, isTrue);
-      expect(policy.rewardedAdsEnabled, isFalse);
-      await t.tap(find.text('video'));
-      await t.pumpAndSettle();
-      expect(driver.rewardedCalls, 2);
-      expect(find.byType(Dialog), findsNothing);
-    },
-    skip: !AudiencePolicy.adsBuildEnabled,
-  );
-
-  for (final cancel in [false, true]) {
-    testWidgets(
-      'Decline or cancel explicit settings consent never starts SDK: cancel=$cancel',
-      (t) async {
-        final (policy, driver, _) = await _mount(
-          t,
-          preview: true,
-          settings: true,
-        );
-        await t.tap(find.byKey(const ValueKey('ad-privacy-switch')));
-        await t.pumpAndSettle();
-        if (cancel) {
-          await t.binding.handlePopRoute();
-        } else {
-          await t.tap(find.text('Без рекламы'));
-        }
-        await t.pumpAndSettle();
-        expect(policy.adsEnabled, isFalse);
-        expect(driver.rewardedCalls, 0);
-        expect(
-          find.byKey(const ValueKey('test-service-unavailable')),
-          findsNothing,
-        );
-      },
-      skip: !AudiencePolicy.adsBuildEnabled,
-    );
-  }
-  testWidgets(
-    'Session revoke prevents a new request or new consent',
-    (t) async {
-      final (policy, driver, _) = await _mount(t, preview: true, consent: true);
-      policy.revokeAdsForSession();
-      await t.pump();
-      await t.tap(find.text('video'));
-      await t.pumpAndSettle();
-      expect(policy.adsEnabled, isFalse);
-      expect(driver.rewardedCalls, 0);
-      expect(find.text('Включить рекламу?'), findsNothing);
-    },
-    skip: !AudiencePolicy.adsBuildEnabled,
-  );
-  testWidgets(
-    'Concurrent helpers share one voluntary dialog',
-    (t) async {
-      final (policy, driver, _) = await _mount(t);
-      await t.tap(find.text('two prompts'));
-      await t.pumpAndSettle();
-      expect(find.text('Включить рекламу?'), findsOneWidget);
-      await t.tap(find.text('Включить'));
-      await t.pumpAndSettle();
-      expect(policy.adsEnabled, isTrue);
-      expect(driver.rewardedCalls, 0);
-    },
-    skip: !AudiencePolicy.adsBuildEnabled,
-  );
-  testWidgets(
-    'Account switch uses same consent and energy wording',
-    (t) async {
-      final (policy, driver, _) = await _mount(t, settings: true);
-      expect(find.textContaining('за энергию'), findsOneWidget);
-      await t.tap(find.byKey(const ValueKey('ad-privacy-switch')));
-      await t.pumpAndSettle();
-      expect(find.text('Включить рекламу?'), findsOneWidget);
-      expect(policy.adsEnabled, isFalse);
-      await t.tap(find.text('Включить'));
-      await t.pumpAndSettle();
-      expect(policy.adsEnabled, isTrue);
-      expect(driver.rewardedCalls, 0);
-      await t.tap(find.byKey(const ValueKey('ad-privacy-switch')));
-      await t.pumpAndSettle();
-      expect(policy.revokedThisSession, isTrue);
-      expect(policy.adsEnabled, isFalse);
-    },
-    skip: !AudiencePolicy.adsBuildEnabled,
   );
 }

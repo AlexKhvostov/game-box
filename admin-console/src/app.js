@@ -1,6 +1,6 @@
 import {createAuthStorage} from './auth-storage.js';
 import {createClient} from '@supabase/supabase-js';
-import {fields as baseFields,sections as baseSections,defaultsSnapshot as commonDefaults,getValue,setValue,validateField,applyChanges as applyCommonChanges,changesBetween as commonChanges} from '../../supabase/functions/_shared/config-schema.mjs';
+import {fields as schemaFields,sections as baseSections,defaultsSnapshot as commonDefaults,getValue,setValue,validateField,applyChanges as applyCommonChanges,changesBetween as commonChanges} from '../../supabase/functions/_shared/config-schema.mjs';
 import {platformFields,configFieldScope,initialPlatformSettings} from '../../supabase/functions/_shared/platform-config-schema.mjs';
 import {projectUrl,publishableKey} from './public-config.js';
 import './style.css';
@@ -11,6 +11,8 @@ import {mountFeedback} from './feedback.js';
 import {mountModeration} from './moderation.js';
 import './feedback.css';
 
+const rewardedAdPaths=new Set(['economy.androidEnergyV2.simpleBonus.videoReward','economy.androidEnergyV2.simpleBonus.videoCooldownSec','economy.androidEnergyV2.simpleBonus.videoDailyLimit']);
+const baseFields=schemaFields.map(field=>rewardedAdPaths.has(field.path)?{...field,section:'ads'}:field);
 const $=selector=>document.querySelector(selector);
 const escape=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const icons={feedback:'<path d="M4 4h16v12H9l-5 4V4Z"/><path d="M8 8h8M8 12h5"/>',settings:'<path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3"/><circle cx="15" cy="17" r="3"/>',history:'<path d="M3 10a9 9 0 1 1 2 8M3 4v6h6M12 7v5l3 2"/>',search:'<circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/>',arrow:'<path d="m9 5 7 7-7 7"/>',check:'<path d="m5 12 4 4L19 6"/>',lock:'<rect x="5" y="10" width="14" height="11" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>',logout:'<path d="M9 4H4v16h5m6-13 5 5-5 5m-7-5h12"/>',refresh:'<path d="M20 7v5h-5M4 17v-5h5M6 7a7 7 0 0 1 12-1l2 6M4 12l2 6a7 7 0 0 0 12-1"/>'};
@@ -21,7 +23,7 @@ let defaultsSnapshot=commonDefaults;
 const scopeLabels={common:'Общие для всех платформ',android:'Android',telegram:'Telegram'};
 function configureScope(next){
   scope=next;fields=scope==='common'?baseFields.filter(f=>configFieldScope(f.path)==='common'):platformFields[scope];
-  sections=scope==='common'?baseSections:[['platform',scopeLabels[scope],'Реклама, цены и платформенные сервисы. Игровая механика настраивается в общем разделе.']];
+  sections=scope==='common'?baseSections:[['platform',scopeLabels[scope],scope==='android'?'Ограничения рекламы находятся в общем разделе «Реклама». Рекламные блоки Android заданы в сборке приложения.':'Рекламные площадки, включение показов и цены Stars. Общие ограничения показов находятся в разделе «Реклама» общих настроек.']];
   defaultsSnapshot=scope==='common'?commonDefaults:{config:initialPlatformSettings(commonDefaults.config)[scope]};
 }
 function changesBetween(before,after){return scope==='common'?commonChanges(before,after):fields.filter(f=>JSON.stringify(getValue(before,f.path))!==JSON.stringify(getValue(after,f.path))).map(f=>({path:f.path,label:f.label,before:getValue(before,f.path),after:getValue(after,f.path)}));}
@@ -103,7 +105,7 @@ function renderFields(){
   if(!$('#fields'))return;const query=state.query.trim().toLowerCase();
   const matches=fields.filter(field=>!field.hidden&&(query?`${field.label} ${field.path} ${field.help}`.toLowerCase().includes(query):field.section===state.section)&&(!state.changedOnly||getValue(state.base.config,field.path)!==getValue(state.config,field.path)));
   const section=sections.find(item=>item[0]===state.section);
-  $('#fields').innerHTML=`<div class="section-heading"><div><h2>${query?'Результаты поиска':escape(section[1])}</h2><p>${query?`Найдено параметров: ${matches.length}`:escape(section[2])}</p></div><span class="section-number">${String(sections.findIndex(item=>item[0]===state.section)+1).padStart(2,'0')}</span></div>${matches.length?matches.map(fieldRow).join(''):'<div class="empty">Подходящих параметров нет.<small>Измените поисковый запрос или выключите фильтр изменений.</small></div>'}`;
+  $('#fields').innerHTML=`<div class="section-heading"><div><h2>${query?'Результаты поиска':escape(section[1])}</h2><p>${query?`Найдено параметров: ${matches.length}`:escape(section[2])}</p></div><span class="section-number">${String(sections.findIndex(item=>item[0]===state.section)+1).padStart(2,'0')}</span></div>${matches.length?matches.map(fieldRow).join(''):(!fields.length?'<div class="empty">Отдельных параметров Android нет.<small>Частота показов и награды за видео находятся в общем разделе «Реклама».</small></div>':'<div class="empty">Подходящих параметров нет.<small>Измените поисковый запрос или выключите фильтр изменений.</small></div>')}`;
   document.querySelectorAll('[data-field]').forEach(input=>input.addEventListener('input',()=>onChange(input)));
 }
 function fieldRow(field){
@@ -128,7 +130,7 @@ function onChange(input){
 }
 function renderActions(){
   if(!$('#actions'))return;const changes=delta();$('#change-count').textContent=changes.length;$('#draft-status').textContent=changes.length?'Есть изменения':'Нет изменений';
-  $('#actions').innerHTML=`<button id="discard" class="text-button" ${!changes.length||state.busy?'disabled':''}>Отменить изменения</button><button id="save" class="secondary" ${state.busy?'disabled':''}>Сохранить черновик</button><button id="preview" class="primary" ${state.busy||(!changes.length&&state.initialized)?'disabled':''}>Проверить изменения ${icon('arrow')}</button>`;
+  $('#actions').innerHTML=`<button id="discard" class="text-button" ${!changes.length||state.busy?'disabled':''}>Отменить изменения</button><button id="save" class="secondary" ${state.busy||!fields.length?'disabled':''}>Сохранить черновик</button><button id="preview" class="primary" ${state.busy||!fields.length||(!changes.length&&state.initialized)?'disabled':''}>Проверить изменения ${icon('arrow')}</button>`;
   $('#discard').onclick=()=>{if(!confirm('Отменить все изменения в форме?'))return;state.config=structuredClone(state.base.config);renderFields();renderActions();};
   $('#save').onclick=()=>task(async()=>{applyChanges(state.base,patches());if(localPreview){localStorage.setItem(draftKey+'-'+scope,JSON.stringify(patches()));toast('Локальный черновик сохранён на этом компьютере');}else{await api('save_draft',{baseEtag:state.etag,patches:patches()});toast('Черновик сохранён. Настройки игры ещё не изменены');}});
   $('#preview').onclick=()=>task(async()=>{const config=applyChanges(state.base,patches());const result=localPreview?{changes:changesBetween(state.base.config,config)}:await api('preview',{baseEtag:state.etag,patches:patches()});showReview(result);});

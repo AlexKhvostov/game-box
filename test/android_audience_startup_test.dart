@@ -46,7 +46,7 @@ void main() {
       expect(find.text('Started game'), findsOneWidget);
       expect(find.byKey(const ValueKey('age-continue')), findsNothing);
       expect(policy.adsEnabled, false);
-      policy.allowAdsForSession();
+      await policy.setAdDataConsent(true);
       expect(policy.adsEnabled, adult && AudiencePolicy.adsBuildEnabled);
       await tester.pump();
       expect(starts, 1);

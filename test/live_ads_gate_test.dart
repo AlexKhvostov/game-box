@@ -6,7 +6,7 @@ import 'package:game_box/data/yandex_ads_driver.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   test(
-    'explicit demo or publisher mode admits only opted-in adult ads',
+    'explicit ad build requires saved adult data consent for both formats',
     () async {
       SharedPreferences.setMockInitialValues({});
       final policy = AudiencePolicy();
@@ -17,12 +17,11 @@ void main() {
       final driver = YandexAdsDriver(audience: policy);
       expect(policy.rewardedAdsEnabled, false);
       expect(driver.allowed, false);
-      policy.requestRewardedAdsForSession();
+      // A reward tap cannot manufacture data consent.
+      expect(policy.adDataConsent, null);
+      await policy.setAdDataConsent(true);
       expect(policy.rewardedAdsEnabled, demo != live);
-      expect(
-        policy.adsEnabled,
-        false,
-      ); // Reward tap never opts into interstitials.
+      expect(policy.adsEnabled, demo != live);
       expect(driver.allowed, demo != live);
       expect(
         YandexAdUnits.rewarded,
@@ -32,11 +31,10 @@ void main() {
         YandexAdUnits.interstitial,
         live ? 'R-M-20184253-2' : 'demo-interstitial-yandex',
       );
-      policy.allowAdsForSession();
+      await policy.setAdDataConsent(true);
       expect(policy.adsEnabled, demo != live);
-      policy.revokeAdsForSession();
+      await policy.setAdDataConsent(false);
       expect(driver.allowed, false);
-      policy.requestRewardedAdsForSession();
       expect(driver.allowed, false);
       await policy.correct(AgeBand.under18);
       expect(driver.allowed, false);

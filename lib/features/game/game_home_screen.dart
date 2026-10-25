@@ -1,3 +1,4 @@
+import '../../data/round_analytics.dart';
 import '../../ui/game_run_scene.dart';
 import '../../ui/energy_reward_motion.dart';
 import 'dart:async';
@@ -37,12 +38,16 @@ import '../../ui/game_ui.dart';
 import '../../ui/game_status_overlay.dart';
 import '../../ui/game_viewport.dart';
 import '../../ui/audience_gate.dart';
+import '../../ui/between_round_ad_break.dart';
 import '../../data/audience_policy.dart';
 import '../balance/crystals_sheet.dart';
 import '../leaderboard/leaderboard_sheet.dart';
 import '../result/result_screen.dart';
 import 'game_field_painter.dart';
+import '../../domain/helmet_charge.dart';
+import 'helmet_artwork.dart';
 import 'game_world.dart';
+import 'jump_ready_signal.dart';
 import 'game_start_guard.dart';
 import 'impact_burst.dart';
 import 'lives_sheet.dart';
@@ -76,6 +81,7 @@ class _GameHomeScreenState extends State<GameHomeScreen>
   double _hudAccumMs = 0;
   GameWorld? _world;
   EnemyPace? _enemyPace;
+  final _roundAnalytics = RoundAnalytics();
   String? _preparedRoundKey;
   List<List<double>>? _proofStartPose;
   Size _fieldSize = Size.zero;
@@ -87,6 +93,7 @@ class _GameHomeScreenState extends State<GameHomeScreen>
   Duration? _lastElapsed;
   int _aliveMs = 0;
   double _elapsedPreciseMs = 0;
+  final _jumpReady = JumpReadySignal();
   double _simulationDebtMs = 0;
   List<List<num>>? _proofEvents;
   void _recordProof(List<num> event) {
@@ -102,7 +109,7 @@ class _GameHomeScreenState extends State<GameHomeScreen>
   }
 
   bool _backgrounded = false;
-  Timer? _interstitialTimer;
+  bool _leavingResult = false;
   int _resultMs = 0;
   double _resultRun = 0;
   int _resultRisk = 0;
@@ -119,7 +126,10 @@ class _GameHomeScreenState extends State<GameHomeScreen>
   double _impactHoldSec = 0;
 
   /// Шлем на текущую партию (1 заряд, если аренда была активна на старте).
-  bool _runHelmetActive = false;
+  HelmetCharge _helmet = HelmetCharge(equipped: false, cooldownSec: 0);
+  bool get _runHelmetActive => _helmet.ready;
+  double _helmetFlashLeft = 0;
+  HelmetShatter? _helmetShatter;
 
   /// Аренды на старте раунда — пишутся в score.
   bool _runHadJump = false;
@@ -158,6 +168,9 @@ class _GameHomeScreenState extends State<GameHomeScreen>
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) AppAnalytics.view('home');
+    });
     WidgetsBinding.instance.addObserver(this);
     _frame = ValueNotifier<int>(0);
     _hudFrame = ValueNotifier<int>(0);
@@ -285,13 +298,17 @@ class _GameHomeScreenState extends State<GameHomeScreen>
 
   @override
   void dispose() {
+    _roundAnalytics.finish(
+      reason: 'screen_disposed',
+      timeMs: _aliveMs,
+      pace: _enemyPace,
+    );
     _receiptEconomy?.removeListener(_receiptUpdated);
     _settingsAccount?.removeListener(_queueIdleSettingsCheck);
     _debugFrame.dispose();
     WidgetsBinding.instance.removeObserver(this);
     _jumpWarnTimer?.cancel();
     _ticker.dispose();
-    _interstitialTimer?.cancel();
     _hintPulse.dispose();
     _frame.dispose();
     _hudFrame.dispose();
@@ -400,7 +417,12 @@ class _GameHomeScreenState extends State<GameHomeScreen>
   }
 
   void _resetToIdle() {
-    _interstitialTimer?.cancel();
+    _roundAnalytics.finish(
+      reason: 'interrupted',
+      timeMs: _aliveMs,
+      pace: _enemyPace,
+    );
+    AppAnalytics.view('home');
     _hintPulse.repeat(reverse: true);
     final config = _boundConfig;
     final field = _fieldSize;
@@ -414,7 +436,9 @@ class _GameHomeScreenState extends State<GameHomeScreen>
       _clearPointers();
       _impacts.clear();
       _impactHoldSec = 0;
-      _runHelmetActive = false;
+      _helmet = HelmetCharge(equipped: false, cooldownSec: 0);
+      _helmetFlashLeft = 0;
+      _helmetShatter = null;
       _runHadJump = false;
       _runHadHelmet = false;
       _helmetInvulnLeft = 0;
@@ -469,6 +493,10 @@ class _GameHomeScreenState extends State<GameHomeScreen>
   void _advanceFrame(GameWorld world, double dtMs) {
     try {
       final dt = dtMs / 1000.0;
+      _helmetFlashLeft = max(0.0, _helmetFlashLeft - dt);
+      if (_helmetShatter != null && !_helmetShatter!.update(dt)) {
+        _helmetShatter = null;
+      }
       final config = context.read<GameplayConfig>();
 
       if (_debugVisible) {
@@ -519,8 +547,14 @@ class _GameHomeScreenState extends State<GameHomeScreen>
         _recordProof([0, dtMs]);
         _elapsedPreciseMs += dtMs;
         _aliveMs = _elapsedPreciseMs.floor();
+        if (_helmet.advanceTo(_elapsedPreciseMs)) {
+          _helmetFlashLeft = HelmetArtwork.flashDuration;
+          setState(() {});
+        }
         _enemyPace?.advance(dt);
+        _roundAnalytics.observeBrake(_enemyPace);
         world.tickJump(dt);
+        _observeJumpReady();
         final bounces = world.tickPlay(
           dt,
           _elapsedPreciseMs / 1000.0,
@@ -670,22 +704,21 @@ class _GameHomeScreenState extends State<GameHomeScreen>
   }
 
   void _breakHelmet({required bool againstWall}) {
-    final theme = Theme.of(context);
-    final origin = _impactOrigin(againstWall: againstWall);
-    if (!againstWall) _world?.repelEnemiesFromPlayer();
+    _roundAnalytics.abilityUsed('helmet', timeMs: _aliveMs);
+    final world = _world!;
+    if (!againstWall) world.repelEnemiesFromPlayer();
     GameSfx.helmetBreak();
     setState(() {
-      _runHelmetActive = false;
-      _helmetInvulnLeft = max(
-        0.0,
-        context.read<GameplayConfig>().helmetInvulnSec,
-      );
-      _impacts.add(
-        ImpactBurst.spawn(
-          origin: origin,
-          accent: const Color(0xFF7EE0FF),
-          danger: theme.colorScheme.primary,
-          againstWall: againstWall,
+      _helmet.consume();
+      _helmetFlashLeft = 0;
+      _helmetInvulnLeft = max(0.0, world.config.helmetInvulnSec);
+      final vis = world.playerSize * world.visualScale;
+      _helmetShatter = HelmetShatter(
+        Rect.fromCenter(
+          center:
+              world.player + Offset(world.playerSize / 2, world.playerSize / 2),
+          width: vis,
+          height: vis,
         ),
       );
     });
@@ -699,6 +732,7 @@ class _GameHomeScreenState extends State<GameHomeScreen>
     final world = _world;
     setState(() {
       _phase = _Phase.result;
+      AppAnalytics.view('result');
       _resultMs = _aliveMs;
       _resultRun = () {
         final w = world;
@@ -737,28 +771,13 @@ class _GameHomeScreenState extends State<GameHomeScreen>
       replayProof: _proofEvents == null
           ? null
           : {
-              'version': _enemyPace == null ? 1 : 2,
+              'version': 3,
               'events': _proofEvents,
               if (_proofStartPose != null) 'startPose': _proofStartPose,
             },
     );
-    _interstitialTimer?.cancel();
-    final resultSession = _session;
-    bool canShowResultAd() =>
-        mounted &&
-        !_backgrounded &&
-        _session == resultSession &&
-        _phase == _Phase.result &&
-        ModalRoute.of(context)?.isCurrent == true &&
-        economy.canShowResultInterstitial;
-    _interstitialTimer = Timer(const Duration(milliseconds: 900), () async {
-      if (!canShowResultAd()) return;
-      final ads = context.read<AdsService?>();
-      if (ads != null && await ads.showInterstitial(canShow: canShowResultAd)) {
-        economy.markInterstitialShown();
-      }
-    });
-    AppAnalytics.gameFinish(
+    _roundAnalytics.finish(
+      pace: _enemyPace,
       timeMs: _aliveMs,
       riskCount: _resultRisk,
       runDistance: _resultRun.round(),
@@ -841,7 +860,12 @@ class _GameHomeScreenState extends State<GameHomeScreen>
   void _updateBrake(Offset previous) {
     final world = _world;
     if (_phase != _Phase.playing || world == null) return;
-    if (_enemyPace?.pressOnFloor(
+    final pace = _enemyPace;
+    _roundAnalytics.observeBrake(pace);
+    final waitSec = pace == null
+        ? 0.0
+        : (pace.elapsed - pace.readyAt).clamp(0.0, double.infinity);
+    if (pace?.pressOnFloor(
           fromX: previous.dx,
           fromY: previous.dy,
           toX: world.player.dx,
@@ -850,6 +874,7 @@ class _GameHomeScreenState extends State<GameHomeScreen>
           grounded: !world.isJumping,
         ) ==
         true) {
+      _roundAnalytics.brakeUsed(pace!, readyWaitSec: waitSec);
       _hudFrame.value++;
     }
   }
@@ -899,8 +924,36 @@ class _GameHomeScreenState extends State<GameHomeScreen>
         : economy.canPlay;
   }
 
-  void _replayFromResult() {
+  Future<void> _returnFromResult() async {
+    if (_leavingResult || _phase != _Phase.result) return;
+    _leavingResult = true;
+    final economy = context.read<EconomyStore>();
+    final ads = context.read<AdsService?>();
     _resetToIdle();
+    final breakSession = _session;
+    try {
+      if (ads != null) {
+        await showBetweenRoundAdBreak(
+          context,
+          ads: ads,
+          economy: economy,
+          canShow: () =>
+              mounted &&
+              !_backgrounded &&
+              _phase == _Phase.idle &&
+              _session == breakSession &&
+              _leavingResult,
+        );
+      }
+    } finally {
+      _leavingResult = false;
+      _clearPointers();
+    }
+  }
+
+  Future<void> _replayFromResult() async {
+    await _returnFromResult();
+    if (!mounted) return;
     if (context.read<EconomyStore>().energyEnabled &&
         !_hasAttemptEnergy &&
         !_canResumeEnergyRound) {
@@ -955,6 +1008,9 @@ class _GameHomeScreenState extends State<GameHomeScreen>
   }
 
   void _showGeometryIssue(String issue) {
+    AppAnalytics.event('game_start_blocked', {
+      'reason_category': 'field_geometry',
+    });
     _clearPointers();
     debugPrint('Arcade start blocked: $issue');
     showGameStatus(
@@ -982,6 +1038,9 @@ class _GameHomeScreenState extends State<GameHomeScreen>
   }
 
   Future<void> _openLivesExchange() async {
+    if (!_hasAttemptEnergy) {
+      AppAnalytics.event('energy_empty', {'source': 'game'});
+    }
     // The same pointer also reaches the banner button: push only one route.
     if (!mounted || _exchangeOpen) return;
     _exchangeOpen = true;
@@ -1035,7 +1094,7 @@ class _GameHomeScreenState extends State<GameHomeScreen>
   }
 
   void _startGameFromTouch() async {
-    if (_startingRound) return;
+    if (_startingRound || _leavingResult) return;
     final scores = context.read<ScoresStore>();
     final configSession = context.read<AndroidConfigSession?>();
     if (configSession != null && _settingsDiffer(scores, configSession)) {
@@ -1098,7 +1157,7 @@ class _GameHomeScreenState extends State<GameHomeScreen>
         jump: selectedJump,
         cost: cost,
         preparedKey: _preparedRoundKey,
-        proofVersion: gameplay.enemyPace == null ? 1 : 2,
+        proofVersion: 3,
       );
       if (key == null) {
         _clearPointers();
@@ -1170,6 +1229,9 @@ class _GameHomeScreenState extends State<GameHomeScreen>
             error == 'connection_failed' ||
             (error == null && scores.account?.error == 'connection_failed'));
     if (!confirmed && !localPractice) {
+      AppAnalytics.event('game_start_blocked', {
+        'reason_category': refused ? 'rules_or_balance' : 'connection',
+      });
       setState(() => _startingRound = false);
       _clearPointers();
       if (error == 'insufficient_energy' || error == 'insufficient_lives') {
@@ -1257,7 +1319,7 @@ class _GameHomeScreenState extends State<GameHomeScreen>
   }
 
   void _launchLocalRound({required bool jump, required bool helmet}) {
-    AppAnalytics.gameStart();
+    _roundAnalytics.start(helmet: helmet, jump: jump);
     _hintPulse.stop();
     GameSfx.gameStart();
     final gameplay = context.read<GameplayConfig>();
@@ -1281,12 +1343,34 @@ class _GameHomeScreenState extends State<GameHomeScreen>
       _sfxRiskCount = 0;
       _runEarnUnlocks.clear();
       _runHadJump = jump;
+      _jumpReady.reset();
+      _jumpReady.observe(enabled: jump, remainingMs: 0, nowMs: 0);
       _runHadHelmet = helmet;
-      _runHelmetActive = _runHadHelmet;
+      _helmet = HelmetCharge(
+        equipped: helmet,
+        cooldownSec: (_world?.config ?? gameplay).helmetCooldownSec,
+      );
+      _helmetFlashLeft = 0;
+      _helmetShatter = null;
       _helmetInvulnLeft = 0;
       _startInvulnLeft = max(0.0, gameplay.startInvulnSec);
     });
     if (!_ticker.isActive) _ticker.start();
+  }
+
+  void _observeJumpReady() {
+    final world = _world;
+    if (world == null) return;
+    _jumpReady.observe(
+      enabled: _runHadJump && world.config.jumpEnabled,
+      remainingMs: max(
+        world.jumpCooldownRemaining(
+          nowMs: _proofEvents == null ? null : _elapsedPreciseMs,
+        ),
+        world.jumpRemaining * 1000,
+      ),
+      nowMs: _elapsedPreciseMs,
+    );
   }
 
   void _tryJump() {
@@ -1301,6 +1385,8 @@ class _GameHomeScreenState extends State<GameHomeScreen>
       nowMs: _proofEvents == null ? null : _elapsedPreciseMs,
     )) {
       _recordProof([2]);
+      _observeJumpReady();
+      _roundAnalytics.abilityUsed('jump', timeMs: _aliveMs);
       GameSfx.jump();
       _frame.value++;
     } else {
@@ -1337,6 +1423,7 @@ class _GameHomeScreenState extends State<GameHomeScreen>
     final desiredHudHeight = _hudHeight;
     final hudHeight = min(desiredHudHeight, availableHeight * .20);
     final economy = context.watch<EconomyStore>();
+    final audience = context.watch<AudiencePolicy?>();
     final config = context.watch<GameplayConfig>();
     final prefs = context.watch<PlayerPreferences?>();
     if (prefs == null) {
@@ -1481,6 +1568,7 @@ class _GameHomeScreenState extends State<GameHomeScreen>
                                                   key: const ValueKey(
                                                     'arcade-game-field',
                                                   ),
+                                                  willChange: true,
                                                   size: size,
                                                   painter: GameFieldPainter(
                                                     drawSurface: false,
@@ -1520,6 +1608,14 @@ class _GameHomeScreenState extends State<GameHomeScreen>
                                                         _phase == _Phase.idle,
                                                     impacts: _impacts,
                                                     hasHelmet: _runHelmetActive,
+                                                    helmetCharge:
+                                                        _phase == _Phase.idle
+                                                        ? null
+                                                        : _helmet,
+                                                    helmetFlash: () =>
+                                                        _helmetFlashLeft,
+                                                    helmetShatter:
+                                                        _helmetShatter,
                                                     hasJump:
                                                         world
                                                             .config
@@ -1535,6 +1631,10 @@ class _GameHomeScreenState extends State<GameHomeScreen>
                                                         _proofEvents == null
                                                         ? null
                                                         : _elapsedPreciseMs,
+                                                    jumpReadyAgeMs: () =>
+                                                        _phase == _Phase.idle
+                                                        ? null
+                                                        : _jumpReady.ageMs,
                                                     invulnerable:
                                                         _isInvulnerable,
                                                     shadowBrightness: config
@@ -1638,6 +1738,8 @@ class _GameHomeScreenState extends State<GameHomeScreen>
                         onTimerTap: GameplayDebug.enabled
                             ? _debugTimerTap
                             : null,
+                        helmetCharge: _phase == _Phase.idle ? null : _helmet,
+                        helmetFlash: () => _helmetFlashLeft,
                         helmetActive: _phase == _Phase.idle
                             ? (economy.energyEnabled
                                   ? economy.helmetSelected
@@ -1682,15 +1784,12 @@ class _GameHomeScreenState extends State<GameHomeScreen>
                         onProfileTap: () => showProfileSheet(context),
                         onLeave: widget.onLeave,
                         onLivesTap: () {
-                          AppAnalytics.tapLives();
                           _openLivesExchange();
                         },
                         onCrystalsTap: () {
-                          AppAnalytics.tapCrystals();
                           showCrystalsSheet(context);
                         },
                         onRecordTap: () {
-                          AppAnalytics.tapRecord();
                           showLeaderboardSheet(context);
                         },
                       ),
@@ -1717,6 +1816,11 @@ class _GameHomeScreenState extends State<GameHomeScreen>
                     key: ValueKey('result-$_session-$_resultMs'),
                     timeMs: _resultMs,
                     previousBestTimeMs: _previousBestTimeMs,
+                    adBreakFollows:
+                        AudiencePolicy.adsBuildEnabled &&
+                        (audience?.isAdEligibleAge ?? false) &&
+                        audience?.adDataConsent != false &&
+                        economy.canShowResultInterstitial,
                     rewardClaimed: _resultRewardClaimed,
                     onClaimReward: () async {
                       if (_resultRewardClaimed) {
@@ -1772,7 +1876,7 @@ class _GameHomeScreenState extends State<GameHomeScreen>
                     runDistance: _resultRun,
                     riskCount: _resultRisk,
                     newlyUnlockedEarnIds: List<String>.from(_runEarnUnlocks),
-                    onOk: _resetToIdle,
+                    onOk: _returnFromResult,
                     onReplay: _replayFromResult,
                     onShare: () async {
                       await showLeaderboardSheet(context);

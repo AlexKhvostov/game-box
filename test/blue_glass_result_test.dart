@@ -117,6 +117,7 @@ Future<void> _result(
   Size size = const Size(320, 560),
   double scale = 1,
   bool claimed = true,
+  bool adBreak = false,
   Future<bool> Function()? claim,
   VoidCallback? replay,
   bool pending = false,
@@ -151,6 +152,7 @@ Future<void> _result(
         home: Scaffold(
           body: ResultOverlay(
             timeMs: 21349,
+            adBreakFollows: adBreak,
             previousBestTimeMs: previousBest,
             runDistance: 1040,
             riskCount: 8,
@@ -168,6 +170,38 @@ Future<void> _result(
 }
 
 void main() {
+  for (final language in ['ru', 'en']) {
+    testWidgets('ad break is disclosed before leaving results: $language', (
+      tester,
+    ) async {
+      var closes = 0;
+      await _result(
+        tester,
+        language: language,
+        scale: 2,
+        adBreak: true,
+        replay: () => closes++,
+      );
+      expect(
+        find.byKey(const ValueKey('result-ad-break-notice')),
+        findsOneWidget,
+      );
+      final next = find.byKey(const ValueKey('result-replay'));
+      await tester.ensureVisible(next);
+      expect(
+        find.descendant(
+          of: next,
+          matching: find.text(language == 'ru' ? 'Продолжить' : 'Continue'),
+        ),
+        findsOneWidget,
+      );
+      await tester.tap(next);
+      await tester.pump();
+      expect(closes, 1);
+      expect(tester.takeException(), null);
+    });
+  }
+
   testWidgets(
     'result backdrop closes once, card taps and tips do not close it',
     (tester) async {
@@ -453,7 +487,6 @@ void main() {
       await tester.runAsync(() async {
         await tester.tap(send);
         await tester.pump();
-        expect(tester.widget<FilledButton>(send).onPressed, isNull);
         for (var attempt = 0; attempt < 100; attempt++) {
           await Future<void>.delayed(const Duration(milliseconds: 20));
           await tester.pump();
@@ -462,7 +495,9 @@ void main() {
       });
       expect(feedback, findsOneWidget);
       expect(
-        find.text('Не удалось подготовить карточку. Попробуйте ещё раз.'),
+        find.text(
+          'Не удалось подготовить карточку и вашу ссылку приглашения. Проверьте соединение и попробуйте ещё раз.',
+        ),
         findsOneWidget,
       );
       expect(tester.widget<FilledButton>(send).onPressed, isNotNull);

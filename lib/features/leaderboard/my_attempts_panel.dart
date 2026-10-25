@@ -1,3 +1,4 @@
+import '../../ui/analytics_navigation.dart';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,6 +11,7 @@ import '../../domain/score_entry.dart';
 import '../../ui/game_status_overlay.dart';
 import '../../ui/game_ui.dart';
 import '../result/share_score_sheet.dart';
+import '../result/result_screen.dart';
 import 'player_result_sheet.dart';
 
 const _cyan = Color(0xFF5EEAFF), _gold = Color(0xFFFFE368);
@@ -33,9 +35,11 @@ Future<void> openMyAttemptsWindow(
   BuildContext context, {
   Widget panel = const MyAttemptsPanel(),
 }) => showModalBottomSheet<void>(
+  routeSettings: analyticsWindow('attempts'),
   context: context,
   isScrollControlled: true,
   useSafeArea: true,
+  useRootNavigator: false,
   backgroundColor: Colors.transparent,
   sheetAnimationStyle: GameUi.windowAnimationStyle,
   builder: (_) => MyAttemptsSheet(panel: panel),
@@ -355,11 +359,9 @@ class _MyAttemptsPanelState extends State<MyAttemptsPanel> {
                                       : _date(data.best!.createdAt, ru),
                                   onTap: data.best == null
                                       ? null
-                                      : () => _select(
-                                          data.best!.id,
-                                          data,
-                                          rowHeight,
-                                          scroll: true,
+                                      : () => showBestAttemptResult(
+                                          context,
+                                          data.best!,
                                         ),
                                   valueKey: const ValueKey('my-attempts-best'),
                                 ),
@@ -1063,17 +1065,28 @@ class _AttemptRow extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 4),
-              Text(
-                _seconds(attempt.timeMs, ru),
-                style: TextStyle(
-                  color: best ? _gold : _text,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w900,
+              Flexible(
+                flex: 2,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        _seconds(attempt.timeMs, ru),
+                        style: TextStyle(
+                          color: best ? _gold : _text,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      Text(
+                        ' ${ru ? 'с' : 's'}',
+                        style: const TextStyle(color: _muted, fontSize: 10),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              Text(
-                ' ${ru ? 'с' : 's'}',
-                style: const TextStyle(color: _muted, fontSize: 10),
               ),
               SizedBox(
                 width: 32,

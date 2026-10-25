@@ -1,8 +1,8 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {defaultsSnapshot,fields,applyChanges,changesBetween} from '../functions/_shared/config-schema.mjs';
-test('all 135 shipped/defaulted leaves have metadata; edits preserve unknown non-Android settings',()=>{
-  assert.equal(fields.length,135);
+test('all 136 shipped/defaulted leaves have metadata; edits preserve unknown non-Android settings',()=>{
+  assert.equal(fields.length,136);
   const source=structuredClone(defaultsSnapshot);source.config.futureFlag={enabled:true};
   const config=applyChanges(source,[{path:'economy.androidEnergyV2.simpleBonus.reward',value:35}]);
   assert.equal(config.economy.androidEnergyV2.simpleBonus.reward,35);

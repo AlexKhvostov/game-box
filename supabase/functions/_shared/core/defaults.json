@@ -57,7 +57,8 @@
       "timerHapticStyle10": "warning",
       "hudSpeedScaleMax": 400,
       "wallsKillPlayer": false,
-      "jumpCooldownSec": 2
+      "jumpCooldownSec": 2,
+      "helmetCooldownSec": 30
     },
     "audio": {
       "music": true,
@@ -171,5 +172,5 @@
       }
     }
   },
-  "revision": "b168224d630439a00de83f47f00eca2bf9663ac57473e7d0682be58e5c9fd6aa"
+  "revision": "a0ce4026972c7f96ac9a2d4591de770a3446e7f42a12e596d0cd99ec0a7fa93c"
 }

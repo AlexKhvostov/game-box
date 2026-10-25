@@ -9,6 +9,7 @@ import 'package:game_box/data/economy_store.dart';
 import 'package:game_box/data/scores_store.dart';
 import 'package:game_box/domain/gameplay_config.dart';
 import 'package:game_box/features/game/arcade_hud.dart';
+import 'package:game_box/features/game/helmet_indicator.dart';
 import 'package:game_box/features/game/game_field_painter.dart';
 import 'package:game_box/features/game/game_world.dart';
 
@@ -25,6 +26,14 @@ AbilityRingPainter ring(WidgetTester tester, String ability) =>
             .widget<CustomPaint>(find.byKey(ValueKey('$ability-ability-ring')))
             .foregroundPainter!
         as AbilityRingPainter;
+
+HelmetRingPainter helmetRing(WidgetTester tester) =>
+    tester
+            .widget<CustomPaint>(
+              find.byKey(const ValueKey('helmet-charge-ring')),
+            )
+            .foregroundPainter!
+        as HelmetRingPainter;
 
 Future<EconomyStore> mount(
   WidgetTester tester,
@@ -162,19 +171,19 @@ void main() {
     (tester) async {
       final economy = await mount(tester, const GameplayConfig());
       expect(ring(tester, 'jump').active, isFalse);
-      expect(ring(tester, 'helmet').active, isFalse);
+      expect(helmetRing(tester).equipped, isFalse);
       economy.jumpRentalUntil = DateTime.now().add(const Duration(hours: 1));
       economy.helmetRentalUntil = DateTime.now().add(const Duration(hours: 1));
       economy.applyConfig(economy.config);
       await tester.pump();
       expect(ring(tester, 'jump').active, isTrue);
-      expect(ring(tester, 'helmet').active, isTrue);
-      expect(ring(tester, 'helmet').value, 1);
+      expect(helmetRing(tester).equipped, isTrue);
+      expect(helmetRing(tester).progress, 1);
       worldOf(tester).tryJump(nowMs: 0);
       // Actual clock still begins close to zero; the ring reads the world's cooldown.
       await tester.pump(const Duration(milliseconds: 16));
       expect(ring(tester, 'jump').value, lessThan(.5));
-      expect(ring(tester, 'helmet').value, 1);
+      expect(helmetRing(tester).progress, 1);
       await tester.pumpWidget(const SizedBox());
     },
   );
@@ -213,9 +222,9 @@ void main() {
       expect(enemy.vel.dx, greaterThan(0));
       expect(enemy.vel.distance, closeTo(100, .00001));
       expect(world.playerHitsEnemy(), isFalse);
-      expect(ring(tester, 'helmet').active, isTrue);
-      expect(ring(tester, 'helmet').broken, isTrue);
-      expect(find.text('Broken'), findsOneWidget);
+      expect(helmetRing(tester).equipped, isTrue);
+      expect(!helmetRing(tester).ready, isTrue);
+      expect(find.text('Spent'), findsOneWidget);
       expect(ring(tester, 'jump').active, isTrue);
       final alive = tester.widget<ArcadeHud>(find.byType(ArcadeHud)).timeMs();
       for (var i = 0; i < 10; i++) {

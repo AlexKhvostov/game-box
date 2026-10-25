@@ -1,3 +1,4 @@
+import 'app_analytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -23,18 +24,36 @@ class PlayerPreferences extends ChangeNotifier {
   }
 
   Future<void> setSound(bool value) async {
+    if (sound != value) {
+      AppAnalytics.event('setting_changed', {
+        'setting': 'sound',
+        'value': value,
+      });
+    }
     sound = value;
     await _prefs.setBool('device_sound', value);
     notifyListeners();
   }
 
   Future<void> setMusic(bool value) async {
+    if (music != value) {
+      AppAnalytics.event('setting_changed', {
+        'setting': 'music',
+        'value': value,
+      });
+    }
     music = value;
     await _prefs.setBool('device_music', value);
     notifyListeners();
   }
 
   Future<void> setLightTheme(bool value) async {
+    if (lightTheme != value) {
+      AppAnalytics.event('setting_changed', {
+        'setting': 'lightTheme',
+        'value': value,
+      });
+    }
     lightTheme = value;
     await _prefs.setBool('device_light_theme', value);
     notifyListeners();

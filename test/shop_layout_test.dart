@@ -44,13 +44,14 @@ void main() {
         final audience = AudiencePolicy();
         await audience.load();
         await audience.select(AgeBand.age21plus);
-        audience.allowAdsForSession();
+        await audience.setAdDataConsent(true);
         final ads = AdsService(driver, audience: audience);
         await tester.binding.setSurfaceSize(Size(width, 560));
         addTearDown(() => tester.binding.setSurfaceSize(null));
         await tester.pumpWidget(
           MultiProvider(
             providers: [
+              ChangeNotifierProvider.value(value: audience),
               ChangeNotifierProvider.value(value: economy),
               ChangeNotifierProvider.value(value: ads),
               Provider.value(value: GameplayConfig()),

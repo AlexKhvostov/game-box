@@ -11,6 +11,8 @@ param(
   [switch]$ProductionRelease,
   [string]$GoogleWebClientId = '',
   [string]$SigningDirectory = '',
+  [string]$AppMetricaKeyPath = '',
+  [switch]$DisableAnalytics,
   [string]$FlutterRoot = 'C:\Users\alexe\develop\flutter'
 )
 $ErrorActionPreference = 'Stop'
@@ -24,6 +26,12 @@ if ($TestTools -and ($AppBundle -or $GooglePlayBilling -or $DemoAds -or $LiveAds
 if ($env:UNTOUCH_UI_PROBE -eq 'true') { throw 'Disable the isolated UI probe before building a user release' }
 $root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
 Set-Location $root
+. (Join-Path $root 'tools/appmetrica_build_config.ps1')
+$storeAnalytics = [bool]($AppBundle -or $PlayStore)
+if ($storeAnalytics -and ($TestTools -or $TestServicePreview -or $GameplayDebug -or $DemoAds)) {
+  throw 'Google Play builds cannot contain internal test tools, preview services or demo ads.'
+}
+$analyticsConfig = Get-AppMetricaBuildConfig -StoreBuild $storeAnalytics -KeyPath $AppMetricaKeyPath -Disabled:$DisableAnalytics
 if (-not $SigningDirectory -and -not $env:UNTOUCH_SIGNING_PROPERTIES -and (Test-Path -LiteralPath (Join-Path $root '.private\android-signing\signing.properties'))) {
   $SigningDirectory = Join-Path $root '.private\android-signing'
 }
@@ -76,7 +84,16 @@ $buildArgs += "--dart-define=YANDEX_LIVE_ADS=$($LiveAds.IsPresent.ToString().ToL
 if ($GoogleWebClientId) { $buildArgs += "--dart-define=GOOGLE_WEB_CLIENT_ID=$GoogleWebClientId" }
 if ($GooglePlayBilling) { $buildArgs += '--dart-define=GOOGLE_PLAY_BILLING=true' }
 $priorPlayBuild = $env:UNTOUCH_PLAY_BUILD
+$analyticsDefines = $null
+$analyticsConfigured = $false
 try {
+  if ($analyticsConfig.Configured) {
+    $analyticsDefines = [IO.Path]::GetTempFileName()
+    [IO.File]::WriteAllText($analyticsDefines,(@{APPMETRICA_API_KEY=$analyticsConfig.ApiKey; APPMETRICA_ENV=$analyticsConfig.Environment} | ConvertTo-Json),[Text.UTF8Encoding]::new($false))
+    $analyticsConfig.ApiKey=$null
+    $buildArgs += "--dart-define-from-file=$analyticsDefines"
+    $analyticsConfigured=$true
+  }
   $env:UNTOUCH_PLAY_BUILD = $(if ($AppBundle -or $PlayStore) { 'true' } else { 'false' })
   if ($SigningDirectory) {
     $protected = Get-Content -Raw -LiteralPath (Join-Path $SigningDirectory 'password.dpapi')
@@ -88,6 +105,7 @@ try {
 } finally {
   $env:UNTOUCH_PLAY_BUILD = $priorPlayBuild
   if ($SigningDirectory) { $env:UNTOUCH_SIGNING_PASSWORD = $null }
+  if ($analyticsDefines -and (Test-Path -LiteralPath $analyticsDefines)) { Remove-Item -LiteralPath $analyticsDefines }
 }
 $extension = if ($AppBundle) { 'aab' } else { 'apk' }
 $src = if ($AppBundle) { Join-Path $root 'build\app\outputs\bundle\release\app-release.aab' } else { Join-Path $root 'build\app\outputs\flutter-apk\app-release.apk' }
@@ -106,11 +124,11 @@ $manifest = [ordered]@{
   applicationLabel=$(if ($AppBundle -or $PlayStore) { 'untouch' } else { "Untouch $code" })
   playStoreBuild=[bool]($AppBundle -or $PlayStore)
   sha256=(Get-FileHash -LiteralPath $dest -Algorithm SHA256).Hash.ToLowerInvariant()
-  configRevision=$config.revision; adMode=$(if ($LiveAds) {'yandex-publisher-units-adult-session-opt-in'} elseif ($DemoAds) {'yandex-demo-adult-session-opt-in-internal-only'} else {'off'}); signing=$(if ($env:UNTOUCH_SIGNING_PROPERTIES) {'private-release-key'} else {'development-debug-key'})
+  configRevision=$config.revision; adMode=$(if ($LiveAds) {'yandex-publisher-units-adult-persisted-data-consent'} elseif ($DemoAds) {'yandex-demo-adult-persisted-data-consent-internal-only'} else {'off'}); signing=$(if ($env:UNTOUCH_SIGNING_PROPERTIES) {'private-release-key'} else {'development-debug-key'})
   yandexLiveAds=$LiveAds.IsPresent
   yandexRewardedUnit=$(if ($LiveAds) {'R-M-20184253-1'} elseif ($DemoAds) {'demo-rewarded-yandex'} else {$null})
   yandexInterstitialUnit=$(if ($LiveAds) {'R-M-20184253-2'} elseif ($DemoAds) {'demo-interstitial-yandex'} else {$null})
-  audiencePolicy='game-and-autoscore-all-ages-ads18plus-session-opt-in'; advertisingIdPermission=$false
+  audiencePolicy='game-all-ages-ads-and-analytics-18plus-separate-opt-in'; advertisingIdPermission=$false
   googleIdentityConfigured=[bool]$GoogleWebClientId; googlePlayBilling=[bool]$GooglePlayBilling
   published=$false; deviceTested=$false
   testTools=$TestTools.IsPresent; walletMode=$(if ($TestTools) {'isolated-local-test'} else {'server-profile'})
@@ -122,6 +140,8 @@ $manifest = [ordered]@{
   gameplayDebug=$GameplayDebug.IsPresent
   testServicePreview=$TestServicePreview.IsPresent
   productionRelease=$ProductionRelease.IsPresent
+  productAnalytics=$(if ($analyticsConfigured) {"appmetrica-$($analyticsConfig.Environment)"} else {'disabled'})
+  appmetricaAppId=$analyticsConfig.AppId
   limitations=@('Physical Android acceptance pending', 'Google Play publication of this build pending', 'Commercial Yandex ads depend on app moderation; Play purchases need separate device verification')
 }
 $manifest | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $outDir 'build.json') -Encoding UTF8

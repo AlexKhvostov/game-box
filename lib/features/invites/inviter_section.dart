@@ -13,8 +13,15 @@ import '../../ui/neon_chrome.dart';
 
 /// The existing profile owns its panel and scroll; this section owns only invitations.
 class InviterSection extends StatefulWidget {
-  const InviterSection({super.key, this.compact = false});
+  const InviterSection({
+    super.key,
+    this.compact = false,
+    this.invitations = false,
+  });
   final bool compact;
+
+  /// Invitation window reuses the account editor and its service/owner guards.
+  final bool invitations;
 
   static bool available(BuildContext context) =>
       !kIsWeb &&
@@ -528,7 +535,10 @@ class _InviterSectionState extends State<InviterSection> {
     final apply = FilledButton(
       key: const ValueKey('inviter-apply'),
       style: FilledButton.styleFrom(
-        foregroundColor: widget.compact ? GameUi.text : GameUi.ink,
+        backgroundColor: widget.invitations ? const Color(0xFF075579) : null,
+        foregroundColor: widget.compact || widget.invitations
+            ? GameUi.text
+            : GameUi.ink,
         disabledForegroundColor: GameUi.muted,
         minimumSize: const Size.fromHeight(48),
         padding: const EdgeInsets.symmetric(horizontal: 6),
@@ -589,14 +599,14 @@ class _InviterSectionState extends State<InviterSection> {
               final fieldAndInfo = Row(
                 children: [
                   Expanded(child: editor),
-                  if (!widget.compact) info,
+                  if (!widget.compact && !widget.invitations) info,
                 ],
               );
               return inline
                   ? Row(
                       children: [
                         Expanded(child: editor),
-                        if (!widget.compact) info,
+                        if (!widget.compact && !widget.invitations) info,
                         if (widget.compact && !assigned)
                           const SizedBox(width: 7),
                         if (!assigned)
@@ -618,6 +628,27 @@ class _InviterSectionState extends State<InviterSection> {
               key: const ValueKey('inviter-error'),
               style: const TextStyle(color: GameUi.muted, fontSize: 12),
             ),
+          if (widget.invitations) ...[
+            const SizedBox(height: 6),
+            Text(
+              '${_tr('Ваш прогресс', 'Your progress')}: ${state?.completedGames ?? 0} / ${state?.requiredGames ?? 5}',
+              key: const ValueKey('inviter-progress'),
+              style: const TextStyle(color: GameUi.muted, fontSize: 12),
+            ),
+            Text(
+              assigned
+                  ? _tr(
+                      'Код закреплён и больше не меняется.',
+                      'This code is fixed and cannot be changed.',
+                    )
+                  : _tr(
+                      'Пригласившего можно выбрать один раз.',
+                      'Choose your inviter only once.',
+                    ),
+              key: const ValueKey('inviter-binding-status'),
+              style: const TextStyle(color: GameUi.muted, fontSize: 12),
+            ),
+          ],
         ],
       ),
     );

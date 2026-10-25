@@ -130,7 +130,7 @@ void main() {
           expect(close.top, greaterThanOrEqualTo(0));
           if (scale == 1) {
             final out = Platform.environment['AVERAGE_CHART_EVIDENCE_DIR'];
-            if (out != null)
+            if (out != null) {
               await t.runAsync(() async {
                 final boundary = t.renderObject<RenderRepaintBoundary>(
                   find.byKey(const ValueKey('chart-capture')),
@@ -145,6 +145,7 @@ void main() {
                 ).writeAsBytes(bytes!.buffer.asUint8List());
                 image.dispose();
               });
+            }
           }
           await t.tap(find.byKey(const ValueKey('average-chart-close')));
           await t.pumpAndSettle();

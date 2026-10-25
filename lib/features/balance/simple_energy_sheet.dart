@@ -1,15 +1,18 @@
+import '../../ui/analytics_feature.dart';
+import '../../data/app_analytics.dart';
+import '../../ui/analytics_navigation.dart';
 import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:intl/intl.dart';
 import '../../data/economy_store.dart';
+import '../../domain/gameplay_config.dart';
 import '../../data/ads_service.dart';
 import '../../data/mobile_account.dart';
 import '../../data/mobile_invites.dart';
+import '../invites/compact_invitations.dart';
 import '../../data/play_billing_service.dart';
 import '../../ui/billing_unavailable.dart';
 import '../../ui/energy_reward_motion.dart';
@@ -21,7 +24,6 @@ export '../../ui/neon_chrome.dart' show NeonGlass;
 import '../../ui/watch_rewarded_ad.dart';
 import '../../ui/rewarded_ad_disclosure.dart';
 import '../../ui/rewarded_ad_guide.dart';
-import '../../ui/public_name_controls.dart';
 import 'energy_services.dart'
     show EnergyBillingStatus, buySimpleEnergy, EnergyFeedbackForm;
 
@@ -49,6 +51,7 @@ Future<void> showSimpleEnergyWindow(
   BuildContext context, {
   EnergyPage page = EnergyPage.energy,
 }) => showDialog<void>(
+  routeSettings: analyticsWindow('energy'),
   context: context,
   useRootNavigator: false,
   barrierColor: GameUi.modalBarrier,
@@ -86,6 +89,7 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
   void initState() {
     super.initState();
     _page = widget.initialPage;
+    AppAnalytics.page('energy', _page.name, source: 'initial');
     _clock = Timer.periodic(const Duration(seconds: 1), (_) {
       if (mounted) setState(() {});
     });
@@ -106,6 +110,7 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
     } else {
       setState(() {
         _page = EnergyPage.energy;
+        AppAnalytics.page('energy', 'energy', source: 'back');
         _error = null;
       });
     }
@@ -113,7 +118,9 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
 
   void _open(EnergyPage page) {
     _resetHiddenTaps();
-    if (_busy) return;
+    if (_busy || page == _page) return;
+    AppAnalytics.click(page.name, placement: 'energy_${_page.name}');
+    AppAnalytics.page('energy', page.name);
     _celebration.currentState?.cancel();
     setState(() {
       _page = page;
@@ -178,6 +185,7 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
       // The shared confirmed-wallet observer presents the reward exactly once.
       onReward: (_) async {
         if (mounted && _page == EnergyPage.video) {
+          AppAnalytics.page('energy', 'energy', source: 'reward_result');
           setState(() => _page = EnergyPage.energy);
         }
       },
@@ -247,7 +255,9 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
             child: NeonGlass(
               key: const ValueKey('simple-energy-window'),
               radius: 20,
-              padding: const EdgeInsets.fromLTRB(17, 10, 17, 15),
+              padding: _page == EnergyPage.friends
+                  ? const EdgeInsets.fromLTRB(10, 6, 10, 10)
+                  : const EdgeInsets.fromLTRB(17, 10, 17, 15),
               child: LayoutBuilder(
                 builder: (c, constraints) {
                   final available = constraints.maxHeight;
@@ -268,7 +278,9 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
                                     : null,
                                 child: _text(
                                   _title,
-                                  size: _page == EnergyPage.video
+                                  size: _page == EnergyPage.friends
+                                      ? 20
+                                      : _page == EnergyPage.video
                                       ? 20
                                       : _page == EnergyPage.packs ||
                                             _page == EnergyPage.subscription
@@ -299,21 +311,21 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
                                 ),
                               ),
                             if (_page == EnergyPage.friends)
-                              Tooltip(
-                                triggerMode: TooltipTriggerMode.tap,
-                                message: _tr(
+                              IconButton(
+                                key: const ValueKey('invites-info'),
+                                tooltip: _tr(
                                   context,
-                                  'Вы получите ${e.energyConfig.reward('invite')} энергии после 5 игр друга. У обоих должен быть подключён Google.',
-                                  'You receive ${e.energyConfig.reward('invite')} energy after your friend finishes 5 games. Both players need Google connected.',
+                                  'Как работает приглашение',
+                                  'How invitations work',
                                 ),
-                                child: const SizedBox(
-                                  width: 32,
-                                  height: 44,
-                                  child: Icon(
-                                    Icons.info_outline,
-                                    color: _cyan,
-                                    size: 23,
-                                  ),
+                                onPressed: () => showInvitationHelp(
+                                  context,
+                                  e.energyConfig.reward('invite'),
+                                ),
+                                icon: const Icon(
+                                  Icons.info_outline,
+                                  color: _cyan,
+                                  size: 23,
                                 ),
                               ),
                             SizedBox(
@@ -622,7 +634,13 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
                 key: ValueKey('simple-tier-${offer.totalBatteries}'),
                 onTap: _busy
                     ? null
-                    : () => setState(() => _selectedSku = offer.id),
+                    : () {
+                        AppAnalytics.click(
+                          offer.id,
+                          placement: 'subscription_choice',
+                        );
+                        setState(() => _selectedSku = offer.id);
+                      },
                 child: NeonGlass(
                   radius: 12,
                   selected: chosen?.id == offer.id,
@@ -844,222 +862,9 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
       const RewardedAdDisclosure(),
     ],
   );
-  Widget _friends(EconomyStore e, double available) {
-    final service = context.watch<MobileInvites?>();
-    final state = service?.state;
-    final valid = state != null && state.profileId == service?.account.id;
-    final rows = valid ? state.paidRows : <InvitePaidRow>[];
-    final pending = valid ? state.pendingRows : <Map<String, dynamic>>[];
-    Widget field(
-      String title,
-      String? value,
-      String id, {
-      bool share = false,
-    }) => Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _text(title, size: 12, color: _muted),
-        Row(
-          children: [
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF031A2F),
-                  borderRadius: BorderRadius.circular(7),
-                  border: Border.all(color: _cyan.withValues(alpha: .55)),
-                ),
-                child: _text(
-                  value ?? _tr(context, 'Нет соединения', 'Offline'),
-                  size: share ? 12 : 21,
-                  color: share ? _muted : energyNeon,
-                  weight: FontWeight.w800,
-                ),
-              ),
-            ),
-            IconButton(
-              key: ValueKey('simple-copy-$id'),
-              tooltip: _tr(context, 'Копировать', 'Copy'),
-              onPressed: value == null
-                  ? null
-                  : () => _act(
-                      () => Clipboard.setData(ClipboardData(text: value)),
-                    ),
-              icon: const Icon(Icons.copy_rounded, color: _cyan, size: 21),
-            ),
-            if (share)
-              IconButton(
-                tooltip: _tr(context, 'Поделиться', 'Share'),
-                onPressed: value == null
-                    ? null
-                    : () => _act(() async {
-                        final box = context.findRenderObject() as RenderBox?;
-                        await SharePlus.instance.share(
-                          ShareParams(
-                            text: 'Untouch\n$value',
-                            sharePositionOrigin: box == null
-                                ? const Rect.fromLTWH(0, 0, 48, 48)
-                                : box.localToGlobal(Offset.zero) & box.size,
-                          ),
-                        );
-                      }),
-                icon: const Icon(Icons.share, color: _cyan, size: 22),
-              ),
-          ],
-        ),
-      ],
-    );
-    final count = rows.length + pending.length;
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        field(
-          _tr(context, 'Ваш код', 'Your code'),
-          valid ? state.ownCode : null,
-          'code',
-        ),
-        const SizedBox(height: 8),
-        field(
-          _tr(context, 'Ссылка', 'Link'),
-          valid ? state.inviteUrl : null,
-          'link',
-          share: true,
-        ),
-        _line(),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            Expanded(
-              child: Column(
-                children: [
-                  _text(
-                    _tr(context, 'Приглашено', 'Invited'),
-                    size: 12,
-                    color: _muted,
-                  ),
-                  _text(
-                    valid ? '${state.invitedCount ?? count}' : '—',
-                    size: 25,
-                    weight: FontWeight.w900,
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: Column(
-                children: [
-                  _text(
-                    _tr(context, 'Получено', 'Received'),
-                    size: 12,
-                    color: _muted,
-                  ),
-                  valid
-                      ? EnergyText(state.energyRewardTotal, size: 25)
-                      : _text('—', size: 25),
-                ],
-              ),
-            ),
-          ],
-        ),
-        _line(),
-        _text(
-          _tr(context, 'Приглашённые', 'Invited players'),
-          size: 17,
-          weight: FontWeight.w800,
-        ),
-        const SizedBox(height: 8),
-        SizedBox(
-          height: math.min(
-            220.0,
-            math.max(92.0, available.isFinite ? available - 295 : 220),
-          ),
-          child: ListView(
-            key: const ValueKey('simple-invited-list'),
-            padding: EdgeInsets.zero,
-            children: [
-              if (count == 0)
-                Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: _text(
-                    valid
-                        ? _tr(
-                            context,
-                            'Приглашённых пока нет',
-                            'No invitations yet',
-                          )
-                        : _tr(
-                            context,
-                            'Данные недоступны. Повторите загрузку.',
-                            'Data unavailable. Retry loading.',
-                          ),
-                    size: 13,
-                    color: _muted,
-                  ),
-                ),
-              for (final row in rows)
-                _friendRow(
-                  row.nickname,
-                  EnergyText(row.energyEquivalent, prefix: '+', size: 21),
-                  uid: row.userId,
-                ),
-              for (final row in pending)
-                _friendRow(
-                  row['nickname'] as String?,
-                  _text(
-                    '${row['games']} / 5\n${row['googleLinked'] == true ? 'Google ✓' : 'Google —'}',
-                    size: 12,
-                    color: _muted,
-                  ),
-                  uid: row['userId'] as String?,
-                ),
-              if (valid &&
-                  (state.nextCursor != null || state.pendingNextCursor != null))
-                TextButton(
-                  onPressed: _busy ? null : () => _act(service!.loadMore),
-                  child: Text(_tr(context, 'Ещё', 'More')),
-                ),
-            ],
-          ),
-        ),
-        if (!valid || service?.error != null)
-          TextButton(
-            onPressed: service == null || _busy
-                ? null
-                : () => _act(service.refresh),
-            child: Text(_tr(context, 'Повторить', 'Retry')),
-          ),
-      ],
-    );
-  }
+  Widget _friends(EconomyStore e, double available) =>
+      CompactInvitations(availableHeight: available);
 
-  Widget _friendRow(String? name, Widget value, {String? uid}) => Container(
-    margin: const EdgeInsets.only(bottom: 5),
-    padding: const EdgeInsets.all(9),
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(8),
-      color: const Color(0xFF0C324F),
-      border: Border.all(color: const Color(0xFF14658C)),
-    ),
-    child: Row(
-      children: [
-        const Icon(Icons.account_circle, color: Color(0xFF7EB4DF), size: 29),
-        const SizedBox(width: 8),
-        Expanded(
-          child: _text(
-            publicPlayerName(
-              context,
-              uid,
-              name ?? _tr(context, 'Игрок', 'Player'),
-            ),
-            size: 13,
-          ),
-        ),
-        value,
-        PublicNameActions(uid: uid, name: name ?? '', compact: true),
-      ],
-    ),
-  );
   Widget _packs(EconomyStore e) {
     final billing = context.watch<PlayBillingService?>();
     final packs = e.energyConfig.packages;
@@ -1239,6 +1044,10 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
 
   Widget _abilityContent(EconomyStore e) {
     final helmet = _page == EnergyPage.helmet;
+    final cooldown = context.watch<GameplayConfig?>()?.helmetCooldownSec ?? 0;
+    final seconds = cooldown == cooldown.roundToDouble()
+        ? cooldown.toStringAsFixed(0)
+        : cooldown.toStringAsFixed(1);
     final selected = helmet ? e.helmetSelected : e.jumpSelected;
     final extra = helmet
         ? e.energyConfig.helmetExtraCost
@@ -1256,7 +1065,13 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
         const SizedBox(height: 10),
         if (helmet) ...[
           _text(
-            _tr(context, 'Защита от одного удара', 'Protection from one hit'),
+            _tr(
+              context,
+              cooldown > 0
+                  ? 'Восстанавливаемая защита'
+                  : 'Защита от одного удара',
+              cooldown > 0 ? 'Recharging shield' : 'Protection from one hit',
+            ),
             size: 20,
             weight: FontWeight.w800,
           ),
@@ -1264,8 +1079,12 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
           _text(
             _tr(
               context,
-              'Барьер принимает первый удар за попытку.',
-              'The barrier absorbs the first hit of a run.',
+              cooldown > 0
+                  ? 'Шлем принимает удар и восстанавливается за $seconds с активной игры. До восстановления защиты нет.'
+                  : 'Барьер принимает первый удар за попытку.',
+              cooldown > 0
+                  ? 'The helmet absorbs a hit and recharges over $seconds seconds of active play. There is no shield while it recharges.'
+                  : 'The barrier absorbs the first hit of a run.',
             ),
             size: 14,
           ),
@@ -1359,57 +1178,74 @@ class NeonAction extends StatelessWidget {
   final double height;
   final bool primary;
   @override
-  Widget build(BuildContext context) => Semantics(
-    button: true,
+  Widget build(BuildContext context) => AnalyticsFeature(
+    feature: key is ValueKey<String>
+        ? (key as ValueKey<String>).value
+        : 'energy_action',
+    placement: 'energy',
     enabled: onTap != null,
-    child: Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(9),
-        child: AnimatedOpacity(
-          duration: const Duration(milliseconds: 100),
-          opacity: onTap == null ? .48 : 1,
-          child: Container(
-            constraints: BoxConstraints(minHeight: height),
-            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(9),
-              border: Border.all(color: _cyan, width: 1.2),
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: primary
-                    ? const [
-                        Color(0xFF49EAFF),
-                        Color(0xFF008DCF),
-                        Color(0xFF005093),
-                        Color(0xFF00BCEB),
-                      ]
-                    : const [
-                        Color(0xFF176486),
-                        Color(0xFF063553),
-                        Color(0xFF00213D),
-                        Color(0xFF125275),
+    child: Semantics(
+      button: true,
+      enabled: onTap != null,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap == null
+              ? null
+              : () {
+                  AppAnalytics.click(
+                    key is ValueKey<String>
+                        ? (key as ValueKey<String>).value
+                        : 'energy_action',
+                    placement: 'energy',
+                  );
+                  onTap!();
+                },
+          borderRadius: BorderRadius.circular(9),
+          child: AnimatedOpacity(
+            duration: const Duration(milliseconds: 100),
+            opacity: onTap == null ? .48 : 1,
+            child: Container(
+              constraints: BoxConstraints(minHeight: height),
+              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(9),
+                border: Border.all(color: _cyan, width: 1.2),
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: primary
+                      ? const [
+                          Color(0xFF49EAFF),
+                          Color(0xFF008DCF),
+                          Color(0xFF005093),
+                          Color(0xFF00BCEB),
+                        ]
+                      : const [
+                          Color(0xFF176486),
+                          Color(0xFF063553),
+                          Color(0xFF00213D),
+                          Color(0xFF125275),
+                        ],
+                  stops: const [0, .12, .8, 1],
+                ),
+                boxShadow: onTap == null
+                    ? []
+                    : [
+                        BoxShadow(
+                          color: _cyan.withValues(alpha: primary ? .4 : .16),
+                          blurRadius: primary ? 11 : 5,
+                        ),
+                        const BoxShadow(
+                          color: Color(0xFF00101F),
+                          offset: Offset(0, 3),
+                          blurRadius: 2,
+                        ),
                       ],
-                stops: const [0, .12, .8, 1],
               ),
-              boxShadow: onTap == null
-                  ? []
-                  : [
-                      BoxShadow(
-                        color: _cyan.withValues(alpha: primary ? .4 : .16),
-                        blurRadius: primary ? 11 : 5,
-                      ),
-                      const BoxShadow(
-                        color: Color(0xFF00101F),
-                        offset: Offset(0, 3),
-                        blurRadius: 2,
-                      ),
-                    ],
+              child: child,
             ),
-            child: child,
           ),
         ),
       ),
@@ -1424,124 +1260,136 @@ class EnergyBoostTile extends StatelessWidget {
   final int tier;
   final VoidCallback? onTap;
   @override
-  Widget build(BuildContext c) => Semantics(
-    button: true,
+  Widget build(BuildContext c) => AnalyticsFeature(
+    feature: 'subscription',
+    placement: 'energy',
     enabled: tier < 5 && onTap != null,
-    label: _tr(
-      c,
-      tier >= 5
-          ? 'Максимальный бонус. Подписка ×5'
-          : tier == 2
-          ? 'Увеличить бонус до ×5'
-          : 'Увеличить размер бонуса. Подписка',
-      tier >= 5
-          ? 'Maximum bonus. Subscription ×5'
-          : tier == 2
-          ? 'Increase bonus to ×5'
-          : 'Increase the bonus amount. Subscription',
-    ),
-    child: GestureDetector(
-      key: const ValueKey('simple-energy-boost'),
-      onTap: tier < 5 ? onTap : null,
-      child: Container(
-        height: 132,
-        width: double.infinity,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(15),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: tier >= 5
-                ? const [Color(0xFF152D40), Color(0xFF10283A)]
+    child: Semantics(
+      button: true,
+      enabled: tier < 5 && onTap != null,
+      label: _tr(
+        c,
+        tier >= 5
+            ? 'Максимальный бонус. Подписка ×5'
+            : tier == 2
+            ? 'Увеличить бонус до ×5'
+            : 'Увеличить размер бонуса. Подписка',
+        tier >= 5
+            ? 'Maximum bonus. Subscription ×5'
+            : tier == 2
+            ? 'Increase bonus to ×5'
+            : 'Increase the bonus amount. Subscription',
+      ),
+      child: GestureDetector(
+        key: const ValueKey('simple-energy-boost'),
+        onTap: tier < 5 && onTap != null
+            ? () {
+                AppAnalytics.click('subscription', placement: 'energy');
+                onTap!();
+              }
+            : null,
+        child: Container(
+          height: 132,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: tier >= 5
+                  ? const [Color(0xFF152D40), Color(0xFF10283A)]
+                  : const [
+                      Color(0xFF354485),
+                      Color(0xFF132D56),
+                      Color(0xFF06283F),
+                    ],
+            ),
+            border: Border.all(
+              color: tier >= 5
+                  ? _muted.withValues(alpha: .35)
+                  : tier > 1
+                  ? const Color(0xFF80F7C2)
+                  : const Color(0xFF8EF4FF),
+              width: 1.4,
+            ),
+            boxShadow: tier >= 5
+                ? const []
                 : const [
-                    Color(0xFF354485),
-                    Color(0xFF132D56),
-                    Color(0xFF06283F),
+                    BoxShadow(color: Color(0x665C66FF), blurRadius: 14),
+                    BoxShadow(
+                      color: Color(0xAA020E24),
+                      offset: Offset(0, 4),
+                      blurRadius: 5,
+                    ),
                   ],
           ),
-          border: Border.all(
-            color: tier >= 5
-                ? _muted.withValues(alpha: .35)
-                : tier > 1
-                ? const Color(0xFF80F7C2)
-                : const Color(0xFF8EF4FF),
-            width: 1.4,
-          ),
-          boxShadow: tier >= 5
-              ? const []
-              : const [
-                  BoxShadow(color: Color(0x665C66FF), blurRadius: 14),
-                  BoxShadow(
-                    color: Color(0xAA020E24),
-                    offset: Offset(0, 4),
-                    blurRadius: 5,
-                  ),
-                ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(14),
-          child: CustomPaint(
-            painter: tier >= 5 ? null : const _BoostPainter(),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: SizedBox(
-                  width: 90,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        tier >= 5
-                            ? Icons.check_circle_outline_rounded
-                            : Icons.bolt_rounded,
-                        color: tier >= 5 ? _muted : energyNeon,
-                        size: 38,
-                        shadows: tier >= 5
-                            ? const []
-                            : const [
-                                Shadow(
-                                  color: Color(0xFFFFAA35),
-                                  blurRadius: 16,
-                                ),
-                              ],
-                      ),
-                      const SizedBox(height: 8),
-                      FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(
-                          _tr(
-                            c,
-                            tier >= 5
-                                ? 'Максимальный\nбонус'
-                                : tier == 2
-                                ? 'Увеличить\nдо ×5'
-                                : 'Увеличить\nразмер\nбонуса',
-                            tier >= 5
-                                ? 'Maximum\nbonus'
-                                : tier == 2
-                                ? 'Increase\nto ×5'
-                                : 'Increase\nthe bonus\namount',
-                          ),
-                          softWrap: false,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: tier >= 5 ? _muted : const Color(0xFFF1FCFF),
-                            fontSize: 15,
-                            height: 1.12,
-                            fontWeight: FontWeight.w900,
-                            shadows: tier >= 5
-                                ? const []
-                                : const [
-                                    Shadow(
-                                      color: Color(0x6654E9FF),
-                                      blurRadius: 5,
-                                    ),
-                                  ],
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(14),
+            child: CustomPaint(
+              painter: tier >= 5 ? null : const _BoostPainter(),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: SizedBox(
+                    width: 90,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          tier >= 5
+                              ? Icons.check_circle_outline_rounded
+                              : Icons.bolt_rounded,
+                          color: tier >= 5 ? _muted : energyNeon,
+                          size: 38,
+                          shadows: tier >= 5
+                              ? const []
+                              : const [
+                                  Shadow(
+                                    color: Color(0xFFFFAA35),
+                                    blurRadius: 16,
+                                  ),
+                                ],
+                        ),
+                        const SizedBox(height: 8),
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            _tr(
+                              c,
+                              tier >= 5
+                                  ? 'Максимальный\nбонус'
+                                  : tier == 2
+                                  ? 'Увеличить\nдо ×5'
+                                  : 'Увеличить\nразмер\nбонуса',
+                              tier >= 5
+                                  ? 'Maximum\nbonus'
+                                  : tier == 2
+                                  ? 'Increase\nto ×5'
+                                  : 'Increase\nthe bonus\namount',
+                            ),
+                            softWrap: false,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: tier >= 5
+                                  ? _muted
+                                  : const Color(0xFFF1FCFF),
+                              fontSize: 15,
+                              height: 1.12,
+                              fontWeight: FontWeight.w900,
+                              shadows: tier >= 5
+                                  ? const []
+                                  : const [
+                                      Shadow(
+                                        color: Color(0x6654E9FF),
+                                        blurRadius: 5,
+                                      ),
+                                    ],
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -1703,181 +1551,195 @@ class BonusOrb extends StatelessWidget {
   final double fraction;
   final VoidCallback? onTap;
   @override
-  Widget build(BuildContext c) => Semantics(
-    button: true,
+  Widget build(BuildContext c) => AnalyticsFeature(
+    feature: 'timed_bonus',
+    placement: 'energy',
     enabled: onTap != null,
-    label: ready
-        ? '$amount ${_tr(c, 'энергии. Забрать', 'energy. Claim')}'
-        : bonusTime(remaining),
-    child: GestureDetector(
-      key: const ValueKey('simple-bonus-orb'),
-      onTap: onTap,
-      child: CustomPaint(
-        painter: _OrbPainter(ready: ready, fraction: fraction),
-        child: LayoutBuilder(
-          builder: (c, b) => Stack(
-            alignment: Alignment.center,
-            children: [
-              if (multiplier == 2 || multiplier == 5)
+    rewardType: 'timed_bonus',
+    amount: amount,
+    child: Semantics(
+      button: true,
+      enabled: onTap != null,
+      label: ready
+          ? '$amount ${_tr(c, 'энергии. Забрать', 'energy. Claim')}'
+          : bonusTime(remaining),
+      child: GestureDetector(
+        key: const ValueKey('simple-bonus-orb'),
+        onTap: onTap == null
+            ? null
+            : () {
+                AppAnalytics.click('timed_bonus', placement: 'energy');
+                onTap!();
+              },
+        child: CustomPaint(
+          painter: _OrbPainter(ready: ready, fraction: fraction),
+          child: LayoutBuilder(
+            builder: (c, b) => Stack(
+              alignment: Alignment.center,
+              children: [
+                if (multiplier == 2 || multiplier == 5)
+                  Positioned(
+                    top: b.maxHeight * (ready ? .16 : .12),
+                    height: b.maxHeight * .10,
+                    left: b.maxWidth * .2,
+                    right: b.maxWidth * .2,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        '×$multiplier',
+                        key: const ValueKey('simple-bonus-multiplier'),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: energyCore,
+                          fontSize: b.maxHeight * .10,
+                          height: 1,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1,
+                        ),
+                      ),
+                    ),
+                  ),
+                if (ready)
+                  Positioned(
+                    top: b.maxHeight * .255,
+                    width: b.maxHeight * .145,
+                    height: b.maxHeight * .21,
+                    child: const CustomPaint(painter: _BonusBoltPainter()),
+                  ),
                 Positioned(
-                  top: b.maxHeight * (ready ? .16 : .12),
-                  height: b.maxHeight * .10,
-                  left: b.maxWidth * .2,
-                  right: b.maxWidth * .2,
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      '×$multiplier',
-                      key: const ValueKey('simple-bonus-multiplier'),
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: energyCore,
-                        fontSize: b.maxHeight * .10,
-                        height: 1,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 1,
+                  top: b.maxHeight * (ready ? .465 : .27),
+                  left: b.maxWidth * .16,
+                  right: b.maxWidth * .16,
+                  child: ImageFiltered(
+                    imageFilter: ui.ImageFilter.blur(
+                      sigmaX: ready ? 0 : 1.3,
+                      sigmaY: ready ? 0 : 1.3,
+                    ),
+                    child: Opacity(
+                      opacity: ready ? 1 : .35,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Row(
+                              key: const ValueKey('simple-bonus-amount'),
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                // Symmetric space keeps the digits themselves on
+                                // the circle axis; the currency icon cannot shift them.
+                                SizedBox(width: b.maxHeight * .125),
+                                Text(
+                                  '$amount',
+                                  key: const ValueKey('simple-bonus-value'),
+                                  style: TextStyle(
+                                    color: energyNeon,
+                                    fontSize: b.maxHeight * .225,
+                                    height: 1,
+                                    fontWeight: FontWeight.w900,
+                                    fontFeatures: const [
+                                      FontFeature.tabularFigures(),
+                                    ],
+                                    shadows: const [
+                                      Shadow(
+                                        color: Color(0xAAFFD627),
+                                        blurRadius: 9,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(width: b.maxHeight * .015),
+                                SizedBox(
+                                  key: const ValueKey('simple-bonus-currency'),
+                                  width: b.maxHeight * .11,
+                                  height: b.maxHeight * .195,
+                                  child: const CustomPaint(
+                                    painter: _BonusBoltPainter(),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
                 ),
-              if (ready)
-                Positioned(
-                  top: b.maxHeight * .255,
-                  width: b.maxHeight * .145,
-                  height: b.maxHeight * .21,
-                  child: const CustomPaint(painter: _BonusBoltPainter()),
-                ),
-              Positioned(
-                top: b.maxHeight * (ready ? .465 : .27),
-                left: b.maxWidth * .16,
-                right: b.maxWidth * .16,
-                child: ImageFiltered(
-                  imageFilter: ui.ImageFilter.blur(
-                    sigmaX: ready ? 0 : 1.3,
-                    sigmaY: ready ? 0 : 1.3,
-                  ),
-                  child: Opacity(
-                    opacity: ready ? 1 : .35,
+                if (!ready)
+                  Positioned(
+                    top: b.maxHeight * .48,
+                    left: 12,
+                    right: 12,
                     child: Column(
-                      mainAxisSize: MainAxisSize.min,
                       children: [
+                        Icon(
+                          serverUnsupported
+                              ? Icons.cloud_off_rounded
+                              : Icons.schedule,
+                          color: Colors.white,
+                          size: 22,
+                        ),
+                        const SizedBox(height: 3),
                         FittedBox(
                           fit: BoxFit.scaleDown,
-                          child: Row(
-                            key: const ValueKey('simple-bonus-amount'),
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              // Symmetric space keeps the digits themselves on
-                              // the circle axis; the currency icon cannot shift them.
-                              SizedBox(width: b.maxHeight * .125),
-                              Text(
-                                '$amount',
-                                key: const ValueKey('simple-bonus-value'),
-                                style: TextStyle(
-                                  color: energyNeon,
-                                  fontSize: b.maxHeight * .225,
-                                  height: 1,
-                                  fontWeight: FontWeight.w900,
-                                  fontFeatures: const [
-                                    FontFeature.tabularFigures(),
-                                  ],
-                                  shadows: const [
-                                    Shadow(
-                                      color: Color(0xAAFFD627),
-                                      blurRadius: 9,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(width: b.maxHeight * .015),
-                              SizedBox(
-                                key: const ValueKey('simple-bonus-currency'),
-                                width: b.maxHeight * .11,
-                                height: b.maxHeight * .195,
-                                child: const CustomPaint(
-                                  painter: _BonusBoltPainter(),
-                                ),
-                              ),
-                            ],
+                          child: Text(
+                            unavailable ? '— : — : —' : bonusTime(remaining),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w900,
+                              fontSize: b.maxHeight * .13,
+                              fontFeatures: const [
+                                FontFeature.tabularFigures(),
+                              ],
+                            ),
                           ),
                         ),
                       ],
                     ),
                   ),
-                ),
-              ),
-              if (!ready)
-                Positioned(
-                  top: b.maxHeight * .48,
-                  left: 12,
-                  right: 12,
-                  child: Column(
-                    children: [
-                      Icon(
-                        serverUnsupported
-                            ? Icons.cloud_off_rounded
-                            : Icons.schedule,
-                        color: Colors.white,
-                        size: 22,
+                if (ready)
+                  Positioned(
+                    top: b.maxHeight * .705,
+                    left: 10,
+                    right: 10,
+                    child: Text(
+                      pending
+                          ? _tr(c, 'Проверяем…', 'Checking…')
+                          : _tr(c, 'Забрать', 'Claim'),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: const Color(0xFF061A2B),
+                        fontSize: b.maxHeight * .105,
+                        height: 1,
+                        fontWeight: FontWeight.w900,
                       ),
-                      const SizedBox(height: 3),
-                      FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(
-                          unavailable ? '— : — : —' : bonusTime(remaining),
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w900,
-                            fontSize: b.maxHeight * .13,
-                            fontFeatures: const [FontFeature.tabularFigures()],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              if (ready)
-                Positioned(
-                  top: b.maxHeight * .705,
-                  left: 10,
-                  right: 10,
-                  child: Text(
-                    pending
-                        ? _tr(c, 'Проверяем…', 'Checking…')
-                        : _tr(c, 'Забрать', 'Claim'),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: const Color(0xFF061A2B),
-                      fontSize: b.maxHeight * .105,
-                      height: 1,
-                      fontWeight: FontWeight.w900,
                     ),
                   ),
-                ),
-              if (pending)
-                const Center(
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: Colors.white,
+                if (pending)
+                  const Center(
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
                   ),
-                ),
-              if (!ready)
-                Positioned(
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  child: Text(
-                    serverUnsupported
-                        ? _tr(c, 'Ожидание сервера', 'Waiting for server')
-                        : unavailable
-                        ? _tr(c, 'Синхронизация', 'Synchronizing')
-                        : _tr(c, 'Перезарядка', 'Recharging'),
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(color: _muted, fontSize: 11),
+                if (!ready)
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: Text(
+                      serverUnsupported
+                          ? _tr(c, 'Ожидание сервера', 'Waiting for server')
+                          : unavailable
+                          ? _tr(c, 'Синхронизация', 'Synchronizing')
+                          : _tr(c, 'Перезарядка', 'Recharging'),
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: _muted, fontSize: 11),
+                    ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

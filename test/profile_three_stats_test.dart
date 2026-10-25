@@ -163,7 +163,7 @@ void main() {
             if (destination == 'attempts') {
               expect(find.byType(RankingAttemptsPanel), findsOneWidget);
               expect(find.byType(LeaderboardPanel), findsNothing);
-              expect(key('attempts-average-card'), findsOneWidget);
+              expect(key('my-attempts-mean'), findsOneWidget);
             } else {
               final panel = t.state<LeaderboardPanelState>(
                 find.byType(LeaderboardPanel),
@@ -184,7 +184,13 @@ void main() {
             if (destination == 'record') {
               await t.binding.handlePopRoute();
             } else {
-              await t.tap(key('ranking-close'));
+              await t.tap(
+                key(
+                  destination == 'attempts'
+                      ? 'my-attempts-close'
+                      : 'ranking-close',
+                ),
+              );
             }
             await t.pumpAndSettle();
             expect(find.byType(LeaderboardPanel), findsNothing);

@@ -88,6 +88,10 @@
     "value": 3
   },
   {
+    "path": "game.helmetCooldownSec",
+    "value": 45
+  },
+  {
     "path": "audio.music",
     "value": false
   },

@@ -45,9 +45,10 @@ void main() {
               find.byKey(const ValueKey('rewarded-ad-data-details')),
             )
             .data!;
-        expect(text, contains('идентификаторы устройства'));
-        expect(text, contains('сеанс'));
-        expect(text, contains('Без персонализации и геолокации'));
+        expect(text, contains('одно видео за указанную награду'));
+        expect(text, contains('запрашивается отдельно'));
+        expect(text, contains('Геолокация Android и рекламный ID отключены'));
+        expect(text, isNot(contains('Без персонализации')));
         await t.tap(find.text('Понятно'));
         await t.pumpAndSettle();
         expect(find.text('Включить рекламу?'), findsNothing);

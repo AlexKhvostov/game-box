@@ -285,7 +285,7 @@ void main() {
               ].reduce((a, b) => a < b ? a : b),
             ),
           );
-          for (var i = 0; i < 6; i++) {
+          for (var i = 0; i < 5; i++) {
             final chip = find.byKey(ValueKey('leaderboard-filter-$i'));
             final rect = tester.getRect(chip);
             expect(rect.left, greaterThanOrEqualTo(0));
@@ -301,6 +301,15 @@ void main() {
               i,
             );
           }
+          await tester.tap(find.byKey(const ValueKey('leaderboard-filter-5')));
+          await tester.pumpAndSettle();
+          expect(
+            find.byKey(const ValueKey('my-attempts-sheet')),
+            findsOneWidget,
+          );
+          expect(tester.takeException(), isNull, reason: layoutDetails);
+          await tester.tap(find.byKey(const ValueKey('my-attempts-close')));
+          await tester.pumpAndSettle();
           expect(tester.takeException(), isNull, reason: layoutDetails);
           await _capture(tester, 'rating-$suffix');
           tester.state<NavigatorState>(find.byType(Navigator)).pop();

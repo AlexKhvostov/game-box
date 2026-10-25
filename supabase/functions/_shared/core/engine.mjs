@@ -116,7 +116,7 @@ function createEngine({db, getPolicy = async () => defaults, verifyPlay, googleL
     if(input.action==='round_finish') {
       const id=nonce(input.roundId),saved=(await db.collection('rounds').doc(id).get()).data();
       requireThat(saved?.uid===uid,'round_not_found',404);
-      if([1,2].includes(saved.proofVersion)&&!saved.finishedAt) {
+      if([1,2,3].includes(saved.proofVersion)&&!saved.finishedAt) {
         requireThat(!saved.canceled,'round_canceled');requireThat(saved.activatedAt!=null,'round_not_activated');
         integer(input.timeMs,1,3600000,'result_invalid');
         integer(input.runDistance,0,10000000,'result_invalid');integer(input.riskCount,0,10000,'result_invalid');
@@ -374,7 +374,7 @@ function createEngine({db, getPolicy = async () => defaults, verifyPlay, googleL
     const roundId=finish ? nonce(input.roundId) : hash(`${p.uid}:${nonce(input.requestId)}`);
     const rr=db.collection('rounds').doc(roundId), old=await tx.get(rr);
     if (start) {
-      const fingerprint=digest({helmet:input.helmet === true,jump:input.jump === true,rulesRevision:input.rulesRevision,revision:input.revision,...(input.proofVersion===2?{proofVersion:2}:{})});
+      const fingerprint=digest({helmet:input.helmet === true,jump:input.jump === true,rulesRevision:input.rulesRevision,revision:input.revision,...([2,3].includes(input.proofVersion)?{proofVersion:input.proofVersion}:{})});
       if (old.exists) {
         const r=old.data();requireThat(r.uid === p.uid && r.fingerprint === fingerprint,'operation_conflict');
         requireThat(!r.canceled,'round_canceled');return {roundId,activated:r.activatedAt != null,finished:r.finishedAt != null,hadHelmet:r.hadHelmet,hadJump:r.hadJump,attemptCost:r.cost};
@@ -406,7 +406,7 @@ function createEngine({db, getPolicy = async () => defaults, verifyPlay, googleL
     const result={timeMs:input.timeMs,runDistance:input.runDistance,riskCount:input.riskCount,hadJump:input.hadJump === true,hadHelmet:input.hadHelmet === true};
     const resultHash=digest(result);
     if (r.finishedAt) {requireThat(r.resultHash === resultHash,'operation_conflict');return r.result;}
-    requireThat(![1,2].includes(r.proofVersion)||verifiedProofRound===roundId,'result_proof_invalid');
+    requireThat(![1,2,3].includes(r.proofVersion)||verifiedProofRound===roundId,'result_proof_invalid');
     requireThat(r.activatedAt != null,'round_not_activated');
     integer(result.timeMs,1,3600000,'result_invalid');integer(result.runDistance,0,10000000,'result_invalid');integer(result.riskCount,0,10000,'result_invalid');
     if(result.timeMs > stamp-r.activatedAt+1200) {const error=new ApiError('result_time_invalid');error.retryAfterMs=result.timeMs-(stamp-r.activatedAt+1200);throw error;}

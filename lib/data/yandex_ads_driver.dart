@@ -1,3 +1,4 @@
+import 'app_analytics.dart';
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
@@ -16,7 +17,7 @@ abstract final class YandexAdUnits {
       : 'demo-interstitial-yandex';
 }
 
-class YandexAdsDriver implements AdsDriver {
+class YandexAdsDriver implements AdsDriver, AdsPrivacyDriver {
   YandexAdsDriver({required this.audience});
   final AudiencePolicy audience;
   bool get allowed =>
@@ -24,6 +25,25 @@ class YandexAdsDriver implements AdsDriver {
   bool get supported =>
       !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
   Future<void>? _initializing;
+  bool _privacyConfigured = false;
+  @override
+  void updatePrivacy() {
+    if (_privacyConfigured && !allowed) {
+      unawaited(
+        YandexAds.setUserConsent(false).catchError((Object _) {
+          _trace('privacy update incomplete; new requests remain blocked');
+        }),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    if (_privacyConfigured) {
+      unawaited(YandexAds.setUserConsent(false).catchError((Object _) {}));
+    }
+  }
+
   AdPresentationLease<dynamic>? _nativeLease;
   void _hold(AdPresentationLease<dynamic> lease) {
     _nativeLease = lease;
@@ -37,6 +57,13 @@ class YandexAdsDriver implements AdsDriver {
   Future<void> _initialize() async {
     if (!allowed) throw StateError('Ads disabled by audience policy');
     if (!supported) throw UnsupportedError('Android ads only');
+    _privacyConfigured = true;
+    // Only the separate, saved data choice may be passed as SDK consent.
+    await YandexAds.setUserConsent(true);
+    if (!allowed) {
+      await YandexAds.setUserConsent(false);
+      throw StateError('Advertising data consent withdrawn');
+    }
     try {
       await (_initializing ??= _init());
     } catch (_) {
@@ -46,8 +73,7 @@ class YandexAdsDriver implements AdsDriver {
   }
 
   Future<void> _init() async {
-    // Explicit reward tap starts contextual ads, never personalization.
-    await YandexAds.setUserConsent(false);
+    // Location and advertising-ID access stay disabled independently of consent.
     await YandexAds.setLocationTracking(false);
     await YandexAds.setAgeRestricted(false); // Only declared adults reach here.
     if (!allowed) throw StateError('Advertising permission withdrawn');
@@ -104,7 +130,13 @@ class YandexAdsDriver implements AdsDriver {
       await ad
           .setAdEventListener(
             eventListener: RewardedAdEventListener(
-              onAdShown: () => _trace('rewarded shown'),
+              onAdShown: () {
+                AppAnalytics.event('ad_started', {
+                  'format': 'rewarded',
+                  'placement': 'energy',
+                });
+                _trace('rewarded shown');
+              },
               onRewarded: (_) {
                 _trace('rewarded earned');
                 rewarded = true;
@@ -194,13 +226,17 @@ class YandexAdsDriver implements AdsDriver {
             eventListener: InterstitialAdEventListener(
               onAdShown: () {
                 shown = true;
+                AppAnalytics.event('ad_started', {
+                  'format': 'interstitial',
+                  'placement': 'result',
+                });
               },
               onAdDismissed: () => finish(shown),
               onAdFailedToShow: (_) => finish(false),
             ),
           )
           .timeout(const Duration(seconds: 10));
-      // Loading/listener setup may finish after the result was closed.
+      // Loading/listener setup may finish after the between-round break ended.
       // Recheck immediately before the native SDK presentation, without an await.
       if (!allowed || !audience.adsEnabled || !canShow()) return false;
       if (lease.safeToDispose) return await lease.result;

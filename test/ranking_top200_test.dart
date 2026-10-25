@@ -24,6 +24,11 @@ class TopFixture extends ScoresStore {
       mine: average(ownPlace),
     );
   }
+  @override
+  Future<void> loadAttemptHistory({
+    bool more = false,
+    bool refresh = false,
+  }) async {}
   final int ownPlace;
   AverageRankEntry average(int place) => AverageRankEntry(
     userId: place == ownPlace ? account!.id : 'other-$place',
@@ -240,10 +245,16 @@ void main() {
           await t.tap(find.byKey(const ValueKey('ranking-my-attempts')));
           await t.pumpAndSettle();
           expect(
-            find.byKey(const ValueKey('attempts-average-card')),
+            find.byKey(const ValueKey('my-attempts-mean')),
             findsOneWidget,
           );
-          expect(find.text('Всего попыток: 123'), findsOneWidget);
+          expect(
+            find.descendant(
+              of: find.byKey(const ValueKey('my-attempts-total')),
+              matching: find.text('123'),
+            ),
+            findsOneWidget,
+          );
           await shot(t, 'history-${size.width}-$scale');
           expect(t.takeException(), null);
           await t.pumpWidget(const SizedBox());

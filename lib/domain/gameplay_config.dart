@@ -47,6 +47,7 @@ class GameplayConfig {
 
   /// Секунды неуязвимости (мигание) после разрушения шлема.
   double get helmetInvulnSec => game.helmetInvulnSec;
+  double get helmetCooldownSec => game.helmetCooldownSec;
 
   /// Секунды неуязвимости в начале раунда.
   double get startInvulnSec => game.startInvulnSec;
@@ -265,6 +266,7 @@ class GameConfig {
     this.jumpScale = 1.32,
     this.helmetEnabled = true,
     this.helmetInvulnSec = 0.3,
+    this.helmetCooldownSec = 0,
     this.startInvulnSec = 1,
     this.heartbeatHaptic = true,
     this.timerHaptic = true,
@@ -305,6 +307,9 @@ class GameConfig {
   /// Неуязвимость после разрушения шлема (секунды). Герой мигает.
   final double helmetInvulnSec;
 
+  /// Zero preserves the one-use shield in old snapshots.
+  final double helmetCooldownSec;
+
   /// Неуязвимость в начале раунда (секунды). 0 — сразу уязвим.
   final double startInvulnSec;
 
@@ -336,6 +341,7 @@ class GameConfig {
     'jumpScale': jumpScale,
     'helmetEnabled': helmetEnabled,
     'helmetInvulnSec': helmetInvulnSec,
+    'helmetCooldownSec': helmetCooldownSec,
     'startInvulnSec': startInvulnSec,
     'heartbeatHaptic': heartbeatHaptic,
     'timerHaptic': timerHaptic,
@@ -360,6 +366,7 @@ class GameConfig {
       jumpScale: (json['jumpScale'] as num?)?.toDouble() ?? 1.32,
       helmetEnabled: json['helmetEnabled'] as bool? ?? true,
       helmetInvulnSec: (json['helmetInvulnSec'] as num?)?.toDouble() ?? 0.3,
+      helmetCooldownSec: (json['helmetCooldownSec'] as num?)?.toDouble() ?? 0,
       startInvulnSec: (json['startInvulnSec'] as num?)?.toDouble() ?? 1,
       heartbeatHaptic: json['heartbeatHaptic'] as bool? ?? true,
       timerHaptic: json['timerHaptic'] as bool? ?? true,

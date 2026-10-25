@@ -1,3 +1,4 @@
+import '../../data/app_analytics.dart';
 // Active energy services shared by the current and legacy UI.
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -93,6 +94,12 @@ class EnergyBillingStatus extends StatelessWidget {
             'Проверяем покупку. Не оплачивайте повторно.',
             'Verifying purchase. Do not pay again.',
           )
+        : billing?.error == 'purchase_failed'
+        ? _tr(
+            c,
+            'Не удалось завершить оплату в Google Play.',
+            'Could not complete payment in Google Play.',
+          )
         : billing?.error != null
         ? _tr(
             c,
@@ -187,8 +194,10 @@ class _FeedbackContentState extends State<EnergyFeedbackForm> {
       if (!e.energyRewardClaimed('feedback')) {
         throw StateError('feedback_unconfirmed');
       }
+      AppAnalytics.event('feedback_result', {'status': 'confirmed'});
       setState(() => _sent = true);
     } catch (_) {
+      AppAnalytics.event('feedback_result', {'status': 'unconfirmed'});
       if (mounted &&
           generation == _generation &&
           '${context.read<MobileAccount?>()?.id ?? ''}|${e.energyOwner ?? ''}' ==

@@ -31,6 +31,10 @@ class GoogleBillingStatus extends StatelessWidget {
             ? (ru
                   ? 'Проверка покупки ожидает соединения. Не покупайте повторно: нажмите «Восстановить покупки» после подключения.'
                   : 'Purchase verification is waiting for a connection. Do not buy again: use Restore purchases when connected.')
+            : billing.error == 'purchase_failed'
+            ? (ru
+                  ? 'Не удалось завершить оплату в Google Play.'
+                  : 'Could not complete payment in Google Play.')
             : (ru
                   ? 'Покупка не завершена. Проверьте подключение и аккаунт Google Play; затем восстановите покупки.'
                   : 'Purchase not completed. Check your connection and Google Play account, then restore purchases.'),

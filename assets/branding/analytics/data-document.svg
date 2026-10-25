@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="112" viewBox="0 0 72 84" fill="none">
+ <defs>
+  <linearGradient id="paper" x1="15" y1="9" x2="57" y2="73" gradientUnits="userSpaceOnUse"><stop stop-color="#5bfaff"/><stop offset=".35" stop-color="#00a8e7"/><stop offset="1" stop-color="#004e9a"/></linearGradient>
+  <linearGradient id="fold" x1="44" y1="14" x2="57" y2="31" gradientUnits="userSpaceOnUse"><stop stop-color="#e2ffff"/><stop offset="1" stop-color="#04bde7"/></linearGradient>
+  <filter id="glow" x="0" y="0" width="72" height="84" filterUnits="userSpaceOnUse"><feGaussianBlur stdDeviation="2.2"/></filter>
+ </defs>
+ <path d="M20 9h25l14 16v44a6 6 0 0 1-6 6H20a6 6 0 0 1-6-6V15a6 6 0 0 1 6-6Z" stroke="#00dfff" stroke-width="5" filter="url(#glow)" opacity=".8"/>
+ <path d="M20 9h25l14 16v44a6 6 0 0 1-6 6H20a6 6 0 0 1-6-6V15a6 6 0 0 1 6-6Z" fill="url(#paper)" stroke="#affcff" stroke-width="1.7"/>
+ <path d="M44 10v15a4 4 0 0 0 4 4h10" fill="url(#fold)" stroke="#d8ffff" stroke-width="1.4" stroke-linejoin="round"/>
+ <path d="M23 53h6v12h-6zm10-11h6v23h-6zm10-7h6v30h-6z" fill="#c7ffff"/>
+</svg>

@@ -1,3 +1,4 @@
+import '../../ui/analytics_navigation.dart';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,6 +8,7 @@ import '../../ui/game_ui.dart';
 
 Future<void> showAverageChartDialog(BuildContext context, ScoresStore store) =>
     showDialog<void>(
+      routeSettings: analyticsWindow('average_chart'),
       context: context,
       barrierColor: GameUi.modalBarrier,
       animationStyle: GameUi.windowAnimationStyle,

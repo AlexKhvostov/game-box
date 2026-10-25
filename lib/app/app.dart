@@ -1,3 +1,5 @@
+import '../ui/analytics_navigation.dart';
+import '../data/appmetrica_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -25,6 +27,7 @@ class GameBoxApp extends StatefulWidget {
 
 class _GameBoxAppState extends State<GameBoxApp> with WidgetsBindingObserver {
   final _navigator = GlobalKey<NavigatorState>();
+  final _analytics = AnalyticsNavigatorObserver();
   @override
   void initState() {
     super.initState();
@@ -53,6 +56,7 @@ class _GameBoxAppState extends State<GameBoxApp> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _analytics.dispose();
     super.dispose();
   }
 
@@ -66,6 +70,7 @@ class _GameBoxAppState extends State<GameBoxApp> with WidgetsBindingObserver {
       case AppLifecycleState.hidden:
       case AppLifecycleState.detached:
         GameSfx.onAppPaused();
+        AppMetricaAnalytics.flush();
     }
   }
 
@@ -75,6 +80,7 @@ class _GameBoxAppState extends State<GameBoxApp> with WidgetsBindingObserver {
 
     return MaterialApp(
       navigatorKey: _navigator,
+      navigatorObservers: [_analytics],
       onGenerateTitle: (ctx) => AppLocalizations.of(ctx).appTitle,
       debugShowCheckedModeBanner: false,
       theme: buildGameTheme(),

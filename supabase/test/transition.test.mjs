@@ -19,10 +19,11 @@ test('background reconciliation keeps actual last player activity intact',async(
   clock+=60000;await engine.execute('background_user',{action:'profile'},{background:true});
   assert.equal((await db.collection('players').doc('background_user').get()).data().lastActiveAt,before);
 });
-test('future Telegram score cannot enter Android rankings and input cannot select platform',async()=>{
+test('common board includes new Telegram scores but request input cannot change profile platform',async()=>{
   await engine.execute('platform_user',{action:'guest'});
   await db.collection('scores').doc('telegram_score').set({uid:'platform_user',platform:'telegram',timeMs:5000,createdAt:clock});
-  assert.equal((await engine.execute('platform_user',{action:'scores',period:'all',platform:'telegram'})).scores.length,0);
+  assert.equal((await engine.execute('platform_user',{action:'scores',period:'all',platform:'telegram'})).scores.length,1);
+  assert.equal((await engine.execute('platform_user',{action:'profile',platform:'telegram'})).profile.platform,'android');
 });
 test('Telegram identifiers retain full text precision, uniqueness and cascade on account deletion',async()=>{
   const uid='12345678-1234-4234-8234-123456789abc';

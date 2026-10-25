@@ -1,3 +1,4 @@
+import '../../ui/analytics_navigation.dart';
 import 'dart:io';
 import 'dart:ui' as ui;
 
@@ -5,8 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:provider/provider.dart';
 
 import '../../data/app_analytics.dart';
+import '../../data/mobile_invites.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/neon_chrome.dart';
 import '../../ui/game_ui.dart';
@@ -21,6 +24,7 @@ Future<void> showShareSocialSheet(
   int? runSteps,
 }) {
   return showDialog<void>(
+    routeSettings: analyticsWindow('share'),
     animationStyle: GameUi.windowAnimationStyle,
     context: context,
     useRootNavigator: false,
@@ -67,6 +71,11 @@ class _ShareSocialSheetState extends State<_ShareSocialSheet> {
       _feedback = null;
     });
     try {
+      final invites = context.read<MobileInvites?>();
+      if (invites == null) throw StateError('invites_unavailable');
+      final owner = invites.account.id;
+      final inviteUrl = await invites.resultShareUrl();
+      if (!mounted) return;
       final boundary =
           _cardKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
       if (boundary == null) throw StateError('share_card_unavailable');
@@ -87,15 +96,28 @@ class _ShareSocialSheetState extends State<_ShareSocialSheet> {
       final l10n = AppLocalizations.of(context);
       final time = _timeLabel();
       final caption = l10n.shareScoreCaption(l10n.appTitle, time);
-      AppAnalytics.shareSocial();
+      if (owner == null ||
+          invites.account.id != owner ||
+          invites.account.busy ||
+          invites.account.googleStage != null) {
+        throw StateError('invite_owner_changed');
+      }
+      AppAnalytics.event('share_action', {
+        'action': 'open_system_sheet',
+        'content_type': 'result',
+      });
       final result = await SharePlus.instance.share(
         ShareParams(
           files: [XFile(file.path, mimeType: 'image/png')],
-          text: caption,
+          text: '$caption\n$inviteUrl',
           subject: l10n.appTitle,
         ),
       );
       if (!mounted) return;
+      AppAnalytics.event('share_action', {
+        'action': 'system_result',
+        'status': result.status.name,
+      });
       if (result.status == ShareResultStatus.success) {
         Navigator.pop(context);
       } else {
@@ -113,8 +135,8 @@ class _ShareSocialSheetState extends State<_ShareSocialSheet> {
       if (mounted) {
         setState(
           () => _feedback = _tr(
-            'Не удалось подготовить карточку. Попробуйте ещё раз.',
-            'Could not prepare the card. Try again.',
+            'Не удалось подготовить карточку и вашу ссылку приглашения. Проверьте соединение и попробуйте ещё раз.',
+            'Could not prepare the card and your invitation link. Check your connection and try again.',
           ),
         );
       }

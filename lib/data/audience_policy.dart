@@ -24,11 +24,12 @@ class AudiencePolicy extends ChangeNotifier {
   static const liveAds = bool.fromEnvironment('YANDEX_LIVE_ADS');
   static const adsBuildEnabled = demoAds != liveAds;
   static const storageKey = 'audience_age_band_v1';
+  // A new key: old session permissions never count as informed data consent.
+  static const adDataConsentKey = 'yandex_ad_data_consent_v1';
   SharedPreferences? _prefs;
   AgeBand? _band;
-  bool _adsEnabled = false;
-  bool _rewardedRequested = false;
-  bool _revoked = false;
+  bool? _adDataConsent;
+  int _adConsentRevision = 0;
 
   AgeBand? get band => _band;
   bool get needsSelection => _band == null || _band == AgeBand.unknown;
@@ -38,13 +39,11 @@ class AudiencePolicy extends ChangeNotifier {
       _band == AgeBand.age21plus ||
       _band == AgeBand.adult18plus;
   bool get adsEnabled =>
-      adsBuildEnabled && isAdEligibleAge && _adsEnabled && !_revoked;
-  // A deliberate reward-button tap starts only rewarded ads. It does not
-  // authorize automatic interstitials or personalized data processing.
-  bool get rewardedAdsEnabled =>
-      adsEnabled ||
-      (adsBuildEnabled && isAdEligibleAge && _rewardedRequested && !_revoked);
-  bool get revokedThisSession => _revoked;
+      adsBuildEnabled && isAdEligibleAge && _adDataConsent == true;
+  // Format selection belongs to the placement, never to a global ad switch.
+  bool get rewardedAdsEnabled => adsEnabled;
+  bool? get adDataConsent => _adDataConsent;
+  int get adConsentRevision => _adConsentRevision;
 
   Future<void> load() async {
     _prefs = await SharedPreferences.getInstance();
@@ -53,7 +52,8 @@ class AudiencePolicy extends ChangeNotifier {
         ? null
         : AgeBand.values.where((b) => b.name == value).firstOrNull ??
               AgeBand.unknown;
-    // Advertising permission is deliberately session-only and off at launch.
+    final choice = _prefs!.get(adDataConsentKey);
+    _adDataConsent = choice is bool ? choice : null;
     notifyListeners();
   }
 
@@ -74,31 +74,33 @@ class AudiencePolicy extends ChangeNotifier {
   Future<void> correct(AgeBand band) async {
     final prefs = _prefs;
     if (prefs == null) throw StateError('Load audience before correcting');
+    // An age correction never silently restores a previous data consent.
+    _adDataConsent = null;
+    _adConsentRevision++;
+    notifyListeners();
+    if (!await prefs.remove(adDataConsentKey)) {
+      throw StateError('Could not reset advertising data choice');
+    }
     if (!await prefs.setString(storageKey, band.name)) {
       throw StateError('Could not save audience');
     }
     _band = band;
-    _adsEnabled = false;
-    _rewardedRequested = false;
     notifyListeners();
   }
 
-  void allowAdsForSession() {
-    if (!isAdEligibleAge || _revoked) return;
-    _adsEnabled = true;
+  Future<void> setAdDataConsent(bool granted) async {
+    final prefs = _prefs;
+    if (prefs == null) throw StateError('Load audience before data consent');
+    if (granted && !isAdEligibleAge) return;
+    final revision = ++_adConsentRevision;
+    // Revoke immediately, even if saving fails. Grant only after durable save.
+    _adDataConsent = false;
     notifyListeners();
-  }
-
-  void requestRewardedAdsForSession() {
-    if (!isAdEligibleAge || _revoked) return;
-    _rewardedRequested = true;
-    notifyListeners();
-  }
-
-  void revokeAdsForSession() {
-    _adsEnabled = false;
-    _rewardedRequested = false;
-    _revoked = true;
+    if (!await prefs.setBool(adDataConsentKey, granted)) {
+      throw StateError('Could not save advertising data choice');
+    }
+    if (revision != _adConsentRevision) return;
+    _adDataConsent = granted && isAdEligibleAge;
     notifyListeners();
   }
 }

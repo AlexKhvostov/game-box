@@ -90,6 +90,16 @@ abstract final class AndroidFirebaseConfig {
         throw FormatException('Invalid Firebase config: ${entry.key}');
       }
     }
+    final helmetCooldown = config['game']['helmetCooldownSec'];
+    if (config['game'].containsKey('helmetCooldownSec') &&
+        (helmetCooldown is! num ||
+            !helmetCooldown.isFinite ||
+            helmetCooldown < 0 ||
+            helmetCooldown > 3600)) {
+      throw const FormatException(
+        'Invalid Firebase config: game.helmetCooldownSec',
+      );
+    }
     final aspects = config['enemies']['aspects'];
     if (aspects is! List ||
         aspects.isEmpty ||

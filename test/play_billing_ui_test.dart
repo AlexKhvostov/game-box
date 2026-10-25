@@ -139,4 +139,16 @@ void main() {
     expect(find.textContaining('Do not buy again'), findsOneWidget);
     expect(billing.launched, 0);
   });
+  testWidgets('failed checkout does not claim a purchase awaits restoration', (
+    tester,
+  ) async {
+    final billing = FakeBilling(MobileAccount())..error = 'purchase_failed';
+    await mount(tester, billing, 'pack_s');
+    expect(
+      find.text('Could not complete payment in Google Play.'),
+      findsOneWidget,
+    );
+    expect(find.textContaining('then restore purchases'), findsNothing);
+    expect(billing.launched, 0);
+  });
 }

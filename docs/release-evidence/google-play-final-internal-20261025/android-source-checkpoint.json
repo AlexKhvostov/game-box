@@ -1,0 +1,1301 @@
+{
+  "files": [
+    {
+      "path": "lib/app/android_audience_startup.dart",
+      "sha256": "50db0f62685493c826bb702c75be2c241721d5b72a86518e016514139fd94ccf"
+    },
+    {
+      "path": "lib/app/app.dart",
+      "sha256": "c44a7d7d3a212a9903f921f04d6ed54910657d8a53a5e4bb9c01e210d364cde4"
+    },
+    {
+      "path": "lib/app/app_target.dart",
+      "sha256": "fea15803523893689f75a012da5d9690eda0f95d0a91cfcf4683745a852249fe"
+    },
+    {
+      "path": "lib/app/gameplay_debug.dart",
+      "sha256": "f50ac51ef81fdad14ba3ec7d5e60bab999132ac785a0c63197c2a5d084f0128b"
+    },
+    {
+      "path": "lib/app/google_startup.dart",
+      "sha256": "19a6dbee11e6e2b70ffc5cc239ee28a366d396c505e0f6e739683644a4366590"
+    },
+    {
+      "path": "lib/app/mobile_gameplay_tuning.dart",
+      "sha256": "cbe71c5eb6407dfd213dd2a642dd852bf68df2bdf1021ba2f8c4a0c9a1ff1ccf"
+    },
+    {
+      "path": "lib/app/shell_screen.dart",
+      "sha256": "17d696db65d179b9255928101abeaa2652dbfa10efac87e721547f773fcc759a"
+    },
+    {
+      "path": "lib/app/test_tools.dart",
+      "sha256": "99fcefff93e109bd3b5f88480d51fccb40f21553cfbcf8d3df84257fdefd903a"
+    },
+    {
+      "path": "lib/app/theme.dart",
+      "sha256": "533e3bc299b3be846b47efe12e94f1d44759a61fae2bd688a7bf2520661e46d8"
+    },
+    {
+      "path": "lib/data/ad_presentation_lease.dart",
+      "sha256": "67e6150f957e6781c231ced528a2ac296dd1b4b93c8d4b0e1848e88e6508d30e"
+    },
+    {
+      "path": "lib/data/ads_service.dart",
+      "sha256": "49d551cd942251ff2f7bb1ca7f39d34820515428b6f368210a950ebb902680cd"
+    },
+    {
+      "path": "lib/data/analytics_consent.dart",
+      "sha256": "6c75c64afc0c29158d1413040309f56d69331b5b1c5e6e888d929768353b3f56"
+    },
+    {
+      "path": "lib/data/android_config_session.dart",
+      "sha256": "6e86faeaeb552523eb08a076b664ce95ac6a7f11d5c1d0be5586b5f1c43dad02"
+    },
+    {
+      "path": "lib/data/android_firebase_config.dart",
+      "sha256": "7eecb14b54dcb557d6ff4430d1a13d8b243ab8a03a1295ba2a6fac64b1f2e955"
+    },
+    {
+      "path": "lib/data/android_invite_source.dart",
+      "sha256": "ed5f1c78f8a7fcc875f658cfc806e616b8aa073d7cc63d3051dc1abcc49fe298"
+    },
+    {
+      "path": "lib/data/android_updates.dart",
+      "sha256": "3b551d0fafe980ac56a1a4219f07a7fe807ebab76425e53a24b87e1f7bf10ccd"
+    },
+    {
+      "path": "lib/data/app_analytics.dart",
+      "sha256": "8a37ec90c526af48b7f542bb03d4eb8ad5bb992756a9e91b414d8bdc2e7f32b9"
+    },
+    {
+      "path": "lib/data/appmetrica_analytics.dart",
+      "sha256": "be0613335e06cf396fa0d667239148d89aa6edcd85cfaf4e1e13d587b1ec0c7f"
+    },
+    {
+      "path": "lib/data/audience_policy.dart",
+      "sha256": "bf299e1a0ee1637775865ed587a867fcc3ff6e3983401b4c5d88b00b1c00a1f6"
+    },
+    {
+      "path": "lib/data/economy_store.dart",
+      "sha256": "fc33aa4da804e6148f72534a72ee3b26ae4d11cb1add72a7d5ecd8901eedf54e"
+    },
+    {
+      "path": "lib/data/energy_presentation.dart",
+      "sha256": "7569afef5c61f2112c74c2bdd0662bbe0f3d51cd0d6244d5fc87c624bd22c3a7"
+    },
+    {
+      "path": "lib/data/google_identity.dart",
+      "sha256": "dc919b52af5b6511cba15884ac82dc89f85c321b4d271dae8d923294d9614842"
+    },
+    {
+      "path": "lib/data/instant_round_journal.dart",
+      "sha256": "22e4c880f7905814f4132475e9f93795fcf0aa87de8030726febf709303a739f"
+    },
+    {
+      "path": "lib/data/invite_code.dart",
+      "sha256": "239eb5a2d7d717f40715bc572aaffc586f1e9b78020cbc17c612c952aadfa0fd"
+    },
+    {
+      "path": "lib/data/legacy_scores_source.dart",
+      "sha256": "5c226af518770c4af9a37d902a58fac8a11ae2efeca64716fd35b79192f9123e"
+    },
+    {
+      "path": "lib/data/mobile_account.dart",
+      "sha256": "8c1f92229a5616423246bc2dfab0507d1af4d8546d4a88c9b3c80ac646e85bbb"
+    },
+    {
+      "path": "lib/data/mobile_connection.dart",
+      "sha256": "a6430c5fbc7c92d1b542f6c41cfa5aea1752f338ad2b437cf82321e31a3b8e51"
+    },
+    {
+      "path": "lib/data/mobile_invites.dart",
+      "sha256": "924801435c35e4d572ff13e59c98541d2de9b0a5466c3b8001efef382e0dc771"
+    },
+    {
+      "path": "lib/data/mobile_wallet_bridge.dart",
+      "sha256": "5f8002431248379461e95bbe19553de77cded6c9c0ce64fa90df5c80366f7d8b"
+    },
+    {
+      "path": "lib/data/play_billing_service.dart",
+      "sha256": "7c0476a4ab0e43bb3ec73eb081ece868472ca9e7998ae6c1496266b5e11f3aaa"
+    },
+    {
+      "path": "lib/data/player_preferences.dart",
+      "sha256": "db9905667804578aa3ade80af122a05b71b6b73d759c35c5f0e275a1ba8e3019"
+    },
+    {
+      "path": "lib/data/purchase_analytics.dart",
+      "sha256": "b8bbfe5c8a9e0b3f61c0bd55fc4b381f64b406c11a11d936ac368216be96f609"
+    },
+    {
+      "path": "lib/data/remote_config_bootstrap.dart",
+      "sha256": "90aef2643fb917ffb4a725e8eca1804fb91ff8ee8faca10d32608543475578b5"
+    },
+    {
+      "path": "lib/data/round_analytics.dart",
+      "sha256": "17cbfe9a646a85af06e9580f67bbf82c25efe7c5ee0b7e7563d8f6d7d652ce6f"
+    },
+    {
+      "path": "lib/data/scores_store.dart",
+      "sha256": "5159629fc623e061160b2b8f983e00eca9ef1aaf17d37fba3d88f77671c7de69"
+    },
+    {
+      "path": "lib/data/shared_config_loader.dart",
+      "sha256": "0d8fa587faf57d795e40f48a13a3c312e8af4bb8ee37300187a7ea9e4493cee9"
+    },
+    {
+      "path": "lib/data/supabase_mobile_client.dart",
+      "sha256": "61fb8a222d06edefa52c9d6dd55a2ed503cb1d1b29dff7220eba85ecf26d7029"
+    },
+    {
+      "path": "lib/data/ui_summary.dart",
+      "sha256": "1e2fd173bc4ea15cf7f4a9c3cb1fb18e80fb9638d94f6c728fa4c17fbe9a0cde"
+    },
+    {
+      "path": "lib/data/ui_summary_outbox.dart",
+      "sha256": "2f086310df9c5d59a7a38227bf4c114d6a765238ac2009923c88f50ce3dc4c6f"
+    },
+    {
+      "path": "lib/data/yandex_ads_driver.dart",
+      "sha256": "c03c6edfda5209bdbb3668d958c1db8f70b0d7a37a3364710a733121f1288780"
+    },
+    {
+      "path": "lib/domain/android_energy.dart",
+      "sha256": "e7aad0a718a24ca965205bc115f9fc30385b34741e91bc6db71b28c419a96f2c"
+    },
+    {
+      "path": "lib/domain/android_game_constraints.dart",
+      "sha256": "de6dd07052c4111fa3036391dcf101ddb32f35d9222cf04156e111185fdb8eff"
+    },
+    {
+      "path": "lib/domain/arcade_rules.dart",
+      "sha256": "4bd0c8a514b9b3d07198152dfa28cae259b509e5b6f405b9b43a741c5cdb5606"
+    },
+    {
+      "path": "lib/domain/average_chart.dart",
+      "sha256": "d6ffdda88dadba54388f8dccdf62682e7bcd642eb4ae27a1636f95275778e6de"
+    },
+    {
+      "path": "lib/domain/average_ranking.dart",
+      "sha256": "b3863864d7820c63b6379256e791c5d10c834fcaa61eb7805a49a61328c53db7"
+    },
+    {
+      "path": "lib/domain/economy_config.dart",
+      "sha256": "271836421ab106430b0304b10a17f3fc476b8eb196cac092d0ebffdb195c0bdd"
+    },
+    {
+      "path": "lib/domain/enemy_pace.dart",
+      "sha256": "31ae1e4ef2c15706ce5f547f30568c11bcc567b20c1fe5631aa2497530b23ffc"
+    },
+    {
+      "path": "lib/domain/energy_test_catalog.dart",
+      "sha256": "f55085f082ae89ea16da0c1e6240ad6b19b98f8eab084279fcf0a55b33540767"
+    },
+    {
+      "path": "lib/domain/gameplay_config.dart",
+      "sha256": "53726462cb73064e4d0b709f2ec1b9c404f0460b822bc261f8b3de42f81da16a"
+    },
+    {
+      "path": "lib/domain/helmet_charge.dart",
+      "sha256": "3b35c6d17a41a480b0b004dde3c6d86e88b2188afcecf44a39676919f4030e1b"
+    },
+    {
+      "path": "lib/domain/my_attempts.dart",
+      "sha256": "75ae3c61f23a16a36692fb7da607f5cb9c0a9ce5215289ccd8db3122c14189af"
+    },
+    {
+      "path": "lib/domain/replay_random.dart",
+      "sha256": "8a4326a81f2450541f9438d7ad9ca3d0044dcfe26d353970deef86b43e4e5db2"
+    },
+    {
+      "path": "lib/domain/round_delivery.dart",
+      "sha256": "9ecb40a82df9ab9abe7612d5c16cee1f8b02e2fa9d4a8264db49520257a2afb9"
+    },
+    {
+      "path": "lib/domain/score_entry.dart",
+      "sha256": "20623cdc9b5dbc60adf73bcfc8058aab7251371270e2d5a82e461b2317dd3424"
+    },
+    {
+      "path": "lib/domain/server_attempt_history.dart",
+      "sha256": "a257cdf2ea9c57a507e3ec4258f4218dad01fffe8f5b5f409ce497c400879019"
+    },
+    {
+      "path": "lib/domain/shop_catalog.dart",
+      "sha256": "53c77e3a4c8e021f25dc30dee89d9f0601702d9a03c0e1f6ff03c560000713c8"
+    },
+    {
+      "path": "lib/features/balance/crystals_sheet.dart",
+      "sha256": "3adbf678073689180a2e0bb0b4eba9b61b49fd17446df8b2052ce266321fa753"
+    },
+    {
+      "path": "lib/features/balance/energy_services.dart",
+      "sha256": "087f24cb60b40d6d89f200b16b4bb873b138bcd4ce875daaf359a42a6293ac05"
+    },
+    {
+      "path": "lib/features/balance/energy_sheet.dart",
+      "sha256": "4014ebadb2a757d448e5f49aa27efdb7b91f3bc3bef795f9b0701fbf4079fb63"
+    },
+    {
+      "path": "lib/features/balance/simple_energy_sheet.dart",
+      "sha256": "ac98853ac4f882fb0ed5cb08488787e8a2b9297d44482a31fcdfa87497d715fa"
+    },
+    {
+      "path": "lib/features/floors/floors_config.dart",
+      "sha256": "4ed0db3488c0fd57c03f9216189fc784fbc3f5cbbc7305e24f822ac059718aa0"
+    },
+    {
+      "path": "lib/features/floors/floors_data.dart",
+      "sha256": "af127afd3b760ff485d1271f035b9624a0b5acbcaa71f7e9050804746bca1fbf"
+    },
+    {
+      "path": "lib/features/floors/floors_field_painter.dart",
+      "sha256": "8fd46db1f3ea94bb7e4809408ef60ec14c66ded967ec60765897a28c59403f93"
+    },
+    {
+      "path": "lib/features/floors/floors_home_screen.dart",
+      "sha256": "b756a26c3c7052705a5bd0e3c599211f12697af4b939406a0a096072794635cb"
+    },
+    {
+      "path": "lib/features/floors/floors_levels_sheet.dart",
+      "sha256": "ce6605697e7d2e7df476cd03453ea94af0896ca67a67fe6ca6a2db2261a7ac3f"
+    },
+    {
+      "path": "lib/features/floors/floors_loadout.dart",
+      "sha256": "0ea89e1f281e5495cc96ffb1b2180b34a8912b9147f4790900d14ea7e5cb68a2"
+    },
+    {
+      "path": "lib/features/floors/floors_map_widget.dart",
+      "sha256": "d42094063f30a59647a0dbc52ce1a56d544e7196780054e3427253b543fc8132"
+    },
+    {
+      "path": "lib/features/floors/floors_progress.dart",
+      "sha256": "104e17a722a036b864aac46518f1f39ec0f68655606489a55e34208cef39419b"
+    },
+    {
+      "path": "lib/features/floors/floors_session.dart",
+      "sha256": "7fae9f8a3c11edf9f40915fba5c29f868e2150881f4d854dd498d0136e13d8c9"
+    },
+    {
+      "path": "lib/features/floors/floors_stopwatch.dart",
+      "sha256": "0546c7d0f1ba7667329d3a661ee7548869dfa086c197bb6e3a65d706524fa965"
+    },
+    {
+      "path": "lib/features/floors/floors_world.dart",
+      "sha256": "c3c4c691bc13b7374bc140c297f42984ac96460c7c1c15520eb4e229dd68a5ea"
+    },
+    {
+      "path": "lib/features/game/arcade_hud.dart",
+      "sha256": "8beed8ba4406f1245daba385a78a3d94137b49c59ccccf41c22bdb294df12519"
+    },
+    {
+      "path": "lib/features/game/brake_field_effects.dart",
+      "sha256": "1b0468f3eb9bc96ad967c3d5691828591b557a0980da4aba951374d27284f178"
+    },
+    {
+      "path": "lib/features/game/compact_ability_button.dart",
+      "sha256": "be035bd6df014ca2e0220dbe0193f51c53577d631a4a596b736c76ad98b4c1d2"
+    },
+    {
+      "path": "lib/features/game/enemy_speed_meter.dart",
+      "sha256": "331540df4c83256fdedc3df4e86c706ceb4ce80e7ea22cc51a4b8f210b7549a4"
+    },
+    {
+      "path": "lib/features/game/game_debug_panel.dart",
+      "sha256": "18e5cf615bdc59880732db01e0c134233a171f962ca7b6504c4bf05c1e65bf54"
+    },
+    {
+      "path": "lib/features/game/game_field_painter.dart",
+      "sha256": "387767df19adde45641615e99df9fb90ef0b648e225a2e33a0fb9d4897a13796"
+    },
+    {
+      "path": "lib/features/game/game_home_screen.dart",
+      "sha256": "9730be58b887ae5121e7183e50b64b308351a88f5063946bfe191cab48882644"
+    },
+    {
+      "path": "lib/features/game/game_start_guard.dart",
+      "sha256": "89e160b7f8b3c282d28c1b69816e517eb25192441b933c270a92d802ed7e56d2"
+    },
+    {
+      "path": "lib/features/game/game_touchpad.dart",
+      "sha256": "061d4c2e88d346e8a9d4e5a3c3241d6d70152e7542a35c02cb7d62eaa4dc0764"
+    },
+    {
+      "path": "lib/features/game/game_world.dart",
+      "sha256": "2c8c8487fb96cb8d9dfe6a52e740d607fb6677aa2ad0892f475c9ff86c537c47"
+    },
+    {
+      "path": "lib/features/game/helmet_artwork.dart",
+      "sha256": "ca125190c7670e76406278352ee78b11c17648b3b3a1e48de3ce9c27cde786b5"
+    },
+    {
+      "path": "lib/features/game/helmet_indicator.dart",
+      "sha256": "2c0a3acb9800ed6f2cb6d149af7929e05c731137ac69de4488417a2d43d6f2d6"
+    },
+    {
+      "path": "lib/features/game/impact_burst.dart",
+      "sha256": "aeda3741ffb56703bef3f18b66e827a4bc5882e49c60402ebe6d391c5c29110d"
+    },
+    {
+      "path": "lib/features/game/jump_glow.dart",
+      "sha256": "6a3f6db0bcf159b0c790a92993ca2d5babbcc9e466269fa41bdaaa6520048406"
+    },
+    {
+      "path": "lib/features/game/jump_ready_signal.dart",
+      "sha256": "5e48c9d9a349d028b7b20053ba23d962fe92bf5aa34c6d149a63b383d1d17f0f"
+    },
+    {
+      "path": "lib/features/game/lives_recovery_banner.dart",
+      "sha256": "deee1f607fa08e8ff98a5c2ceab0466481a54c2cca001c7506e421f3846eebef"
+    },
+    {
+      "path": "lib/features/game/lives_sheet.dart",
+      "sha256": "e9b8fd2a7dccd2f20332bf67cf70d5178441c59bd9b1dc44d6edd00731c26794"
+    },
+    {
+      "path": "lib/features/invites/compact_invitations.dart",
+      "sha256": "3d19978d23538899260ee76b0712a2f13a4ee6406ce9f7217233a9c57280e9cb"
+    },
+    {
+      "path": "lib/features/invites/invitations_dialog.dart",
+      "sha256": "2cd3479106c05b5b0c153ddcd81398e1d6d6c0a91193de6f96207a8768c46add"
+    },
+    {
+      "path": "lib/features/invites/invite_action_card.dart",
+      "sha256": "b76f222fcf91c3e77eae498fa3b203d0a974d77b9923a0782159ff7e108f1f0b"
+    },
+    {
+      "path": "lib/features/invites/inviter_section.dart",
+      "sha256": "24cd835042431b49793c13ab722725297e5617c4140e5c06c174d6d068ac040a"
+    },
+    {
+      "path": "lib/features/leaderboard/average_chart_dialog.dart",
+      "sha256": "c2d1533c38c4a51cd6632a384823c217651ba12fbf62ece4036cf236879563f6"
+    },
+    {
+      "path": "lib/features/leaderboard/average_ranking_panel.dart",
+      "sha256": "0a6901716f31198d9318cb668086cea95a5ffbed529ed253a7c2df486c72d0f0"
+    },
+    {
+      "path": "lib/features/leaderboard/leaderboard_panel.dart",
+      "sha256": "484cb25edf5465ef076274ca320b911b0a8ece16a92903667f9fdda2afcedfa6"
+    },
+    {
+      "path": "lib/features/leaderboard/leaderboard_sheet.dart",
+      "sha256": "192d588cb95d46b31c92fb44c63e8f15e7c60f553c6a1dcf068184f417b27b92"
+    },
+    {
+      "path": "lib/features/leaderboard/leaderboard_tone.dart",
+      "sha256": "21b8543df90e2c93893516179dcbf3d0fa24e22ad6683467400d05d69346c992"
+    },
+    {
+      "path": "lib/features/leaderboard/leaderboard_widgets.dart",
+      "sha256": "e05e08b54f20408ead7a205d1544f1e742c50b0d838a07619dc2e04035424473"
+    },
+    {
+      "path": "lib/features/leaderboard/my_attempts_panel.dart",
+      "sha256": "0d578e39a561897a307ccd590e7d7c0ebc0e272b5bee467931ac8ba88a416691"
+    },
+    {
+      "path": "lib/features/leaderboard/player_result_sheet.dart",
+      "sha256": "aa617887fad031909f0237818f997218373edabc4dae6e74370d070baba5c164"
+    },
+    {
+      "path": "lib/features/leaderboard/ranking_art.dart",
+      "sha256": "1cc3d70299206c09aa1fae0d4ac2057d17a690494e7815b1139202b87b6ab939"
+    },
+    {
+      "path": "lib/features/leaderboard/ranking_frame.dart",
+      "sha256": "d49c87a2257b67d00f4cf5fec45cc53942ac289fa92692b4b87790fee2414fb7"
+    },
+    {
+      "path": "lib/features/leaderboard/ranking_summary.dart",
+      "sha256": "334d5fe8f0dbe11f10d8398d30bb408246f65fcabf15f93781203e145cfe342c"
+    },
+    {
+      "path": "lib/features/leaderboard/ranking_tabs.dart",
+      "sha256": "1721bdd7c9639b1041a0b1705e1f616cb76386d806ba0726dd55be60d68ac1d9"
+    },
+    {
+      "path": "lib/features/profile/analytics_consent_sheet.dart",
+      "sha256": "a40c62185a518b601a2436d49fee9d92219ae6a5fa0ed586448972023baffc4c"
+    },
+    {
+      "path": "lib/features/profile/google_startup_dialog.dart",
+      "sha256": "40c1d09514964c2c46732927ce9a56ffd7f54fe20b07acbfce49e9ab8f4a5c11"
+    },
+    {
+      "path": "lib/features/profile/profile_screen.dart",
+      "sha256": "10dd80f0b03926f2e43061f946b13cf471bea25ee1addaeeb499d547d5f7e1bb"
+    },
+    {
+      "path": "lib/features/result/result_screen.dart",
+      "sha256": "9c3dff244a1db600158da5b6186b7c169ba1f9263fb7b9aa4e70d125ffe97cff"
+    },
+    {
+      "path": "lib/features/result/run_summary.dart",
+      "sha256": "0264f71b16731917d5615099e653b8e4eceafab69d0f8b5cbd1e96562d620758"
+    },
+    {
+      "path": "lib/features/result/share_score_sheet.dart",
+      "sha256": "123cdb4701eb05b5f2e1ca467a9b29808e901831f45bbf41c7ec7e48f575318b"
+    },
+    {
+      "path": "lib/features/result/share_social_sheet.dart",
+      "sha256": "401468926d0d4ac71ddd17ce50b86bedaea07d1e4cb781228d2e8afac80e5e47"
+    },
+    {
+      "path": "lib/features/result/social_share_card.dart",
+      "sha256": "80aafa6973692d537c14d739feb5ed0e759da0960e34c59ebfd8d54b64b246c6"
+    },
+    {
+      "path": "lib/firebase_options.dart",
+      "sha256": "f0473a9f762036315dd41c7bd2928dacbf6f6c1640ffd49525c0875009c83a49"
+    },
+    {
+      "path": "lib/l10n/app_en.arb",
+      "sha256": "9bbba7d35aeb05a68d5e9cf80caea61e619b7a2c44c4d0127ab8895504f5f482"
+    },
+    {
+      "path": "lib/l10n/app_localizations.dart",
+      "sha256": "eaca1ec8203eca95b0b700a1d7be7564e54cc35fcf82f020e34b723d6b554aee"
+    },
+    {
+      "path": "lib/l10n/app_localizations_en.dart",
+      "sha256": "c2f8aa440ff9c0fe5a25924cb45593c2188c2e654ba93773a49f407c79ace03a"
+    },
+    {
+      "path": "lib/l10n/app_localizations_ru.dart",
+      "sha256": "8e852dabdf4e09ddf9440880527fe0c8cf0648be54ab30a05c539f268e92ab1c"
+    },
+    {
+      "path": "lib/l10n/app_ru.arb",
+      "sha256": "5f06690d206bc9b091881f06a774a9193c20290d231da08f8b4532513310f2af"
+    },
+    {
+      "path": "lib/l10n/l10n_catalog.dart",
+      "sha256": "cc15b6c3d5259d03c15061667d254c569fcbdc339259cfbe2c5c9070ab16e0d8"
+    },
+    {
+      "path": "lib/l10n/locale_resolver.dart",
+      "sha256": "30d8d2737de1796d809ffe6a43e966d6b19746758dccab8584abfae4730a60c8"
+    },
+    {
+      "path": "lib/main.dart",
+      "sha256": "cf6fd71e6851ac1fc909090956278c0246a3c2cbb9b2893e3590b51cf0e09c5d"
+    },
+    {
+      "path": "lib/telegram/telegram_bridge.dart",
+      "sha256": "905e7e9fe2fe0d11231be2af1fcb6cfee5bed38ae5f511f63a73fa5b8fdce608"
+    },
+    {
+      "path": "lib/telegram/telegram_bridge_stub.dart",
+      "sha256": "790f80fada30e437d28a163b6476380e5138a7928c414d84dc873331ce560619"
+    },
+    {
+      "path": "lib/telegram/telegram_bridge_web.dart",
+      "sha256": "f88c4546e742986372b68583ec57961f37d1580e9168471e62b4b792afa6fb5b"
+    },
+    {
+      "path": "lib/ui/ability_ring.dart",
+      "sha256": "040231ab8c084864003be552cd289c2ac737796a95e94bcd4911cadccb490058"
+    },
+    {
+      "path": "lib/ui/ad_privacy_settings.dart",
+      "sha256": "e484e9347499393d8d52efce7572edbb30852a9efbb3091bf6bde976fe13ebe3"
+    },
+    {
+      "path": "lib/ui/analytics_feature.dart",
+      "sha256": "31e391887c553a38430914b07c79f8ab9a8eab4dccb748c2e3afa02c9dd870b0"
+    },
+    {
+      "path": "lib/ui/analytics_navigation.dart",
+      "sha256": "c69cc5cb8c4910e558a4fc0374c58ac34f5661af9ebd1d00c7da827540a1833a"
+    },
+    {
+      "path": "lib/ui/android_update_host.dart",
+      "sha256": "4ebd49bac49e376ee82be84d6bc6f055e564e238bb776a98a4672b8063e452c1"
+    },
+    {
+      "path": "lib/ui/android_update_neon.dart",
+      "sha256": "4504db7a425d1eca1edfe5968aadbfd369d441b28bcf62eb2dcb2226229d1cd3"
+    },
+    {
+      "path": "lib/ui/audience_gate.dart",
+      "sha256": "ac65d0328bdfbed00d8a9d346688ead690f63593b79bc495159834b5a6f8de2d"
+    },
+    {
+      "path": "lib/ui/between_round_ad_break.dart",
+      "sha256": "1302f45f9c41b11d6c779f16d64fc8902f57de3b2b80ee008e0a8d8316f8adc7"
+    },
+    {
+      "path": "lib/ui/billing_unavailable.dart",
+      "sha256": "2c3976d48e9a09d9ff73383b7c0142556b1bbf00b0454fb102b72307819be6bb"
+    },
+    {
+      "path": "lib/ui/crystal_cost_badge.dart",
+      "sha256": "ac6011c42bb314d5f1272a45601190ec32d12b803f9335e94c19fc849bc709bb"
+    },
+    {
+      "path": "lib/ui/crystal_cube_icon.dart",
+      "sha256": "2a2554b60f740d3943c96746921c52b441238b940fe14087ea51ca950cedb0a1"
+    },
+    {
+      "path": "lib/ui/crystal_package_card.dart",
+      "sha256": "bb34266bdd5358e6ca1ee411061d2e361af6e8d18fda47bb594eb355910fe46c"
+    },
+    {
+      "path": "lib/ui/energy_reward_motion.dart",
+      "sha256": "b37ebe5b8d6b660092b9635707c368c61e6c39626588ee4f42f711843ee0566b"
+    },
+    {
+      "path": "lib/ui/energy_widgets.dart",
+      "sha256": "a4e2f699302b1302d67201e6d9d835274170b0c1726d580e7df3ed678fd3b5b7"
+    },
+    {
+      "path": "lib/ui/game_run_scene.dart",
+      "sha256": "42b1f73c441a6496e6ccd0a48fc0a749210d716c73c40e70582619d83458fd04"
+    },
+    {
+      "path": "lib/ui/game_sfx.dart",
+      "sha256": "051617926a3ce3a04669a9cf08cf02e23eea62dfc1219f75c1117610c29e4acf"
+    },
+    {
+      "path": "lib/ui/game_sheet.dart",
+      "sha256": "169026c9d5a47d3320ad53c1a8f002845be3bb061249c4333983b523e3638826"
+    },
+    {
+      "path": "lib/ui/game_status_overlay.dart",
+      "sha256": "e74eb373816b8a5215dc7c1dcd4322fe30e57ef00ceecc67bb87b574e7f0ee6d"
+    },
+    {
+      "path": "lib/ui/game_toast.dart",
+      "sha256": "a1fc254eae372940f68726c9e9fe9e60cf107047ee38d14f04e2e7e74b35dafc"
+    },
+    {
+      "path": "lib/ui/game_ui.dart",
+      "sha256": "85049329b12f1a4d9b8254f3af8375697933bba7f3a29a0c10fddc310c16ee3a"
+    },
+    {
+      "path": "lib/ui/game_viewport.dart",
+      "sha256": "b47301713df2f992341d1301ae2ba5e96dece52c43197dbe0a1bde1ab9b9a542"
+    },
+    {
+      "path": "lib/ui/hero_face.dart",
+      "sha256": "b936a8673ea9f706064206887ef11583a73e90b5a2433e1e2e75b2320314c3bc"
+    },
+    {
+      "path": "lib/ui/hud_fly_targets.dart",
+      "sha256": "abc9ef7e4372d155ff1c05d7645c39b461dd430ba84471ed0fe90dce0b2585a9"
+    },
+    {
+      "path": "lib/ui/life_balance_card.dart",
+      "sha256": "e4b830d6da55267aff4f7bab3c5d5f8c8cbde66905bf35fda20b9bff6117f8b1"
+    },
+    {
+      "path": "lib/ui/neon_chrome.dart",
+      "sha256": "30c9b40a83579dc0c32950de5096f41fc34c5f0e38e6be8ff3af18fdcb66dcf5"
+    },
+    {
+      "path": "lib/ui/neon_hud_capsule.dart",
+      "sha256": "e350d34cbffe9a4cd82b5489214ad1a7dd25feb7ce9fdedfbfc7f51d5273eaab"
+    },
+    {
+      "path": "lib/ui/profile_support.dart",
+      "sha256": "e86dae735495f6a6f54452e4ba845f900331332925cdfb5c38598ce63e5cb5ed"
+    },
+    {
+      "path": "lib/ui/public_name_controls.dart",
+      "sha256": "c8a50df940121d53a82093c231e0f93ceabdb2eb79130c13fdba17a89d802aff"
+    },
+    {
+      "path": "lib/ui/rewarded_ad_disclosure.dart",
+      "sha256": "3fe915b5d193ef1a59acc6cdab236f549a19a52fdbf21a99bc7318cd89f70a3a"
+    },
+    {
+      "path": "lib/ui/rewarded_ad_guide.dart",
+      "sha256": "a94cba5b1e12747647cd51762f923bef4e3377983e073907156e3bcd27cf9098"
+    },
+    {
+      "path": "lib/ui/test_service_preview.dart",
+      "sha256": "a47d94fcd51d9982a772b729ea802915e18fa1edd69e4912e06cefb6327a0420"
+    },
+    {
+      "path": "lib/ui/watch_rewarded_ad.dart",
+      "sha256": "825088174a8700caa8bb60160676f809477cbd2e45dcf19916e8a8baecac50a1"
+    },
+    {
+      "path": "assets/brand-kit/build_catalog.py",
+      "sha256": "b4ca2ad5d0a29438fa93fca678836f414339dd14439abebd30b441afc23d1e8d"
+    },
+    {
+      "path": "assets/brand-kit/catalog.html",
+      "sha256": "edc44910315e3acb41799afba4eca64f9aa365a9fef18acaf589e07a23ccb38f"
+    },
+    {
+      "path": "assets/brand-kit/INVENTORY.md",
+      "sha256": "0b2887e5d128cc8037d790bc86e859317bb5c6c746f2eb8ddfff37a63f17e0dc"
+    },
+    {
+      "path": "assets/brand-kit/manifest.json",
+      "sha256": "8992693cb5db8a6ce6c9bdb74028a5f2ae8c735b903af4bdd481cd89535608a6"
+    },
+    {
+      "path": "assets/brand-kit/originals/app-icon-v1.png",
+      "sha256": "0e46bbbd1eb77457607fa694647e87017ca712a2b130b759c0fb82b166aee608"
+    },
+    {
+      "path": "assets/brand-kit/originals/bot-avatar-v1.png",
+      "sha256": "049e73d6000b54801794fffbd4101499faede6afe7b3f26da2d1c117d6377c87"
+    },
+    {
+      "path": "assets/brand-kit/originals/concept-board-v1.png",
+      "sha256": "3d8f7705c97e816b9eb41afa5967aa4a852c0b6bd7488043bc160fe7ef20bea1"
+    },
+    {
+      "path": "assets/brand-kit/originals/crystals-v1.png",
+      "sha256": "af64c8a62990096222d146fcd0817fbdee7df04527283dd44f438a409f3db310"
+    },
+    {
+      "path": "assets/brand-kit/originals/helmet-v1.png",
+      "sha256": "384c2481e49147efcf998fc26ab5d785aa3bd38959ad6630a74c2e3b0bff148a"
+    },
+    {
+      "path": "assets/brand-kit/originals/hero-delighted-v1.png",
+      "sha256": "4e0e6b14c086424b0acc974860cdf207b7356d0df803092b956fd5d8b7c244d6"
+    },
+    {
+      "path": "assets/brand-kit/originals/hero-focused-v1.png",
+      "sha256": "31d6ea7ad40bd0b95914dd83c44e18e590483583d7bbec0ac5935165b1d51e51"
+    },
+    {
+      "path": "assets/brand-kit/originals/hero-ready-v1.png",
+      "sha256": "a1f66cb5861532e6ace9a0564ed07ff5d3f2bf85541f8c907bccc40e743b83b0"
+    },
+    {
+      "path": "assets/brand-kit/originals/hero-resting-v1.png",
+      "sha256": "88f044f814ffa682b0cae3604d07ec9bdf149cab5cfb47394b9ae9a4ef476e0b"
+    },
+    {
+      "path": "assets/brand-kit/originals/jump-v1.png",
+      "sha256": "22aa0a6bc94d9f359facd812b9fc5ccc4294e562335b02c92dd7a7e90fad1372"
+    },
+    {
+      "path": "assets/brand-kit/originals/lives-v1.png",
+      "sha256": "b086a0af888269f56ccebc6dcbf215ba7318159b4fde1de6cdde4b7a9237b6ad"
+    },
+    {
+      "path": "assets/brand-kit/originals/player-avatar-v1.png",
+      "sha256": "def13b21b20fd5c12e2a13bbe13a94f48848a990adced9efda2cf94ecb68d7bd"
+    },
+    {
+      "path": "assets/brand-kit/originals/plus-v1.png",
+      "sha256": "ce46db89b0cd9f7da71bd63e12777fe555156ce788bac6ef486be7741ef24af6"
+    },
+    {
+      "path": "assets/brand-kit/originals/promo-banner-v1.png",
+      "sha256": "25cc7815e1d094b75358bbca60f84eb3c5b598014aded0f82ca9776061d27e6c"
+    },
+    {
+      "path": "assets/brand-kit/originals/reward-v1.png",
+      "sha256": "55ce810b738129f214e5cb97cc7ffce0bd752f175c1a91000b97b66773ba4c29"
+    },
+    {
+      "path": "assets/brand-kit/originals/start-banner-v1.png",
+      "sha256": "d0460bf23654f323fd1623106dc4ebe2f6a905ada471d3f049d9b832d319a517"
+    },
+    {
+      "path": "assets/brand-kit/previews/alpha-review.png",
+      "sha256": "3b7ca5247c27d24b5b1de3c9226289270c3863818f3d9babecaceadee05ab39e"
+    },
+    {
+      "path": "assets/brand-kit/previews/app-icon-1024-circle.png",
+      "sha256": "b3ca5ccf817e40fb7898475be3a7000e55fc69af3ed0f4e69172208fafb82628"
+    },
+    {
+      "path": "assets/brand-kit/previews/app-icon-1024.png",
+      "sha256": "d5b630cced3c29b40734178bcca5be51b58a76ee2b3d096ddfc4be9c661665a1"
+    },
+    {
+      "path": "assets/brand-kit/previews/app-icon-32-circle.png",
+      "sha256": "aec810eaaef79859d8c5f21c2b41af096e66d4e40ae6f73ebee155217dfc5ecb"
+    },
+    {
+      "path": "assets/brand-kit/previews/app-icon-32.png",
+      "sha256": "8b3c349a609a92f8bad0c867550b6a37089433f5f143aa18a6457a5db014dd1b"
+    },
+    {
+      "path": "assets/brand-kit/previews/app-icon-48-circle.png",
+      "sha256": "cdd8352d59ea1b7314d4450d4ef7622e68dbf46b6224d6c66d92dc2a053ec262"
+    },
+    {
+      "path": "assets/brand-kit/previews/app-icon-48.png",
+      "sha256": "8d98cb229d7023f2725fa07a059c76d40ca3c21892b6805500ac39ea2f162989"
+    },
+    {
+      "path": "assets/brand-kit/previews/app-icon-512-circle.png",
+      "sha256": "b8b3fe9d653a26a1c6e6b85dd2e0c147db117b46f8b869e216a6caf8503d3f4a"
+    },
+    {
+      "path": "assets/brand-kit/previews/app-icon-512.png",
+      "sha256": "7217431e6b4fa3cd1d3957d5150cf504ba0301b978c312019211505bbcea1863"
+    },
+    {
+      "path": "assets/brand-kit/previews/app-icon-640-circle.png",
+      "sha256": "0e7f106803508f4d0d42cdbacd963f621b427ea5e3e5d2888f0436f780a62e81"
+    },
+    {
+      "path": "assets/brand-kit/previews/app-icon-640.png",
+      "sha256": "935139521e97b519b3ee2213b722b7ef7f1302b97928c3bd6552e916bb541286"
+    },
+    {
+      "path": "assets/brand-kit/previews/app-icon-96-circle.png",
+      "sha256": "e9b7d9490f8282ef05e7891a4898420f4a08816988830392f4a3a90d59b758ec"
+    },
+    {
+      "path": "assets/brand-kit/previews/app-icon-96.png",
+      "sha256": "9f89124e755fa202344b46ec775b1dfe81cf616ff6c14bfe7cfd5b14bfe8bfb5"
+    },
+    {
+      "path": "assets/brand-kit/previews/bot-avatar-1024-circle.png",
+      "sha256": "bca82fbf589e3b60bdef653c1735384b842e14608f9734ce7b62f5e08715e9c3"
+    },
+    {
+      "path": "assets/brand-kit/previews/bot-avatar-1024.png",
+      "sha256": "fad11e616b413f9825917cd7c4274c98901ac17d95f3fb74a7fa200193a33203"
+    },
+    {
+      "path": "assets/brand-kit/previews/bot-avatar-32-circle.png",
+      "sha256": "2bb66b3e816ed27fbc467e43c0fee6a265bfc022bb6f19b866338529a8f5d790"
+    },
+    {
+      "path": "assets/brand-kit/previews/bot-avatar-32.png",
+      "sha256": "b5f50b8abffcccde76f4244ad415436d233583d02a68df42300ec879a8ff52a7"
+    },
+    {
+      "path": "assets/brand-kit/previews/bot-avatar-48-circle.png",
+      "sha256": "49d5c28cffd3687db75164a174de749a0a921fe5e3a082633a8df17221a316e8"
+    },
+    {
+      "path": "assets/brand-kit/previews/bot-avatar-48.png",
+      "sha256": "91dfbc3d0c0d55830a514f8d01d4a63f1bb3058f3d1e76a0e31eeb97a188c932"
+    },
+    {
+      "path": "assets/brand-kit/previews/bot-avatar-512-circle.png",
+      "sha256": "c805158614c85fc404d7e97650f6a76e321682749d6a8c58696c906605533a5a"
+    },
+    {
+      "path": "assets/brand-kit/previews/bot-avatar-512.png",
+      "sha256": "bed7df37398634820d21cf42c983dad0fd6aa288b73b21221f9537e813e3002a"
+    },
+    {
+      "path": "assets/brand-kit/previews/bot-avatar-640-circle.png",
+      "sha256": "59c91e356c7382381a5a12759858ee92d1f94296b061f7c184ef03e8c6cddce1"
+    },
+    {
+      "path": "assets/brand-kit/previews/bot-avatar-640.png",
+      "sha256": "1d3be3da49e401abea37e3129ae55f4d71c39c15416114074db5a651e8c1b094"
+    },
+    {
+      "path": "assets/brand-kit/previews/bot-avatar-96-circle.png",
+      "sha256": "f71ec407c7d187f8f5b4b9e913547d77e2045d735624a27a76496224ac7355fa"
+    },
+    {
+      "path": "assets/brand-kit/previews/bot-avatar-96.png",
+      "sha256": "d85fd35162cc7fe0c6e1013eba0ccea65a1bf21cafc1d530746eaad25d2d6296"
+    },
+    {
+      "path": "assets/brand-kit/previews/catalog-overview.png",
+      "sha256": "9845ad88631943eb44f7756c6fd5db10b3b3967e218cb8b01a4cbde0e36d2f94"
+    },
+    {
+      "path": "assets/brand-kit/previews/crystals-512.png",
+      "sha256": "fb2088159282b55a241db528a87a8c969ae4bb637adb1fa9eb66d042c941e411"
+    },
+    {
+      "path": "assets/brand-kit/previews/helmet-512.png",
+      "sha256": "8e1bcdf31fae6b7257db3f983c3bade18632360bb24f91367158aebc508db6ae"
+    },
+    {
+      "path": "assets/brand-kit/previews/hero-delighted-512.png",
+      "sha256": "53472197024f38ced43f5df313bab514c55cce06293dbe0add5360dc6e05ad4a"
+    },
+    {
+      "path": "assets/brand-kit/previews/hero-focused-512.png",
+      "sha256": "102c18cd9cbaf523706cb6adf0fe4d5d55db24ade53aa565cc7349782756c3bc"
+    },
+    {
+      "path": "assets/brand-kit/previews/hero-ready-512.png",
+      "sha256": "caff6ac1f1993975f5c93c724fff8d08c0328d5cd6a1b4091af20dc3d21251e6"
+    },
+    {
+      "path": "assets/brand-kit/previews/hero-resting-512.png",
+      "sha256": "9328ea8ad4ba7eecfcdd473a7efa179e0fb99bcc74819dffb29e20432496395f"
+    },
+    {
+      "path": "assets/brand-kit/previews/icon-size-check.png",
+      "sha256": "8cdd693b9ed4045a3ba4c93592a0c5ac411557149e9187af93c928f5c62973ba"
+    },
+    {
+      "path": "assets/brand-kit/previews/jump-512.png",
+      "sha256": "cf2b9045a6069f9e72fc26cb03146a9ab4f6678757756a1457ecba0950ea5936"
+    },
+    {
+      "path": "assets/brand-kit/previews/lives-512.png",
+      "sha256": "9f560b08b2988ac29ecfe096bab9cbe9349a0c0100224b204ea2c64d63466cc7"
+    },
+    {
+      "path": "assets/brand-kit/previews/player-avatar-1024-circle.png",
+      "sha256": "49826bc4ef1546168a2d19d9077d7b0704bfba50f68e5c12d137fe4852edd72b"
+    },
+    {
+      "path": "assets/brand-kit/previews/player-avatar-1024.png",
+      "sha256": "4636bb8279f482d2fda49bafbdf94ac80c6f5aeeaf0c3f481ed1ac3805c354da"
+    },
+    {
+      "path": "assets/brand-kit/previews/player-avatar-32-circle.png",
+      "sha256": "f32c7aa040c31cd8870a73dd0cdc6783eaaf9b9ee76af836ee221b06dac47ccf"
+    },
+    {
+      "path": "assets/brand-kit/previews/player-avatar-32.png",
+      "sha256": "181a7e775e0eb6c0ac5b58467a040f452eb926c68741d49956fa23f38be67981"
+    },
+    {
+      "path": "assets/brand-kit/previews/player-avatar-48-circle.png",
+      "sha256": "0e4f0798e9cb082f2e1ff1068fceca7364607c20c152538824df0ede3214fa79"
+    },
+    {
+      "path": "assets/brand-kit/previews/player-avatar-48.png",
+      "sha256": "c109975d9cfa5bca847cb8aac10eb9c6e854db7be42b696f96ae8f0b55104662"
+    },
+    {
+      "path": "assets/brand-kit/previews/player-avatar-512-circle.png",
+      "sha256": "3f740654a5e498eec10139c048bb868bd33117bb2ba1be35b252480efe583644"
+    },
+    {
+      "path": "assets/brand-kit/previews/player-avatar-512.png",
+      "sha256": "bb81b610e65c5682569663d0c5410508cf97ff105b41e9ffade42ad4fe4da5fb"
+    },
+    {
+      "path": "assets/brand-kit/previews/player-avatar-640-circle.png",
+      "sha256": "ffa3c83e993626cb0aaef897686da0b29e26905cc5747b92a148f8e0082a7df2"
+    },
+    {
+      "path": "assets/brand-kit/previews/player-avatar-640.png",
+      "sha256": "f2d72b564a9cb85fa26dbc3e3f69c0abcd9634d6cdb16fa93955737077608e08"
+    },
+    {
+      "path": "assets/brand-kit/previews/player-avatar-96-circle.png",
+      "sha256": "e707bf665306a9b8d558d7cc0a098e4a3ad6f2d438535f3f5ffa42f117086a8d"
+    },
+    {
+      "path": "assets/brand-kit/previews/player-avatar-96.png",
+      "sha256": "ac71042d96f23ec604e1a1afb0bd64fa490ec369f1cf540dcbc17e67e5ba8d66"
+    },
+    {
+      "path": "assets/brand-kit/previews/plus-512.png",
+      "sha256": "aef53e5e121c12a62d9f9fa54320bc34679dab097da6b664b19a1377e7f42e75"
+    },
+    {
+      "path": "assets/brand-kit/previews/reward-512.png",
+      "sha256": "ab4ee1bd5e975feb4fa2fd3314941cdeca0a8dabedebc3052c3ef922433ca6f2"
+    },
+    {
+      "path": "assets/brand-kit/previews/screenshots-overview.png",
+      "sha256": "e6fd348a2c3ca2a74c42a7c16aae845b2fb75a392571ddea96c961d4cca8235b"
+    },
+    {
+      "path": "assets/brand-kit/prompts-final.json",
+      "sha256": "e288aff4039eea2693e7d4212a6c5f35189a8f0fdbc82ef53455a005975312c0"
+    },
+    {
+      "path": "assets/brand-kit/prompts.json",
+      "sha256": "3520c88820e5b560a62fc657d95ff2a5b934909b4b2bd9ab93eb042c276aee9f"
+    },
+    {
+      "path": "assets/brand-kit/README.md",
+      "sha256": "f28b5ffa83d41c0286e0aad65eae878f3f3af91fd0f111776164974e82ad8b96"
+    },
+    {
+      "path": "assets/brand-kit/screenshots/android-1.0.32-main.png",
+      "sha256": "05e6237a4a98837609b7269c13ba4b38b501b111813edff489b4f4664a1f1645"
+    },
+    {
+      "path": "assets/brand-kit/screenshots/android-1.0.32-profile.png",
+      "sha256": "0b6c78914e213f956b6b1301562af49277d9585fcce107ddd4d6158b5c018211"
+    },
+    {
+      "path": "assets/brand-kit/sources/previous-app-icon.png",
+      "sha256": "ad6f7cd4cf6ece7dd9dd46f5855b1a468766545db53c50b80c5171c1fa72bc68"
+    },
+    {
+      "path": "assets/brand-kit/sources/previous-bot-avatar.png",
+      "sha256": "2a8b783089efcd3b223d6e1c6a1b7297249a7de06b445a115e75bc8d0af204b7"
+    },
+    {
+      "path": "assets/brand-kit/sources/ui-icons/crystal.svg",
+      "sha256": "c67265b1b4a732210852592b575470d39a55b2a088679e60e9186f4e1d03d59a"
+    },
+    {
+      "path": "assets/brand-kit/sources/ui-icons/resting-cube.svg",
+      "sha256": "346c331850eee77fc4001b6f04ba71951afc708e6794f4acedf0e8233bbb1eef"
+    },
+    {
+      "path": "assets/brand-kit/sources/ui-icons/ui-check.svg",
+      "sha256": "065f24c1315e9b4ca4911057f95fab68ffb2d59583e716709f8547daf8d57bdf"
+    },
+    {
+      "path": "assets/brand-kit/sources/ui-icons/ui-heart.svg",
+      "sha256": "b563b29400aef60743d5f93c86bb62349f1ba46524b560eae9a80aeb053c0f5e"
+    },
+    {
+      "path": "assets/brand-kit/sources/ui-icons/ui-jump.svg",
+      "sha256": "0d7bee78706212027f9811ddfe654330fd595be6f79bd5ba3d9c4eeac8a92465"
+    },
+    {
+      "path": "assets/brand-kit/sources/ui-icons/ui-lock.svg",
+      "sha256": "2bafb8c27798aba43dff70389fb2dbbb8ff466f93e3928f55b8740a28287c17e"
+    },
+    {
+      "path": "assets/brand-kit/sources/ui-icons/ui-no-ads.svg",
+      "sha256": "f155941ac793015b9a8f8cfe80b1c8741922a7d960d8b5f33169fb2944dc2331"
+    },
+    {
+      "path": "assets/brand-kit/sources/ui-icons/ui-play.svg",
+      "sha256": "98880de9f5e317e03aeb7c8341b843855063621ce7966e6a54c1d31a76cd0714"
+    },
+    {
+      "path": "assets/brand-kit/sources/ui-icons/ui-premium.svg",
+      "sha256": "c002e1c2a0b7ee383de9b96d3b1595b179f45559d5ed934defcf143518bb4826"
+    },
+    {
+      "path": "assets/brand-kit/sources/ui-icons/ui-share.svg",
+      "sha256": "72ea32f298c40b3d621d941fb1b5ebb655a5876bf26f49d638eaeeaeb3557a40"
+    },
+    {
+      "path": "assets/brand-kit/sources/ui-icons/ui-shield.svg",
+      "sha256": "a2a47e50c3e7b49efa5934447e4a55da3c878e60086e54e47ba720e7fc482c56"
+    },
+    {
+      "path": "assets/brand-kit/sources/ui-icons/ui-sparkle.svg",
+      "sha256": "90195e52b7875b4a042c277b01d19b88c8bf2b9c95276395fdcd2f40a0572162"
+    },
+    {
+      "path": "assets/brand-kit/sources/ui-icons/ui-timer.svg",
+      "sha256": "0a63f668ce944b0f39f64eae08951cce52b0ad2afb24bc42298ade751bcb3d5b"
+    },
+    {
+      "path": "assets/brand-kit/sources/ui-icons/ui-trophy.svg",
+      "sha256": "67cc6f5590906379becf836f5b15c07c9f990af388656b9d919cbfa2a95fa4ed"
+    },
+    {
+      "path": "assets/brand-kit/variants/lives-with-hero-v1.png",
+      "sha256": "64b19c02b851301fb4cdd376c0404fc13f4e76608d8ea0123c6529d51cc52099"
+    },
+    {
+      "path": "assets/brand-kit-20261006-v1.integrity.json",
+      "sha256": "a8bf7682c96994fb6e75610d7ac81d3075ce06f17e5b7ab6238301127c262310"
+    },
+    {
+      "path": "assets/brand-kit-20261006-v1.zip",
+      "sha256": "2cd7c8c09ab87060b1e7e78701debb6a97f1f30368b60d86bd2393b770204406"
+    },
+    {
+      "path": "assets/branding/account/cloud-v1.png",
+      "sha256": "e6792a13f8207fa568c514688d3e2e1dffc09f16cc875fbe80c888d9210a0fef"
+    },
+    {
+      "path": "assets/branding/account/eye.svg",
+      "sha256": "bcc97cac9f1fb3b34b820786f9e3cc99fee47722a3a97871014853e992144b98"
+    },
+    {
+      "path": "assets/branding/account/fire-v1.png",
+      "sha256": "218b372357ae715c04608a0f97e9541c95228e2c28d18191f90e9b96d17f6995"
+    },
+    {
+      "path": "assets/branding/account/help.svg",
+      "sha256": "1947a5a30e23a551d968c5c8666b54d4c4c825aac0e0ab41b729a186f447be4a"
+    },
+    {
+      "path": "assets/branding/account/music.svg",
+      "sha256": "63f034ac334a7d76f94ac926e80509fa3bcb17fc6f13408bee51654680db805b"
+    },
+    {
+      "path": "assets/branding/account/progress-player.png",
+      "sha256": "c33010a98a71639246d37d75459d963582af763b1b059b989a445283c8a5774d"
+    },
+    {
+      "path": "assets/branding/account/sound.svg",
+      "sha256": "5e8dfb799908e431a2393861bb79d73064fe5a1e97017478737dd0dd8c209ae8"
+    },
+    {
+      "path": "assets/branding/account/trophy-v1.png",
+      "sha256": "f606860a88dc84a04fcabed30ca9e2b8e548bb302234a154c8b4732c4f0a579e"
+    },
+    {
+      "path": "assets/branding/account/user.svg",
+      "sha256": "6a41b721670f37f6ac038aa07bc2fbff808dc3e1248881ed321fec6db1c3b3ca"
+    },
+    {
+      "path": "assets/branding/ad_tv_sad.png",
+      "sha256": "3b67a2d4311311f483a5027943dbcfd8a1fc582cd454ad549636106290133a6e"
+    },
+    {
+      "path": "assets/branding/ad_tv_watch.png",
+      "sha256": "51d2a35318eaa60cc7bffb950cdf1cd6efecc6e0dde969a0cff751e33f7ede56"
+    },
+    {
+      "path": "assets/branding/analytics/consent-hero-v1.png",
+      "sha256": "bf16bda089b6c433019581c127d9bdce136637de7012da440d810611fa1a4404"
+    },
+    {
+      "path": "assets/branding/analytics/cube-off-v1.png",
+      "sha256": "766fa676821ad3b86bedd0564b317cd14e188b9b34bbb45ef93b869a292c5553"
+    },
+    {
+      "path": "assets/branding/analytics/cube-on-v1.png",
+      "sha256": "803797a0b105145121c6d884d55296b86594a860c551a3fb427dac8178dc3d90"
+    },
+    {
+      "path": "assets/branding/analytics/data-document.svg",
+      "sha256": "4ab849fb57f4ac6845d4da5bca13d9dbd66c829daff978ade7e57ad967b81533"
+    },
+    {
+      "path": "assets/branding/app_icon.png",
+      "sha256": "ae3d02da59881ca53302efaf433f685787174a21a6ba03f2fd50bfad0836e311"
+    },
+    {
+      "path": "assets/branding/landing/company-case-v1.png",
+      "sha256": "e47f0f35f8e55d36206a3b73d9a58f449926f7e8943c8f4c2155b1a3cea3b713"
+    },
+    {
+      "path": "assets/branding/landing/metro-case-v1.png",
+      "sha256": "fafae2d23c0679d971079f8ea63395313a5bc45affc2b1fbc8ffb141d69d0200"
+    },
+    {
+      "path": "assets/branding/landing/office-kettle-benefit-v1.png",
+      "sha256": "a362b12dcf666255a962b00004c161eebf128e49719bac40761285dce42c10b8"
+    },
+    {
+      "path": "assets/branding/landing/reaction-benefit-v1.png",
+      "sha256": "07e8d155a3fcebf28c64ce1c84d87bd392095e8473e69a8a2c4be51da3bf5078"
+    },
+    {
+      "path": "assets/branding/ranking/footsteps.svg",
+      "sha256": "cfeb44b33e5227bb26c563b816b0385791132482f00492bd6fa9f16849a02b9c"
+    },
+    {
+      "path": "assets/branding/ranking/helmet.svg",
+      "sha256": "34e7fbc3fb6e89252fe73ec499f83905944c50ed2f73a7d06a7dbb2c54db2079"
+    },
+    {
+      "path": "assets/branding/ranking/jump.svg",
+      "sha256": "0d0e3fb9d888a37d17248c59acec35f18bb3bc230a87c159095830b33fc8de3a"
+    },
+    {
+      "path": "assets/branding/ranking/medal-1.svg",
+      "sha256": "8115787ed8ae20cd12a3ec59f66f9b7a3ca62f5b8009bc25c226b5fa44b4691c"
+    },
+    {
+      "path": "assets/branding/ranking/medal-2.svg",
+      "sha256": "d7bd51309967946982c3d41d32376d808e6a9ec00953c1feb39b6282c5cfc9c8"
+    },
+    {
+      "path": "assets/branding/ranking/medal-3.svg",
+      "sha256": "9e4aaa5463446ae48848a27b76e046cdd2dc8300ae1691fa4078b07a51186e72"
+    },
+    {
+      "path": "assets/branding/ranking/risk.svg",
+      "sha256": "3b88173fc4086512826c54965d08a0663e57c1a03eb00606108c165e323b2dd3"
+    },
+    {
+      "path": "assets/branding/ranking/trophy.svg",
+      "sha256": "58dee8b611dd0797c2231b57fd5ae23d75108f07f7d84809ea4bf30840482804"
+    },
+    {
+      "path": "assets/branding/ui/ability-distance.png",
+      "sha256": "9cdf11b9c4e87075f5e9dfd37fabab55f4e92e6fdae2a9bbc6121e1c84895026"
+    },
+    {
+      "path": "assets/branding/ui/ability-helmet.png",
+      "sha256": "6ad499f75cafad956608b875aa0d76918a87ed616aafb3136ea761a7b4270c48"
+    },
+    {
+      "path": "assets/branding/ui/ability-jump.png",
+      "sha256": "dddabaee5e7b3b5730c09e92c4fd57eac358f4804c04a228b9691b7a3db9a32e"
+    },
+    {
+      "path": "assets/branding/ui/ability-risk.png",
+      "sha256": "99bd84279615d6f870b50f00a3e5618f422928269448c1c527b255602129a864"
+    },
+    {
+      "path": "assets/branding/ui/crystals-v1.png",
+      "sha256": "af64c8a62990096222d146fcd0817fbdee7df04527283dd44f438a409f3db310"
+    },
+    {
+      "path": "assets/branding/ui/energy-reward-core.svg",
+      "sha256": "cc8b9733254efb1e3f7139e88cdc465890dc3e5c1606ecf4b79159e057b36ee3"
+    },
+    {
+      "path": "assets/branding/ui/helmet-v1.png",
+      "sha256": "384c2481e49147efcf998fc26ab5d785aa3bd38959ad6630a74c2e3b0bff148a"
+    },
+    {
+      "path": "assets/branding/ui/hero-delighted-v1.png",
+      "sha256": "4e0e6b14c086424b0acc974860cdf207b7356d0df803092b956fd5d8b7c244d6"
+    },
+    {
+      "path": "assets/branding/ui/hero-finished-v1.png",
+      "sha256": "3027e259d1ed1f079a814825000f4b4b4f29c114818bdeba5fb4b82a4391a642"
+    },
+    {
+      "path": "assets/branding/ui/hero-focused-v1.png",
+      "sha256": "31d6ea7ad40bd0b95914dd83c44e18e590483583d7bbec0ac5935165b1d51e51"
+    },
+    {
+      "path": "assets/branding/ui/hero-ready-v1.png",
+      "sha256": "a1f66cb5861532e6ace9a0564ed07ff5d3f2bf85541f8c907bccc40e743b83b0"
+    },
+    {
+      "path": "assets/branding/ui/hero-resting-v1.png",
+      "sha256": "88f044f814ffa682b0cae3604d07ec9bdf149cab5cfb47394b9ae9a4ef476e0b"
+    },
+    {
+      "path": "assets/branding/ui/hero-start-crouched-v1.png",
+      "sha256": "ff69a308b2cad5cbe09a632d82eeaf61e4fb027e108ca9780ee325e40e137908"
+    },
+    {
+      "path": "assets/branding/ui/hud-player-portrait-v1.png",
+      "sha256": "4f3a8bd312dd49e479041579d09ec9a185e3cd8a18ff2a37e98c420a4e13d827"
+    },
+    {
+      "path": "assets/branding/ui/jump-v1.png",
+      "sha256": "22aa0a6bc94d9f359facd812b9fc5ccc4294e562335b02c92dd7a7e90fad1372"
+    },
+    {
+      "path": "assets/branding/ui/lives-resting-sofa-v1.png",
+      "sha256": "d1f5f3c8ba57ce6066ee385451dc72de48b87324c708c30d56a4e7d51fb51ece"
+    },
+    {
+      "path": "assets/branding/ui/lives-resting-sofa-v2.png",
+      "sha256": "33ceb04873b1dd047eb9f98a1213389c7fdf3ae9c0c2499ab5f89f3cf06a43cf"
+    },
+    {
+      "path": "assets/branding/ui/lives-room-v1.png",
+      "sha256": "a14fa1b06a36b857361672f2663c073f5094eb18851ce0dc6e9acd28cc8f5969"
+    },
+    {
+      "path": "assets/branding/ui/lives-room-v2.png",
+      "sha256": "e7856bf63cf7ddd28c9ea26c76c18f3bbcaa617b8b7be805152a25b02f5c5b61"
+    },
+    {
+      "path": "assets/branding/ui/my-attempts-hero-v1.png",
+      "sha256": "caff6ac1f1993975f5c93c724fff8d08c0328d5cd6a1b4091af20dc3d21251e6"
+    },
+    {
+      "path": "assets/branding/ui/player-avatar-v1.png",
+      "sha256": "def13b21b20fd5c12e2a13bbe13a94f48848a990adced9efda2cf94ecb68d7bd"
+    },
+    {
+      "path": "assets/branding/ui/plus-v1.png",
+      "sha256": "ce46db89b0cd9f7da71bd63e12777fe555156ce788bac6ef486be7741ef24af6"
+    },
+    {
+      "path": "assets/branding/ui/profile-player-cube-v1.png",
+      "sha256": "c33010a98a71639246d37d75459d963582af763b1b059b989a445283c8a5774d"
+    },
+    {
+      "path": "assets/branding/ui/result-scene-v1.png",
+      "sha256": "342334da062f314381ad8f1d05afe7b58262805f55fa38d3495fa4ae63123061"
+    },
+    {
+      "path": "assets/branding/ui/reward-v1.png",
+      "sha256": "55ce810b738129f214e5cb97cc7ffce0bd752f175c1a91000b97b66773ba4c29"
+    },
+    {
+      "path": "assets/branding/ui/rewarded-close-example.png",
+      "sha256": "b2ee38857d605513b80f1064bbbc9409848b2b046da847560dc132b9f311a106"
+    },
+    {
+      "path": "assets/branding/ui/rewarded-next-example.png",
+      "sha256": "bfc4dd58e1b904de9deeb9c36b9ebc5cdf6a3cc0055984c339245ef07a9a22e0"
+    },
+    {
+      "path": "assets/branding/ui/run-scene-v1.png",
+      "sha256": "3d7b1a71035410bf12678c2c0196faf5f5961ae5e24ff22c0c6191702fb2a7c1"
+    },
+    {
+      "path": "assets/branding/ui/share-scene-square-v1.png",
+      "sha256": "7f9d866da6f12c514aea5a6b7255dd3a51c56975cc2441d84989951b95430740"
+    },
+    {
+      "path": "assets/branding/ui/simple-energy-art-SOURCE.md",
+      "sha256": "3fa0d2e494adaec9255454b89fb351d0d37961f3ee01feb9ad0a1a097cb0ec7b"
+    },
+    {
+      "path": "assets/branding/ui/simple-energy-helmet.png",
+      "sha256": "0c72cfbfacc65cd687a6e6c73d36992483dd34981866b65924e64378841089af"
+    },
+    {
+      "path": "assets/branding/ui/simple-energy-jump.png",
+      "sha256": "277f56a170a97caefbbf1998f25863a8c4cbfea30b8d4aca4ac8f8d0f016cfe6"
+    },
+    {
+      "path": "assets/config/android-firebase.json",
+      "sha256": "71ecf6a02675ed2493296b3f61fdfcf2811579ce9ffa1da38e2d678ca6b38737"
+    },
+    {
+      "path": "assets/config/published-gameplay.json",
+      "sha256": "aa8d92697ff10f80feaedc8107698bc7dd8e6dc38bc77fb36987b195164f0e9d"
+    },
+    {
+      "path": "assets/floors/floors_story_tower.png",
+      "sha256": "f0b4b0d9c3015fbaa737467b7b9315089cca68dc3c86fccbc81e193e338cb122"
+    },
+    {
+      "path": "assets/sfx/bgm_loop.wav",
+      "sha256": "894c5fcaf910d9e3efeb2c6db05348ce9daf111dee989a0ea06d605e4a012195"
+    },
+    {
+      "path": "assets/sfx/game_start.wav",
+      "sha256": "b3f4b058fdb156ccee064374ffc585fc093e89a21b8993ced6a7c2fe667fb978"
+    },
+    {
+      "path": "assets/sfx/helmet_break.wav",
+      "sha256": "af5e1a3cc478ac860c80e2080103e7ea956e0c80ff0768975cd49f17325a1b21"
+    },
+    {
+      "path": "assets/sfx/hero_mob.wav",
+      "sha256": "95b67b354fac0f9319de092d7ac63e22bd5ac0df079a98138065a36b065eb1ae"
+    },
+    {
+      "path": "assets/sfx/hero_wall.wav",
+      "sha256": "1cf512da937006ff596f10c3a6238cdb90c9b4cad8eddaac9248b7193a29f9f9"
+    },
+    {
+      "path": "assets/sfx/jump.wav",
+      "sha256": "ceb4a385d357b82cdc8727a44f9a79f8e1ca6819ced02792004044578bb6ccef"
+    },
+    {
+      "path": "assets/sfx/mob_collide.wav",
+      "sha256": "740ea245c9c0346f41850a147afeb477888eb6997ef35c07d7a8e2366b67b0e0"
+    },
+    {
+      "path": "assets/sfx/mob_wall.wav",
+      "sha256": "20db9b0f795925c6242a1ce325609b9e4088d8fbe0980dd0c323dcad7f699d5f"
+    },
+    {
+      "path": "assets/sfx/near_miss.wav",
+      "sha256": "f2de43baef60449ec885592fea841e08c1d8704bb1e83f38b6b9a8783fa377f8"
+    },
+    {
+      "path": "assets/sfx/wall_hit.wav",
+      "sha256": "d9c9b938d35621a1a8cbabc82910c9214604ac0911ef2000c352a61db3af6650"
+    },
+    {
+      "path": "assets/sfx/wall_tick.wav",
+      "sha256": "bd61506341eff617782bd068bc8ad97d210a17865c9cf90aae3fbb69101b0368"
+    }
+  ],
+  "version": "1.0.207+208"
+}

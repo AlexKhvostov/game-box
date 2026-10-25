@@ -20,8 +20,34 @@ class EnemySpeedMeter extends StatelessWidget {
             painter: EnemySpeedPainter(
               pace: pace,
               repaint: repaint,
-              caption: ru ? 'скорость врагов' : 'enemy speed',
               reduced: MediaQuery.disableAnimationsOf(context),
+            ),
+            // Keep the static paragraph outside the frequently repainted bar.
+            // Text owns/disposes its paragraph instead of allocating one on
+            // every paint, including the shadow's raster work.
+            child: Center(
+              child: RepaintBoundary(
+                child: ExcludeSemantics(
+                  child: Text(
+                    ru ? 'скорость врагов' : 'enemy speed',
+                    textScaler: TextScaler.noScaling,
+                    textDirection: TextDirection.ltr,
+                    style: const TextStyle(
+                      inherit: false,
+                      fontSize: 7,
+                      height: 1,
+                      color: Color(0xfff0fbff),
+                      shadows: [
+                        Shadow(
+                          color: Color(0xff061b2d),
+                          offset: Offset(0, 1),
+                          blurRadius: 2,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
         ),
@@ -34,11 +60,9 @@ class EnemySpeedPainter extends CustomPainter {
   EnemySpeedPainter({
     required this.pace,
     required Listenable repaint,
-    required this.caption,
     this.reduced = false,
   }) : super(repaint: repaint);
   final EnemyPace? Function() pace;
-  final String caption;
   final bool reduced;
   @override
   void paint(Canvas c, Size size) {
@@ -81,28 +105,6 @@ class EnemySpeedPainter extends CustomPainter {
         );
       }
     }
-    final text = TextPainter(
-      text: TextSpan(
-        text: caption,
-        style: const TextStyle(
-          fontSize: 7,
-          height: 1,
-          color: Color(0xfff0fbff),
-          shadows: [
-            Shadow(
-              color: Color(0xff061b2d),
-              offset: Offset(0, 1),
-              blurRadius: 2,
-            ),
-          ],
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-    )..layout(maxWidth: size.width);
-    text.paint(
-      c,
-      Offset((size.width - text.width) / 2, (size.height - text.height) / 2),
-    );
     c.restore();
     c.drawRRect(
       rim,
@@ -115,5 +117,5 @@ class EnemySpeedPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(EnemySpeedPainter old) =>
-      old.pace != pace || old.caption != caption || old.reduced != reduced;
+      old.pace != pace || old.reduced != reduced;
 }

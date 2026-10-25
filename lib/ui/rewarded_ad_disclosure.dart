@@ -39,8 +39,8 @@ class RewardedAdDisclosure extends StatelessWidget {
                   content: SingleChildScrollView(
                     child: Text(
                       ru
-                          ? '18+. Для видео Яндекс получает данные соединения и доступные SDK идентификаторы устройства. Без персонализации и геолокации. Нажатие «Смотреть рекламу» разрешает видео на сеанс.\n\nДосмотрите видео. Кнопки перехода и закрытия появляются не сразу. Вид рекламы может отличаться; иногда сразу появляется крестик. После завершения просмотра и закрытия вернитесь в игру за наградой.'
-                          : '18+. For video ads, Yandex receives connection data and device identifiers available to its SDK. No personalization or location tracking. Tapping “Watch ad” requests video for this session.\n\nWatch the full video. Continue and close buttons take time to appear. Ads can look different; some show the close button directly. Return to the game after completion and closing to receive your reward.',
+                          ? '18+. Нажатие «Смотреть рекламу» выбирает одно видео за указанную награду. Согласие на обработку данных Яндексом запрашивается отдельно перед первым обращением к рекламному SDK. Выбор можно изменить в аккаунте. Геолокация Android и рекламный ID отключены.\n\nДосмотрите видео. Кнопки перехода и закрытия появляются не сразу. Вид рекламы может отличаться; иногда сразу появляется крестик. После завершения просмотра и закрытия вернитесь в игру за наградой.'
+                          : '18+. Tapping “Watch ad” requests one video for the stated reward. Yandex data processing consent is requested separately before the first ads SDK request. Change it in Account. Android location and the advertising ID are disabled.\n\nWatch the full video. Continue and close buttons take time to appear. Ads can look different; some show the close button directly. Return to the game after completion and closing to receive your reward.',
                       key: const ValueKey('rewarded-ad-data-details'),
                     ),
                   ),

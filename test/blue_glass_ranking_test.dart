@@ -7,6 +7,7 @@ import 'package:game_box/data/mobile_account.dart';
 import 'package:game_box/domain/score_entry.dart';
 import 'package:game_box/features/leaderboard/leaderboard_panel.dart';
 import 'package:game_box/features/leaderboard/leaderboard_sheet.dart';
+import 'package:game_box/features/leaderboard/my_attempts_panel.dart';
 import 'package:game_box/features/leaderboard/leaderboard_widgets.dart';
 import 'package:game_box/features/leaderboard/player_result_sheet.dart';
 import 'package:game_box/l10n/app_localizations.dart';
@@ -140,7 +141,7 @@ void main() {
             find.byKey(const ValueKey('leaderboard-filter-0')),
           );
           expect(mine.bottom, lessThanOrEqualTo(periods.top));
-          for (var i = 0; i < 6; i++) {
+          for (var i = 0; i < 5; i++) {
             final chip = find.byKey(ValueKey('leaderboard-filter-$i'));
             expect(tester.getSize(chip).height, greaterThanOrEqualTo(48));
             expect(tester.getSize(chip).width, greaterThanOrEqualTo(48));
@@ -154,7 +155,21 @@ void main() {
               i,
             );
           }
-          expect(find.byType(MyAttemptRow), findsOneWidget);
+          await tester.tap(find.byKey(const ValueKey('leaderboard-filter-5')));
+          await tester.pumpAndSettle();
+          expect(find.byType(MyAttemptsSheet), findsOneWidget);
+          expect(
+            find.byKey(const ValueKey('my-attempt-local')),
+            findsOneWidget,
+          );
+          await tester.tap(find.byKey(const ValueKey('my-attempts-close')));
+          await tester.pumpAndSettle();
+          expect(
+            tester
+                .state<LeaderboardPanelState>(find.byType(LeaderboardPanel))
+                .filter,
+            4,
+          );
           expect(find.byType(ScoreBoostIcons), findsWidgets);
           await tester.binding.handlePopRoute();
           await tester.pumpAndSettle();
@@ -250,36 +265,42 @@ void main() {
       }
     }
   }
-  testWidgets('own attempt inspection and Close preserve Mine filter', (
-    tester,
-  ) async {
-    final account = MobileAccount()..id = 'android:qa';
-    final store = QaScores(account: account);
-    await mount(tester, store);
-    await tester.tap(find.byKey(const ValueKey('leaderboard-filter-5')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byType(MyAttemptRow).first);
-    await tester.pumpAndSettle();
-    expect(find.text('Это ваш личный результат'), findsOneWidget);
-    expect(
-      find.descendant(
-        of: find.byType(PlayerResultSheet),
-        matching: find.text('21.349 с'),
-      ),
-      findsOneWidget,
-    );
-    expect(tester.takeException(), isNull);
-    await tester.ensureVisible(find.byKey(const ValueKey('player-close')));
-    await tester.tap(find.byKey(const ValueKey('player-close')));
-    await tester.pumpAndSettle();
-    expect(find.byType(PlayerResultSheet), findsNothing);
-    expect(
-      tester.state<LeaderboardPanelState>(find.byType(LeaderboardPanel)).filter,
-      5,
-    );
-    store.dispose();
-    account.dispose();
-  });
+  testWidgets(
+    'own attempt inspection returns through history to the previous period',
+    (tester) async {
+      final account = MobileAccount()..id = 'android:qa';
+      final store = QaScores(account: account);
+      await mount(tester, store);
+      await tester.tap(find.byKey(const ValueKey('leaderboard-filter-5')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('my-attempt-detail-local')));
+      await tester.pumpAndSettle();
+      expect(find.text('Это ваш личный результат'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(PlayerResultSheet),
+          matching: find.text('21.349 с'),
+        ),
+        findsOneWidget,
+      );
+      expect(tester.takeException(), isNull);
+      await tester.ensureVisible(find.byKey(const ValueKey('player-close')));
+      await tester.tap(find.byKey(const ValueKey('player-close')));
+      await tester.pumpAndSettle();
+      expect(find.byType(PlayerResultSheet), findsNothing);
+      expect(find.byType(MyAttemptsSheet), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('my-attempts-close')));
+      await tester.pumpAndSettle();
+      expect(
+        tester
+            .state<LeaderboardPanelState>(find.byType(LeaderboardPanel))
+            .filter,
+        4,
+      );
+      store.dispose();
+      account.dispose();
+    },
+  );
   testWidgets('ghost after top50 retains actual rank101', (tester) async {
     final store = QaScores()..sampleCount = 50;
     await mount(tester, store, ghostTimeMs: 100);

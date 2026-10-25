@@ -1,3 +1,7 @@
+import 'analytics_consent_sheet.dart';
+import '../../data/analytics_consent.dart';
+import '../../data/app_analytics.dart';
+import '../../ui/analytics_navigation.dart';
 import 'dart:async';
 import '../../ui/game_ui.dart';
 import '../../ui/game_status_overlay.dart';
@@ -24,6 +28,7 @@ Future<void> showProfileSheet(
   BuildContext context, {
   GoogleIdentity? googleIdentity,
 }) => showDialog<void>(
+  routeSettings: analyticsWindow('profile'),
   animationStyle: GameUi.windowAnimationStyle,
   context: context,
   useRootNavigator: false,
@@ -40,6 +45,7 @@ Future<void> showProfileSheet(
 Future<bool?> showProfileRestoreConfirmation(BuildContext context) {
   final ru = Localizations.localeOf(context).languageCode == 'ru';
   return showDialog<bool>(
+    routeSettings: analyticsWindow('profile_restore_confirmation'),
     animationStyle: GameUi.windowAnimationStyle,
     context: context,
     builder: (_) => _ProfileConfirmation(
@@ -57,6 +63,7 @@ Future<bool?> showProfileRestoreConfirmation(BuildContext context) {
 Future<bool?> showProfileResetConfirmation(BuildContext context) {
   final ru = Localizations.localeOf(context).languageCode == 'ru';
   return showDialog<bool>(
+    routeSettings: analyticsWindow('profile_reset_confirmation'),
     animationStyle: GameUi.windowAnimationStyle,
     context: context,
     builder: (_) => _ProfileConfirmation(
@@ -74,6 +81,7 @@ Future<bool?> showProfileResetConfirmation(BuildContext context) {
 Future<bool?> showProfileGoogleDisconnectConfirmation(BuildContext context) {
   final ru = Localizations.localeOf(context).languageCode == 'ru';
   return showDialog<bool>(
+    routeSettings: analyticsWindow('google_disconnect_confirmation'),
     animationStyle: GameUi.windowAnimationStyle,
     context: context,
     builder: (_) => _ProfileConfirmation(
@@ -289,7 +297,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
     try {
       await account.linkGoogle(_identity);
+      AppAnalytics.event('account_action_result', {
+        'action': 'google_link',
+        'status': 'confirmed',
+      });
     } catch (e) {
+      AppAnalytics.event('account_action_result', {
+        'action': 'google_link',
+        'status': 'incomplete',
+      });
       if (!context.mounted) return;
       final code = e is MobileApiError
           ? e.code
@@ -368,6 +384,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
     try {
       await account.unlinkGoogle(_identity);
+      AppAnalytics.event('account_action_result', {
+        'action': 'google_unlink',
+        'status': 'confirmed',
+      });
       if (mounted) {
         setState(
           () =>
@@ -793,6 +813,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: InviterSection(compact: true),
                 ),
               ],
+              if (context.watch<AnalyticsConsent?>() != null) ...[
+                const SizedBox(height: 6),
+                const _ProfilePanel(
+                  padding: EdgeInsets.symmetric(horizontal: 8),
+                  child: AnalyticsProfileButton(),
+                ),
+              ],
               const SizedBox(height: 6),
               _ProfilePanel(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -803,6 +830,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     foregroundColor: GameUi.text,
                   ),
                   onPressed: () => showDialog<void>(
+                    routeSettings: analyticsWindow('profile_help'),
                     context: context,
                     useRootNavigator: false,
                     barrierColor: GameUi.modalBarrier,

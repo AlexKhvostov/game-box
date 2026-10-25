@@ -6,6 +6,8 @@ import '../../ui/hero_face.dart';
 import 'game_world.dart';
 import 'impact_burst.dart';
 import 'jump_glow.dart';
+import '../../domain/helmet_charge.dart';
+import 'helmet_artwork.dart';
 import '../../domain/enemy_pace.dart';
 import 'brake_field_effects.dart';
 
@@ -38,8 +40,12 @@ class GameFieldPainter extends CustomPainter {
     this.playerPreview = false,
     this.impacts = const [],
     this.hasHelmet = false,
+    this.helmetCharge,
+    this.helmetFlash,
+    this.helmetShatter,
     this.hasJump = false,
     this.jumpNowMs,
+    this.jumpReadyAgeMs,
     this.invulnerable = false,
     this.invulnerableFactor,
     this.shadowBrightness = 1.0,
@@ -99,10 +105,14 @@ class GameFieldPainter extends CustomPainter {
 
   /// Активный шлем (1 заряд) — обводка на кубе.
   final bool hasHelmet;
+  final HelmetCharge? helmetCharge;
+  final double Function()? helmetFlash;
+  final HelmetShatter? helmetShatter;
 
   /// Uses the same purchased/selected round ability and clock as jump controls.
   final bool hasJump;
   final double? Function()? jumpNowMs;
+  final double? Function()? jumpReadyAgeMs;
 
   /// Мигание после разрушения шлема — неуязвимость.
   final bool invulnerable;
@@ -298,27 +308,28 @@ class GameFieldPainter extends CustomPainter {
             jumpRemainingMs: world.jumpRemaining * 1000,
           ),
           opacity: bodyAlpha,
+          ready:
+              world.jumpCooldownRemaining(nowMs: jumpNowMs?.call()) == 0 &&
+              !world.isJumping,
+          readyAgeMs: jumpReadyAgeMs?.call(),
+          reducedMotion: reducedMotion,
         );
         canvas.restore();
       }
-      if (hasHelmet) {
-        canvas.drawRRect(
-          pr.inflate(2.5),
-          Paint()
-            ..color = const Color(
-              0xFF7EE0FF,
-            ).withValues(alpha: 0.95 * bodyAlpha)
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = 2.6,
-        );
-        canvas.drawRRect(
-          pr.inflate(5),
-          Paint()
-            ..color = Colors.white.withValues(alpha: 0.35 * bodyAlpha)
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = 1.2,
+      if (hasHelmet || (helmetCharge?.equipped ?? false)) {
+        HelmetArtwork.paint(
+          canvas,
+          pr,
+          progress: helmetCharge?.progress ?? 1,
+          ready: helmetCharge?.ready ?? hasHelmet,
+          flash: HelmetArtwork.flash(
+            helmetFlash?.call() ?? 0,
+            reducedMotion: reducedMotion,
+          ),
+          opacity: bodyAlpha,
         );
       }
+
       canvas.drawRRect(
         pr.deflate(.7),
         Paint()
@@ -347,6 +358,7 @@ class GameFieldPainter extends CustomPainter {
       }
     }
 
+    helmetShatter?.paint(canvas, reducedMotion: reducedMotion);
     if (drawBorder) {
       // Рамка inset — не обрезается клипом
       final inset = (borderWidth / 2 + 0.5).clamp(0.5, 12.0);
@@ -466,8 +478,12 @@ class GameFieldPainter extends CustomPainter {
         oldDelegate.playerPreview != playerPreview ||
         oldDelegate.impacts != impacts ||
         oldDelegate.hasHelmet != hasHelmet ||
+        oldDelegate.helmetCharge != helmetCharge ||
+        oldDelegate.helmetFlash != helmetFlash ||
+        oldDelegate.helmetShatter != helmetShatter ||
         oldDelegate.hasJump != hasJump ||
         oldDelegate.jumpNowMs != jumpNowMs ||
+        oldDelegate.jumpReadyAgeMs != jumpReadyAgeMs ||
         oldDelegate.invulnerable != invulnerable ||
         oldDelegate.invulnerableFactor != invulnerableFactor ||
         oldDelegate.drawBorder != drawBorder ||

@@ -1,3 +1,4 @@
+import '../../data/app_analytics.dart';
 import 'leaderboard_tone.dart';
 import 'ranking_art.dart';
 import 'ranking_tabs.dart';
@@ -53,6 +54,11 @@ class LeaderboardPanelState extends State<LeaderboardPanel> {
     super.initState();
     _recordFilter = widget.initialPeriod;
     filter = widget.initialAverage ? 6 : _recordFilter;
+    AppAnalytics.page(
+      'leaderboard',
+      isAverage ? 'average' : 'record',
+      source: 'initial',
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) context.read<ScoresStore>().refreshIfStale();
     });
@@ -88,8 +94,12 @@ class LeaderboardPanelState extends State<LeaderboardPanel> {
         children: [
           RankingTabs(
             average: isAverage,
-            onRecord: () => setState(() => filter = _recordFilter.clamp(0, 4)),
+            onRecord: () {
+              if (isAverage) AppAnalytics.page('leaderboard', 'record');
+              setState(() => filter = _recordFilter.clamp(0, 4));
+            },
             onAverage: () {
+              if (!isAverage) AppAnalytics.page('leaderboard', 'average');
               setState(() {
                 if (!isAverage) _recordFilter = filter.clamp(0, 4);
                 filter = 6;
@@ -136,6 +146,18 @@ class LeaderboardPanelState extends State<LeaderboardPanel> {
                                       compact: true,
                                       joined: true,
                                       onTap: () => setState(() {
+                                        if (filter != i) {
+                                          AppAnalytics.page(
+                                            'ranking_period',
+                                            [
+                                              'all',
+                                              'year',
+                                              'month',
+                                              'week',
+                                              'day',
+                                            ][i],
+                                          );
+                                        }
                                         filter = i;
                                         _recordFilter = i;
                                       }),

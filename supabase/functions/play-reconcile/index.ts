@@ -15,10 +15,7 @@ Deno.serve(async request=>{
         const {data,error}=await authAdmin().auth.admin.getUserById(uid);
         if(error?.status===404)return null;if(error||!data.user)throw Error('auth_lookup_unavailable');return identity(data.user);
       },listVoided:async({startTime,endTime,token})=>(await google.request({url:'https://androidpublisher.googleapis.com/androidpublisher/v3/applications/com.best4u.untouch/purchases/voidedpurchases',method:'GET',timeout:10000,params:{type:1,maxResults:100,startTime:String(startTime),endTime:String(endTime),...(token?{token}:{})}})).data});
-      inviteWorker=createInviteReconciler({...runtime,getIdentity:async uid=>{
-        const {data,error}=await authAdmin().auth.admin.getUserById(uid);
-        if(error?.status===404)return null;if(error||!data.user)throw Error('auth_lookup_unavailable');return identity(data.user);
-      }});
+      inviteWorker=createInviteReconciler({...runtime,getIdentity:runtime.getIdentity});
     }
     // Independent leases; the invite budget does not extend the Play deadline.
     const [result,invites]=await Promise.all([worker(),inviteWorker()]);

@@ -1,0 +1,72 @@
+import {test,after} from 'node:test';
+import assert from 'node:assert/strict';
+import {testDatabase} from './database.mjs';
+import {PostgresStore} from '../functions/_shared/postgres-store.mjs';
+import {createEngine} from '../functions/_shared/core/engine.mjs';
+import {createTelegramStars,starsOffer,validWebhookSecret} from '../functions/_shared/telegram-stars.mjs';
+import {defaults,hash} from '../functions/_shared/core/policy.mjs';
+import {initialPlatformSettings} from '../functions/_shared/platform-config-schema.mjs';
+const local=await testDatabase();after(()=>local.close());const db=new PostgresStore(local.pool);
+let stamp=Date.UTC(2026,9,20),serial=0;const now=()=>stamp,nonce=()=>hash(`stars-fixture-${++serial}`),settings=initialPlatformSettings(defaults.config).telegram;
+settings.stars.salesEnabled=true;const calls=[];const botApi=async(method,args)=>{calls.push({method,args});return method==='createInvoiceLink'?`https://t.me/$fixture-${args.payload}`:true;};
+const botId='8773345829';
+const engine=createEngine({db,now}),stars=createTelegramStars({db,botApi,botId,getSettings:async()=>settings,now,integrationAccepted:true});
+const rejected=(p,code)=>assert.rejects(p,e=>e.code===code);
+async function player(){const uid=`stars-player-${++serial}`,identity={uid,botId,subject:String(100000+serial),platform:'telegram',telegramVerified:true,googleLinked:false};await engine.execute(uid,{action:'guest'},identity);return identity;}
+const query=(o,i,patch={})=>({id:`checkout-${++serial}`,from:{id:Number(i.subject)},invoice_payload:o.orderId,currency:'XTR',total_amount:o.offer.price,...patch});
+const payment=(o,i,charge,patch={})=>({message:{from:{id:Number(i.subject)},successful_payment:{currency:'XTR',total_amount:o.offer.price,invoice_payload:o.orderId,telegram_payment_charge_id:charge,...patch}}});
+const profile=i=>engine.execute(i.uid,{action:'profile'},i);
+
+test('Stars disabled by acceptance gate; immutable contents, platform prices, only30day subscriptions; secret constant-time compare',async()=>{
+  const i=await player(),disabled=createTelegramStars({db,botApi,botId,getSettings:async()=>settings,now});
+  await rejected(disabled.invoice(i,{requestId:nonce(),productId:'energy_100_v1'}),'stars_unavailable');
+  assert.equal(starsOffer('energy_250_v1',settings).amount,250);assert.equal(starsOffer('energy_250_v1',settings).price,55);
+  assert.equal(starsOffer('energy_batteries_5_v1',settings).periodSec,2592000);
+  assert.throws(()=>starsOffer('energy_batteries_2_v1',{stars:{...settings.stars,tier2Price:10001}}));
+  assert.equal(validWebhookSecret('x'.repeat(32),'x'.repeat(32)),true);assert.equal(validWebhookSecret('y'.repeat(32),'x'.repeat(32)),false);assert.equal(validWebhookSecret('x','x'),false);
+});
+test('invoice quote is server-owned/frozen; wrong-user/amount checkout rejected; success replay credits once, refund once',async()=>{
+  const i=await player(),requestId=nonce(),o=await stars.invoice(i,{requestId,productId:'energy_100_v1',price:1,amount:999999});
+  assert.equal(o.offer.price,25);assert.equal(o.offer.amount,100);
+  assert.equal((await stars.invoice(i,{requestId,productId:'energy_100_v1'})).orderId,o.orderId);
+  assert.equal((await stars.update({pre_checkout_query:query(o,i,{total_amount:1})})).accepted,false);
+  assert.equal((await stars.update({pre_checkout_query:query(o,i,{from:{id:123}})})).accepted,false);
+  const approved=query(o,i);assert.equal((await stars.update({pre_checkout_query:approved})).accepted,true);
+  assert.equal((await stars.update({pre_checkout_query:approved})).accepted,true);
+  assert.equal((await stars.update({pre_checkout_query:query(o,i)})).accepted,false);
+  const charge=nonce(),paid=payment(o,i,charge);await stars.update(paid);await stars.update(paid);
+  assert.equal((await profile(i)).profile.wallet.energy,150);
+  await rejected(stars.update(payment(o,i,nonce(),{total_amount:1})),'payment_invalid');
+  const refund={message:{from:paid.message.from,refunded_payment:paid.message.successful_payment}};await stars.update(refund);await stars.update(refund);
+  assert.equal((await profile(i)).profile.wallet.energy,50);
+});
+test('subscription uses Telegram expiry, cannot race two tiers, renews once, cancel preserves paid rights, refund old period does not remove newer',async()=>{
+  const i=await player(),o=await stars.invoice(i,{requestId:nonce(),productId:'energy_batteries_2_v1'}),other=await stars.invoice(i,{requestId:nonce(),productId:'energy_batteries_5_v1'});
+  assert.equal((await stars.update({pre_checkout_query:query(o,i)})).accepted,true);
+  assert.equal((await stars.update({pre_checkout_query:query(other,i)})).accepted,false);
+  const first=nonce(),expires=Math.floor(stamp/1000)+2592000,paid=payment(o,i,first,{is_recurring:true,is_first_recurring:true,subscription_expiration_date:expires});await stars.update(paid);
+  assert.equal((await profile(i)).profile.wallet.simpleBonus.reward,60);
+  const energyBefore=(await profile(i)).profile.wallet.energy;
+  await engine.execute(i.uid,{action:'wallet_operation',operationId:nonce(),kind:'energy_bonus_claim',args:{}},i);
+  assert.equal((await profile(i)).profile.wallet.energy,energyBefore+60);
+  await stars.cancel(i,{cancel:true});let p=(await profile(i)).profile;assert.equal(p.wallet.energySubscription.autoRenew,false);assert.equal(p.wallet.simpleBonus.reward,60);
+  await stars.update({update_id:10,subscription:{user:{id:Number(i.subject)},invoice_payload:o.orderId,state:'canceled'}});
+  await stars.update({update_id:9,subscription:{user:{id:Number(i.subject)},invoice_payload:o.orderId,state:'active'}});
+  assert.equal((await profile(i)).profile.wallet.energySubscription.autoRenew,false);
+  stamp+=2592000*1000;const renewed=nonce(),renew=payment(o,i,renewed,{is_recurring:true,subscription_expiration_date:expires+2592000});await stars.update(renew);await stars.update(renew);
+  assert.equal((await profile(i)).profile.wallet.energySubscription.chargeId,renewed);
+  await stars.update({message:{from:paid.message.from,refunded_payment:paid.message.successful_payment}});
+  assert.equal((await profile(i)).profile.wallet.energySubscription.chargeId,renewed);
+  stamp+=2592000*1000+1;p=(await profile(i)).profile;assert.equal(p.wallet.simpleBonus.reward,30);assert.equal(p.wallet.energySubscription.awaitingReconciliation,undefined);
+});
+test('unapproved event and changed user cannot credit; delayed event cannot recreate a deleted/disabled player',async()=>{
+  const i=await player(),o=await stars.invoice(i,{requestId:nonce(),productId:'energy_100_v1'});
+  await rejected(stars.update(payment(o,i,nonce())),'payment_unapproved');
+  await stars.update({pre_checkout_query:query(o,i)});
+  await rejected(stars.update(payment(o,{...i,subject:'9000'},nonce())),'payment_invalid');
+  await db.collection('players').doc(i.uid).update({supportDisabled:true});
+  const blockedCharge=nonce();assert.equal((await stars.update(payment(o,i,blockedCharge))).fulfillmentBlocked,true);
+  const retained=(await db.collection('telegramCharges').doc(hash(`${botId}:${blockedCharge}`)).get()).data();assert.equal(retained.fulfillmentBlocked,true);assert.equal(retained.botId,botId);
+  assert.equal((await db.collection('players').doc(i.uid).get()).data().wallet.energy,50);
+  assert.ok(calls.every(c=>['createInvoiceLink','answerPreCheckoutQuery','editUserStarSubscription'].includes(c.method)));
+});

@@ -11,11 +11,13 @@ const fixtures=JSON.parse(fs.readFileSync(new URL('./fixtures/android-replay.jso
 const local=await testDatabase();after(()=>local.close());
 const db=new PostgresStore(local.pool);let stamp=Date.UTC(2026,9,18,12);
 const engine=createEngine({db,now:()=>stamp});
-test('compiled verifier is current for actual Dart physics/config/PRNG and verifier source',()=>{
+test('frozen v1 verifier retains its original physics/config/PRNG sources',()=>{
  const manifest=JSON.parse(fs.readFileSync(new URL('../functions/_shared/android-replay.generated.json',import.meta.url)));
  for(const [file,expected]of Object.entries(manifest)){
   const path=file==='generatedSha256'?'supabase/functions/_shared/android-replay.generated.mjs':file;
-  const source=fs.readFileSync(new URL('../../'+path,import.meta.url),'utf8');
+  // v3 extends GameConfig; v1 continues to use its original frozen policy model.
+  const sourcePath=path==='lib/domain/gameplay_config.dart'?'tools/replay/legacy_gameplay_config.dart':path;
+  const source=fs.readFileSync(new URL('../../'+sourcePath,import.meta.url),'utf8');
   const digest=value=>crypto.createHash('sha256').update(value.replaceAll('\r\n','\n')).digest('hex');
   assert.equal(digest(source),expected,path);
   assert.equal(digest(source.replaceAll('\r\n','\n').replaceAll('\n','\r\n')),expected,`${path}/CRLF checkout`);

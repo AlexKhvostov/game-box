@@ -12,6 +12,7 @@ const flag='ads.interstitialEnabled';
 const base=()=>({parameters:{android_config_v1:{defaultValue:{value:JSON.stringify(defaults)}}}});
 function legacyPlatformTemplate(){
   const envelope={schemaVersion:1,common:structuredClone(defaults.config),platforms:initialPlatformSettings(defaults.config)};
+  for(const platform of ['android','telegram'])for(const key of ['interstitialSessionGraceSec','interstitialSessionFreeRounds','interstitialGraceSec','interstitialCooldownSec','interstitialMinLives'])envelope.platforms[platform].ads[key]=defaults.config.economy[key];
   envelope.platforms.telegram.ads.enabled=true;
   envelope.platforms.telegram.ads.rewardedBlockId='55424';
   envelope.platforms.telegram.ads.interstitialBlockId='int-55425';

@@ -18,6 +18,7 @@ import 'package:game_box/data/google_identity.dart';
 import 'package:game_box/data/mobile_account.dart';
 import 'package:game_box/data/player_preferences.dart';
 import 'package:game_box/data/audience_policy.dart';
+import 'package:game_box/data/analytics_consent.dart';
 import 'package:game_box/l10n/app_localizations.dart';
 import 'package:game_box/ui/game_viewport.dart';
 
@@ -86,13 +87,16 @@ Future<PlayerPreferences> mount(
   bool enabled = true,
   Map<String, Object> initial = const {},
   bool withAudience = false,
+  bool withAnalytics = false,
 }) async {
   await tester.pumpWidget(const SizedBox());
   SharedPreferences.setMockInitialValues(initial);
   final preferences = PlayerPreferences();
   await preferences.load();
   final audience = AudiencePolicy();
-  if (withAudience) await audience.load();
+  if (withAudience || withAnalytics) await audience.load();
+  final analytics = AnalyticsConsent(audience, applyRuntime: (_) async {});
+  if (withAnalytics) await analytics.load();
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
   await tester.pumpWidget(
@@ -100,7 +104,9 @@ Future<PlayerPreferences> mount(
       providers: [
         ChangeNotifierProvider<MobileAccount>.value(value: account),
         ChangeNotifierProvider.value(value: preferences),
-        if (withAudience) ChangeNotifierProvider.value(value: audience),
+        if (withAudience || withAnalytics)
+          ChangeNotifierProvider.value(value: audience),
+        if (withAnalytics) ChangeNotifierProvider.value(value: analytics),
       ],
       child: RepaintBoundary(
         key: boundary,
@@ -181,7 +187,7 @@ void main() {
   });
 
   testWidgets(
-    'first entry asks age before Google; cancellation keeps guest and does not enable ads',
+    'first entry resolves Google before age; cancellation keeps guest and does not enable ads',
     (tester) async {
       final account = FixtureAccount();
       final identity = FixtureIdentity()
@@ -195,7 +201,7 @@ void main() {
         withAudience: true,
       );
       expect(find.byKey(const ValueKey('age-adult18plus')), findsOneWidget);
-      expect(identity.calls, 0);
+      expect(identity.calls, 1);
       await tester.tap(find.byKey(const ValueKey('age-adult18plus')));
       await tester.pump();
       await tester.tap(find.byKey(const ValueKey('age-continue')));
@@ -260,6 +266,111 @@ void main() {
       expect(disk.get(AudiencePolicy.storageKey), isNull);
     },
   );
+
+  testWidgets(
+    'Google then adult age then analytics: grant closes directly to the game',
+    (tester) async {
+      final account = FixtureAccount();
+      final identity = FixtureIdentity();
+      await mount(
+        tester,
+        account: account,
+        identity: identity,
+        withAudience: true,
+        withAnalytics: true,
+      );
+      expect(identity.calls, 1);
+      expect(account.googleLinked, true);
+      expect(find.byKey(const ValueKey('age-continue')), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('analytics-first-question')),
+        findsNothing,
+      );
+      await tester.tap(find.byKey(const ValueKey('age-adult18plus')));
+      await tester.pump();
+      await tester.tap(find.byKey(const ValueKey('age-continue')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('age-continue')), findsNothing);
+      expect(
+        find.byKey(const ValueKey('analytics-first-question')),
+        findsOneWidget,
+      );
+      final allow = find.byKey(const ValueKey('analytics-consent-allow'));
+      await tester.ensureVisible(allow);
+      await tester.tap(allow);
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(const ValueKey('analytics-first-question')),
+        findsNothing,
+      );
+      expect(find.byKey(const ValueKey('analytics-state-row')), findsNothing);
+      final disk = await SharedPreferences.getInstance();
+      expect(disk.getBool(AnalyticsConsent.permissionKey), true);
+      expect(find.byKey(const ValueKey('fixture-play')), findsOneWidget);
+    },
+  );
+  for (final adult in [false, null]) {
+    testWidgets(
+      'Google then age $adult never asks analytics without explicit18+',
+      (tester) async {
+        final account = FixtureAccount();
+        final identity = FixtureIdentity()
+          ..failure = GoogleSignInException(
+            code: GoogleSignInExceptionCode.canceled,
+          );
+        await mount(
+          tester,
+          account: account,
+          identity: identity,
+          withAudience: true,
+          withAnalytics: true,
+        );
+        expect(identity.calls, 1);
+        expect(account.googleLinked, false);
+        if (adult == null) {
+          await tester.tap(find.byKey(const ValueKey('age-cancel')));
+        } else {
+          await tester.tap(find.byKey(const ValueKey('age-under18')));
+          await tester.pump();
+          await tester.tap(find.byKey(const ValueKey('age-continue')));
+        }
+        await tester.pumpAndSettle();
+        expect(
+          find.byKey(const ValueKey('analytics-first-question')),
+          findsNothing,
+        );
+        final disk = await SharedPreferences.getInstance();
+        expect(disk.getBool(AnalyticsConsent.permissionKey), false);
+        expect(find.byKey(const ValueKey('fixture-play')), findsOneWidget);
+      },
+    );
+  }
+  testWidgets('saved18+ and saved consent do not repeat startup questions', (
+    tester,
+  ) async {
+    final account = FixtureAccount();
+    final identity = FixtureIdentity();
+    await mount(
+      tester,
+      account: account,
+      identity: identity,
+      withAudience: true,
+      withAnalytics: true,
+      initial: {
+        'google_startup_seen_v1': true,
+        'age_startup_seen_v1': true,
+        AudiencePolicy.storageKey: 'adult18plus',
+        AnalyticsConsent.permissionKey: true,
+        AnalyticsConsent.promptKey: true,
+      },
+    );
+    expect(identity.calls, 0);
+    expect(find.byKey(const ValueKey('age-continue')), findsNothing);
+    expect(
+      find.byKey(const ValueKey('analytics-first-question')),
+      findsNothing,
+    );
+  });
 
   testWidgets('direct chooser persists once; cancellation preserves guest', (
     tester,

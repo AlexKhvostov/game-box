@@ -6,20 +6,28 @@ import {patchAndroidTemplate,readAndroidTemplate} from '../functions/_shared/rem
 import {createConfigAdmin} from '../functions/_shared/config-admin.mjs';
 import {testDatabase} from './database.mjs';
 const base=()=>({parameters:{android_config_v1:{defaultValue:{value:JSON.stringify(defaults)}},unrelated:{defaultValue:{value:'keep'}}}});
-test('common gameplay and reward edits affect both; platform ads/Stars do not alter other platform',()=>{
-  const shared=patchScopedTemplate(base(),defaults,'common',[{path:'economy.androidEnergyV2.simpleBonus.reward',value:37}]);
-  for(const p of ['android','telegram'])assert.equal(materializePlatform(shared.envelope,p).config.economy.androidEnergyV2.simpleBonus.reward,37);
-  const telegram=patchScopedTemplate(shared.template,shared.android,'telegram',[{path:'stars.pack100Price',value:31},{path:'ads.interstitialCooldownSec',value:99}]);
+test('one common ad policy reaches both snapshots; platform providers remain isolated',()=>{
+  const shared=patchScopedTemplate(base(),defaults,'common',[
+    {path:'economy.androidEnergyV2.simpleBonus.reward',value:37},
+    {path:'economy.interstitialCooldownSec',value:99}
+  ]);
+  assert.equal(shared.envelope.schemaVersion,2);
+  for(const p of ['android','telegram']){
+    const config=materializePlatform(shared.envelope,p).config;
+    assert.equal(config.economy.androidEnergyV2.simpleBonus.reward,37);
+    assert.equal(config.economy.interstitialCooldownSec,99);
+    assert.equal(Object.hasOwn(shared.envelope.platforms[p].ads,'interstitialCooldownSec'),false);
+  }
+  const telegram=patchScopedTemplate(shared.template,shared.android,'telegram',[{path:'stars.pack100Price',value:31}]);
   assert.equal(telegram.envelope.platforms.telegram.stars.pack100Price,31);
-  assert.deepEqual(telegram.android,shared.android);assert.equal(telegram.template.parameters.unrelated.defaultValue.value,'keep');
-  assert.equal(materializePlatform(telegram.envelope,'telegram').config.economy.interstitialCooldownSec,99);
-  const android=patchScopedTemplate(telegram.template,telegram.android,'android',[{path:'ads.interstitialCooldownSec',value:120}]);
-  assert.equal(android.envelope.platforms.telegram.ads.interstitialCooldownSec,99);
-  assert.equal(android.android.config.economy.interstitialCooldownSec,120);
+  assert.deepEqual(telegram.android,shared.android);
+  assert.equal(telegram.template.parameters.unrelated.defaultValue.value,'keep');
+  assert.throws(()=>patchScopedTemplate(telegram.template,telegram.android,'android',[{path:'ads.interstitialCooldownSec',value:120}]));
+  assert.throws(()=>patchScopedTemplate(telegram.template,telegram.android,'telegram',[{path:'ads.interstitialCooldownSec',value:120}]));
 });
 test('wrong scope/unknown duplicate fields, sales enablement and external legacy drift are rejected',()=>{
   assert.throws(()=>patchScopedTemplate(base(),defaults,'telegram',[{path:'player.size',value:40}]));
-  assert.throws(()=>patchScopedTemplate(base(),defaults,'common',[{path:'economy.interstitialCooldownSec',value:60}]));
+  assert.throws(()=>patchScopedTemplate(base(),defaults,'common',[{path:'ads.interstitialCooldownSec',value:60}]));
   assert.throws(()=>patchScopedTemplate(base(),defaults,'telegram',[{path:'stars.salesEnabled',value:true}]),e=>e.code==='stars_acceptance_required');
   assert.throws(()=>patchScopedTemplate(base(),defaults,'telegram',[{path:'stars.tier2Price',value:50},{path:'stars.tier2Price',value:60}]));
   const next=patchScopedTemplate(base(),defaults,'telegram',[]);
@@ -31,7 +39,7 @@ test('old admin publication stays compatible after split; scoped settings remain
   const old=patchAndroidTemplate(split.template,[{path:'player.size',value:34},{path:'economy.interstitialCooldownSec',value:100}]);
   const envelope=readPlatformTemplate(old.template,old.snapshot);
   assert.equal(envelope.common.player.size,34);assert.equal(envelope.platforms.telegram.stars.pack100Price,29);
-  assert.equal(envelope.platforms.android.ads.interstitialCooldownSec,100);
+  for(const platform of ['android','telegram'])assert.equal(materializePlatform(envelope,platform).config.economy.interstitialCooldownSec,100);
 });
 test('grouped Android and platform parameters stay grouped, duplicate keys are rejected',()=>{
   const grouped={parameterGroups:{game:{parameters:base().parameters}}};

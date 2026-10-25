@@ -9,7 +9,7 @@ export const sections=[
   ['energy','Энергия','Стоимость попыток и усилений'],['bonus','Бонус','Размер бонуса, интервал получения и другие награды'],
   ['enemies','Враги','Движение, форма и столкновения'],['player','Игрок','Размер и внешний вид'],
   ['field','Игровое поле','Границы, размеры и освещение'],['game','Управление и игра','Прыжок, защита и вибрация'],
-  ['audio','Звук','Музыка и звуковые эффекты'],['ads','Реклама','Интервалы показа. Действуют только в сборках с включённой рекламой'],
+  ['audio','Звук','Музыка и звуковые эффекты'],['ads','Реклама','Общие ограничения показов для Android и Telegram. Площадки и включение рекламы на каждой платформе настраиваются отдельно.'],
   ['technical','Служебные параметры','Справочные и фиксированные значения']
 ];
 const labels={
@@ -29,6 +29,7 @@ const labels={
   'field.colorHex':'Цвет поля','field.cornerRadius':'Скругление углов','field.maxSide':'Максимальный размер поля',
   'game.startHintEnabled':'Подсказка перед стартом','game.idleSpeedMultiplier':'Скорость в ожидании','game.idleEnemiesMove':'Движение врагов в ожидании',
   'game.jumpEnabled':'Разрешить прыжок','game.jumpDurationSec':'Длительность прыжка','game.jumpScale':'Размер игрока в прыжке',
+  'game.helmetCooldownSec':'Перезарядка шлема',
   'game.helmetEnabled':'Разрешить защиту','game.helmetInvulnSec':'Время защиты после удара','game.startInvulnSec':'Защита после старта',
   'game.heartbeatHaptic':'Вибрация сердцебиения','game.timerHaptic':'Вибрация таймера','game.timerHapticStyle':'Вибрация таймера: основной сигнал',
   'game.timerHapticStyle5':'Вибрация таймера: 5 секунд','game.timerHapticStyle10':'Вибрация таймера: 10 секунд',
@@ -65,6 +66,7 @@ const rules={
   'field.borderWidth':[0,24,0.5,'px'],'field.brightness':[0.4,1.8,0.05],'field.shadowBrightness':[0.4,2.5,0.05],
   'field.cornerRadius':[0,200,1,'px'],'field.maxSide':[100,2000,1,'px'],
   'game.idleSpeedMultiplier':[0.05,1,0.05],'game.jumpDurationSec':[0.12,5,0.01,'с'],'game.jumpScale':[1.05,1.8,0.01],
+  'game.helmetCooldownSec':[0,3600,0.1,'с'],
   'game.helmetInvulnSec':[0,30,0.1,'с'],'game.startInvulnSec':[0,30,0.1,'с'],'game.jumpCooldownSec':[0,20,0.1,'с'],
   'game.hudSpeedScaleMax':[1,4000,1],'audio.musicVolume':[0,1,0.05],'audio.sfxVolume':[0,1,0.05],
   'economy.androidEnergyV2.chargeHours':[1,12,1,'ч'],'economy.androidEnergyV2.baseAttemptCost':[1,1000,1,'энергии'],
@@ -96,6 +98,7 @@ function meta(path,value){
   if(path==='ranking.average.previousWeightPercent')help='Вес предыдущей относительно следующей: 92% означает веса 1, 0,92, 0,8464… Новые попытки влияют сильнее; 100% — обычное среднее.';
   if(path==='ranking.average.minAttempts')help='Допуск после этого числа подтверждённых попыток дольше порога. До допуска игрок видит предварительное среднее и прогресс.';
   if(path==='ranking.average.minDurationMs')help='Строго больше указанного времени. 1000 мс = 1 секунда: ровно 1 секунда не учитывается. Пропущенные попытки не вытесняют историю и не меняют веса.';
+  if(path==='game.helmetCooldownSec')help='0 — шлем выдерживает один удар за партию. Больше 0 — восстанавливается через указанное число секунд активной игры после удара. Применяется со следующей партии в обновлённом Android; старые версии и Telegram пока сохраняют одноразовый шлем. Защита сразу после удара задаётся отдельно.';
   if(path==='game.jumpCooldownSec')help='От 0 до 20 секунд. 0 — следующий прыжок доступен сразу после приземления. Длительность самого прыжка не меняется. Значения меньше 2 секунд требуют обновлённой версии Google-приложения; прежние версии ограничивают откат двумя секундами.';
   if(path==='economy.androidEnergyV2.simpleBonus.periodSec')help='Через сколько часов после получения бонус станет доступен снова. Уже начавшийся период сохраняет свои условия.';
   if(path==='economy.androidEnergyV2.simpleBonus.initialEnergy')help='Начисляется один раз новым аккаунтам. Балансы существующих игроков не меняются.';
@@ -119,7 +122,7 @@ if(!defaults.config.enemyPace)walk({enemyPace:enemyPaceDefaults});
 if(!defaults.config.ranking?.average)walk({ranking:{average:averageDefaults}});
 export const fields=Object.freeze(leaves);
 export const defaultsSnapshot=defaults;
-export const getValue=(object,path)=>path.split('.').reduce((value,key)=>value?.[key],object)??(path.startsWith('ranking.average.')?averageDefaults[path.split('.').at(-1)]:path.startsWith('enemyPace.')?enemyPaceDefaults[path.split('.').at(-1)]:undefined);
+export const getValue=(object,path)=>path.split('.').reduce((value,key)=>value?.[key],object)??(path==='game.helmetCooldownSec'?0:path.startsWith('ranking.average.')?averageDefaults[path.split('.').at(-1)]:path.startsWith('enemyPace.')?enemyPaceDefaults[path.split('.').at(-1)]:undefined);
 export function setValue(object,path,value){const parts=path.split('.');let target=object;for(const part of parts.slice(0,-1))target=target[part]??={};target[parts.at(-1)]=value;}
 export class ConfigInputError extends Error{constructor(code,details=[]){super(code);this.code=code;this.status=400;this.details=details;}}
 export function validateField(field,value){

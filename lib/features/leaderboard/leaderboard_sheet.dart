@@ -1,3 +1,4 @@
+import '../../ui/analytics_navigation.dart';
 import '../../ui/game_ui.dart';
 import 'package:flutter/material.dart';
 import 'leaderboard_panel.dart';
@@ -13,6 +14,7 @@ Future<void> showLeaderboardSheet(
   LeaderboardTab initialTab = LeaderboardTab.record,
   bool allTime = false,
 }) => showModalBottomSheet<void>(
+  routeSettings: analyticsWindow('leaderboard'),
   sheetAnimationStyle: GameUi.windowAnimationStyle,
   context: context,
   isScrollControlled: true,

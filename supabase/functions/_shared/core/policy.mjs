@@ -27,7 +27,7 @@ function validatePolicy(snapshot) {
   function types(candidate, original, path='') {
     if(candidate===undefined && path==='economy.androidEnergyV2.simpleBonus.videoDailyLimit')return;
     // Published pre-ranking snapshots remain valid for identical game rules.
-    if(candidate===undefined && path==='ranking')return;
+    if(candidate===undefined && (path==='ranking' || path==='game.helmetCooldownSec'))return;
     requireThat(candidate !== undefined && typeof candidate === typeof original && Array.isArray(candidate) === Array.isArray(original),'policy_invalid',503);
     if(original && typeof original === 'object' && !Array.isArray(original)) for(const [key,value] of Object.entries(original)) types(candidate[key],value,path?`${path}.${key}`:key);
   }
@@ -36,6 +36,7 @@ function validatePolicy(snapshot) {
   range(c.mobileEnemies.startSpeedSteps,0.01,250);range(c.mobileEnemies.accelerationSteps,0,50);
   range(c.mobileEnemies.speedVariation,0,0.5);range(c.mobileEnemies.accelerationVariation,0,0.5);
   range(c.game.jumpCooldownSec,0,60);range(c.game.jumpDurationSec,0.05,5);range(c.game.jumpScale,1,3);
+  if(Object.hasOwn(c.game,'helmetCooldownSec'))range(c.game.helmetCooldownSec,0,3600);
   range(c.game.startInvulnSec,0,30);range(c.game.helmetInvulnSec,0,30);range(c.game.idleSpeedMultiplier,0,2);
   range(c.field.borderWidth,0,24);range(c.field.brightness,0,2);range(c.field.maxSide,100,2000);range(c.field.cornerRadius,0,200);
   range(c.enemies.areaMultiplier,0.1,20);range(c.enemies.angleMinDeg,0,180);range(c.enemies.angleMaxDeg,c.enemies.angleMinDeg,180);

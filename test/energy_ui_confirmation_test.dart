@@ -350,6 +350,13 @@ void main() {
       b.status(active: true);
       await t.pump();
       expect(find.textContaining('Покупка обрабатывается'), findsOneWidget);
+      b.status(problem: 'purchase_failed');
+      await t.pump();
+      expect(
+        find.text('Не удалось завершить оплату в Google Play.'),
+        findsOneWidget,
+      );
+      expect(find.textContaining('Восстановите её'), findsNothing);
       b.status(problem: 'verification_pending');
       await t.pump();
       expect(find.textContaining('Не оплачивайте повторно'), findsOneWidget);

@@ -48,7 +48,7 @@ void main() {
         final policy = AudiencePolicy();
         await policy.load();
         await policy.select(AgeBand.age21plus);
-        policy.allowAdsForSession();
+        await policy.setAdDataConsent(true);
         final driver = FakeAdsDriver();
         final ads = AdsService(driver, audience: policy);
         final economy = EconomyStore();
@@ -69,7 +69,7 @@ void main() {
     audience = AudiencePolicy();
     await audience.load();
     await audience.select(AgeBand.age21plus);
-    audience.allowAdsForSession();
+    await audience.setAdDataConsent(true);
   });
   test(
     'rewarded request from a closed route does not load or credit',

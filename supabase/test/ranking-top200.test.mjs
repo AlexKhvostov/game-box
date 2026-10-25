@@ -48,7 +48,7 @@ test('hidden, deleted and other-platform results cannot displace visible players
  await local.pool.query(`update untouch.documents set body=body||'{"supportDisabled":true}'::jsonb where parent='players' and key=$1`,[uid(1)]);
  await local.pool.query(`insert into untouch.documents(path,parent,key,body) values
  ('scores/deleted','scores','deleted',jsonb_build_object('uid','missing','timeMs',9999999,'platform','android','createdAt',$1::bigint)),
- ('scores/telegram','scores','telegram',jsonb_build_object('uid',$2::text,'timeMs',9999998,'platform','telegram','createdAt',$1::bigint)),
+ ('scores/telegram','scores','telegram',jsonb_build_object('uid',$2::text,'timeMs',9999998,'platform','legacy_telegram','createdAt',$1::bigint)),
  ('players/short','players','short','{"nickname":"Короткие"}'),
  ('scores/short','scores','short',jsonb_build_object('uid','short','timeMs',1000,'platform','android','createdAt',$1::bigint))`,[stamp,uid(2)]);
  const result=await recordRankings({db,uid:uid(201),stamp,period:'day'});

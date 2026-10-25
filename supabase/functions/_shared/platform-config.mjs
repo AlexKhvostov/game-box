@@ -9,12 +9,21 @@ function location(template,key){
 }
 export function readPlatformTemplate(template,legacySnapshot){
   const param=location(template,PLATFORMS_RC_KEY)?.[PLATFORMS_RC_KEY];
-  if(!param)return{schemaVersion:1,common:structuredClone(legacySnapshot.config),platforms:initialPlatformSettings(legacySnapshot.config)};
+  if(!param)return{schemaVersion:2,common:structuredClone(legacySnapshot.config),platforms:initialPlatformSettings(legacySnapshot.config)};
   requireThat(!Object.keys(param.conditionalValues??{}).length,'platform_conditional_policy_unsupported',409);
   let value;try{value=JSON.parse(param.defaultValue?.value);}catch{}
-  requireThat(value?.schemaVersion===1&&value.platforms?.android&&value.platforms?.telegram,'platform_policy_invalid',503);
+  requireThat([1,2].includes(value?.schemaVersion)&&value.platforms?.android&&value.platforms?.telegram,'platform_policy_invalid',503);
   validatePolicy({ok:true,config:value.common,revision:hash(value.common)});
-  for(const p of ['android','telegram'])value.platforms[p]=validatePlatformSettings(p,value.platforms[p]);
+  for(const p of ['android','telegram']){
+    value.platforms[p]=validatePlatformSettings(p,value.platforms[p]);
+    for(const k of adKeys){
+      if(value.schemaVersion===2)requireThat(!Object.hasOwn(value.platforms[p].ads,k),'platform_policy_invalid',503);
+      else{
+        const f=commonFields.find(f=>f.path===`economy.${k}`),v=value.platforms[p].ads[k];
+        requireThat(Number.isSafeInteger(v)&&v>=f.min&&v<=f.max,'platform_policy_invalid',503);
+      }
+    }
+  }
   // Detect Firebase-console edits to the compatibility snapshot rather than overwrite silently.
   const materialized=materializePlatform(value,'android');
   requireThat(JSON.stringify(materialized.config)===JSON.stringify(legacySnapshot.config),'platform_legacy_config_conflict',409);
@@ -39,16 +48,29 @@ export function validatePlatformSettings(platform,config){
 export function materializePlatform(envelope,platform){
   requireThat(['android','telegram'].includes(platform),'platform_invalid',400);
   const config=structuredClone(envelope.common),settings=envelope.platforms[platform];
-  for(const k of adKeys)config.economy[k]=settings.ads[k];
+  if(envelope.schemaVersion===1)for(const k of adKeys)config.economy[k]=settings.ads[k];
   return validatePolicy({ok:true,config,revision:hash(config)});
 }
 export function scopedView(envelope,scope){
   requireThat(['common','android','telegram'].includes(scope),'platform_invalid',400);
-  const config=structuredClone(scope==='common'?envelope.common:validatePlatformSettings(scope,envelope.platforms[scope]));
+  const shared=shareAdRules(envelope);
+  const config=structuredClone(scope==='common'?shared.common:validatePlatformSettings(scope,shared.platforms[scope]));
   return {ok:true,config,revision:hash({scope,config})};
 }
+export function shareAdRules(envelope){
+  if(envelope.schemaVersion===2)return structuredClone(envelope);
+  const next=structuredClone(envelope);
+  // A migration must not silently choose one platform's rules over the other.
+  for(const k of adKeys){
+    const value=next.platforms.android.ads[k];
+    requireThat(value===next.platforms.telegram.ads[k],'ad_rules_merge_conflict',409);
+    next.common.economy[k]=value;
+    for(const platform of ['android','telegram'])delete next.platforms[platform].ads[k];
+  }
+  next.schemaVersion=2;return next;
+}
 export function patchScopedTemplate(template,legacySnapshot,scope,patches,{telegramStarsAccepted=false}={}){
-  const before=readPlatformTemplate(template,legacySnapshot),next=structuredClone(before);
+  const before=shareAdRules(readPlatformTemplate(template,legacySnapshot)),next=structuredClone(before);
   requireThat(Array.isArray(patches)&&patches.length<=300,'config_invalid',400);
   if(scope==='common'){
     requireThat(patches.every(p=>configFieldScope(p?.path)==='common'),'config_scope_invalid',400);

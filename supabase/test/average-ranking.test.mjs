@@ -38,7 +38,7 @@ test('filter before last50; exponential normalization; one record; hidden/delete
  await player('window');await seed('window',Array(50).fill(5000));await seed('window',Array(100).fill(1000));await seed('window',[15000]);
  let b=await board('window');assert.equal(b.mine.eligibleCount,51);assert.equal(b.mine.usedCount,50);near(b.mine.averageMs,Math.sqrt(5000**2+(15000**2-5000**2)*.08/(1-.92**50)));
  await seed('window',Array(50).fill(5000));b=await board('window');near(b.mine.averageMs,5000);
- await seed('window',[999999],{platform:'telegram'});b=await board('window');near(b.mine.averageMs,5000);
+ await seed('window',[999999],{platform:'legacy_telegram'});b=await board('window');near(b.mine.averageMs,5000);
  await player('hidden');await seed('hidden',Array(20).fill(20000));await db.collection('players').doc('hidden').update({supportDisabled:true});
  await seed('deleted',Array(20).fill(30000));b=await board('window');assert.ok(!b.rows.some(r=>r.userId==='supabase:hidden'||r.userId==='supabase:deleted'));
 });

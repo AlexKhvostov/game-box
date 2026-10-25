@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
+import 'jump_ready_signal.dart';
 
 /// Matches Telegram's approved warm inward side glow. The static texture is
 /// generated and decoded once; a game frame only crops and draws that image.
@@ -12,15 +13,28 @@ abstract final class JumpGlowArtwork {
   static final repaint = ValueNotifier<int>(0);
   static Future<ui.Image>? _loading;
   static ui.Image? _image;
+  static ui.Image? _readyImage, _flashImage;
   static final _paint = Paint()..filterQuality = FilterQuality.low;
 
   static Future<ui.Image> prewarm() => _loading ??= _prepare();
 
   static Future<ui.Image> _prepare() async {
+    final images = await Future.wait([
+      _decode(createJumpGlowPixels(textureSide)),
+      _decode(createJumpReadyPixels(textureSide)),
+      _decode(createJumpReadyPixels(textureSide, flash: true)),
+    ]);
+    _image = images[0];
+    _readyImage = images[1];
+    _flashImage = images[2];
+    repaint.value++;
+    return images[0];
+  }
+
+  static Future<ui.Image> _decode(Uint8List pixels) async {
     final complete = Completer<ui.Image>();
     // decodeImageFromPixels expects premultiplied RGBA, whereas browser
     // ImageData (and the portable approved artwork) contains straight RGBA.
-    final pixels = createJumpGlowPixels(textureSide);
     for (var i = 0; i < pixels.length; i += 4) {
       final alpha = pixels[i + 3] / 255;
       pixels[i] = (pixels[i] * alpha).round();
@@ -34,10 +48,7 @@ abstract final class JumpGlowArtwork {
       ui.PixelFormat.rgba8888,
       complete.complete,
     );
-    final image = await complete.future;
-    _image = image;
-    repaint.value++;
-    return image;
+    return complete.future;
   }
 
   /// The caller clips to the actual hero body and supplies its existing alpha.
@@ -46,8 +57,11 @@ abstract final class JumpGlowArtwork {
     Rect body, {
     required double progress,
     double opacity = 1,
+    bool ready = false,
+    double? readyAgeMs,
+    bool reducedMotion = false,
   }) {
-    final image = _image;
+    final image = ready ? _readyImage : _image;
     if (image == null ||
         !progress.isFinite ||
         !opacity.isFinite ||
@@ -78,7 +92,38 @@ abstract final class JumpGlowArtwork {
       ),
       _paint,
     );
+    final flash = JumpReadySignal.flash(
+      readyAgeMs,
+      reducedMotion: reducedMotion,
+    );
+    if (ready && flash > 0 && _flashImage != null) {
+      _paint.color = const Color(
+        0xFFFFFFFF,
+      ).withValues(alpha: opacity.clamp(0.0, 1.0) * flash);
+      canvas.drawImageRect(
+        _flashImage!,
+        const Rect.fromLTWH(0, 0, 256, 256),
+        body,
+        _paint,
+      );
+    }
   }
+}
+
+/// The approved B palette reuses the original geometry and alpha falloff.
+@visibleForTesting
+Uint8List createJumpReadyPixels(int side, {bool flash = false}) {
+  final pixels = createJumpGlowPixels(side);
+  for (var i = 0; i < pixels.length; i += 4) {
+    pixels[i] = flash ? 255 : 232;
+    pixels[i + 1] = 255;
+    pixels[i + 2] = flash ? 236 : 105;
+    pixels[i + 3] = math.min(
+      255,
+      (pixels[i + 3] * (flash ? 1.65 : 1.3)).round(),
+    );
+  }
+  return pixels;
 }
 
 /// RGBA formula is identical to telegram-app/src/game/jump-glow.ts at radius .1.

@@ -1,3 +1,4 @@
+import '../../ui/analytics_navigation.dart';
 import 'package:flutter/material.dart';
 
 import '../../domain/score_entry.dart';
@@ -17,6 +18,7 @@ Future<void> showPlayerResultSheet(
   bool own = false,
   bool showPlace = true,
 }) => showDialog<void>(
+  routeSettings: analyticsWindow('player_result'),
   animationStyle: GameUi.windowAnimationStyle,
   context: context,
   // Android age startup owns an outer navigator above the account providers.

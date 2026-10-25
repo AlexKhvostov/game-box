@@ -11,6 +11,7 @@ import '../../data/scores_store.dart';
 import '../../domain/economy_config.dart';
 import '../../domain/arcade_rules.dart';
 import '../../domain/round_delivery.dart';
+import '../../domain/score_entry.dart';
 import '../../l10n/app_localizations.dart';
 import '../../l10n/l10n_catalog.dart';
 import '../../ui/crystal_cube_icon.dart';
@@ -18,6 +19,25 @@ import '../../ui/game_toast.dart';
 import '../balance/crystals_sheet.dart';
 import 'share_social_sheet.dart';
 import 'run_summary.dart';
+
+/// Reuse the post-game result without replaying its reward or delivery effects.
+Future<void> showBestAttemptResult(
+  BuildContext context,
+  LocalAttempt attempt,
+) => showGeneralDialog<void>(
+  context: context,
+  useRootNavigator: false,
+  barrierDismissible: false,
+  transitionDuration: Duration.zero,
+  pageBuilder: (context, _, _) => ResultOverlay(
+    timeMs: attempt.timeMs,
+    runDistance: attempt.runDistance.toDouble(),
+    riskCount: attempt.riskCount,
+    bestAttempt: attempt,
+    onOk: () => Navigator.of(context).pop(),
+    onShare: () => Navigator.of(context).pop(),
+  ),
+);
 
 /// Результат: подложка + появление.
 class ResultOverlay extends StatefulWidget {
@@ -33,6 +53,8 @@ class ResultOverlay extends StatefulWidget {
     this.rewardClaimed = true,
     this.onClaimReward,
     this.previousBestTimeMs,
+    this.bestAttempt,
+    this.adBreakFollows = false,
   });
 
   final int timeMs;
@@ -45,6 +67,8 @@ class ResultOverlay extends StatefulWidget {
   final bool rewardClaimed;
   final Future<bool> Function()? onClaimReward;
   final int? previousBestTimeMs;
+  final LocalAttempt? bestAttempt;
+  final bool adBreakFollows;
 
   @override
   State<ResultOverlay> createState() => _ResultOverlayState();
@@ -92,8 +116,10 @@ class _ResultOverlayState extends State<ResultOverlay>
       // Network notifications and reward effects must not compete with entry.
       void afterEntry() {
         if (!mounted) return;
-        context.read<ScoresStore>().refreshIfStale();
-        if (_rewardClaimed) _scheduleCrystalFlights();
+        if (widget.bestAttempt == null) {
+          context.read<ScoresStore>().refreshIfStale();
+          if (_rewardClaimed) _scheduleCrystalFlights();
+        }
       }
 
       if (GameUi.instantWindows) {
@@ -293,7 +319,7 @@ class _ResultOverlayState extends State<ResultOverlay>
                       height: 1.4,
                     ),
                   ),
-                  if (reward) ...[
+                  if (reward && widget.bestAttempt == null) ...[
                     const SizedBox(height: 10),
                     _RewardLine(
                       label: '${l10n.playInfoNear}: ${widget.riskCount}',
@@ -310,28 +336,29 @@ class _ResultOverlayState extends State<ResultOverlay>
                     ),
                   ],
                   const SizedBox(height: 10),
-                  Text(
-                    economy.energyEnabled
-                        ? _tr(
-                            'За каждые ${max(1, economy.config.riskRewardEvery)} рисков — 1 ⚡. За каждые ${max(1, economy.config.runRewardEvery)} шагов — 1 ⚡.',
-                            'Every ${max(1, economy.config.riskRewardEvery)} risks: 1 ⚡. Every ${max(1, economy.config.runRewardEvery)} steps: 1 ⚡.',
-                          )
-                        : reward
-                        ? '${l10n.riskTipConvert(max(1, economy.config.riskRewardEvery), max(0, economy.config.riskRewardTokens))}\n${l10n.runTipConvert(max(1, economy.config.runRewardEvery), max(0, economy.config.runRewardTokens))}'
-                        : tip == 'risk'
-                        ? l10n.riskTipConvert(
-                            max(1, economy.config.riskRewardEvery),
-                            max(0, economy.config.riskRewardTokens),
-                          )
-                        : l10n.runTipConvert(
-                            max(1, economy.config.runRewardEvery),
-                            max(0, economy.config.runRewardTokens),
-                          ),
-                    style: const TextStyle(
-                      color: GameUi.inkMuted,
-                      fontSize: 12,
+                  if (widget.bestAttempt == null)
+                    Text(
+                      economy.energyEnabled
+                          ? _tr(
+                              'За каждые ${max(1, economy.config.riskRewardEvery)} рисков — 1 ⚡. За каждые ${max(1, economy.config.runRewardEvery)} шагов — 1 ⚡.',
+                              'Every ${max(1, economy.config.riskRewardEvery)} risks: 1 ⚡. Every ${max(1, economy.config.runRewardEvery)} steps: 1 ⚡.',
+                            )
+                          : reward
+                          ? '${l10n.riskTipConvert(max(1, economy.config.riskRewardEvery), max(0, economy.config.riskRewardTokens))}\n${l10n.runTipConvert(max(1, economy.config.runRewardEvery), max(0, economy.config.runRewardTokens))}'
+                          : tip == 'risk'
+                          ? l10n.riskTipConvert(
+                              max(1, economy.config.riskRewardEvery),
+                              max(0, economy.config.riskRewardTokens),
+                            )
+                          : l10n.runTipConvert(
+                              max(1, economy.config.runRewardEvery),
+                              max(0, economy.config.runRewardTokens),
+                            ),
+                      style: const TextStyle(
+                        color: GameUi.inkMuted,
+                        fontSize: 12,
+                      ),
                     ),
-                  ),
                   const SizedBox(height: 10),
                   FilledButton(
                     onPressed: () => Navigator.pop(ctx),
@@ -352,7 +379,8 @@ class _ResultOverlayState extends State<ResultOverlay>
     final economy = context.watch<EconomyStore>();
     final scores = context.watch<ScoresStore>();
     final earned = _crystalsFromRisk(economy) + _crystalsFromRun(economy);
-    final attempt = scores.latestAttempt;
+    final historical = widget.bestAttempt != null;
+    final attempt = widget.bestAttempt ?? scores.latestAttempt;
     final matchingAttempt = attempt != null && attempt.timeMs == widget.timeMs;
     final credited = economy.energyEnabled
         ? matchingAttempt && attempt.shared
@@ -372,7 +400,7 @@ class _ResultOverlayState extends State<ResultOverlay>
               : l10n.scorePracticeOnly
         : l10n.scoreAutoSave;
     final previousBest = widget.previousBestTimeMs ?? economy.bestTimeMs;
-    final isRecord = widget.timeMs > previousBest;
+    final isRecord = !historical && widget.timeMs > previousBest;
     final unlocked = _unlockedActions(economy);
     final seconds = _tr('с', 's');
     return PopScope(
@@ -395,23 +423,32 @@ class _ResultOverlayState extends State<ResultOverlay>
                   scale: _scale,
                   child: RunSummary(
                     title: _tr('Результат попытки', 'Run result'),
-                    headline: isRecord
+                    headline: historical
+                        ? _tr('🏆 Лучшая попытка', '🏆 Best attempt')
+                        : isRecord
                         ? _tr('Новый рекорд!', 'New personal best!')
                         : _tr('Ваш результат', 'Your result'),
                     time: '${_formatTime(widget.timeMs)} $seconds',
                     best:
-                        '${isRecord && previousBest > 0 ? _tr('Предыдущий рекорд', 'Previous best') : _tr('Ваш рекорд', 'Your best')}: ${_formatTime(isRecord && previousBest > 0 ? previousBest : max(widget.timeMs, economy.bestTimeMs))} $seconds',
+                        '${isRecord && previousBest > 0 ? _tr('Предыдущий рекорд', 'Previous best') : _tr('Ваш рекорд', 'Your best')}: ${_formatTime(historical
+                            ? widget.timeMs
+                            : isRecord && previousBest > 0
+                            ? previousBest
+                            : max(widget.timeMs, economy.bestTimeMs))} $seconds',
                     riskLabel: l10n.playInfoNear,
                     runLabel: _tr('Шаги', 'Steps'),
                     risks: widget.riskCount,
                     steps: widget.runDistance.round(),
-                    riskBonus: _crystalsFromRisk(economy),
-                    runBonus: _crystalsFromRun(economy),
+                    riskBonus: historical ? 0 : _crystalsFromRisk(economy),
+                    runBonus: historical ? 0 : _crystalsFromRun(economy),
                     credited: credited,
                     onRisk: () => _showTip('risk', economy),
                     onRun: () => _showTip('run', economy),
                     claim:
-                        !economy.energyEnabled && !_rewardClaimed && earned > 0
+                        !historical &&
+                            !economy.energyEnabled &&
+                            !_rewardClaimed &&
+                            earned > 0
                         ? TextButton.icon(
                             key: const ValueKey('result-claim-reward'),
                             onPressed: _claiming || widget.onClaimReward == null
@@ -460,19 +497,20 @@ class _ResultOverlayState extends State<ResultOverlay>
                       children: [
                         Row(
                           children: [
-                            Expanded(
-                              child: TextButton(
-                                onPressed: _onOpenLeaderboard,
-                                style: TextButton.styleFrom(
-                                  foregroundColor: const Color(0xFFE4F6FF),
-                                ),
-                                child: FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Text(l10n.leaderboardTitle),
+                            if (!historical)
+                              Expanded(
+                                child: TextButton(
+                                  onPressed: _onOpenLeaderboard,
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: const Color(0xFFE4F6FF),
+                                  ),
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(l10n.leaderboardTitle),
+                                  ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 8),
+                            if (!historical) const SizedBox(width: 8),
                             Expanded(
                               child: TextButton.icon(
                                 onPressed: _sharing ? null : _onShareSocial,
@@ -491,12 +529,39 @@ class _ResultOverlayState extends State<ResultOverlay>
                             ),
                           ],
                         ),
+                        if (!historical && widget.adBreakFollows)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 6),
+                            child: Text(
+                              _tr(
+                                'Далее — рекламная пауза, затем поле ожидания.',
+                                'Next: an ad break, then the waiting field.',
+                              ),
+                              key: const ValueKey('result-ad-break-notice'),
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: GameUi.muted,
+                                fontSize: 11,
+                              ),
+                            ),
+                          ),
                         FilledButton.icon(
                           key: const ValueKey('result-replay'),
                           onPressed: _onReplay,
                           style: GameUi.replayStyle(context),
-                          icon: const Icon(Icons.replay_rounded, size: 24),
-                          label: Text(_tr('Ещё раз', 'Play again')),
+                          icon: Icon(
+                            historical
+                                ? Icons.arrow_back_rounded
+                                : Icons.replay_rounded,
+                            size: 24,
+                          ),
+                          label: Text(
+                            historical
+                                ? _tr('К моим попыткам', 'Back to my attempts')
+                                : widget.adBreakFollows
+                                ? _tr('Продолжить', 'Continue')
+                                : _tr('Ещё раз', 'Play again'),
+                          ),
                         ),
                       ],
                     ),

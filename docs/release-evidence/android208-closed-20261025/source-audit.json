@@ -1,0 +1,379 @@
+{
+  "checkedAt": "2026-10-25T08:14:36.136Z",
+  "branch": "codex/android-flexible-update",
+  "head": "579d985d8ec5f7271bcbfc8b4dde3ab44c714656",
+  "checkpointFiles": 324,
+  "changedSince208": [],
+  "addedSince208": [],
+  "artifacts": [
+    {
+      "path": "releases/android-v1.0.207_20261025_024737_584/Untouch-1.0.207+208.aab",
+      "sha256": "986c3834e5c8202feb79f822155266870ef297c865fb8ae7d51c4a3bf878dc41",
+      "bytes": 92635153
+    },
+    {
+      "path": "releases/android-v1.0.207_20261025_024245_355/Untouch-1.0.207+208.apk",
+      "sha256": "ed5e504d3754c1a82298c3a69bf48ca395ba67622bf77db0c700f0db228d3410",
+      "bytes": 94216126
+    }
+  ],
+  "contributions": [
+    {
+      "branch": "codex/android-appmetrica",
+      "head": "c653c8c4e603f72cfad4f9ebaf1da1d2010f4683",
+      "base": "251785744dfcca48ad56f79cb50905046dba4abd",
+      "uniqueCommits": [
+        "c653c8c4 build(android): reserve production analytics for Google Play",
+        "a00bd835 test(analytics): verify physical UI summary interval and refresh catalog",
+        "57634426 feat(android): aggregate round and UI analytics summaries",
+        "c5aa9a6a feat(android): add AppMetrica product analytics"
+      ],
+      "inspected": [
+        {
+          "path": "lib/app/android_audience_startup.dart",
+          "status": "identical"
+        },
+        {
+          "path": "lib/app/app.dart",
+          "status": "identical"
+        },
+        {
+          "path": "lib/data/ads_service.dart",
+          "status": "modified-after-integration"
+        },
+        {
+          "path": "lib/data/app_analytics.dart",
+          "status": "modified-after-integration"
+        },
+        {
+          "path": "lib/data/appmetrica_analytics.dart",
+          "status": "modified-after-integration"
+        },
+        {
+          "path": "lib/data/economy_store.dart",
+          "status": "modified-after-integration"
+        },
+        {
+          "path": "lib/data/play_billing_service.dart",
+          "status": "identical"
+        },
+        {
+          "path": "lib/data/player_preferences.dart",
+          "status": "identical"
+        },
+        {
+          "path": "lib/data/purchase_analytics.dart",
+          "status": "identical"
+        },
+        {
+          "path": "lib/data/round_analytics.dart",
+          "status": "modified-after-integration"
+        },
+        {
+          "path": "lib/data/ui_summary.dart",
+          "status": "modified-after-integration"
+        },
+        {
+          "path": "lib/data/ui_summary_outbox.dart",
+          "status": "modified-after-integration"
+        },
+        {
+          "path": "lib/data/yandex_ads_driver.dart",
+          "status": "modified-after-integration"
+        },
+        {
+          "path": "lib/features/balance/energy_services.dart",
+          "status": "modified-after-integration"
+        },
+        {
+          "path": "lib/features/balance/simple_energy_sheet.dart",
+          "status": "modified-after-integration"
+        },
+        {
+          "path": "lib/features/game/arcade_hud.dart",
+          "status": "modified-after-integration"
+        },
+        {
+          "path": "lib/features/game/game_home_screen.dart",
+          "status": "modified-after-integration"
+        },
+        {
+          "path": "lib/features/leaderboard/average_chart_dialog.dart",
+          "status": "identical"
+        },
+        {
+          "path": "lib/features/leaderboard/leaderboard_panel.dart",
+          "status": "identical"
+        },
+        {
+          "path": "lib/features/leaderboard/leaderboard_sheet.dart",
+          "status": "identical"
+        },
+        {
+          "path": "lib/features/leaderboard/my_attempts_panel.dart",
+          "status": "modified-after-integration"
+        },
+        {
+          "path": "lib/features/leaderboard/player_result_sheet.dart",
+          "status": "identical"
+        },
+        {
+          "path": "lib/features/profile/profile_screen.dart",
+          "status": "modified-after-integration"
+        },
+        {
+          "path": "lib/features/result/share_social_sheet.dart",
+          "status": "modified-after-integration"
+        },
+        {
+          "path": "lib/main.dart",
+          "status": "modified-after-integration"
+        },
+        {
+          "path": "lib/ui/analytics_feature.dart",
+          "status": "identical"
+        },
+        {
+          "path": "lib/ui/analytics_navigation.dart",
+          "status": "modified-after-integration"
+        },
+        {
+          "path": "pubspec.lock",
+          "status": "identical"
+        },
+        {
+          "path": "pubspec.yaml",
+          "status": "modified-after-integration"
+        },
+        {
+          "path": "test/analytics_summary_test.dart",
+          "status": "modified-after-integration"
+        },
+        {
+          "path": "test/product_analytics_test.dart",
+          "status": "identical"
+        },
+        {
+          "path": "tools/appmetrica_build_config.ps1",
+          "status": "identical"
+        },
+        {
+          "path": "tools/appmetrica_probe.dart",
+          "status": "modified-after-integration"
+        },
+        {
+          "path": "tools/appmetrica_qa_server.py",
+          "status": "identical"
+        },
+        {
+          "path": "tools/build_android_appmetrica.ps1",
+          "status": "identical"
+        },
+        {
+          "path": "tools/build_phone_apk.ps1",
+          "status": "modified-after-integration"
+        },
+        {
+          "path": "tools/test_appmetrica_build_config.ps1",
+          "status": "identical"
+        },
+        {
+          "path": "tools/test_appmetrica_phone.py",
+          "status": "identical"
+        },
+        {
+          "path": "tools/test_appmetrica_summary_interval_phone.py",
+          "status": "identical"
+        }
+      ]
+    },
+    {
+      "branch": "codex/android-helmet-recharge",
+      "head": "3df275816a2c5b7c805b4a1b09c967da3e4c3faf",
+      "base": "251785744dfcca48ad56f79cb50905046dba4abd",
+      "uniqueCommits": [
+        "3df27581 Finalize local jump-ready validation and release handoff",
+        "76225f53 Signal jump readiness with approved B artwork on Android and Telegram",
+        "8257eee5 Record local Telegram helmet delivery and deferred joint release",
+        "0aa8aa2a Port rechargeable helmet to Telegram with v3 replay compatibility",
+        "3b733410 Add rechargeable Android helmet with admin cooldown"
+      ],
+      "inspected": [
+        {
+          "path": "assets/config/android-firebase.json",
+          "status": "identical"
+        },
+        {
+          "path": "lib/data/android_firebase_config.dart",
+          "status": "identical"
+        },
+        {
+          "path": "lib/domain/gameplay_config.dart",
+          "status": "identical"
+        },
+        {
+          "path": "lib/domain/helmet_charge.dart",
+          "status": "identical"
+        },
+        {
+          "path": "lib/features/balance/simple_energy_sheet.dart",
+          "status": "modified-after-integration"
+        },
+        {
+          "path": "lib/features/game/arcade_hud.dart",
+          "status": "modified-after-integration"
+        },
+        {
+          "path": "lib/features/game/game_field_painter.dart",
+          "status": "identical"
+        },
+        {
+          "path": "lib/features/game/game_home_screen.dart",
+          "status": "modified-after-integration"
+        },
+        {
+          "path": "lib/features/game/helmet_artwork.dart",
+          "status": "identical"
+        },
+        {
+          "path": "lib/features/game/helmet_indicator.dart",
+          "status": "identical"
+        },
+        {
+          "path": "lib/features/game/jump_glow.dart",
+          "status": "modified-after-integration"
+        },
+        {
+          "path": "lib/features/game/jump_ready_signal.dart",
+          "status": "identical"
+        },
+        {
+          "path": "pubspec.yaml",
+          "status": "modified-after-integration"
+        },
+        {
+          "path": "supabase/functions/_shared/android-helmet-replay.generated.json",
+          "status": "identical"
+        },
+        {
+          "path": "supabase/functions/_shared/android-helmet-replay.generated.mjs",
+          "status": "identical"
+        },
+        {
+          "path": "supabase/functions/_shared/android-replay.mjs",
+          "status": "identical"
+        },
+        {
+          "path": "supabase/functions/_shared/config-schema.mjs",
+          "status": "modified-after-integration"
+        },
+        {
+          "path": "supabase/functions/_shared/core/defaults.json",
+          "status": "identical"
+        },
+        {
+          "path": "supabase/functions/_shared/core/engine.mjs",
+          "status": "identical"
+        },
+        {
+          "path": "supabase/functions/_shared/core/policy.mjs",
+          "status": "identical"
+        },
+        {
+          "path": "supabase/test/fixtures/android-helmet-v3.json",
+          "status": "identical"
+        },
+        {
+          "path": "supabase/test/helmet-recharge.test.mjs",
+          "status": "identical"
+        },
+        {
+          "path": "test/android_helmet_proof_test.dart",
+          "status": "identical"
+        },
+        {
+          "path": "test/helmet_recharge_test.dart",
+          "status": "identical"
+        },
+        {
+          "path": "test/jump_ready_signal_test.dart",
+          "status": "identical"
+        },
+        {
+          "path": "test/uniform_pace_helmet_test.dart",
+          "status": "identical"
+        },
+        {
+          "path": "tools/android_helmet_probe.dart",
+          "status": "identical"
+        },
+        {
+          "path": "tools/android_jump_ready_probe.dart",
+          "status": "modified-after-integration"
+        },
+        {
+          "path": "tools/build_android_helmet_probe.ps1",
+          "status": "identical"
+        },
+        {
+          "path": "tools/build_android_helmet_replay.py",
+          "status": "modified-after-integration"
+        },
+        {
+          "path": "tools/build_android_jump_ready_probe.ps1",
+          "status": "modified-after-integration"
+        },
+        {
+          "path": "tools/publish_helmet_remote_config.mjs",
+          "status": "missing"
+        },
+        {
+          "path": "tools/replay_helmet/main.dart",
+          "status": "identical"
+        },
+        {
+          "path": "tools/replay_helmet/session.dart",
+          "status": "identical"
+        },
+        {
+          "path": "tools/test_android_helmet_phone.py",
+          "status": "identical"
+        },
+        {
+          "path": "tools/test_android_jump_ready_phone.py",
+          "status": "identical"
+        },
+        {
+          "path": "tools/test_jump_ready_runtime.mjs",
+          "status": "identical"
+        },
+        {
+          "path": "tools/test_telegram_helmet.mjs",
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "branch": "codex/android-brake-speed",
+      "head": "95d5a49b3ca72524fc72b26c9cd6656a5d5e5098",
+      "base": "95d5a49b3ca72524fc72b26c9cd6656a5d5e5098",
+      "uniqueCommits": [],
+      "inspected": []
+    },
+    {
+      "branch": "cursor/life-packs-rc-override",
+      "head": "5d15d8507a9e7e6eb5b5481f0895f991f857f704",
+      "base": "5d15d8507a9e7e6eb5b5481f0895f991f857f704",
+      "uniqueCommits": [],
+      "inspected": []
+    },
+    {
+      "branch": "codex/telegram-render",
+      "head": "dda6dc935f078ee11a15cec0d438e1f5685d1217",
+      "base": null,
+      "uniqueCommits": [],
+      "inspected": [],
+      "note": "Independent deployment history; no common ancestor, not an Android implementation branch"
+    }
+  ]
+}

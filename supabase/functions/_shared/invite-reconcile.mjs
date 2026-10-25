@@ -1,4 +1,5 @@
 import {randomUUID} from 'node:crypto';
+import {verifiedIdentity} from './platform-identity.mjs';
 
 // Durable cursor and lease: independent from opening the invitations screen.
 // A failed candidate is retained and revisited after wrapping the cursor.
@@ -21,7 +22,7 @@ export function createInviteReconciler({db,pool,engine,getIdentity,now=Date.now,
         state.cursor=row.key;processed++;
         try {
           const identity=await getIdentity(row.key);
-          if(identity?.googleLinked)await engine.execute(row.key,{action:'profile'},{...identity,background:true});
+          if(verifiedIdentity(identity))await engine.execute(row.key,{action:'profile'},{...identity,background:true});
           result.checked++;
         }catch {result.failed++;}
       }

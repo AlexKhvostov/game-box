@@ -13,6 +13,7 @@ const auth={getUserById:async id=>({data:{user:identities.get(id)},error:identit
 }};
 await local.pg.query('insert into auth.users(id,email) values($1,$4),($2,$5),($3,null)',[actor,target,friend,'admin@example.invalid','player@example.invalid']);
 await local.pg.query('insert into untouch.admin_users(id) values($1)',[actor]);
+await local.pg.query("insert into auth.identities(user_id,provider,identity_data) values($1,'google',$2::jsonb)",[target,JSON.stringify({email:'player@example.invalid'})]);
 const engine=createEngine({db});await engine.execute(target,{action:'guest'});await engine.execute(friend,{action:'guest'});
 const execute=createSupportAdmin({db:local.pool,auth});
 const id=n=>`${n}2345678-1234-4234-8234-123456789abc`;
@@ -42,6 +43,63 @@ test('manual energy is atomic, audited, stale-version protected, repeat does not
   await assert.rejects(execute(actor,{...command,requestId:id(5),energy:90}),e=>e.code==='support_conflict');
   assert.equal((await db.collection('players').doc(target).get()).data().wallet.energy,80);
 });
+test('directory filters and sorts all matching players before pagination, validates input',async()=>{
+  await db.collection('players').doc(target).update({completedGames:9,lastActiveAt:2000});
+  await db.collection('players').doc(friend).update({completedGames:2,lastActiveAt:1000});
+  assert.equal((await execute(actor,{action:'list',connection:'google'})).users[0].id,target);
+  const guests=await execute(actor,{action:'list',connection:'guest'});assert.equal(guests.total,2);assert.ok(guests.users.every(u=>!u.googleLinked));
+  assert.equal((await execute(actor,{action:'list',status:'not_started'})).users[0].id,actor);
+  for(const sort of ['energy','games','activity']){
+    const desc=await execute(actor,{action:'list',status:'active',sort,direction:'desc'});assert.equal(desc.users[0].id,target);
+    const asc=await execute(actor,{action:'list',status:'active',sort,direction:'asc'});assert.equal(asc.users[0].id,friend);
+  }
+  assert.equal((await execute(actor,{action:'list',offset:25})).total,3);
+  assert.equal((await execute(actor,{action:'list',subscription:'active'})).total,0);
+  assert.equal((await execute(actor,{action:'list',subscription:'without'})).total,3);
+  await assert.rejects(execute(actor,{action:'list',sort:'energy; drop table'}),e=>e.code==='filter_invalid');
+  const asc=await execute(actor,{action:'list',sort:'nickname',direction:'asc'});
+  assert.deepEqual(asc.users.map(u=>u.nickname.toLowerCase()),asc.users.map(u=>u.nickname.toLowerCase()).sort());
+});
+
+test('directory paginates after global sorting and combines connection/subscription/status filters',async()=>{
+  await local.pg.query('begin');try{
+    const stamp=Date.now();
+    for(let i=0;i<31;i++){
+      const uid=`${(100+i).toString(16).padStart(8,'0')}-1234-4234-8234-123456789abc`;
+      await local.pg.query('insert into auth.users(id) values($1)',[uid]);
+      if(i%2===0)await local.pg.query("insert into auth.identities(user_id,provider,identity_data) values($1,'google','{}')",[uid]);
+      const sub=i%3===0?{batteryCount:2,expiresAt:stamp+100000,endConfirmed:false}:i%3===1?{batteryCount:2,expiresAt:stamp-1000,endConfirmed:false}:{batteryCount:2,expiresAt:stamp-1000,endConfirmed:true};
+      const body={nickname:`Directory fixture ${String(i).padStart(2,'0')}`,version:1,createdAt:stamp,lastActiveAt:stamp+i,completedGames:i,wallet:{energy:i,energySubscription:sub}};
+      await local.pg.query("insert into untouch.documents(path,parent,key,body) values($1,'players',$2,$3::jsonb)",[`players/${uid}`,uid,JSON.stringify(body)]);
+    }
+    const base={action:'list',search:'Directory fixture',sort:'energy',direction:'desc'};
+    const first=await execute(actor,base),second=await execute(actor,{...base,offset:25});
+    assert.equal(first.total,31);assert.equal(first.nextOffset,25);assert.equal(second.total,31);assert.equal(second.users.length,6);assert.equal(second.nextOffset,null);
+    assert.deepEqual([...first.users,...second.users].map(u=>u.energy),Array.from({length:31},(_,i)=>30-i));
+    assert.equal(new Set([...first.users,...second.users].map(u=>u.id)).size,31);
+    const linked=await execute(actor,{...base,connection:'google',subscription:'active',status:'active'});assert.equal(linked.total,6);assert.ok(linked.users.every(u=>u.googleLinked&&u.subscription.expiresAt>stamp));
+    assert.equal((await execute(actor,{...base,subscription:'pending'})).total,10);
+    assert.equal((await execute(actor,{...base,subscription:'without'})).total,10);
+    await local.pg.query('set local role anon');
+    await assert.rejects(local.pg.query("select untouch.support_directory_v2('{}')"),e=>e.code==='42501');
+  }finally{await local.pg.query('rollback');}
+});
+
+test('admin rename reserves unique name, audits, rejects stale/replayed changes and preserves wallet',async()=>{
+  const detail=await execute(actor,{action:'detail',userId:target});
+  const command={action:'set_nickname',userId:target,requestId:'aa345678-1234-4234-8234-123456789abc',expectedVersion:detail.user.version,nickname:'New Player'};
+  await assert.rejects(execute(friend,command),e=>e.code==='admin_required');
+  await assert.rejects(execute(actor,{...command,nickname:'<script>'}),e=>e.code==='nickname_invalid');
+  const result=await execute(actor,command);assert.equal(result.after,'New Player');
+  assert.equal((await execute(actor,command)).replayed,true);
+  await assert.rejects(execute(actor,{...command,nickname:'Other Player'}),e=>e.code==='operation_conflict');
+  await assert.rejects(execute(actor,{...command,requestId:'ab345678-1234-4234-8234-123456789abc',nickname:'Other Player'}),e=>e.code==='support_conflict');
+  const other=await execute(actor,{action:'detail',userId:friend});
+  await assert.rejects(execute(actor,{...command,userId:friend,expectedVersion:other.user.version,requestId:'ac345678-1234-4234-8234-123456789abc'}),e=>e.code==='nickname_taken');
+  const updated=await execute(actor,{action:'detail',userId:target});assert.equal(updated.user.nickname,'New Player');assert.equal(updated.user.energy,detail.user.energy);
+  assert.ok(updated.activity.some(a=>a.kind==='set_nickname'&&a.details.before===detail.user.nickname));
+});
+
 test('delete requires exact user confirmation and cannot delete administrator',async()=>{
   const detail=await execute(actor,{action:'delete_preview',userId:target});
   await assert.rejects(execute(actor,{action:'delete_user',userId:actor,requestId:id(6)}),e=>e.code==='cannot_delete_administrator');

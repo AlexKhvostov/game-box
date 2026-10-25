@@ -102,7 +102,7 @@ void main() {
       final policy = AudiencePolicy();
       await policy.load();
       if (band != null) await policy.select(band);
-      if (!policy.isAdEligibleAge) policy.allowAdsForSession();
+      if (!policy.isAdEligibleAge) await policy.setAdDataConsent(true);
       final driver = _Driver();
       final ads = AdsService(driver, audience: policy);
       final economy = EconomyStore();
@@ -159,7 +159,7 @@ void main() {
       await policy.load();
       expect(policy.band, AgeBand.unknown);
       expect(policy.canPlayLocally, true);
-      policy.allowAdsForSession();
+      await policy.setAdDataConsent(true);
       expect(policy.adsEnabled, false);
       await policy.select(AgeBand.age21plus);
       expect(policy.isAdEligibleAge, true);
@@ -168,30 +168,30 @@ void main() {
   );
 
   test(
-    'adult consent is session-only and revocation stops late reward',
+    'data choice persists; revoke and regrant cannot revive an old reward',
     () async {
       final policy = AudiencePolicy();
       await policy.load();
       await policy.select(AgeBand.age21plus);
-      policy.allowAdsForSession();
+      await policy.setAdDataConsent(true);
       expect(policy.adsEnabled, true);
       final nextLaunch = AudiencePolicy();
       await nextLaunch.load();
       expect(nextLaunch.isAdEligibleAge, true);
-      expect(nextLaunch.adsEnabled, false);
+      expect(nextLaunch.adsEnabled, true);
       final driver = _Driver();
       final ads = AdsService(driver, audience: policy);
       final economy = EconomyStore();
       await economy.load();
       final before = economy.tokens;
       final pending = ads.watchAndClaim(economy);
-      policy.revokeAdsForSession();
-      policy.allowAdsForSession();
+      await policy.setAdDataConsent(false);
+      await policy.setAdDataConsent(true);
       driver.reward.complete(AdOutcome.rewarded);
       expect((await pending).reward, 0);
       expect(economy.tokens, before);
       expect(economy.lastWatchAdClaimAt, null);
-      expect(policy.adsEnabled, false);
+      expect(policy.adsEnabled, true);
     },
     skip: !AudiencePolicy.adsBuildEnabled,
   );
@@ -202,12 +202,12 @@ void main() {
       final policy = AudiencePolicy();
       await policy.load();
       await policy.select(AgeBand.age21plus);
-      policy.allowAdsForSession();
+      await policy.setAdDataConsent(true);
       final driver = _Driver();
       final ads = AdsService(driver, audience: policy);
       final pending = ads.showInterstitial(canShow: () => true);
       expect(driver.calls, 1);
-      policy.revokeAdsForSession();
+      await policy.setAdDataConsent(false);
       driver.loaded.complete();
       expect(await pending, false);
     },
@@ -250,7 +250,10 @@ void main() {
       await tester.ensureVisible(confirm);
       await tester.tap(confirm);
       await tester.pumpAndSettle();
-      expect(find.text(language == 'ru' ? 'До 18 лет' : 'Under 18'), findsOneWidget);
+      expect(
+        find.text(language == 'ru' ? 'До 18 лет' : 'Under 18'),
+        findsOneWidget,
+      );
       expect(hints, findsNothing);
       expect(find.byKey(const ValueKey('ad-age-setting')), findsNothing);
       expect(policy.band, AgeBand.under18);
@@ -311,34 +314,17 @@ void main() {
     expect(tester.takeException(), null);
   });
 
-  testWidgets(
-    'adult permission requires separate disclosure; minors have no switch',
-    (tester) async {
-      final policy = AudiencePolicy();
-      await policy.load();
-      await policy.select(AgeBand.age21plus);
-      await tester.pumpWidget(
-        ChangeNotifierProvider.value(
-          value: policy,
-          child: const MaterialApp(home: Scaffold(body: AdPrivacySettings())),
-        ),
-      );
-      await tester.tap(find.byKey(const ValueKey('ad-privacy-switch')));
-      await tester.pumpAndSettle();
-      expect(policy.adsEnabled, false);
-      await tester.tap(find.text('No ads'));
-      await tester.pumpAndSettle();
-      expect(policy.adsEnabled, false);
-      await tester.tap(find.byKey(const ValueKey('ad-privacy-switch')));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Enable'));
-      await tester.pumpAndSettle();
-      expect(policy.adsEnabled, true);
-      await tester.tap(find.byKey(const ValueKey('ad-privacy-switch')));
-      await tester.pumpAndSettle();
-      expect(policy.adsEnabled, false);
-      expect(policy.revokedThisSession, true);
-    },
-    skip: !AudiencePolicy.adsBuildEnabled,
-  );
+  test('age correction clears saved advertising data consent', () async {
+    final policy = AudiencePolicy();
+    await policy.load();
+    await policy.select(AgeBand.adult18plus);
+    await policy.setAdDataConsent(true);
+    expect(policy.adDataConsent, true);
+    await policy.correct(AgeBand.under18);
+    expect(policy.adsEnabled, false);
+    expect(policy.adDataConsent, null);
+    await policy.correct(AgeBand.adult18plus);
+    expect(policy.adDataConsent, null);
+    expect(policy.adsEnabled, false);
+  });
 }

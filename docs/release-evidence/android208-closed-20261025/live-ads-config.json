@@ -1,0 +1,56 @@
+{
+  "ok": true,
+  "readOnly": true,
+  "checkedAt": "2026-10-25T08:14:38.240Z",
+  "version": "63",
+  "revision": "8cb7eeea1ef063a786e166d0084d139b94ed9cf1908309ac41dc8e7c8aa3f4ad",
+  "initialized": true,
+  "schemaVersion": 2,
+  "interstitial": {
+    "interstitialSessionGraceSec": 180,
+    "interstitialSessionFreeRounds": 10,
+    "interstitialGraceSec": 210,
+    "interstitialCooldownSec": 220,
+    "interstitialMinLives": 6
+  },
+  "platforms": {
+    "android": {
+      "interstitial": {
+        "interstitialSessionGraceSec": 180,
+        "interstitialSessionFreeRounds": 10,
+        "interstitialGraceSec": 210,
+        "interstitialCooldownSec": 220,
+        "interstitialMinLives": 6
+      },
+      "ads": {}
+    },
+    "telegram": {
+      "interstitial": {
+        "interstitialSessionGraceSec": 180,
+        "interstitialSessionFreeRounds": 10,
+        "interstitialGraceSec": 210,
+        "interstitialCooldownSec": 220,
+        "interstitialMinLives": 6
+      },
+      "ads": {
+        "enabled": true,
+        "rewardedBlockId": "55424",
+        "interstitialBlockId": "int-55425",
+        "interstitialEnabled": false
+      }
+    }
+  },
+  "rewarded": {
+    "enabled": true,
+    "version": 1,
+    "initialEnergy": 60,
+    "reward": 30,
+    "periodSec": 28800,
+    "tier2Reward": 60,
+    "tier5Reward": 150,
+    "videoReward": 40,
+    "videoCooldownSec": 120,
+    "inviterReward": 60,
+    "videoDailyLimit": 20
+  }
+}

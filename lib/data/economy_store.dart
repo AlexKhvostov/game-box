@@ -1,3 +1,4 @@
+import 'app_analytics.dart';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -53,6 +54,7 @@ class EconomyStore extends ChangeNotifier {
   final String storagePrefix;
   final bool serverEnergyRequired;
   final DateTime _sessionStartedAt;
+  DateTime? _firstAdLaunchAt;
   int _sessionCompletedRounds = 0;
 
   void recordCompletedRound() => _sessionCompletedRounds++;
@@ -166,11 +168,23 @@ class EconomyStore extends ChangeNotifier {
     }),
   );
   void setHelmetSelected(bool value) {
+    if (helmetSelected != value) {
+      AppAnalytics.event('ability_configured', {
+        'ability': 'helmet',
+        'value': value,
+      });
+    }
     helmetSelected = value;
     _persist();
   }
 
   void setJumpSelected(bool value) {
+    if (jumpSelected != value) {
+      AppAnalytics.event('ability_configured', {
+        'ability': 'jump',
+        'value': value,
+      });
+    }
     jumpSelected = value;
     _persist();
   }
@@ -304,13 +318,46 @@ class EconomyStore extends ChangeNotifier {
     if (!energyEnabled) throw StateError('energy_unavailable');
     final send = sendEnergyOperation;
     if (send == null) throw StateError('energy_server_unavailable');
+    final rewardType = switch (kind) {
+      'energy_bonus_claim' => 'timed_bonus',
+      'energy_hidden_tap' => 'hidden_bonus',
+      'energy_claim' => 'battery',
+      'watch_ad' => 'watch_ad',
+      'energy_feedback' => 'feedback',
+      'energy_reward' when args['id'] != 'age' => 'achievement',
+      _ => null,
+    };
+    final analyticsOperation = AppAnalytics.nextId();
+    final analyticsOwner = energyOwner;
+    final energyBefore = confirmedEnergy;
+    if (rewardType != null) {
+      AppAnalytics.event('reward_claim_started', {
+        'reward_type': rewardType,
+        'operation_id': analyticsOperation,
+      });
+    }
     _energyInFlight++;
     energyBusy = true;
     energyError = null;
     notifyListeners();
     try {
       await send(kind, args);
+      if (rewardType != null && energyOwner == analyticsOwner) {
+        AppAnalytics.event('reward_claim_result', {
+          'reward_type': rewardType,
+          'operation_id': analyticsOperation,
+          'status': 'confirmed',
+          'amount': (confirmedEnergy - energyBefore).clamp(0, 1000000000),
+        });
+      }
     } catch (error) {
+      if (rewardType != null && energyOwner == analyticsOwner) {
+        AppAnalytics.event('reward_claim_result', {
+          'reward_type': rewardType,
+          'operation_id': analyticsOperation,
+          'status': 'unconfirmed',
+        });
+      }
       energyError = '$error';
       rethrow;
     } finally {
@@ -526,6 +573,22 @@ class EconomyStore extends ChangeNotifier {
 
   Future<void> load() async {
     _prefs = await SharedPreferences.getInstance();
+    // Energy has no legacy Daily claim. Its first-launch grace must not depend
+    // on that retired action, or automatic ads remain permanently unarmed.
+    final firstLaunchKey = '${storagePrefix}interstitial_first_launch_v1';
+    _firstAdLaunchAt = DateTime.tryParse(
+      _prefs.getString(firstLaunchKey) ?? '',
+    );
+    if (_firstAdLaunchAt == null) {
+      _firstAdLaunchAt = _now();
+      if (!await _prefs.setString(
+        firstLaunchKey,
+        _firstAdLaunchAt!.toIso8601String(),
+      )) {
+        // Advertising persistence must not prevent the game from loading.
+        _firstAdLaunchAt = null;
+      }
+    }
     if (serverEnergyRequired) {
       // Show the existing energy UI while offline, with no fabricated startup
       // credit. Only an owner-confirmed cache or server response sets balance.
@@ -729,18 +792,18 @@ class EconomyStore extends ChangeNotifier {
     if (hasPremium ||
         energySubscribed ||
         (energyEnabled ? energy : lives) <
-            config.interstitialMinLives.clamp(0, 99)) {
+            config.interstitialMinLives.clamp(0, 1000000000)) {
       return false;
     }
-    final armed = interstitialArmedAt;
+    final armed = energyEnabled ? _firstAdLaunchAt : interstitialArmedAt;
     if (armed == null) return false;
     final now = _now();
     if (_sessionCompletedRounds <=
-            config.interstitialSessionFreeRounds.clamp(10, 1000) ||
+            config.interstitialSessionFreeRounds.clamp(0, 1000) ||
         now.isBefore(
           _sessionStartedAt.add(
             Duration(
-              seconds: config.interstitialSessionGraceSec.clamp(180, 86400),
+              seconds: config.interstitialSessionGraceSec.clamp(0, 86400),
             ),
           ),
         )) {

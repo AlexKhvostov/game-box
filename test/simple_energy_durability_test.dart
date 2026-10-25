@@ -181,7 +181,7 @@ void main() {
         final policy = AudiencePolicy();
         await policy.load();
         await policy.select(AgeBand.age21plus);
-        policy.allowAdsForSession();
+        await policy.setAdDataConsent(true);
         final driver = FakeAdsDriver();
         final ads = AdsService(driver, audience: policy);
         final job = ads.watchAndClaim(e);

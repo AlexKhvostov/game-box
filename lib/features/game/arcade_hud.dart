@@ -1,3 +1,5 @@
+import '../../ui/analytics_feature.dart';
+import '../../data/app_analytics.dart';
 import '../balance/energy_sheet.dart';
 import '../../ui/neon_hud_capsule.dart';
 import '../../ui/energy_reward_motion.dart';
@@ -7,6 +9,9 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'compact_ability_button.dart';
+import 'helmet_indicator.dart';
+import 'helmet_artwork.dart';
+import '../../domain/helmet_charge.dart';
 export '../../ui/ability_ring.dart' show AbilityRingPainter;
 import 'package:provider/provider.dart';
 
@@ -42,6 +47,8 @@ class ArcadeHud extends StatefulWidget {
     this.runDistance,
     this.jumpRemainingMs,
     this.helmetActive,
+    this.helmetCharge,
+    this.helmetFlash,
     this.helmetEquipped,
     this.onTimerTap,
   });
@@ -53,6 +60,8 @@ class ArcadeHud extends StatefulWidget {
 
   /// During a round the helmet is spent after one hit, even while rented.
   final bool? helmetActive;
+  final HelmetCharge? helmetCharge;
+  final double Function()? helmetFlash;
 
   /// Rental enabled for this round; remains true after its protection breaks.
   final bool? helmetEquipped;
@@ -152,29 +161,39 @@ class _ArcadeHudState extends State<ArcadeHud> {
       int flex = 1,
     }) => Expanded(
       flex: flex,
-      child: Tooltip(
-        message: label,
-        child: Semantics(
-          button: true,
-          enabled: !widget.isPlaying,
-          label: label,
-          child: InkWell(
-            key: ValueKey('hud-$name-card'),
-            onTap: widget.isPlaying ? null : action,
-            borderRadius: BorderRadius.circular(8),
-            child: Container(
-              key: target,
-              width: double.infinity,
-              height: double.infinity,
-              decoration: economy.energyEnabled ? null : GameUi.hudPanel(),
-              padding: economy.energyEnabled
-                  ? const EdgeInsets.all(.5)
-                  : const EdgeInsets.all(3),
-              child: economy.energyEnabled
-                  ? child
-                  : Center(
-                      child: FittedBox(fit: BoxFit.scaleDown, child: child),
-                    ),
+      child: AnalyticsFeature(
+        feature: name,
+        placement: 'hud',
+        enabled: !widget.isPlaying,
+        child: Tooltip(
+          message: label,
+          child: Semantics(
+            button: true,
+            enabled: !widget.isPlaying,
+            label: label,
+            child: InkWell(
+              key: ValueKey('hud-$name-card'),
+              onTap: widget.isPlaying
+                  ? null
+                  : () {
+                      AppAnalytics.click(name, placement: 'hud');
+                      action();
+                    },
+              borderRadius: BorderRadius.circular(8),
+              child: Container(
+                key: target,
+                width: double.infinity,
+                height: double.infinity,
+                decoration: economy.energyEnabled ? null : GameUi.hudPanel(),
+                padding: economy.energyEnabled
+                    ? const EdgeInsets.all(.5)
+                    : const EdgeInsets.all(3),
+                child: economy.energyEnabled
+                    ? child
+                    : Center(
+                        child: FittedBox(fit: BoxFit.scaleDown, child: child),
+                      ),
+              ),
             ),
           ),
         ),
@@ -197,28 +216,72 @@ class _ArcadeHudState extends State<ArcadeHud> {
         helmet ? economy.helmetRentalRemaining : economy.jumpRentalRemaining,
       );
       final label = helmet ? l10n.rentHelmetTitle : l10n.rentJumpTitle;
-      return Tooltip(
-        message: economy.energyEnabled
-            ? '$label · +$energyCost ${ru ? 'энергия за попытку' : 'energy per run'}'
-            : '$label · ${ru ? 'аренда' : 'rent'} $duration',
-        child: CompactAbilityButton(
-          key: ValueKey(helmet ? 'hud-helmet-button' : 'hud-jump-button'),
-          helmet: helmet,
-          active: active,
-          broken: broken,
-          ru: ru,
-          progress: widget.jumpProgress,
-          remainingMs: () =>
-              widget.jumpRemainingMs?.call() ??
-              (1 - widget.jumpProgress()).clamp(0.0, 1.0) *
-                  config.jumpCooldownSec.clamp(0.0, 3600.0) *
-                  1000,
-          frame: widget.animationFrame ?? widget.frame,
-          onTap: widget.isPlaying
-              ? null
-              : () => economy.energyEnabled
-                    ? showEnergyAbilitySheet(context, helmet: helmet)
-                    : showCrystalsSheet(context, initialTab: 2),
+      return AnalyticsFeature(
+        feature: helmet ? 'helmet' : 'jump',
+        placement: 'hud',
+        enabled: !widget.isPlaying,
+        child: Tooltip(
+          message: economy.energyEnabled
+              ? '$label · +$energyCost ${ru ? 'энергия за попытку' : 'energy per run'}'
+              : '$label · ${ru ? 'аренда' : 'rent'} $duration',
+          child: helmet
+              ? HelmetIndicator(
+                  key: const ValueKey('hud-helmet-button'),
+                  equipped: active,
+                  ru: ru,
+                  frame: widget.animationFrame ?? widget.frame,
+                  ready: () => widget.helmetCharge?.ready ?? !broken,
+                  cooling: () => widget.helmetCharge?.cooling ?? false,
+                  progress: () =>
+                      widget.helmetCharge?.progress ?? (broken ? 0 : 1),
+                  remainingMs: () => widget.helmetCharge?.remainingMs ?? 0,
+                  flash: () => HelmetArtwork.flash(
+                    widget.helmetFlash?.call() ?? 0,
+                    reducedMotion: MediaQuery.of(context).disableAnimations,
+                  ),
+                  onTap: widget.isPlaying
+                      ? null
+                      : () {
+                          AppAnalytics.click(
+                            helmet ? 'helmet' : 'jump',
+                            placement: 'hud',
+                          );
+                          if (economy.energyEnabled) {
+                            showEnergyAbilitySheet(context, helmet: true);
+                          } else {
+                            showCrystalsSheet(context, initialTab: 2);
+                          }
+                        },
+                )
+              : CompactAbilityButton(
+                  key: ValueKey(
+                    helmet ? 'hud-helmet-button' : 'hud-jump-button',
+                  ),
+                  helmet: helmet,
+                  active: active,
+                  broken: broken,
+                  ru: ru,
+                  progress: widget.jumpProgress,
+                  remainingMs: () =>
+                      widget.jumpRemainingMs?.call() ??
+                      (1 - widget.jumpProgress()).clamp(0.0, 1.0) *
+                          config.jumpCooldownSec.clamp(0.0, 3600.0) *
+                          1000,
+                  frame: widget.animationFrame ?? widget.frame,
+                  onTap: widget.isPlaying
+                      ? null
+                      : () {
+                          AppAnalytics.click(
+                            helmet ? 'helmet' : 'jump',
+                            placement: 'hud',
+                          );
+                          if (economy.energyEnabled) {
+                            showEnergyAbilitySheet(context, helmet: helmet);
+                          } else {
+                            showCrystalsSheet(context, initialTab: 2);
+                          }
+                        },
+                ),
         ),
       );
     }

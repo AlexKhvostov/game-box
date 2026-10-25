@@ -73,11 +73,16 @@ void paintBrakeField(
     c.save();
     c.translate(190 - size / 2, 190 - size / 2);
     c.scale(size / 100);
-    // Only the small plate uses an alpha layer, bounded to one hero square.
-    c.saveLayer(
-      const Rect.fromLTWH(0, 0, 100, 100),
-      Paint()..color = Colors.white.withValues(alpha: opacity),
-    );
+    // A fully charged plate is opaque. Avoid an offscreen render pass every
+    // frame while ready; preserve group opacity throughout charging/pressing.
+    if (opacity < 1) {
+      c.saveLayer(
+        const Rect.fromLTWH(0, 0, 100, 100),
+        Paint()..color = Colors.white.withValues(alpha: opacity),
+      );
+    } else {
+      c.save();
+    }
     if (ready) {
       c.drawRRect(
         RRect.fromRectAndRadius(

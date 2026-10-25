@@ -6,27 +6,90 @@ import 'package:game_box/domain/economy_config.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUp(() => SharedPreferences.setMockInitialValues({}));
-  test('remote configuration cannot remove the session ad minimums', () async {
-    var now = DateTime(2026, 10, 9);
-    final store = EconomyStore(
-      config: const EconomyConfig(
-        interstitialGraceSec: 0,
-        interstitialSessionGraceSec: 0,
-        interstitialSessionFreeRounds: 0,
-      ),
-      now: () => now,
-    );
-    await store.load();
-    store.interstitialArmedAt = now.subtract(const Duration(days: 1));
-    store.lives = 30;
-    for (var i = 0; i < 10; i++) {
+  test(
+    'remote configuration controls free rounds and session grace exactly',
+    () async {
+      final now = DateTime(2026, 10, 9);
+      final store = EconomyStore(
+        config: const EconomyConfig(
+          interstitialGraceSec: 0,
+          interstitialSessionGraceSec: 0,
+          interstitialSessionFreeRounds: 0,
+        ),
+        now: () => now,
+      );
+      await store.load();
+      store.interstitialArmedAt = now.subtract(const Duration(days: 1));
+      store.lives = 30;
+      expect(store.canShowResultInterstitial, false);
       store.recordCompletedRound();
-    }
-    now = now.add(const Duration(minutes: 3));
-    expect(store.canShowResultInterstitial, false);
-    store.recordCompletedRound();
-    expect(store.canShowResultInterstitial, true);
-  });
+      expect(store.canShowResultInterstitial, true);
+      store.applyConfig(
+        store.config.copyWith(interstitialSessionFreeRounds: 2),
+      );
+      expect(store.canShowResultInterstitial, false);
+      store.recordCompletedRound();
+      expect(store.canShowResultInterstitial, false);
+      store.recordCompletedRound();
+      expect(store.canShowResultInterstitial, true);
+    },
+  );
+  test(
+    'energy ads use first launch and all configured gates, without Daily',
+    () async {
+      var now = DateTime(2026, 10, 25);
+      final config = EconomyConfig.fromJson({
+        'interstitialGraceSec': 90,
+        'interstitialSessionGraceSec': 5,
+        'interstitialSessionFreeRounds': 2,
+        'interstitialCooldownSec': 17,
+        'interstitialMinLives': 9,
+      });
+      final store = EconomyStore(
+        config: config,
+        now: () => now,
+        storagePrefix: 'ad_energy_',
+      );
+      await store.load();
+      await store.enableEnergyPreview(balance: 8);
+      store.lives =
+          99; // The old balance must never override the real energy gate.
+      for (var i = 0; i < 3; i++) {
+        store.recordCompletedRound();
+      }
+      now = now.add(const Duration(seconds: 90));
+      expect(store.lastDailyClaimAt, null);
+      expect(store.canShowResultInterstitial, false);
+      store.applyConfig(config.copyWith(interstitialMinLives: 8));
+      expect(store.canShowResultInterstitial, true);
+      store.markInterstitialShown();
+      now = now.add(const Duration(seconds: 16));
+      expect(store.canShowResultInterstitial, false);
+      now = now.add(const Duration(seconds: 1));
+      expect(store.canShowResultInterstitial, true);
+      final reopened = EconomyStore(
+        config: store.config,
+        now: () => now,
+        storagePrefix: 'ad_energy_',
+      );
+      await reopened.load();
+      await reopened.enableEnergyPreview(balance: 8);
+      for (var i = 0; i < 3; i++) {
+        reopened.recordCompletedRound();
+      }
+      expect(
+        reopened.canShowResultInterstitial,
+        false,
+      ); // New session grace is 5, not 180.
+      now = now.add(const Duration(seconds: 5));
+      expect(
+        reopened.canShowResultInterstitial,
+        true,
+      ); // First-launch 90 was not reset.
+      reopened.hasPremium = true;
+      expect(reopened.canShowResultInterstitial, false);
+    },
+  );
   test(
     'fresh balance uses initial tokens, not install action reward',
     () async {

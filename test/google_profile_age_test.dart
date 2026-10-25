@@ -92,10 +92,7 @@ void main() {
         final privacy = find.byKey(const ValueKey('profile-google-private'));
         await tester.ensureVisible(privacy);
         expect(tester.widget<SwitchListTile>(privacy).value, true);
-        expect(
-          find.text('Виден только игровой ник.'),
-          findsOneWidget,
-        );
+        expect(find.text('Виден только игровой ник.'), findsOneWidget);
         await tester.tap(privacy);
         await tester.pumpAndSettle();
         expect(account.hideGoogleAccount, false);
@@ -154,14 +151,14 @@ void main() {
     final policy = AudiencePolicy();
     await policy.load();
     await policy.select(AgeBand.age21plus);
-    policy.allowAdsForSession();
+    await policy.setAdDataConsent(true);
     await policy.correct(AgeBand.age13to15);
     expect(policy.adsEnabled, false);
     await policy.correct(AgeBand.age21plus);
     expect(policy.adsEnabled, false);
-    policy.revokeAdsForSession();
+    await policy.setAdDataConsent(false);
     await policy.correct(AgeBand.age18to20);
-    policy.allowAdsForSession();
+    expect(policy.adDataConsent, null);
     expect(policy.adsEnabled, false);
   });
 }

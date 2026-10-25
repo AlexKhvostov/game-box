@@ -36,9 +36,9 @@ test('irrelevant changes and duplicate delivery do not invalidate; platform/owne
   const [id]=await seed('a',[7000]);await compare('a');
   const ref=db.collection('scores').doc(id);await ref.update({playerName:'new-name'});await compare('a');assert.equal(recomputed,0);
   const body=(await ref.get()).data();await ref.set(body);await compare('a');assert.equal(recomputed,0);
-  await seed('a',[999999],{platform:'telegram'});await compare('a');assert.equal(recomputed,0);
+  await seed('a',[999999],{platform:'legacy_telegram'});await compare('a');assert.equal(recomputed,0);
   await ref.update({uid:'b'});await compare('a');assert.equal(recomputed,2);
-  await ref.update({platform:'telegram'});await compare('b');assert.equal(recomputed,1);
+  await ref.update({platform:'legacy_telegram'});await compare('b');assert.equal(recomputed,1);
 });
 test('all rule changes produce correct values immediately, including returning to previous rules',async()=>{
   for(const patch of [{windowSize:2},{previousWeightPercent:100},{minDurationMs:1000},{minAttempts:1000},{}]){

@@ -1,3 +1,6 @@
+import 'data/analytics_consent.dart';
+import 'data/appmetrica_analytics.dart';
+import 'data/app_analytics.dart';
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
@@ -58,17 +61,22 @@ Future<void> main() async {
 
       final audience = AudiencePolicy();
       await audience.load();
+      final analyticsConsent = AnalyticsConsent(
+        audience,
+        applyRuntime: AppMetricaAnalytics.setConsent,
+      );
+      await analyticsConsent.load();
       if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
         runApp(
           ChangeNotifierProvider.value(
             value: audience,
             child: AndroidAudienceStartup(
-              startGame: () => _createGame(audience),
+              startGame: () => _createGame(audience, analyticsConsent),
             ),
           ),
         );
       } else {
-        runApp(await _createGame(audience));
+        runApp(await _createGame(audience, analyticsConsent));
       }
     },
     (error, stack) {
@@ -77,7 +85,10 @@ Future<void> main() async {
   );
 }
 
-Future<Widget> _createGame(AudiencePolicy audience) async {
+Future<Widget> _createGame(
+  AudiencePolicy audience,
+  AnalyticsConsent analyticsConsent,
+) async {
   final useSupabase =
       !kIsWeb &&
       AppTargetConfig.isMobile &&
@@ -89,6 +100,7 @@ Future<Widget> _createGame(AudiencePolicy audience) async {
   final backendStoragePrefix = useSupabase
       ? SupabaseMobileClient.storagePrefix
       : TestTools.storagePrefix;
+  AppAnalytics.context.addAll({'config_revision': remote.revision});
   final economyConfig = remote.economy;
   final phonePace = !kIsWeb && AppTargetConfig.isMobile;
   final gameplayConfig = phonePace
@@ -141,6 +153,7 @@ Future<Widget> _createGame(AudiencePolicy audience) async {
     client: useSupabase ? SupabaseMobileClient() : null,
     endpoint: useSupabase ? SupabaseMobileClient.endpoint : null,
   );
+  AppMetricaAnalytics.bindAccount(account);
   final walletBridge = MobileWalletBridge(account, economy);
   final configSession = useSupabase
       ? AndroidConfigSession(remote, account, economy)
@@ -174,6 +187,7 @@ Future<Widget> _createGame(AudiencePolicy audience) async {
       ChangeNotifierProvider(create: (_) => economy),
       ChangeNotifierProvider(create: (_) => preferences),
       ChangeNotifierProvider.value(value: audience),
+      ChangeNotifierProvider.value(value: analyticsConsent),
       ChangeNotifierProvider(create: (_) => scores),
       ChangeNotifierProvider(create: (_) => account),
       ChangeNotifierProvider<MobileInvites>(

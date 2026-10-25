@@ -8,6 +8,8 @@ import '../data/mobile_account.dart';
 import '../data/mobile_invites.dart';
 import '../data/player_preferences.dart';
 import '../data/audience_policy.dart';
+import '../data/analytics_consent.dart';
+import '../features/profile/analytics_consent_sheet.dart';
 import '../ui/audience_gate.dart';
 import 'app_target.dart';
 import 'test_tools.dart';
@@ -35,7 +37,8 @@ class _GoogleStartupGateState extends State<GoogleStartupGate> {
   bool _finished = false;
   bool _scheduled = false;
   bool _connecting = false;
-  bool _agePromptOpen = false;
+  bool _flowRunning = false;
+  bool _googleDone = false;
   late final GoogleIdentity _identity =
       widget.identity ?? NativeGoogleIdentity();
 
@@ -61,69 +64,82 @@ class _GoogleStartupGateState extends State<GoogleStartupGate> {
     WidgetsBinding.instance.ensureVisualUpdate();
   }
 
-  Future<void> _start() async {
-    if (_agePromptOpen) return;
-    final preferences = context.read<PlayerPreferences?>();
-    final audience = context.read<AudiencePolicy?>();
-    // This device-only question also works before a server profile is ready.
-    // It does not grant advertising permission or require Google sign-in.
-    if (widget.enabled &&
-        AppTargetConfig.isMobile &&
-        !TestTools.enabled &&
-        preferences != null &&
-        audience != null &&
-        !preferences.ageStartupSeen &&
-        ModalRoute.of(context)?.isCurrent == true &&
-        !_interacted) {
-      _agePromptOpen = true;
-      try {
-        if (audience.needsSelection) await showAudienceSelection(context);
-        await preferences.markAgeStartupSeen();
-      } catch (_) {
-        debugPrint('Startup: could not persist age prompt state');
-      } finally {
-        _agePromptOpen = false;
-      }
-      if (!mounted) return;
-    }
-    _openChooser();
+  void _finish() {
+    _finished = true;
+    context.read<MobileInvites?>()?.markStartupResolved();
   }
 
-  void _openChooser() {
+  Future<void> _start() async {
+    if (_flowRunning || _finished || !mounted) return;
+    if (!widget.enabled || !AppTargetConfig.isMobile || TestTools.enabled) {
+      _finish();
+      return;
+    }
+    _flowRunning = true;
+    try {
+      if (!_googleDone) {
+        if (!await _openChooser()) return;
+        _googleDone = true;
+      }
+      if (!mounted || _finished) return;
+      if (_interacted || ModalRoute.of(context)?.isCurrent != true) {
+        _finish();
+        return;
+      }
+      final preferences = context.read<PlayerPreferences?>();
+      final audience = context.read<AudiencePolicy?>();
+      if (preferences != null &&
+          audience != null &&
+          !preferences.ageStartupSeen) {
+        try {
+          if (audience.needsSelection) await showAudienceSelection(context);
+          await preferences.markAgeStartupSeen();
+        } catch (_) {
+          debugPrint('Startup: could not persist age prompt state');
+        }
+      }
+      if (!mounted) return;
+      // Unknown and under18 declarations never reach this consent question.
+      final analytics = context.read<AnalyticsConsent?>();
+      if (analytics?.needsPrompt == true &&
+          ModalRoute.of(context)?.isCurrent == true) {
+        await showAnalyticsFirstQuestion(context);
+      }
+      if (mounted) _finish();
+    } finally {
+      _flowRunning = false;
+    }
+  }
+
+  Future<bool> _openChooser() async {
     final preferences = context.read<PlayerPreferences?>();
     final account = _account;
-    if (!widget.enabled ||
-        !AppTargetConfig.isMobile ||
-        TestTools.enabled ||
-        !_identity.configured ||
+    if (!_identity.configured ||
         preferences == null ||
         account == null ||
         preferences.googleStartupSeen ||
         !account.onlineAllowed ||
-        _interacted) {
-      _finished = true;
-      context.read<MobileInvites?>()?.markStartupResolved();
-      return;
+        account.googleLinked) {
+      return true;
     }
-    if (account.googleLinked) {
-      _finished = true;
-      context.read<MobileInvites?>()?.markStartupResolved();
-      return;
+    if (_interacted || ModalRoute.of(context)?.isCurrent != true) {
+      _finish();
+      return true;
     }
-    if (!account.ready || account.busy || account.googleStage != null) return;
-    _finished = true;
-    if (ModalRoute.of(context)?.isCurrent != true) {
-      context.read<MobileInvites?>()?.markStartupResolved();
-      return;
+    if (!account.ready || account.busy || account.googleStage != null) {
+      return false;
     }
-    // Mark synchronously before opening native UI; cancellation keeps the guest.
-    unawaited(
-      preferences.markGoogleStartupSeen().catchError((Object _) {
-        debugPrint('Google startup: could not persist chooser state');
-      }),
-    );
+    // Google is first. Wait for its real result, including cancellation, before
+    // age selection. A cancelled Google chooser preserves the guest account.
+    try {
+      await preferences.markGoogleStartupSeen();
+    } catch (_) {
+      debugPrint('Google startup: could not persist chooser state');
+    }
+    if (!mounted) return true;
     setState(() => _connecting = true);
-    unawaited(_connect(account));
+    await _connect(account);
+    return true;
   }
 
   Future<void> _connect(MobileAccount account) async {
@@ -151,7 +167,6 @@ class _GoogleStartupGateState extends State<GoogleStartupGate> {
     } finally {
       if (mounted) {
         setState(() => _connecting = false);
-        context.read<MobileInvites?>()?.markStartupResolved();
       }
     }
   }

@@ -380,6 +380,32 @@ class MobileInvites extends ChangeNotifier with WidgetsBindingObserver {
     return false;
   }
 
+  /// Obtain this player's public link without binding an incoming invitation.
+  Future<String> resultShareUrl() async {
+    final owner = account.id;
+    final epoch = _epoch;
+    if (!enabled || owner == null || !_sameOwner(owner, epoch)) {
+      throw const MobileApiError('invites_unavailable');
+    }
+    String? url;
+    await _serialized(() async {
+      if (!_sameOwner(owner, epoch)) return;
+      final current = state?.profileId == owner
+          ? state
+          : await _fetch('invites_state');
+      if (!_sameOwner(owner, epoch) || current?.profileId != owner) return;
+      final code = InviteCode.normalize(current!.ownCode);
+      if (code == null || InviteCode.fromAppLink(current.inviteUrl) != code) {
+        throw const MobileApiError('invite_response_invalid');
+      }
+      url = InviteCode.url(code);
+    });
+    if (url == null || !_sameOwner(owner, epoch)) {
+      throw const MobileApiError('invites_unavailable');
+    }
+    return url!;
+  }
+
   Future<void> refresh() => _serialized(() async {
     if (_disposed || !enabled || !_foreground || !account.onlineAllowed) return;
     _retry?.cancel();

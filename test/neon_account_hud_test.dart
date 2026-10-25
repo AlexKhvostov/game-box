@@ -301,15 +301,18 @@ void main() {
         'ads-session-settings',
         find.byKey(profile.boundary),
       );
-      await tester.tap(find.text('Без рекламы'));
+      await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
-      final consent = ensureAdsForSession(context);
+      final consent = ensureAdDataConsent(context);
       await tester.pumpAndSettle();
-      expect(find.text('Включить рекламу?'), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('ad-data-consent-dialog')),
+        findsOneWidget,
+      );
       await saveFrame(tester, 'ads-consent', find.byKey(profile.boundary));
-      await tester.tap(find.text('Без рекламы'));
+      await tester.tap(find.byKey(const ValueKey('ad-data-decline')));
       await tester.pumpAndSettle();
       expect(await consent, false);
     }

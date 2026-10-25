@@ -27,7 +27,7 @@ class BoardAccount extends run.RunAccount {
     Map<String, dynamic> payload, {
     bool guest = false,
   }) async {
-    fetches++;
+    if (payload['action'] == 'scores') fetches++;
     final rows = [
       for (final r in server.rounds.entries)
         if (r.value['finished'] == true)

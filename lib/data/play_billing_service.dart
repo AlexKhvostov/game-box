@@ -1,3 +1,5 @@
+import 'app_analytics.dart';
+import 'purchase_analytics.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
@@ -43,6 +45,21 @@ class PlayBillingService extends ChangeNotifier with WidgetsBindingObserver {
     'energy_batteries_5_v1',
   };
   final Map<String, GooglePlayPurchaseDetails> _ownedSubscriptions = {};
+  final Map<String, String> _analyticsPurchases = {};
+  final Set<String> _analyticsPurchaseStates = {};
+  void _purchaseEvent(String product, String status) {
+    final operation = _analyticsPurchases.putIfAbsent(
+      product,
+      AppAnalytics.nextId,
+    );
+    if (!_analyticsPurchaseStates.add('$operation:$status')) return;
+    AppAnalytics.event('purchase_result', {
+      'product_id': product,
+      'status': status,
+      'operation_id': operation,
+    });
+  }
+
   bool get energyEnabled => account.wallet?['energyVersion'] == 2;
   String get _pendingKey => '${account.storagePrefix}untouch_play_pending_v1';
   String get _launchKey => '${account.storagePrefix}untouch_play_launches_v2';
@@ -370,6 +387,7 @@ class PlayBillingService extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   Future<void> buy(String id) async {
+    AppAnalytics.click(id, placement: 'purchase');
     if (testServicePreview) {
       throw const MobileApiError('test_service_unavailable');
     }
@@ -382,6 +400,11 @@ class PlayBillingService extends ChangeNotifier with WidgetsBindingObserver {
     }
     busy = true;
     error = null;
+    _analyticsPurchases[id] = AppAnalytics.nextId();
+    AppAnalytics.event('purchase_started', {
+      'product_id': id,
+      'operation_id': _analyticsPurchases[id]!,
+    });
     notifyListeners();
     try {
       await account.beforeRound?.call();
@@ -471,6 +494,7 @@ class PlayBillingService extends ChangeNotifier with WidgetsBindingObserver {
     } catch (_) {
       busy = false;
       notifyListeners();
+      _purchaseEvent(id, 'not_started');
       await _clearLaunch(id);
       rethrow;
     }
@@ -479,6 +503,7 @@ class PlayBillingService extends ChangeNotifier with WidgetsBindingObserver {
   Future<void> _handle(List<PurchaseDetails> purchases) async {
     for (final purchase in purchases) {
       if (purchase.status == PurchaseStatus.pending) {
+        _purchaseEvent(purchase.productID, 'pending');
         busy = true;
         notifyListeners();
         continue;
@@ -486,6 +511,10 @@ class PlayBillingService extends ChangeNotifier with WidgetsBindingObserver {
       if (purchase.status == PurchaseStatus.error ||
           purchase.status == PurchaseStatus.canceled) {
         busy = false;
+        _purchaseEvent(
+          purchase.productID,
+          purchase.status == PurchaseStatus.canceled ? 'canceled' : 'error',
+        );
         await _clearLaunch(purchase.productID);
         error = purchase.status == PurchaseStatus.error
             ? 'purchase_failed'
@@ -506,6 +535,7 @@ class PlayBillingService extends ChangeNotifier with WidgetsBindingObserver {
               !isEnergyProduct(purchase.productID)) ||
           token.isEmpty) {
         busy = false;
+        _purchaseEvent(purchase.productID, 'invalid');
         error = 'purchase_invalid';
         notifyListeners();
         continue;
@@ -514,6 +544,11 @@ class PlayBillingService extends ChangeNotifier with WidgetsBindingObserver {
         _pending.add({
           'productId': purchase.productID,
           'token': token,
+          'analyticsOperation':
+              _analyticsPurchases[purchase.productID] ??
+              sha256
+                  .convert(utf8.encode('untouch-purchase-v1:$token'))
+                  .toString(),
           'owner': journalOwner(purchase, _launches[purchase.productID]),
           if (journalOwner(
                 purchase,
@@ -562,6 +597,17 @@ class PlayBillingService extends ChangeNotifier with WidgetsBindingObserver {
       }
       try {
         await account.verifyPlay(entry['productId']!, entry['token']!);
+        final deduplicationId = sha256
+            .convert(utf8.encode('untouch-purchase-v1:${entry['token']}'))
+            .toString();
+        unawaited(
+          PurchaseAnalytics.confirmed(
+            product: entry['productId']!,
+            operation: entry['analyticsOperation'] ?? deduplicationId,
+            deduplicationId: deduplicationId,
+            storagePrefix: account.storagePrefix,
+          ),
+        );
         final remaining = _pending
             .where((e) => e['token'] != entry['token'])
             .toList();
@@ -569,6 +615,7 @@ class PlayBillingService extends ChangeNotifier with WidgetsBindingObserver {
         _pending.remove(entry);
         error = null;
       } catch (_) {
+        _purchaseEvent(entry['productId']!, 'verification_pending');
         error = 'verification_pending';
       }
     }

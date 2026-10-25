@@ -1,0 +1,18 @@
+{
+  "proofVersion": 3,
+  "files": {
+    "lib/features/game/game_world.dart": "2609b954bb634425ef250df6b1ba7df87ccfb2bfa85cbdb8096e332628e79206",
+    "lib/domain/gameplay_config.dart": "53726462cb73064e4d0b709f2ec1b9c404f0460b822bc261f8b3de42f81da16a",
+    "lib/domain/arcade_rules.dart": "c75401265070b14ce604441fbcfe595048a78258c70ac2424a9d737342cbe5b4",
+    "lib/domain/economy_config.dart": "bfe78947fd90ee5bbe98aadf2d00c34ee4ddc8d20e1dbc546b112ca3869ec006",
+    "lib/domain/android_energy.dart": "6e8a835252f1715428bc254b5fb116dfee9fd72372938f820ecc9d2bfa2fd228",
+    "lib/domain/enemy_pace.dart": "3c1d415877b1202530a3e1292f2b3483590baf7e189dd49b596a554f351dfa0c",
+    "lib/domain/replay_random.dart": "8a4326a81f2450541f9438d7ad9ca3d0044dcfe26d353970deef86b43e4e5db2",
+    "lib/domain/helmet_charge.dart": "3b35c6d17a41a480b0b004dde3c6d86e88b2188afcecf44a39676919f4030e1b",
+    "tools/replay/geometry.dart": "36a4b15686fcee04777325461cf11033d9236f6073591a5d1ccf1ab432507831",
+    "tools/replay_helmet/session.dart": "577ae5445e9e28090edbbd846d18bca23fe08990a497a6bb7ac526c282619ae3",
+    "tools/replay_helmet/main.dart": "f26feada7466a6968e3b0adc8d36292d2977f374754450f26c97d508be890b45",
+    "lib/app/mobile_gameplay_tuning.dart": "8fbf2ccd44df6e7b1fc557ea06134abba967a6b61017055e3e29cef82cdff3f4"
+  },
+  "generatedSha256": "c78e914cd7a7853683bb141b8c7219c133c7b7afaff843644be7e51bd3e9d463"
+}
