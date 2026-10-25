@@ -1,0 +1,18 @@
+{
+  "checkedAt": "2026-10-25T08:24:44.316Z",
+  "branch": "codex/android-208-release",
+  "commit": "cc04f0d3d5eb8816c399457cedf281505a862564",
+  "checkpointFiles": 324,
+  "changedSince208": [],
+  "flutter": {
+    "pass": 1380,
+    "skip": 2,
+    "fail": 0
+  },
+  "backend": {
+    "pass": 193,
+    "fail": 0
+  },
+  "analyze": "No issues found",
+  "note": "One consolidated release snapshot, not ancestry merges of historical branches; no Android implementation file is missing. Unreferenced brand-kit gallery and unrelated Telegram work remain outside release commit."
+}

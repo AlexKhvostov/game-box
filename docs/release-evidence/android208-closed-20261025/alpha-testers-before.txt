@@ -1,0 +1,102 @@
+ \"Закрытое тестирование\"":
+  - /url: /console/u/0/developers/7352115345592950495/app/4976408092958094737/closed-testing?releaseType=defaultReleases
+  - img: keyboard_backspace
+  - generic: Закрытое тестирование
+- heading "Закрытое тестирование - Alpha" [level=1]
+- button "Создать выпуск":
+  - generic: Создать выпуск
+- text: Здесь вы можете запускать закрытое тестирование предварительных выпусков среди выбранных пользователей и управлять тестовыми версиями.
+- link "Подробнее о странице \"Закрытое тестирование - Alpha\" (статья откроется в новой вкладке)":
+  - /url: https://play.google.com/console/about/closed-testing
+  - text: Подробнее
+- heading "Сводные данные о версии (Смартфоны, Планшеты, Desktop, Google Play Games on PC, Android XR)" [level=4]
+- button "Приостановить версию":
+  - generic: Приостановить версию
+- list:
+  - listitem: Активно
+  - listitem: "Последний выпуск: 196 (1.0.195)"
+  - listitem: 178 стран/регионов
+- tablist:
+  - tab "Выпуски":
+    - generic: Выпуски
+  - tab "Страны/регионы":
+    - generic: Страны/регионы
+  - tab "Количество тестировщиков" [active] [selected]:
+    - generic: Количество тестировщиков
+- heading "Количество тестировщиков" [level=2]
+- group "Количество тестировщиков":
+  - generic: Количество тестировщиков
+  - paragraph: Выберите, у кого будет доступ к тестированию. Вы можете указать тестировщиков с помощью списков рассылки или Google Групп.
+  - radio "Списки адресов электронной почты" [checked]
+  - generic: Списки адресов электронной почты
+  - search "Списки адресов электронной почты":
+    - img: search
+    - generic: Списки адресов электронной почты
+    - textbox "Списки адресов электронной почты"
+  - grid "Списки адресов электронной почты":
+    - row "Выбрать все строки Название списка Пользователи":
+      - gridcell "Выбрать все строки":
+        - checkbox "Выбрать все строки" [checked=mixed]:
+      - columnheader "Название списка"
+      - columnheader "Пользователи"
+      - cell
+    - row "Untouch Closed Alpha Untouch Closed Alpha 22 Изменить список рассылки \"Untouch Closed Alpha\"":
+      - gridcell "Untouch Closed Alpha":
+        - checkbox "Untouch Closed Alpha" [checked]:
+      - gridcell "Untouch Closed Alpha":
+        - generic: Untouch Closed Alpha
+      - gridcell "22":
+        - generic: "22"
+      - gridcell "Изменить список рассылки \"Untouch Closed Alpha\"":
+        - button "Изменить список рассылки \"Untouch Closed Alpha\"":
+          - img: arrow_right_alt
+    - row "Untouch Internal Owner Untouch Internal Owner 1 Изменить список рассылки \"Untouch Internal Owner\"":
+      - gridcell "Untouch Internal Owner":
+        - checkbox "Untouch Internal Owner":
+      - gridcell "Untouch Internal Owner":
+        - generic: Untouch Internal Owner
+      - gridcell "1":
+        - generic: "1"
+      - gridcell "Изменить список рассылки \"Untouch Internal Owner\"":
+        - button "Изменить список рассылки \"Untouch Internal Owner\"":
+          - img: arrow_right_alt
+  - button "Создать список рассылки":
+    - generic: Создать список рассылки
+  - radio "Группы Google"
+  - generic: Группы Google
+- group "URL или адрес электронной почты для отзывов":
+  - generic: URL или адрес электронной почты для отзывов
+  - textbox: support@untouch.fun
+  - paragraph: Укажите, как тестировщики смогут оставлять вам отзывы.
+  - generic: 19/512
+  - generic: В тексте 19 символов из 512
+- heading "Как тестировщики присоединяются к вашему тестированию" [level=3]
+- group "На устройстве Android":
+  - generic: На устройстве Android
+  - generic: Пользователи смогут присоединиться к тестированию в Google Play на устройстве Android.
+  - 'button "Копировать ссылку: https://play.google.com/store/apps/details?id=com.best4u.untouch"':
+    - img: link
+    - generic: Копировать ссылку
+- group "На сайте":
+  - generic: На сайте
+  - generic: Пользователи смогут присоединиться к тестированию на сайте.
+  - 'button "Копировать ссылку: https://play.google.com/apps/testing/com.best4u.untouch"':
+    - img: link
+    - generic: Копировать ссылку
+- button "Не сохранять" [disabled]:
+  - generic: Не сохранять
+- button "Сохранить" [disabled]:
+  - generic: Сохранить
+- link "Информация об обновлениях":
+  - /url: https://play.google.com/console/about/whats-new/
+- link "Панель мониторинга":
+  - /url: https://status.play.google.com/
+- link "Справка":
+  - /url: /console/u/0/developers/7352115345592950495/help-and-support?app=4976408092958094737
+- generic: © Google, 2026
+- link "Конфиденциальность":
+  - /url: https://www.google.com/policies/privacy/
+- link "Соглашение о распространении ПО":
+  - /url: https://play.google.com/about/developer-distribution-agreement.html
+- link "Условия использования":
+  - /url: https://play.google.com/about/console/terms-of-service/

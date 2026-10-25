@@ -1,0 +1,59 @@
+ [level=1]
+- text: Здесь вы можете просматривать изменения, внесенные в приложение, и указывать, когда их публиковать или отправлять на проверку.
+- 'button "Показать подробную информацию о следующей странице: Обзор публикации"': Развернуть
+- button "Управляемая публикация выключена.":
+  - img: sync_disabled
+  - generic: Управляемая публикация выключена.
+  - img: arrow_drop_down
+- img: history
+- generic: "Последняя публикация: 25 октября 2026 г."
+- link "История проверок":
+  - /url: /console/u/0/developers/7352115345592950495/app/4976408092958094737/publishing/submission-activity
+  - generic: История проверок
+  - img: arrow_right_alt
+- heading "Изменения на проверке" [level=2]
+- button "Подробнее об объекте \"Изменения на проверке\"":
+  - img: help
+- button "Удалить изменения": Удалить изменения
+- 'button "Скрыть следующий контент: Изменения на проверке" [expanded]':
+  - generic: Скрыть
+  - img: expand_less
+- heading "Проверка на наличие распространенных проблем" [level=4]
+- meter "Проверка на наличие распространенных проблем"
+- paragraph:
+  - text: Такая проверка позволяет выявить определенные нарушения правил и проблемы с качеством приложения, чтобы вы могли устранить их, прежде чем отправить изменения на рассмотрение. Если на этом этапе не будет найдено проблем, изменения будут отправлены сразу.
+  - link "Перейти в Справочный центр и узнать больше об автоматических проверках, которые мы проводим для выявления проблем до отправки вами изменений на проверку":
+    - /url: https://support.google.com/googleplay/android-developer/answer/14807773
+    - text: Подробнее
+- paragraph: "Осталось: максимум 13 минут"
+- grid "Изменения":
+  - row "Элемент изменен Описание":
+    - columnheader "Элемент изменен"
+    - columnheader "Описание"
+    - cell
+  - row "Закрытое тестирование - Alpha":
+    - img: slow_motion_video
+    - gridcell "Закрытое тестирование - Alpha"
+  - row "1.0.207 (208) - closed test Начать полное внедрение":
+    - gridcell "1.0.207 (208) - closed test":
+      - generic: 1.0.207 (208) - closed test
+    - gridcell "Начать полное внедрение":
+      - generic: Начать полное внедрение
+    - gridcell:
+      - listbox "Ещё":
+        - button "Ещё":
+          - img: more_vert
+- link "Информация об обновлениях":
+  - /url: https://play.google.com/console/about/whats-new/
+- link "Панель мониторинга":
+  - /url: https://status.play.google.com/
+- link "Справка":
+  - /url: /console/u/0/developers/7352115345592950495/help-and-support?app=4976408092958094737
+- generic: © Google, 2026
+- link "Конфиденциальность":
+  - /url: https://www.google.com/policies/privacy/
+- link "Соглашение о распространении ПО":
+  - /url: https://play.google.com/about/developer-distribution-agreement.html
+- link "Условия использования":
+  - /url: https://play.google.com/about/console/terms-of-service/
+- status

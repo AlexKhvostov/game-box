@@ -1,0 +1,66 @@
+ [level=1]
+- text: Тестируйте свои лицензии и оплату контента.
+- 'button "Показать подробную информацию о следующей странице: Тестирование лицензий"': Развернуть
+- group "Тестировщики лицензий":
+  - text: Тестировщики лицензий
+  - button "Подробнее об объекте \"Тестировщики лицензий\"":
+    - img: help
+  - radiogroup "Группа переключателей для тестировщиков лицензий":
+    - radio "Списки адресов электронной почты" [checked]
+    - generic: Списки адресов электронной почты
+    - search "Списки адресов электронной почты":
+      - img: search
+      - generic: Списки адресов электронной почты
+      - textbox "Списки адресов электронной почты"
+    - grid "Списки адресов электронной почты":
+      - row "Выбрать все строки Название списка Пользователи":
+        - gridcell "Выбрать все строки":
+          - checkbox "Выбрать все строки" [checked=mixed]:
+        - columnheader "Название списка"
+        - columnheader "Пользователи"
+        - cell
+      - row "Untouch Closed Alpha Untouch Closed Alpha 22 Изменить список рассылки \"Untouch Closed Alpha\"":
+        - gridcell "Untouch Closed Alpha":
+          - checkbox "Untouch Closed Alpha" [checked]:
+        - gridcell "Untouch Closed Alpha":
+          - generic: Untouch Closed Alpha
+        - gridcell "22":
+          - generic: "22"
+        - gridcell "Изменить список рассылки \"Untouch Closed Alpha\"":
+          - button "Изменить список рассылки \"Untouch Closed Alpha\"":
+            - img: arrow_right_alt
+      - row "Untouch Internal Owner Untouch Internal Owner 1 Изменить список рассылки \"Untouch Internal Owner\"":
+        - gridcell "Untouch Internal Owner":
+          - checkbox "Untouch Internal Owner":
+        - gridcell "Untouch Internal Owner":
+          - generic: Untouch Internal Owner
+        - gridcell "1":
+          - generic: "1"
+        - gridcell "Изменить список рассылки \"Untouch Internal Owner\"":
+          - button "Изменить список рассылки \"Untouch Internal Owner\"":
+            - img: arrow_right_alt
+    - button "Создать список рассылки":
+      - generic: Создать список рассылки
+    - radio "Группы Google"
+    - generic: Группы Google
+- group "Информация о лицензии":
+  - generic: Информация о лицензии
+  - button "Информация о лицензии RESPOND_NORMALLY":
+    - generic: RESPOND_NORMALLY
+    - img: arrow_drop_down
+  - paragraph: Все тестировщики лицензий получат этот ответ.
+- button "Сохранить изменения" [disabled]:
+  - generic: Сохранить изменения
+- link "Информация об обновлениях":
+  - /url: https://play.google.com/console/about/whats-new/
+- link "Панель мониторинга":
+  - /url: https://status.play.google.com/
+- link "Справка":
+  - /url: /console/u/0/developers/7352115345592950495/help-and-support
+- generic: © Google, 2026
+- link "Конфиденциальность":
+  - /url: https://www.google.com/policies/privacy/
+- link "Соглашение о распространении ПО":
+  - /url: https://play.google.com/about/developer-distribution-agreement.html
+- link "Условия использования":
+  - /url: https://play.google.com/about/console/terms-of-service/
