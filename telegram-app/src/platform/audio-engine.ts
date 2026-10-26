@@ -7,6 +7,7 @@ export const effects = {
   heroWall: {file:'hero_wall', flag:'sfxHeroWall', gain:.7, gap:0, voices:1},
   helmet: {file:'helmet_break', flag:'sfxHelmet', gain:.58, gap:0, voices:1},
   jump: {file:'jump', flag:'sfxJump', gain:.45, gap:0, voices:1},
+  brake: {file:'brake', flag:'sfxBrake', gain:.48, gap:0, voices:1},
   risk: {file:'near_miss', flag:'sfxNearMiss', gain:.42, gap:90, voices:1},
 } as const;
 export type SoundName = keyof typeof effects;
@@ -130,7 +131,7 @@ export class GameAudio {
   diagnostics() {
     let estimatedOutputLagMs:number|null=null;
     try{const stamp=this.context?.getOutputTimestamp?.();if(stamp?.contextTime&&this.context?.state==='running')estimatedOutputLagMs=Math.max(0,(this.context.currentTime-stamp.contextTime)*1000);}catch{}
-    return {ready:this.buffers.size,total:9,context:this.context?.state??'unavailable',sampleRate:this.context?.sampleRate??0,
+    return {ready:this.buffers.size,total:Object.keys(effects).length+1,context:this.context?.state??'unavailable',sampleRate:this.context?.sampleRate??0,
       baseLatencyMs:this.context?.baseLatency==null?null:this.context.baseLatency*1000,outputLatencyMs:this.context?.outputLatency==null?null:this.context.outputLatency*1000,estimatedOutputLagMs,
       activeVoices:this.voices.size,peakVoices:this.peakVoices,starts:this.starts,dropped:this.dropped,music:!!this.music};
   }

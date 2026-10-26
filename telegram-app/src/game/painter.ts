@@ -25,7 +25,7 @@ export class FieldPainter {
   constructor(private canvas: HTMLCanvasElement) {
     this.c = canvas.getContext('2d', { alpha: false })!;
     this.background = document.createElement('canvas'); this.background.width = 760; this.background.height = 760;
-    // Warm the approved artwork before play; no texture work in the frame loop.
+    // Glass capsule adapter uses the existing simulation readiness.
     this.jumpGlow = createJumpReadyDrawer();
   }
   configure(config: Record<string, any>) {
@@ -45,7 +45,7 @@ export class FieldPainter {
     const pixels = Math.max(1, Math.round(side * dpr)); if (this.canvas.width !== pixels) { this.canvas.width = pixels; this.canvas.height = pixels; }
     const t1=t0?motionProbe.clock():0;
     c.setTransform(pixels / 380, 0, 0, pixels / 380, 0, 0); c.drawImage(this.background, 0, 0, 380, 380);c.save();rounded(c,0,0,380,380,config.field.cornerRadius);c.clip();
-    paintBrake(c,s,this.reduced.matches);
+    paintBrake(c,s,this.reduced.matches,config.enemyPace);
     const t2=t0?motionProbe.clock():0;
     const brightness = Math.max(.4, Math.min(2.5, config.field.shadowBrightness ?? 1));
     for (const e of s.enemies) enemy(c, e, `rgba(0,0,0,${Math.min(.85, .42 / brightness)})`, 5.5);
@@ -68,13 +68,10 @@ export class FieldPainter {
     const hero = c.createLinearGradient(x, y, x + vis, y + vis); hero.addColorStop(0, mix('#35F5C6','#ffffff',.62)); hero.addColorStop(.35, '#35F5C6'); hero.addColorStop(1, mix('#35F5C6','#007D74',.4));
     rounded(c, x, y, vis, vis, 4); c.fillStyle = hero; c.fill(); c.strokeStyle = '#8AFFCD'; c.lineWidth = 1.4; c.stroke();
     const jumpProgress = jumpGlowProgress(s, config.game);
-    if (jumpProgress > 0) {
-      c.save();
-      rounded(c, x, y, vis, vis, 4); c.clip();
+    if (s.jumpEnabled && config.game.jumpEnabled) {
       this.jumpGlow(c, {x, y, size: vis, progress: jumpProgress,
         ready: s.jumpCooldownMs === 0 && s.jumpRemainingMs === 0,
         readyAgeMs: jumpReadyAgeMs, reduced: this.reduced.matches});
-      c.restore();
     }
     paintHelmet(c,s,x,y,vis,this.reduced.matches);
     c.beginPath(); c.moveTo(x + vis * .17, y + vis * .083); c.lineTo(x + vis * .83, y + vis * .083); c.strokeStyle = '#C4FFE3a6'; c.lineWidth = 1.2; c.stroke();

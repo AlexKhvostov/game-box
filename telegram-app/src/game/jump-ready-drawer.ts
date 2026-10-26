@@ -1,5 +1,5 @@
-import {createJumpGlowDrawer, createJumpGlowPixels, jumpGlowFraction, type JumpGlowPlacement} from './jump-glow';
-import {jumpReadyFlash} from './jump-ready-signal';
+import {createJumpGlowPixels, jumpGlowFraction, type JumpGlowPlacement} from './jump-glow.ts';
+import {paintJumpSideNeon,paintJumpBodyFlash} from './jump-side-neon.ts';
 
 export interface JumpReadyPlacement extends JumpGlowPlacement {
   ready: boolean;
@@ -18,25 +18,15 @@ export function createJumpReadyPixels(side = 256, flash = false): Uint8ClampedAr
   return pixels;
 }
 
-/** Selected H02.B: cached warm charge, lemon ready, one white-warm pulse. */
+/** Approved H02.3: white sides, one lamp flash, lemon neon readiness. */
 export function createJumpReadyDrawer(): (c: CanvasRenderingContext2D, p: JumpReadyPlacement) => void {
-  const charging = createJumpGlowDrawer({radius: .1});
-  function texture(flash = false) {
-    const canvas = document.createElement('canvas'); canvas.width = canvas.height = 256;
-    const c = canvas.getContext('2d')!;
-    const data = c.createImageData(256, 256); data.data.set(createJumpReadyPixels(256, flash));
-    c.putImageData(data, 0, 0); return canvas;
-  }
-  const ready = texture(), flash = texture(true);
-  return (c, p) => {
-    if (p.enabled === false || ![p.x, p.y, p.size, p.opacity ?? 1].every(Number.isFinite) || p.size <= 0) return;
-    if (!p.ready) { charging(c, p); return; }
+  return (c,p) => {
+    if(p.enabled===false || ![p.x,p.y,p.size,p.opacity??1].every(Number.isFinite) || p.size<=0)return;
     c.save();
     try {
-      c.globalAlpha *= jumpGlowFraction(p.opacity ?? 1);
-      c.drawImage(ready, p.x, p.y, p.size, p.size);
-      const pulse = jumpReadyFlash(p.readyAgeMs, p.reduced);
-      if (pulse > 0) { c.globalAlpha *= pulse; c.drawImage(flash, p.x, p.y, p.size, p.size); }
-    } finally { c.restore(); }
+      c.globalAlpha*=jumpGlowFraction(p.opacity??1);
+      const placement={x:p.x,y:p.y,size:p.size,jump:{enabled:true,ready:p.ready,progress:p.progress,readyAgeMs:p.readyAgeMs},reduced:p.reduced};
+      paintJumpBodyFlash(c,placement);paintJumpSideNeon(c,placement);
+    } finally {c.restore();}
   };
 }

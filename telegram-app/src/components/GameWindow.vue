@@ -8,6 +8,7 @@ const panel = ref<HTMLElement>();
 let previous: HTMLElement | null = null;
 function key(event: KeyboardEvent) {
   if(props.inactive)return;
+  if(panel.value!==Array.from(document.querySelectorAll('.modal-backdrop .game-window')).at(-1))return;
   if (event.key === 'Escape') { event.preventDefault(); if (props.closable !== false) back(); }
   if (event.key !== 'Tab') return;
   const items = Array.from(panel.value?.querySelectorAll<HTMLElement>('button:not([disabled]),a[href],input:not([disabled]),textarea,select,[tabindex="0"]') ?? []);

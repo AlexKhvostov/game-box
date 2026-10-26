@@ -9,6 +9,7 @@ import { telegram } from '../platform/telegram';
 import type { GameConfig } from '../services/contracts';
 import { motionProbe } from './motion-probe';
 import {JumpReadySignal} from './jump-ready-signal';
+import {dismissControlHint,resetControlHint,recordControlHintStart} from '../services/control-hint-store';
 export class GameController {
   private painter: FieldPainter;
   private jumpReady = new JumpReadySignal();
@@ -39,9 +40,10 @@ export class GameController {
 
     applyPendingConfig();
     if (!state.config) return;
+    resetControlHint();
     this.boundConfig = state.config;
     this.jumpReady.reset();
-    this.requestId = operationId(); this.snapshot = kernel({ op: 'create', proofVersion: 3, config: this.boundConfig.config, requestId: this.requestId, hadHelmet: state.helmet, hadJump: state.jump });
+    this.requestId = operationId(); this.snapshot = kernel({ op: 'create', proofVersion: 5, config: this.boundConfig.config, requestId: this.requestId, hadHelmet: state.helmet, hadJump: state.jump });
     this.impacts=[];this.painter.configure(this.boundConfig.config); world.value = this.snapshot; this.reanchor();
     this.draw();
   }
@@ -78,7 +80,7 @@ export class GameController {
   private tick = (time: number) => {
     if (this.stopped) return;
     this.raf = requestAnimationFrame(this.tick);
-    if (!this.snapshot || state.screen || state.externalBusy || document.hidden || telegram()?.isActive === false) { this.lastTime = 0; this.debt = 0; return; }
+    if (!this.snapshot || state.screen || state.inviteNoticeOpen || state.externalBusy || document.hidden || telegram()?.isActive === false) { this.lastTime = 0; this.debt = 0; return; }
     const dt = this.lastTime ? time - this.lastTime : 0; this.lastTime = time;
     if (dt <= 0) {this.draw();return;}
     this.impacts=this.impacts.filter(impact=>impact.update(Math.min(50,dt)/1000));
@@ -99,7 +101,7 @@ export class GameController {
     this.transitions(previous);
   }
   private transitions(previous: WorldState) {
-
+    if (!this.snapshot.dead && (this.snapshot.brake?.presses??0) > (previous.brake?.presses??0)) sound('brake');
     if (this.snapshot.riskCount > previous.riskCount) sound('risk');
     if ((this.snapshot.helmetCharge?.breaks??0) > (previous.helmetCharge?.breaks??0)) { this.impacts.push(new HelmetShatter(this.snapshot));sound('helmet'); if (state.preferences.vibration) telegram()?.HapticFeedback?.impactOccurred('medium'); }
     if (this.snapshot.dead && !previous.dead) {
@@ -112,22 +114,25 @@ export class GameController {
     }
   }
   private down = (event: PointerEvent) => {
-    if (!state.initialized || state.screen || state.externalBusy || this.snapshot.dead || event.button > 0) return;
+    if (!state.initialized || state.screen || state.inviteNoticeOpen || state.externalBusy || this.snapshot.dead || event.button > 0) return;
     event.preventDefault(); this.touchpad.setPointerCapture(event.pointerId); enableAudio();
     if (!this.snapshot.playing) {
+      dismissControlHint();
+      const fromLower=event.clientY>=this.canvas.getBoundingClientRect().bottom;
       if (this.geometryIssue()) { this.reanchor(); state.notice = state.locale === 'en' ? 'The field is not fully visible. Close the keyboard or reopen the game. Your run has not started.' : 'Поле отображается не полностью. Закройте клавиатуру или откройте игру заново. Попытка не началась.'; return; }
       if (energy.value < state.profile!.wallet.energyConfig.baseAttemptCost + (state.helmet ? state.profile!.wallet.energyConfig.helmetExtraCost : 0) + (state.jump ? state.profile!.wallet.energyConfig.jumpExtraCost : 0)) { openScreen('energy'); return; }
       try {
         // Loadout was chosen while idle. Recreate with the same seed, restore
         // the continuously displayed start pose, then start without a frame jump.
         prepareAttempt(this.requestId); this.snapshot = kernel({ op: 'start' }); this.lastTime = 0; this.debt = 0; world.value = this.snapshot; sound('start');motionProbe.start();
+        if(this.snapshot.playing)recordControlHintStart(fromLower,this.requestId);
       } catch (error) { if(error instanceof Error && error.message==='insufficient_energy'){openScreen('energy');return;} state.error = errorText(error); state.notice = state.error; return; }
     }
     if (this.primary === null) { this.primary = event.pointerId; this.pointers.set(event.pointerId, { x: event.clientX, y: event.clientY }); }
     else { this.pointers.set(event.pointerId, { x: event.clientX, y: event.clientY }); this.jump(); }
   };
   private move = (event: PointerEvent) => {
-    if (!this.snapshot.playing || state.screen || event.pointerId !== this.primary) return;
+    if (!this.snapshot.playing || state.screen || state.inviteNoticeOpen || event.pointerId !== this.primary) return;
     const last = this.pointers.get(event.pointerId); this.pointers.set(event.pointerId, { x: event.clientX, y: event.clientY }); if (!last) return;
     const factor = 380 / this.canvas.getBoundingClientRect().width;
     const dx = (event.clientX - last.x) * factor, dy = (event.clientY - last.y) * factor;
@@ -153,7 +158,7 @@ export class GameController {
     if(accepted){sound('jump');}if(motionProbe.paintOnInput())this.draw();world.value=this.snapshot;
   }
   private key = (event: KeyboardEvent) => {
-    if (['INPUT', 'TEXTAREA', 'SELECT'].includes((event.target as HTMLElement)?.tagName) || state.screen) return;
+    if (['INPUT', 'TEXTAREA', 'SELECT'].includes((event.target as HTMLElement)?.tagName) || state.screen || state.inviteNoticeOpen) return;
     if (event.code === 'Space') { event.preventDefault(); this.jump(); }
   };
   private deactivate = () => { this.lastTime = 0; this.debt = 0; this.pointers.clear(); this.primary = null; stopAudio(); };

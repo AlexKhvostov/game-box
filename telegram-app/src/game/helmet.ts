@@ -16,14 +16,16 @@ function rim(c:CanvasRenderingContext2D,x:number,y:number,size:number,r:number) 
 }
 export function paintHelmet(c:CanvasRenderingContext2D,s:WorldState,x:number,y:number,size:number,reduced=false) {
   const charge=s.helmetCharge;if(!charge?.equipped)return;
-  c.save();const f=helmetFlash(s,reduced),length=rim(c,x-2.5,y-2.5,size+5,6.5);
-  if(s.helmet){
-    c.strokeStyle=f>.01?`rgb(${164+Math.round(73*f)},${239+Math.round(16*f)},255)`:helmetBright;c.lineWidth=2.6+.8*f;c.stroke();
-    rim(c,x-5-f,y-5-f,size+10+2*f,9+f);c.strokeStyle=helmetBright;c.globalAlpha*=.48+.45*f;c.lineWidth=1.2;c.stroke();
-  }else{
-    c.strokeStyle=helmetDim;c.lineWidth=1.2;c.globalAlpha*=.25;c.stroke();c.globalAlpha/=.25;
-    const p=Math.max(0,Math.min(1,charge.progress));
-    if(p>0){c.setLineDash([length*p,length+1]);c.lineWidth=2.2;c.lineCap='round';c.stroke();}
+  const k=size/44,p=s.helmet?1:Math.max(0,Math.min(1,charge.progress));
+  c.save();const f=helmetFlash(s,reduced),length=rim(c,x-3.5*k,y-3.5*k,size+7*k,8*k);
+  for(const [width,color] of [[4.8,'#05182e'],[3.6,!s.helmet&&p===0?'#36536b':'#4c93b3'],[2.5,'#092439']] as [number,string][]) {
+    c.lineWidth=width*k;c.strokeStyle=color;c.stroke();
+  }
+  if(p>0){
+    c.setLineDash([length*p,length+1]);c.lineCap='round';
+    c.shadowColor='#36d9ff';c.shadowBlur=(s.helmet?4+f*2:2.5)*k;
+    c.lineWidth=(3.2+f*.6)*k;c.strokeStyle=s.helmet?'#a0f5ff':'#39dbff';c.stroke();
+    c.shadowBlur=0;c.lineWidth=(1.05+f*.35)*k;c.strokeStyle=s.helmet?'#edffff':'#b6f8ff';c.stroke();
   }c.restore();
 }
 // The same six small cyan pieces and .4 s fade as Android HelmetShatter.

@@ -1,4 +1,5 @@
-import { computed, reactive, shallowRef } from 'vue';
+import { computed, reactive, shallowRef, ref, toRaw } from 'vue';
+import {InviteRewardJournal,parseInviteRewards} from '../domain/invite-rewards';
 import { TelegramApi, ApiError } from './api';
 import { DurableStorage, operationId } from './storage';
 import { RoundJournal } from './journal';
@@ -14,12 +15,45 @@ import type {AttemptHistorySnapshot} from './contracts';
 const storage = new DurableStorage();
 export const state = reactive({ profile: null as Profile | null, config: null as GameConfig | null, platform: null as PlatformConfig | null,
   initialized: false, online: true, connection: 'unknown' as ConnectionStatus, busy: false, externalBusy: false, error: '', notice: '', screen: '' as string, parent: '',
+  inviteNoticeOpen:false,
   helmet: false, jump: false, history: [] as Attempt[], periods: {} as Record<string, Score[]>, average: null as AverageBoard | null,
   serverHistory: null as AttemptHistorySnapshot | null, historyLoading: false, historyError: '',
   bestResult: null as Score | null, invites: null as InviteState | null, period: 'all', rankingTab: 'record', locale: 'ru',
   preferences: { sound: true, music: true, vibration: true }, serverOffset: 0, resultId: '', selectedScore: null as Score | null, selectedPlayer:null as {userId:string;playerName:string}|null, rulesAccepted: false });
 export const api = new TelegramApi(status => { state.connection = status; state.online = status !== 'offline'; });
 export const world = shallowRef<WorldState | null>(null);
+const inviteRevision=ref(0),inviteJournals=new Map<string,InviteRewardJournal>(),invitePresentedMemory=new Set<string>();
+function inviteJournal(owner=state.profile?.id){
+  if(!owner)return null;
+  const key=`${api.cacheNamespace()}:${owner}`;
+  if(!inviteJournals.has(key))inviteJournals.set(key,new InviteRewardJournal(storage,api.cacheNamespace(),owner));
+  return inviteJournals.get(key)!;
+}
+export const pendingInviteRewards=computed(()=>{
+  inviteRevision.value;
+  const journal=inviteJournal();
+  return parseInviteRewards(state.profile?.wallet.inviteRewardNotices).filter(n=>!journal?.seen(n.id));
+});
+export const heldInviteEnergy=computed(()=>pendingInviteRewards.value.filter(n=>!inviteWasPresented(n.id)).reduce((sum,n)=>sum+n.amount,0));
+export function inviteWasPresented(id:string){inviteRevision.value;return invitePresentedMemory.has(`${api.cacheNamespace()}:${state.profile?.id}:${id}`)||(inviteJournal()?.presented(id)??false);}
+export function markInvitePresented(id:string,owner:string){if(owner!==state.profile?.id)return;try{inviteJournal(owner)?.markPresented(id);}finally{invitePresentedMemory.add(`${api.cacheNamespace()}:${owner}:${id}`);inviteRevision.value++;}}
+export function acknowledgeInviteReward(id:string){inviteJournal()?.acknowledge(id);inviteRevision.value++;void syncInviteRewards().catch(()=>{});}
+let inviteSync:Promise<void>|null=null;
+export function syncInviteRewards():Promise<void>{
+  if(disposed||!state.initialized||document.hidden||telegram()?.isActive===false)return Promise.resolve();
+  if(inviteSync)return inviteSync;
+  const owner=state.profile!.id,epoch=generation,journal=inviteJournal(owner)!;
+  inviteSync=(async()=>{
+    for(const id of journal.pending){
+      try{await request({action:'invite_reward_ack',eventId:id});}
+      catch(error){if(!(error instanceof ApiError)||error.code!=='invite_reward_not_found')throw error;}
+      if(disposed||epoch!==generation||owner!==state.profile?.id)return;
+      journal.confirm(id);inviteRevision.value++;
+    }
+    await request({action:'profile'});
+  })().finally(()=>{inviteSync=null;});
+  return inviteSync;
+}
 export const failedFinish = shallowRef<{ id: string; owner: string; result: NonNullable<Attempt['result']>; finishedAt: number } | null>(import.meta.hot?.data.failedFinish ?? null);
 let journal: RoundJournal | null = null, flushing: Promise<void> | null = null, retryTimer: ReturnType<typeof setTimeout> | null = null;
 let generation = 0;
@@ -109,6 +143,13 @@ export async function request(body: Record<string, unknown>,beforeAccept?:(resul
     throw error;
   }
 }
+// Cached bootstrap and an ignored, out-of-order profile cannot authorize a prompt.
+export async function refreshBonusEntryProfile():Promise<boolean>{
+  const owner=state.profile?.id;
+  if(!owner||!state.initialized||state.busy||state.externalBusy)return false;
+  const result=await request({action:'profile'});
+  return !!result.profile&&state.initialized&&state.profile?.id===owner&&toRaw(state.profile)===result.profile;
+}
 function blockRevokedSession(error:unknown){
   const code=error instanceof Error?error.message:String(error);
   if(!['telegram_unauthorized','telegram_session_expired','profile_disabled','owner_changed','platform_owner_invalid','telegram_bot_namespace_invalid'].includes(code))return;
@@ -117,7 +158,7 @@ function blockRevokedSession(error:unknown){
   try{storage.set('bootstrap-revoked:v1',api.cacheNamespace());}catch{/* Current session remains blocked even if the marker cannot be saved. */}
   state.error=errorText(error);
 }
-async function openJournal(owner:string){if(disposed)return;await acquireWriter(owner);if(disposed)return;journal=new RoundJournal(storage,owner);journal.recoverUnfinished();history();serverHistory.setOwner(owner);state.initialized=true;}
+async function openJournal(owner:string){if(disposed)return;await acquireWriter(owner);if(disposed)return;journal=new RoundJournal(storage,owner);journal.recoverUnfinished();history();serverHistory.setOwner(owner);state.initialized=true;void syncInviteRewards().catch(()=>{});}
 function refreshBootstrap():Promise<void>{
   if(disposed)return Promise.resolve();
   if(bootstrapFlight)return bootstrapFlight;
@@ -161,7 +202,7 @@ export function selectAbility(key: 'helmet' | 'jump', value: boolean) { storage.
 export function prepareAttempt(id: string) {
   if (failedFinish.value) throw new Error('storage_unavailable');
   if (!journal || !state.config || !state.profile) throw new Error('profile_unavailable');
-  const entry = journal.prepare(id, state.config, state.helmet, state.jump, state.profile.wallet.energy, now(), state.profile.wallet.bestTimeMs,state.profile.walletVersion,3); history();
+  const entry = journal.prepare(id, state.config, state.helmet, state.jump, state.profile.wallet.energy, now(), state.profile.wallet.bestTimeMs,state.profile.walletVersion,5); history();
   void flush(); return entry;
 }
 export function finishAttempt(id: string, s: WorldState, proof: RoundProof) {
@@ -234,6 +275,9 @@ export async function flush() {
           const remaining = entry.result.timeMs - (now() - activationAge.get(entry.requestId)!);
           if (remaining > 0) { later(remaining); continue; }
           const result = await request({ action: 'round_finish', roundId: entry.roundId, ...entry.result, hadHelmet: entry.helmet, hadJump: entry.jump });
+          if(liveResultId===entry.requestId&&current.all.find(a=>a.requestId===entry.requestId)?.rewardVisualShown&&Number.isSafeInteger(result.energyReward)&&result.energyReward!>0) {
+            emitResultReward({key:`confirmed:${entry.requestId}`,owner,amount:result.energyReward!,after:state.profile!.wallet.energy,provisional:false,kind:'wallet',counterOnly:true});
+          }
           current.update(entry.requestId, { phase: 'confirmed', reward: result.energyReward }); history();
           void refreshBoards().catch(() => {});
           if(state.screen==='history'){serverHistory.invalidate(true);void refreshAttemptHistory();}
@@ -284,13 +328,13 @@ export async function walletOperation(kind: string, args: Record<string, unknown
 let boardSerial = 0, inviteSerial = 0;
 let invitePage: Promise<void> | null = null;
 export async function refreshBoards() { const serial = ++boardSerial; const result = await request({ action: 'scores', period: 'allPeriods' }); if (serial === boardSerial) { state.periods = result.periods ?? {}; state.average = result.average ?? null; } }
-export async function refreshInvites() { const serial = ++inviteSerial; const result = await request({ action: 'invites_state' }); if (serial === inviteSerial) state.invites = result.invites ?? null; }
+export async function refreshInvites() { const serial = ++inviteSerial; const result = await request({ action: 'invites_state',inviteContract:2 }); if (serial === inviteSerial) state.invites = result.invites ?? null; }
 export async function moreInvites() {
   if(invitePage)return invitePage;
   const current=state.invites,owner=state.profile?.id,serial=inviteSerial;
   if(!current?.nextCursor)return;
   invitePage=(async()=>{
-    const result=await request({action:'invites_list',before:current.nextCursor}),page=result.invites;
+    const result=await request({action:'invites_list',inviteContract:2,before:current.nextCursor}),page=result.invites;
     if(!page||serial!==inviteSerial||owner!==state.profile?.id||state.invites!==current)return;
     const unique=(rows:any[])=>Array.from(new Map(rows.map(row=>[row.inviteeUid??row.id??row.code, row])).values());
     state.invites={...page,paidRows:unique([...current.paidRows,...page.paidRows]),pendingRows:unique([...current.pendingRows,...page.pendingRows])};
@@ -316,15 +360,16 @@ export function openBestAttemptResult(score: Score) {
   openScreen('result', 'history');
 }
 export function back() { if(closeTopOverlay())return; if (failedFinish.value) return; state.screen = navigation.pop() ?? ''; if(state.screen!=='result'&&state.screen!=='share')state.bestResult=null; state.parent = navigation.at(-1) ?? ''; state.error = ''; }
-const online = () => { if (!disposed) { void api.checkConnection(); void flush(); } };
+const online = () => { if (!disposed) { void api.checkConnection(); void flush(); void syncInviteRewards().catch(()=>{}); } };
 const offline = () => { if (!disposed) void api.checkConnection(); };
-const activity = () => { if (!disposed) { const active = !document.hidden && telegram()?.isActive !== false; api.setActive(active); if (active) void flush(); } };
+const activity = () => { if (!disposed) { const active = !document.hidden && telegram()?.isActive !== false; api.setActive(active); if (active) {void flush();void syncInviteRewards().catch(()=>{});} } };
 const beforeUnload = (event: BeforeUnloadEvent) => { if (failedFinish.value) { event.preventDefault(); event.returnValue = ''; } };
 window.addEventListener('online', online); window.addEventListener('offline', offline); window.addEventListener('beforeunload', beforeUnload);
 document.addEventListener('visibilitychange',activity); telegram()?.onEvent('activated',activity); telegram()?.onEvent('deactivated',activity); activity();
+const invitePoll=setInterval(()=>{if(state.initialized&&!state.busy&&!state.externalBusy)void syncInviteRewards().catch(()=>{});},30000);
 export function disposeStore() {
   serverHistory.setOwner('');
-  disposed = true; generation++; needsWork = false; if (retryTimer) clearTimeout(retryTimer);if(bootstrapRetry)clearTimeout(bootstrapRetry);
+  disposed = true; generation++; needsWork = false; clearInterval(invitePoll);if (retryTimer) clearTimeout(retryTimer);if(bootstrapRetry)clearTimeout(bootstrapRetry);
   api.dispose(); document.removeEventListener('visibilitychange',activity); telegram()?.offEvent('activated',activity); telegram()?.offEvent('deactivated',activity);
   window.removeEventListener('online', online); window.removeEventListener('offline', offline); window.removeEventListener('beforeunload', beforeUnload);
 }

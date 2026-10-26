@@ -1,6 +1,8 @@
 // Exact timing/geometry from the frozen EnergyRewardFrame (Android 188).
 export const clamp = (n: number) => Math.max(0,Math.min(1,n));
 export const ease = (n: number) => 1-(1-n)**3;
+// Current shared Android/Telegram integer counter; frozen kernel geometry stays compatible.
+export const energyRoll=(progress:number,reduced=false)=>ease(clamp((progress-(reduced ? .5 : .8))/(reduced ? .5 : .2)));
 export function rewardFrame(progress: number, reduced = false) {
   const p=clamp(progress), appearance=clamp(p/.1125), flight=reduced?0:clamp((p-.4)/.4);
   const fly=flight<.5?4*flight**3:1-(-2*flight+2)**3/2;

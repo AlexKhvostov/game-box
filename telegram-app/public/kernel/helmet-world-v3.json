@@ -1,8 +1,13 @@
 {
   "proofVersion": 3,
+  "supportedProofVersions": [
+    3,
+    4,
+    5
+  ],
   "files": {
-    "lib/features/game/game_world.dart": "2609b954bb634425ef250df6b1ba7df87ccfb2bfa85cbdb8096e332628e79206",
-    "lib/domain/gameplay_config.dart": "53726462cb73064e4d0b709f2ec1b9c404f0460b822bc261f8b3de42f81da16a",
+    "lib/features/game/game_world.dart": "88a30cdb933f19f65ce759b61071b37411fe249327e5485e4a022c5e3c499519",
+    "lib/domain/gameplay_config.dart": "29ab1c7480a6d8ecc15bc63435e16f65f1b818b2abcc7e74a904e506f6078d68",
     "lib/domain/arcade_rules.dart": "c75401265070b14ce604441fbcfe595048a78258c70ac2424a9d737342cbe5b4",
     "lib/domain/economy_config.dart": "bfe78947fd90ee5bbe98aadf2d00c34ee4ddc8d20e1dbc546b112ca3869ec006",
     "lib/domain/android_energy.dart": "6e8a835252f1715428bc254b5fb116dfee9fd72372938f820ecc9d2bfa2fd228",
@@ -10,13 +15,12 @@
     "lib/domain/replay_random.dart": "8a4326a81f2450541f9438d7ad9ca3d0044dcfe26d353970deef86b43e4e5db2",
     "lib/domain/helmet_charge.dart": "3b35c6d17a41a480b0b004dde3c6d86e88b2188afcecf44a39676919f4030e1b",
     "tools/replay/geometry.dart": "36a4b15686fcee04777325461cf11033d9236f6073591a5d1ccf1ab432507831",
-    "tools/replay_helmet/session.dart": "577ae5445e9e28090edbbd846d18bca23fe08990a497a6bb7ac526c282619ae3",
-    "tools/replay_helmet/main.dart": "f26feada7466a6968e3b0adc8d36292d2977f374754450f26c97d508be890b45",
+    "tools/replay_helmet/session.dart": "70598bf4b4cb3425dca95adca133e1491bd77a73c9d0ffab768fc0b797078fa0",
     "lib/app/mobile_gameplay_tuning.dart": "8fbf2ccd44df6e7b1fc557ea06134abba967a6b61017055e3e29cef82cdff3f4",
     "lib/features/game/game_start_guard.dart": "105371795e5209c4e8d482a57d930a2cb159f45d895d8f8d70f5b71089ed4141",
-    "lib/ui/energy_reward_motion.dart": "58339692bae7bfe707104ef4c52b75f1a39637dcba2c4771f3784a6f96c3fe61",
-    "telegram-app/tools/kernel/helmet_browser.dart": "e9b57c7f4c8b00fa20ffe918b46b713cf3f61fbfc6f5d97186f8f6490d7f1c72",
-    "telegram-app/tools/kernel/helmet_main.dart": "1b38138333e61c6ea73e24c35eba12c76ffb97dd823c910da506fd10323a21a6"
+    "lib/ui/energy_reward_motion.dart": "61c16435d32409550f46c386552b9fd1754aaacb3c880bf2dd52a1391ef7ee09",
+    "telegram-app/tools/kernel/helmet_browser.dart": "4ae90be98421522701061f9c060eb4bcf90670148f5adbfcdb2cc9c6bfab3cc2",
+    "telegram-app/tools/kernel/helmet_main.dart": "63d52ae2e270f052999be34dc38d9bb9b9507078c302406ba070abb1b6d27bcd"
   },
-  "generatedSha256": "755316f98e69c9d7a1d4e6a39ac750d50c115b625976ad5ad1df0be4875bd5f7"
+  "generatedSha256": "2e1b2ba55d28e4caa8a53d4ce5fc46275ad4f471a624e24d33265194537a02af"
 }

@@ -86,7 +86,7 @@ function interstitialReady() {
   const config = state.config?.config.economy, profile = state.profile, ads = state.platform?.ads;
   if (!config || !profile || profile.id !== interstitialOwner || !ads || ads.enabled !== true || ads.interstitialEnabled !== true ||
       !/^int-\d+$/.test(ads.interstitialBlockId) || !canShowAds() || !isNativeTelegram() || document.hidden ||
-      telegram()?.isActive === false || state.screen !== 'result' || !latestRound || state.resultId !== latestRound) return false;
+      telegram()?.isActive === false || state.screen !== 'result' || state.inviteNoticeOpen || !latestRound || state.resultId !== latestRound) return false;
   const keys = ['interstitialSessionGraceSec','interstitialSessionFreeRounds','interstitialGraceSec','interstitialCooldownSec','interstitialMinLives'];
   if (keys.some(key => !Number.isFinite(config[key]) || config[key] < 0)) return false;
   const stamp = performance.now(), wallNow = now(), wallet = profile.wallet, subscription = wallet.energySubscription;

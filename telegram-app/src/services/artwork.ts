@@ -17,6 +17,8 @@ export function loadArtwork(src: string): Promise<HTMLImageElement> {
 }
 export function warmArtwork() {
   for (const src of [resultArtwork, '/assets/branding/ui/hud-player-portrait-v1.png',
+    '/assets/branding/ui/untouch-floor-brand-v1.webp',
+    '/assets/branding/ui/control-hint-hand-v1.png',
     '/assets/branding/ui/simple-energy-helmet.png', '/assets/branding/ui/simple-energy-jump.png',
     '/assets/branding/ui/jump-v1.png']) void loadArtwork(src).catch(() => {});
 }
