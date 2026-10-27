@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "previousFields": 137,
+  "fields": 144,
+  "independentAdFields": 7,
+  "existingFieldTypesRangesDefaultsUnchanged": true,
+  "inviteMinimumRetained": true,
+  "engineRewardedGateBothPlatforms": true
+}

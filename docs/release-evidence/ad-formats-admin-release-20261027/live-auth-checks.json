@@ -1,0 +1,30 @@
+{
+  "checkedAt": "2026-10-27T14:27:46.750Z",
+  "passed": true,
+  "checks": [
+    {
+      "name": "admin_requires_login",
+      "status": 401,
+      "error": "unauthorized",
+      "passed": true
+    },
+    {
+      "name": "admin_rejects_foreign_origin",
+      "status": 403,
+      "error": "origin_denied",
+      "passed": true
+    },
+    {
+      "name": "android_profile_requires_login",
+      "status": 401,
+      "error": "unauthorized",
+      "passed": true
+    },
+    {
+      "name": "telegram_profile_requires_init_data",
+      "status": 401,
+      "error": "telegram_unauthorized",
+      "passed": true
+    }
+  ]
+}

@@ -973,3 +973,6 @@ APK1.0.118+119 установлена на Huawei без очистки: оди�
 
 ## Реклама · независимые форматы ·27.10.2026
 Кодbanner/automatic/rewarded,поясненияадминкииQA225готовы.96Flutter/24backend/18Telegram/6adminPASS;Androidrelease/webbuilds/analyzePASS. ПолныйFlutterимеет20сбоевбазыb489,новых0;общиестарыеfixtureсбоиописанывотчёте. Рабочийвыпускотдельно,QAключ75обаOFF. [Отчёт](tasks/2026-10-27-ad-formats-controls.md).
+
+## Рабочая админка и RC рекламы · 27.10.2026 17:33 Europe/Minsk
+По новому поручению Алексея опубликованы Hosting571189054d2dff3e, RC76, APIAndroid37/Telegram21/Admin26.3раздела/15пояснений доступны после обычного входа;5пробныхизменений прошли preview без публикации. БаннерOFF/86400с/пустойID, automaticON/300с/180с, rewardedON; прежние500/500/10/400/10 и TelegramOFF/QAключ сохранены.10engine+4HTTPguardsPASS,HTTPS/source readbackPASS. ОсновнойAndroid219 требует новогоAPK; QA225 изолирована. [Отчёт](tasks/2026-10-27-ad-formats-controls.md), [доказательства](../docs/release-evidence/ad-formats-admin-release-20261027/README.md). Не заменять production целиком старой main-базой: сохранены ранее опубликованные доработки, схема144.

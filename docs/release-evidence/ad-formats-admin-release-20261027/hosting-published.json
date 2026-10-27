@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "published": true,
+  "previous": "sites/untouch-admin-game-box-b30d4/versions/091e526dcb12a143",
+  "version": "sites/untouch-admin-game-box-b30d4/versions/571189054d2dff3e",
+  "site": "https://untouch-admin-game-box-b30d4.web.app",
+  "changed": [
+    "/assets/index-D0XKgjTz.css",
+    "/assets/index-EgfkYudg.js",
+    "/index.html"
+  ],
+  "existingFilesRetained": true,
+  "hostingConfigUnchanged": true,
+  "httpsVerified": true
+}

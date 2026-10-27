@@ -1,0 +1,21 @@
+{
+  "site": "https://untouch-admin-game-box-b30d4.web.app",
+  "rcVersion": "76",
+  "authenticatedExistingGoogleAccount": true,
+  "sections": [
+    "banner",
+    "automatic",
+    "rewarded"
+  ],
+  "previewAcceptedChanges": 5,
+  "businessPreviewPublished": false,
+  "previewValues": {
+    "banner.enabled": true,
+    "banner.installDelaySec": 90000,
+    "automatic.enabled": false,
+    "automatic.resumeGraceSec": 240,
+    "rewarded.enabled": false
+  },
+  "finalRcReadbackUnchanged": true,
+  "browserCleanup": "Discard click timed out; no publish was clicked. Final remote read independently confirms all preview values remain unpublished. Ephemeral tab cleanup applies."
+}

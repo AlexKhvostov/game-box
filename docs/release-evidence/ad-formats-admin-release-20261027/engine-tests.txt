@@ -1,0 +1,18 @@
+✔ rewarded switch denies new sessions and still pays an already quoted session (49.4835ms)
+✔ 20 confirmed rewards per Minsk day; duplicate ACK never consumes twice; next midnight resets (403.551ms)
+✔ last daily credit is atomic across sessions; abandoned sessions consume no quota (41.795ms)
+✔ RC changes quota/cooldown immediately and preserves today usage; old config defaults to20 (49.3225ms)
+✔ admin exposes daily count and cooldown with integer ranges; unrelated fields stay unchanged (1.9736ms)
+✔ rewarded switch denies new sessions and still pays an already quoted session (63.943ms)
+✔ 20 confirmed rewards per Minsk day; duplicate ACK never consumes twice; next midnight resets (442.6345ms)
+✔ last daily credit is atomic across sessions; abandoned sessions consume no quota (38.1049ms)
+✔ RC changes quota/cooldown immediately and preserves today usage; old config defaults to20 (39.0346ms)
+✔ admin exposes daily count and cooldown with integer ranges; unrelated fields stay unchanged (1.4884ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3795.3627
