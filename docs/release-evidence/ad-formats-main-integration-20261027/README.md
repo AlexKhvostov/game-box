@@ -4,12 +4,12 @@
 
 ## Проверки итогового дерева
 
-- [96 Flutter-сценариев рекламы и потребления админского JSON](flutter-ads.log) PASS сDEMOфлагом.
-- [24 backend-сценария RC/форматов/награды](backend-ads.log) PASS.
-- [18 Telegram-сценариев рекламы](telegram-ads.log) PASS; типы Vue/TypeScript PASS.
-- Админка6тестовPASS, [её сборка](admin-build.log) и [сборка Telegram](telegram-build.log) PASS.
-- [Анализ16исполняемыхDartфайлов](analyze.log) чистый.
-- [Основная точка входа Android release/arm64](android-build.log) собрана сDEMO; APK49.8MB, SHA256`73A5B09D6A401CA798E278AC33FB1D1C476B97F3F0C2D53C627F92C82742831B`. Это локальная проверка, не GooglePlay/установка основной игры.
+- [96 Flutter-сценариев рекламы и потребления админского JSON](flutter-ads.txt) PASS сDEMOфлагом.
+- [24 backend-сценария RC/форматов/награды](backend-ads.txt) PASS.
+- [18 Telegram-сценариев рекламы](telegram-ads.txt) PASS; типы Vue/TypeScript PASS.
+- Админка6тестовPASS, [её сборка](admin-build.txt) и [сборка Telegram](telegram-build.txt) PASS.
+- [Анализ16исполняемыхDartфайлов](analyze.txt) чистый.
+- [Основная точка входа Android release/arm64](android-build.txt) собрана сDEMO; APK49.8MB, SHA256`73A5B09D6A401CA798E278AC33FB1D1C476B97F3F0C2D53C627F92C82742831B`. Это локальная проверка, не GooglePlay/установка основной игры.
 
 ## Честные границы общего прогона
 

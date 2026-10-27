@@ -1,0 +1,26 @@
+✔ automatic and rewarded switches are independent of banner (208.0585ms)
+✔ long background absence creates a quiet window on return (69.4376ms)
+✔ a pending automatic load cannot survive deactivation/reactivation (46.6991ms)
+✔ reviewer: fresh energy-v2 without legacy daily claim can show, missing/off switch cannot, rewarded is independent (21.081ms)
+✔ reviewer: every mutable guard is checked after delayed SDK loading (20.9207ms)
+✔ reviewer: owner switch restarts free-round and time gates; duplicate result callbacks cannot spend free rounds (1.4653ms)
+✔ reviewer: parallel calls reserve one request and failed/no-fill result does not repeat on reopen (2.1552ms)
+✔ reviewer: session floors, configurable grace and cooldown boundaries remain inclusive (1.5851ms)
+✔ reviewer: cancel while SDK is loading releases the caller without waiting for SDK/network timeout (1.6034ms)
+✔ absent/false automatic flag is off while voluntary rewarded ads still work (376.3132ms)
+✔ energy-v2 session and bonus clocks work with legacy lastDailyAt zero (83.2423ms)
+✔ age, consent, visibility, subscription, energy and platform guards fail closed (384.3755ms)
+✔ first ten unique rounds and the session grace remain free even with duplicate callbacks (32.6743ms)
+✔ last daily timestamp is irrelevant; fresh bonus resets the grace and future timestamp delays it (12.6734ms)
+✔ every eligibility restriction is checked again after asynchronous SDK loading (174.5345ms)
+✔ ownership resets counts and clocks and rejects A→B→A while SDK is loading (15.6439ms)
+✔ one provider attempt per result, including skip/no-fill/error, and one flight at a time (58.4251ms)
+✔ successful display cooldown applies to the next round at the configured boundary (11.8369ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 18
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1843.7137

@@ -1,0 +1,13 @@
+vite v6.4.4 building for production...
+
+(!) outDir <integration-worktree>\tmp\ads-main-admin is not inside project root and will not be emptied.
+Use --emptyOutDir to override.
+
+transforming...
+✓ 62 modules transformed.
+rendering chunks...
+computing gzip size...
+../tmp/ads-main-admin/index.html                   0.68 kB │ gzip:  0.45 kB
+../tmp/ads-main-admin/assets/index-D0XKgjTz.css   23.41 kB │ gzip:  5.83 kB
+../tmp/ads-main-admin/assets/index-DXNuzlB2.js   315.13 kB │ gzip: 85.85 kB
+✓ built in 1.46s

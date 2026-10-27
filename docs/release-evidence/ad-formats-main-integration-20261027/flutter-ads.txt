@@ -1,0 +1,98 @@
+00:00 +0: loading <integration-worktree>/test/ad_formats_policy_test.dart
+00:00 +0: <integration-worktree>/test/ad_formats_policy_test.dart: legacy snapshots preserve format defaults; malformed policy is rejected
+00:00 +1: <integration-worktree>/test/ad_formats_policy_test.dart: banner clock uses OS installation time and survives a process restart
+00:00 +2: <integration-worktree>/test/ad_formats_policy_test.dart: long absence blocks automatic ads for its own quiet period
+00:00 +3: <integration-worktree>/test/ad_formats_policy_test.dart: format switches do not alter each other or the automatic timing values
+00:00 +4: <integration-worktree>/test/ad_formats_policy_test.dart: RC automatic OFF blocks new loads and a load already waiting to show
+00:00 +5: <integration-worktree>/test/ad_formats_policy_test.dart: a pending automatic load stays cancelled after even a short background visit
+00:00 +6: <integration-worktree>/test/ad_formats_policy_test.dart: short return has its own pause; long absence also respects opening pause
+00:00 +7: <integration-worktree>/test/android_bottom_banner_test.dart: live placement requires both enabled flag and a separate valid unit
+00:00 +8: <integration-worktree>/test/android_bottom_banner_test.dart: RC fetches once concurrently, preserves state on failure, ignores late dispose
+00:00 +9: <integration-worktree>/test/android_bottom_banner_test.dart: disabled build or RC never requests an ad
+00:00 +10: <integration-worktree>/test/android_bottom_banner_test.dart: disabled build or RC never requests an ad
+00:00 +11: <integration-worktree>/test/android_bottom_banner_test.dart: disabled build or RC never requests an ad
+00:00 +12: <integration-worktree>/test/android_bottom_banner_test.dart: disabled build or RC never requests an ad
+00:00 +13: <integration-worktree>/test/android_bottom_banner_test.dart: demo-enabled privacy and lifecycle no request for a minor
+00:01 +14: <integration-worktree>/test/android_bottom_banner_test.dart: demo-enabled privacy and lifecycle no request without consent
+00:01 +15: <integration-worktree>/test/android_bottom_banner_test.dart: demo-enabled privacy and lifecycle banner waits for installation delay before any SDK session is created
+00:01 +16: <integration-worktree>/test/android_bottom_banner_test.dart: demo-enabled privacy and lifecycle loaded banner, then RC off closes ad and collapses space
+00:01 +17: <integration-worktree>/test/android_bottom_banner_test.dart: demo-enabled privacy and lifecycle consent withdrawal closes native view immediately
+00:01 +18: <integration-worktree>/test/android_bottom_banner_test.dart: demo-enabled privacy and lifecycle failed load hides space; does not spin retry requests
+00:01 +19: <integration-worktree>/test/android_bottom_banner_test.dart: demo-enabled privacy and lifecycle route deactivation closes, reactivation loads a fresh banner
+00:01 +20: <integration-worktree>/test/android_bottom_banner_test.dart: demo-enabled privacy and lifecycle foreground return loads a fresh banner
+00:01 +21: <integration-worktree>/test/android_bottom_banner_test.dart: demo-enabled privacy and lifecycle fullscreen ad suspends banner until dismissed
+00:01 +22: <integration-worktree>/test/android_bottom_banner_test.dart: demo-enabled privacy and lifecycle RC OFF during initialization prevents a late SDK request
+00:01 +23: <integration-worktree>/test/android_bottom_banner_test.dart: demo-enabled privacy and lifecycle RC OFF ON OFF ON creates only fresh banner sessions
+00:01 +24: <integration-worktree>/test/android_bottom_banner_test.dart: demo-enabled privacy and lifecycle late initialization cannot load after switch off
+00:06 +25: <integration-worktree>/test/banner_preview_ad_pacing_test.dart: banner build consumes published economy without stress overrides
+00:06 +26: <integration-worktree>/test/banner_preview_ad_pacing_test.dart: banner preview protects first ten rounds and enforces normal cooldown
+00:06 +27: <integration-worktree>/test/banner_preview_ad_pacing_test.dart: completing many short games does not bypass startup grace
+00:07 +28: <integration-worktree>/test/admin_config_consumption_test.dart: Remote Config color reaches the actual mobile painter instead of fixed design override
+00:08 +29: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter enemies.areaMultiplier reaches the typed Android startup snapshot
+00:08 +30: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter enemies.angleMinDeg reaches the typed Android startup snapshot
+00:08 +31: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter enemies.angleMaxDeg reaches the typed Android startup snapshot
+00:08 +32: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter enemies.collideWithEachOther reaches the typed Android startup snapshot
+00:08 +33: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter enemies.spinDegPerSec reaches the typed Android startup snapshot
+00:08 +34: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter player.size reaches the typed Android startup snapshot
+00:08 +35: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter player.showFace reaches the typed Android startup snapshot
+00:08 +36: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter field.borderWidth reaches the typed Android startup snapshot
+00:08 +37: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter field.brightness reaches the typed Android startup snapshot
+00:08 +38: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter field.shadowBrightness reaches the typed Android startup snapshot
+00:08 +39: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter field.colorHex reaches the typed Android startup snapshot
+00:08 +40: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter game.startHintEnabled reaches the typed Android startup snapshot
+00:08 +41: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter game.idleSpeedMultiplier reaches the typed Android startup snapshot
+00:08 +42: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter game.idleEnemiesMove reaches the typed Android startup snapshot
+00:08 +43: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter game.jumpEnabled reaches the typed Android startup snapshot
+00:08 +44: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter game.jumpDurationSec reaches the typed Android startup snapshot
+00:08 +45: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter game.jumpScale reaches the typed Android startup snapshot
+00:08 +46: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter game.helmetEnabled reaches the typed Android startup snapshot
+00:08 +47: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter game.helmetInvulnSec reaches the typed Android startup snapshot
+00:08 +48: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter game.startInvulnSec reaches the typed Android startup snapshot
+00:08 +49: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter game.wallsKillPlayer reaches the typed Android startup snapshot
+00:08 +50: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter game.jumpCooldownSec reaches the typed Android startup snapshot
+00:08 +51: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter game.helmetCooldownSec reaches the typed Android startup snapshot
+00:08 +52: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter audio.music reaches the typed Android startup snapshot
+00:08 +53: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter audio.musicVolume reaches the typed Android startup snapshot
+00:08 +54: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter audio.sfxVolume reaches the typed Android startup snapshot
+00:08 +55: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter audio.sfxMobWall reaches the typed Android startup snapshot
+00:08 +56: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter audio.sfxMobCollide reaches the typed Android startup snapshot
+00:08 +57: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter audio.sfxHeroMob reaches the typed Android startup snapshot
+00:08 +58: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter audio.sfxHeroWall reaches the typed Android startup snapshot
+00:08 +59: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter audio.sfxNearMiss reaches the typed Android startup snapshot
+00:08 +60: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter audio.sfxHelmet reaches the typed Android startup snapshot
+00:08 +61: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter audio.sfxJump reaches the typed Android startup snapshot
+00:08 +62: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter audio.sfxStart reaches the typed Android startup snapshot
+00:08 +63: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter economy.androidEnergyV2.baseAttemptCost reaches the typed Android startup snapshot
+00:08 +64: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter economy.androidEnergyV2.helmetExtraCost reaches the typed Android startup snapshot
+00:08 +65: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter economy.androidEnergyV2.jumpExtraCost reaches the typed Android startup snapshot
+00:08 +66: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter economy.androidEnergyV2.rewards.feedback reaches the typed Android startup snapshot
+00:08 +67: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter economy.androidEnergyV2.rewards.invite reaches the typed Android startup snapshot
+00:08 +68: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter economy.runRewardEvery reaches the typed Android startup snapshot
+00:08 +69: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter economy.riskRewardEvery reaches the typed Android startup snapshot
+00:08 +70: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter economy.interstitialSessionGraceSec reaches the typed Android startup snapshot
+00:08 +71: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter economy.interstitialSessionFreeRounds reaches the typed Android startup snapshot
+00:08 +72: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter economy.interstitialGraceSec reaches the typed Android startup snapshot
+00:08 +73: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter economy.interstitialCooldownSec reaches the typed Android startup snapshot
+00:08 +74: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter economy.interstitialMinLives reaches the typed Android startup snapshot
+00:08 +75: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter mobileEnemies.startSpeedSteps reaches the typed Android startup snapshot
+00:08 +76: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter mobileEnemies.accelerationSteps reaches the typed Android startup snapshot
+00:08 +77: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter mobileEnemies.speedVariation reaches the typed Android startup snapshot
+00:08 +78: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter mobileEnemies.accelerationVariation reaches the typed Android startup snapshot
+00:08 +79: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter enemyPace.initialSpeed reaches the typed Android startup snapshot
+00:08 +80: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter enemyPace.growthMultiplier reaches the typed Android startup snapshot
+00:08 +81: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter enemyPace.growthExponent reaches the typed Android startup snapshot
+00:08 +82: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter enemyPace.startSmoothingSec reaches the typed Android startup snapshot
+00:08 +83: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter enemyPace.initialCompensation reaches the typed Android startup snapshot
+00:08 +84: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter enemyPace.brakeCooldownSec reaches the typed Android startup snapshot
+00:08 +85: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter enemyPace.brakeFirstReadySec reaches the typed Android startup snapshot
+00:08 +86: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter enemyPace.brakeRewindSec reaches the typed Android startup snapshot
+00:08 +87: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter enemyPace.brakeEnabled reaches the typed Android startup snapshot
+00:08 +88: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter enemyPace.speedBarEnabled reaches the typed Android startup snapshot
+00:08 +89: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter advertising.banner.enabled reaches the typed Android startup snapshot
+00:08 +90: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter advertising.banner.installDelaySec reaches the typed Android startup snapshot
+00:08 +91: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter advertising.banner.unitId reaches the typed Android startup snapshot
+00:08 +92: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter advertising.automatic.enabled reaches the typed Android startup snapshot
+00:08 +93: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter advertising.automatic.longAbsenceSec reaches the typed Android startup snapshot
+00:08 +94: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter advertising.automatic.resumeGraceSec reaches the typed Android startup snapshot
+00:08 +95: <integration-worktree>/test/admin_config_consumption_test.dart: admin parameter advertising.rewarded.enabled reaches the typed Android startup snapshot
+00:08 +96: All tests passed!
