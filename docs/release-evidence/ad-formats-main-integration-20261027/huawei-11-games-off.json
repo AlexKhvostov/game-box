@@ -1,0 +1,33 @@
+{
+  "phase": "idle",
+  "rcKey": "android_ad_formats_qa_v1",
+  "rcReceivedAt": "2026-10-27T11:50:32.593958",
+  "rcRefreshes": 3,
+  "bannerEnabled": false,
+  "bannerLoaded": false,
+  "automaticRequests": 0,
+  "automaticShown": 0,
+  "adEligible": false,
+  "advertising": {
+    "banner": {
+      "enabled": false,
+      "installDelaySec": 0,
+      "unitId": ""
+    },
+    "automatic": {
+      "enabled": false,
+      "longAbsenceSec": 300,
+      "resumeGraceSec": 180
+    },
+    "rewarded": {
+      "enabled": true
+    }
+  },
+  "adPolicy": {
+    "firstLaunchGraceSec": 210,
+    "sessionGraceSec": 180,
+    "sessionFreeRounds": 10,
+    "cooldownSec": 220
+  },
+  "errors": []
+}

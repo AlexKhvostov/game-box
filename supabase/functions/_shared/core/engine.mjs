@@ -350,7 +350,7 @@ function createEngine({db, getPolicy = async () => defaults, verifyPlay, googleL
           requireThat(!session.claimedAt && stamp<session.expiresAt,'ad_session_expired');
           return {adSession:{sessionId,expiresAt:session.expiresAt,amount:session.amount}};
         }
-        requireThat(b.videoReward>0,'ad_unavailable');
+        requireThat(policy.config.advertising?.rewarded?.enabled!==false&&b.videoReward>0,'ad_unavailable');
         requireThat(quota.remaining>0,'ad_daily_limit');
         requireThat(!w.lastAdAt || stamp-w.lastAdAt>=b.videoCooldownSec*1000,'ad_not_ready');
         const value={createdAt:stamp,expiresAt:stamp+86400000,amount:b.videoReward,revision:policy.revision,claimedAt:null};

@@ -14,6 +14,7 @@ Future<void> watchRewardedAd(
   BuildContext context, {
   Future<void> Function(int reward)? onReward,
 }) async {
+  if (!context.read<EconomyStore>().advertising.rewardedEnabled) return;
   if (!context.read<EconomyStore>().canClaimWatchAd) return;
   final ads = context.read<AdsService?>();
   if (ads != null &&

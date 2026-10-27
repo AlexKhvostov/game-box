@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../domain/economy_config.dart';
 import '../domain/gameplay_config.dart';
 import '../domain/enemy_pace.dart';
+import '../domain/ad_formats_config.dart';
 
 /// Immutable startup snapshot: active rounds never change their rules.
 class SharedConfigs {
@@ -16,6 +17,7 @@ class SharedConfigs {
     this.forceLocale = '',
     this.revision = '',
     this.source = 'bundled',
+    this.advertising = const AdFormatsConfig(),
   });
 
   final EconomyConfig economy;
@@ -23,6 +25,7 @@ class SharedConfigs {
   final String forceLocale;
   final String revision;
   final String source;
+  final AdFormatsConfig advertising;
 
   static SharedConfigs fromSnapshot(
     Map<String, dynamic> snapshot,
@@ -36,6 +39,9 @@ class SharedConfigs {
     final raw = snapshot['config'];
     if (raw is! Map<String, dynamic>) {
       throw const FormatException('Missing game configuration');
+    }
+    if (raw.containsKey('advertising') && raw['advertising'] == null) {
+      throw const FormatException('Invalid advertising policy');
     }
     for (final key in [
       'theme',
@@ -62,6 +68,7 @@ class SharedConfigs {
       throw const FormatException('Invalid field geometry');
     }
     return SharedConfigs(
+      advertising: AdFormatsConfig.fromJson(raw['advertising']),
       economy: EconomyConfig.fromJson(raw['economy']),
       gameplay: GameplayConfig.fromBlocks(
         enemies: EnemiesConfig.fromJson(enemies),

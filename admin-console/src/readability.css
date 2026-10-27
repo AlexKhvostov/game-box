@@ -5,6 +5,7 @@
 .search input,.sections button{font-size:12px}.changed-filter{font-size:11px}
 .secondary,.primary,.text-button{font-size:12px}.field-copy label{font-size:14px}
 .field-copy p{font-size:11px}.field-copy code{font-size:9px}.value-control input{font-size:14px}
+.ad-field .field-copy p{font-size:12px;line-height:1.55;max-width:490px;color:#59624e}
 .section-heading p{font-size:12px}.notice{font-size:12px}.bottom-bar>div:first-child{font-size:12px}
 .bottom-bar small{font-size:10px}.login-card p{font-size:13px}.login-card>small{font-size:11px}
 @media(max-width:1200px){.nav-item{font-size:12px}.secondary,.primary,.text-button{font-size:11px}.field-copy label{font-size:13px}}

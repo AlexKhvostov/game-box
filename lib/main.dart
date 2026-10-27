@@ -18,6 +18,9 @@ import 'data/economy_store.dart';
 import 'data/ads_service.dart';
 import 'data/audience_policy.dart';
 import 'data/yandex_ads_driver.dart';
+import 'data/bottom_banner_config.dart';
+import 'data/app_installation.dart';
+import 'app/android_system_ui.dart';
 import 'data/player_preferences.dart';
 import 'data/supabase_mobile_client.dart';
 import 'data/android_firebase_config.dart';
@@ -59,6 +62,7 @@ Future<void> main() async {
         ]);
       }
 
+      await configureAndroidSystemUi();
       final audience = AudiencePolicy();
       await audience.load();
       final analyticsConsent = AnalyticsConsent(
@@ -126,6 +130,8 @@ Future<Widget> _createGame(
   );
 
   final economy = EconomyStore(
+    installedAt: useSupabase ? await readAppInstallation() : null,
+    advertising: remote.advertising,
     config: economyConfig,
     storagePrefix: backendStoragePrefix,
     serverEnergyRequired: useSupabase,
@@ -243,9 +249,17 @@ Future<Widget> _createGame(
           )..start(),
         ),
       ChangeNotifierProvider(
-        create: (_) =>
-            AdsService(YandexAdsDriver(audience: audience), audience: audience),
+        create: (_) => AdsService(
+          YandexAdsDriver(audience: audience),
+          audience: audience,
+          economy: economy,
+        ),
       ),
+      if (useSupabase)
+        ChangeNotifierProvider(
+          lazy: false,
+          create: (_) => BottomBannerConfig()..start(),
+        ),
       if (configSession != null) ...[
         ChangeNotifierProvider(create: (_) => configSession),
         ProxyProvider<AndroidConfigSession, GameplayConfig>(

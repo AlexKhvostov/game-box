@@ -80,6 +80,7 @@ void main() {
         );
         final tuned = MobileGameplayTuning.apply(parsed.gameplay);
         final model = <String, dynamic>{
+          'advertising': parsed.advertising.toJson(),
           'enemyPace': tuned.enemyPace?.toJson(),
           'mobileEnemies': {
             'startSpeedSteps': tuned.mobileEnemies.startSpeedSteps,

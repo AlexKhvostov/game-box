@@ -3,6 +3,7 @@ import {androidGeometryIssues} from '../android-constraints.mjs';
 import crypto from 'node:crypto';
 import {enemyPaceValid} from '../enemy-pace-config.mjs';
 import defaults from './defaults.json' with {type:'json'};
+import {adFormatsConfig} from '../ad-formats-config.mjs';
 const hash = value => crypto.createHash('sha256').update(typeof value === 'string' ? value : JSON.stringify(value)).digest('hex');
 class ApiError extends Error {
   constructor(code, status = 409) { super(code); this.code = code; this.status = status; }
@@ -23,6 +24,7 @@ function validatePolicy(snapshot) {
     else requireThat(v === null || typeof v === 'string' || typeof v === 'boolean', 'policy_invalid', 503);
   }
   walk(c);
+  try{adFormatsConfig(c.advertising);}catch{requireThat(false,'policy_invalid',503);}
   requireThat(enemyPaceValid(c),'policy_invalid',503);
   function types(candidate, original, path='') {
     if(candidate===undefined && path==='economy.androidEnergyV2.simpleBonus.videoDailyLimit')return;

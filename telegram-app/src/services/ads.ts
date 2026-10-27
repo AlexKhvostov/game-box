@@ -11,7 +11,7 @@ const storage = new DurableStorage();
 interface AdReceipt { owner: string; sessionId: string; watched: boolean; claimId: string }
 let volatileReceipt: AdReceipt | null = null;
 const deliveries = new Map<string, Promise<void>>();
-export const adsAvailable = () => isNativeTelegram() && state.platform?.ads.enabled === true && /^\d+$/.test(state.platform.ads.rewardedBlockId);
+export const adsAvailable = () => isNativeTelegram() && state.config?.config.advertising?.rewarded?.enabled !== false && state.platform?.ads.enabled === true && /^\d+$/.test(state.platform.ads.rewardedBlockId);
 export function deliverAdReward(): Promise<void> {
   const owner=state.profile?.id;if(!owner)return Promise.resolve();
   const active=deliveries.get(owner);if(active)return active;
@@ -58,6 +58,7 @@ export async function watchRewardedAd() {
   try {
     const canShow = () => adsAvailable() && state.platform?.ads.rewardedBlockId===blockId && canShowRewardedAds() && state.profile?.id === owner && state.screen==='video' && !document.hidden && telegram()?.isActive !== false;
     if(!canShow())return;
+
     const watched = await adPresenter.show(blockId, true, false, canShow);
     if (watched && state.profile?.id === owner) { volatileReceipt = { ...receipt, watched: true }; adsState.pending = true; await deliverAdReward(); }
     else state.notice = state.locale === 'ru' ? 'Просмотр не завершён. Энергия не начислена.' : 'Viewing was not completed. No energy was added.';
@@ -83,7 +84,7 @@ export function completedRound(id: string) {
 }
 function interstitialReady() {
   const config = state.config?.config.economy, profile = state.profile, ads = state.platform?.ads;
-  if (!config || !profile || profile.id !== interstitialOwner || !ads || ads.enabled !== true || ads.interstitialEnabled !== true ||
+  if (!config || state.config?.config.advertising?.automatic?.enabled === false || performance.now() < resumeNotBefore || !profile || profile.id !== interstitialOwner || !ads || ads.enabled !== true || ads.interstitialEnabled !== true ||
       !/^int-\d+$/.test(ads.interstitialBlockId) || !canShowAds() || !isNativeTelegram() || document.hidden ||
       telegram()?.isActive === false || state.screen !== 'result' || !latestRound || state.resultId !== latestRound) return false;
   const keys = ['interstitialSessionGraceSec','interstitialSessionFreeRounds','interstitialGraceSec','interstitialCooldownSec','interstitialMinLives'];
@@ -105,13 +106,36 @@ export async function maybeResultInterstitial() {
   attemptedRound = latestRound;
   adsState.showing = true; state.externalBusy = true; stopAudio();
   interstitialInFlight = true;
-  const epoch=ownerEpoch,roundId=latestRound,blockId=state.platform!.ads.interstitialBlockId,revision=state.config?.revision;
-  const canShow=()=>epoch===ownerEpoch&&latestRound===roundId&&state.platform?.ads.interstitialBlockId===blockId&&state.config?.revision===revision&&interstitialReady();
+  const epoch=ownerEpoch,foregroundEpoch=adForegroundEpoch,roundId=latestRound,blockId=state.platform!.ads.interstitialBlockId,revision=state.config?.revision;
+  const canShow=()=>epoch===ownerEpoch&&foregroundEpoch===adForegroundEpoch&&latestRound===roundId&&state.platform?.ads.interstitialBlockId===blockId&&state.config?.revision===revision&&interstitialReady();
   const cancel=()=>adPresenter.destroy();telegram()?.onEvent('deactivated',cancel);
   try {
-    if (await adPresenter.show(blockId, false, false, canShow) && epoch===ownerEpoch) {
+
+    const completed=await adPresenter.show(blockId, false, false, canShow);
+
+    if (completed && epoch===ownerEpoch) {
       lastInterstitial = performance.now();
     }
   } finally { telegram()?.offEvent('deactivated',cancel);interstitialInFlight=false;adsState.showing=false;state.externalBusy=false;if(!document.hidden&&telegram()?.isActive!==false)syncMusic(); }
 }
 window.addEventListener('online', () => { void deliverAdReward().catch(() => {}); });
+let backgroundAt: number | null = null, resumeNotBefore = -Infinity, adForegroundEpoch = 0;
+function adBackgrounded() {
+  if (backgroundAt === null) { backgroundAt = performance.now(); adForegroundEpoch++; }
+  if (interstitialInFlight) adPresenter.destroy();
+}
+function adResumed() {
+  if (backgroundAt === null) return;
+  const policy = state.config?.config.advertising?.automatic;
+  const shortGrace=policy?.resumeGraceSec ?? 180;
+  const longAbsence=performance.now() - backgroundAt >= (policy?.longAbsenceSec ?? 300) * 1000;
+  const grace=longAbsence?Math.max(shortGrace,state.config?.config.economy?.interstitialSessionGraceSec??180):shortGrace;
+  resumeNotBefore = performance.now() + grace * 1000;
+  backgroundAt = null;
+}
+document.addEventListener('visibilitychange', () => { if (document.hidden) adBackgrounded(); else adResumed(); });
+telegram()?.onEvent('deactivated', adBackgrounded);
+telegram()?.onEvent('activated', adResumed);
+watch(() => state.config?.config.advertising?.automatic?.enabled, enabled => {
+  if (enabled === false && interstitialInFlight) adPresenter.destroy();
+}, {flush:'sync'});

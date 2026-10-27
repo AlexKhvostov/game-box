@@ -290,5 +290,33 @@
   {
     "path": "enemyPace.speedBarEnabled",
     "value": false
+  },
+  {
+    "path": "advertising.banner.enabled",
+    "value": true
+  },
+  {
+    "path": "advertising.banner.installDelaySec",
+    "value": 3600
+  },
+  {
+    "path": "advertising.banner.unitId",
+    "value": "R-M-123-4"
+  },
+  {
+    "path": "advertising.automatic.enabled",
+    "value": false
+  },
+  {
+    "path": "advertising.automatic.longAbsenceSec",
+    "value": 600
+  },
+  {
+    "path": "advertising.automatic.resumeGraceSec",
+    "value": 240
+  },
+  {
+    "path": "advertising.rewarded.enabled",
+    "value": false
   }
 ]

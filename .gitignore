@@ -73,3 +73,7 @@ tools/__pycache__/
 **/key.properties
 *.dpapi
 
+
+# Local acceptance builds and private test fixtures.
+/tmp/
+**/.private/

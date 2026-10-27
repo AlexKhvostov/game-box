@@ -21,12 +21,27 @@ abstract interface class AdsPrivacyDriver {
 
 /// One fullscreen ad at a time. Yandex onRewarded consumes one server session.
 class AdsService extends ChangeNotifier {
-  AdsService(this.driver, {required this.audience}) {
+  AdsService(this.driver, {required this.audience, this.economy}) {
     audience.addListener(_policyChanged);
+    economy?.addListener(_economyChanged);
+    _lastSwitches = _switches;
   }
   final AdsDriver driver;
   final AudiencePolicy audience;
-  bool get available => audience.rewardedAdsEnabled;
+  final EconomyStore? economy;
+  bool get available =>
+      audience.rewardedAdsEnabled &&
+      (economy?.advertising.rewardedEnabled ?? true);
+  (bool, bool) get _switches =>
+      (available, economy?.advertising.automatic.enabled ?? true);
+  (bool, bool)? _lastSwitches;
+  void _economyChanged() {
+    final next = _switches;
+    if (_lastSwitches == next) return;
+    _lastSwitches = next;
+    notifyListeners();
+  }
+
   AdFailure? lastFailure;
   void _policyChanged() {
     final privacy = driver;
@@ -39,6 +54,7 @@ class AdsService extends ChangeNotifier {
   @override
   void dispose() {
     audience.removeListener(_policyChanged);
+    economy?.removeListener(_economyChanged);
     final privacy = driver;
     if (privacy is AdsPrivacyDriver) {
       (privacy as AdsPrivacyDriver).dispose();
@@ -99,7 +115,7 @@ class AdsService extends ChangeNotifier {
       reportedOutcome = true;
       if (outcome == AdOutcome.unavailable) lastFailure = AdFailure.request;
       var reward = 0;
-      if (available &&
+      if (audience.rewardedAdsEnabled &&
           audience.adConsentRevision == consentRevision &&
           outcome == AdOutcome.rewarded) {
         if (economy.energyEnabled) {
@@ -141,8 +157,11 @@ class AdsService extends ChangeNotifier {
 
   Future<bool> showInterstitial({required bool Function() canShow}) async {
     final consentRevision = audience.adConsentRevision;
+    final foregroundEpoch = economy?.adForegroundEpoch;
     bool allowed() =>
         audience.adsEnabled &&
+        (economy?.advertising.automatic.enabled ?? true) &&
+        foregroundEpoch == economy?.adForegroundEpoch &&
         audience.adConsentRevision == consentRevision &&
         canShow();
     if (busy || !allowed()) return false;

@@ -2,6 +2,7 @@ import defaults from './core/defaults.json' with {type:'json'};
 import {averageDefaults,averageRules} from './average-config.mjs';
 import {enemyPaceDefaults,enemyPaceRanges,enemyPaceValid} from './enemy-pace-config.mjs';
 import {androidGeometryIssues} from './android-constraints.mjs';
+import {adFormatsDefaults,adFormatsConfig} from './ad-formats-config.mjs';
 export const RC_KEY='android_config_v1';
 export const sections=[
   ['enemyPace','Скорость и торможение','Android и Telegram: v(x)=начальная + множитель × ((x + сглаживание)^степень − компенсация). x — расчётное время активной партии. Параметры общие для обеих платформ; начатая партия сохраняет свои правила.'],
@@ -9,7 +10,10 @@ export const sections=[
   ['energy','Энергия','Стоимость попыток и усилений'],['bonus','Бонус','Размер бонуса, интервал получения и другие награды'],
   ['enemies','Враги','Движение, форма и столкновения'],['player','Игрок','Размер и внешний вид'],
   ['field','Игровое поле','Границы, размеры и освещение'],['game','Управление и игра','Прыжок, защита и вибрация'],
-  ['audio','Звук','Музыка и звуковые эффекты'],['ads','Реклама','Общие ограничения показов для Android и Telegram. Площадки и включение рекламы на каждой платформе настраиваются отдельно.'],
+  ['audio','Звук','Музыка и звуковые эффекты'],
+  ['ads-banner','Баннер','Нижняя полоса Android: отдельное включение и задержка после установки. Не включает автоматические ролики.'],
+  ['ads-automatic','Автоматическая реклама','Ролик возможен только после игры, когда выполнены все ограничения ниже. Окончание паузы само по себе рекламу не запускает. Общие интервалы Android и Telegram.'],
+  ['ads-rewarded','Реклама по запросу','Ролик только по действию игрока: отдельное включение, награда, интервал и дневной лимит.'],
   ['technical','Служебные параметры','Справочные и фиксированные значения']
 ];
 const labels={
@@ -44,14 +48,14 @@ const labels={
   'economy.androidEnergyV2.rewards.invite':'Другу за вход по приглашению',
   'economy.androidEnergyV2.simpleBonus.initialEnergy':'Энергия нового игрока','economy.androidEnergyV2.simpleBonus.reward':'Обычный бонус',
   'economy.androidEnergyV2.simpleBonus.periodSec':'Интервал получения бонуса','economy.androidEnergyV2.simpleBonus.tier2Reward':'Бонус с подпиской ×2',
-  'economy.androidEnergyV2.simpleBonus.tier5Reward':'Бонус с подпиской ×5','economy.androidEnergyV2.simpleBonus.videoReward':'Награда за просмотр рекламы',
-  'economy.androidEnergyV2.simpleBonus.videoCooldownSec':'Откат рекламы за вознаграждение',
-  'economy.androidEnergyV2.simpleBonus.videoDailyLimit':'Рекламных наград за сутки','economy.androidEnergyV2.simpleBonus.inviterReward':'Вам за приглашение друга',
+  'economy.androidEnergyV2.simpleBonus.tier5Reward':'Бонус с подпиской ×5','economy.androidEnergyV2.simpleBonus.videoReward':'Энергия за просмотр',
+  'economy.androidEnergyV2.simpleBonus.videoCooldownSec':'До следующего видео',
+  'economy.androidEnergyV2.simpleBonus.videoDailyLimit':'Наград в сутки','economy.androidEnergyV2.simpleBonus.inviterReward':'Вам за приглашение друга',
   'economy.runRewardEvery':'Пройденное расстояние для награды','economy.riskRewardEvery':'Опасных сближений для награды',
   'economy.earnSurviveSeconds':'Время для достижения «Выжить»','economy.earnRecordSeconds':'Время для достижения «Рекорд»',
-  'economy.earnRisksInRun':'Сближений для достижения','economy.interstitialSessionGraceSec':'Пауза рекламы после запуска',
-  'economy.interstitialSessionFreeRounds':'Попыток без рекламы после запуска','economy.interstitialGraceSec':'Начальная пауза полноэкранной рекламы',
-  'economy.interstitialCooldownSec':'Пауза между полноэкранными показами','economy.interstitialMinLives':'Порог для полноэкранной рекламы'
+  'economy.earnRisksInRun':'Сближений для достижения','economy.interstitialSessionGraceSec':'После запуска приложения',
+  'economy.interstitialSessionFreeRounds':'Первые игры без роликов','economy.interstitialGraceSec':'После установки',
+  'economy.interstitialCooldownSec':'Между роликами','economy.interstitialMinLives':'Порог энергии'
 };
 const rules={
   ...Object.fromEntries(Object.entries(enemyPaceRanges).map(([k,v])=>['enemyPace.'+k,v])),
@@ -78,7 +82,7 @@ const rules={
 const haptics=['lightImpact','mediumImpact','heavyImpact','selectionClick','vibrate','warning','success','error','none'];
 const derived=new Set(['economy.androidEnergyV2.initialEnergy','economy.androidEnergyV2.rewards.ad','economy.androidEnergyV2.watchAdCooldownSec']);
 function meta(path,value){
-  const section=path.includes('.simpleBonus.')||path.includes('.rewards.')?'bonus':path.startsWith('economy.interstitial')?'ads':path.startsWith('economy.androidEnergyV2')?'energy':path.startsWith('economy.')?'bonus':path.startsWith('mobileEnemies.')||path.startsWith('enemies.')?'enemies':path.split('.')[0];
+  const section=path.includes('.simpleBonus.')||path.includes('.rewards.')?'bonus':path.startsWith('economy.interstitial')?'ads-automatic':path.startsWith('economy.androidEnergyV2')?'energy':path.startsWith('economy.')?'bonus':path.startsWith('mobileEnemies.')||path.startsWith('enemies.')?'enemies':path.split('.')[0];
   const retired=[
     'economy.androidEnergyV2.batteryCapacity','economy.androidEnergyV2.chargeHours',
     'economy.androidEnergyV2.rewards.achievement','economy.androidEnergyV2.rewards.google','economy.androidEnergyV2.rewards.age',
@@ -104,7 +108,13 @@ function meta(path,value){
   if(path==='economy.androidEnergyV2.simpleBonus.initialEnergy')help='Начисляется один раз новым аккаунтам. Балансы существующих игроков не меняются.';
   if(path==='economy.androidEnergyV2.rewards.feedback')help='Однократная награда за внутреннее сообщение об опыте игры после траты 100 энергии. Оценка необязательна; от её значения награда не зависит. Не является отзывом Google Play.';
   if(path==='economy.androidEnergyV2.rewards.invite')help='Эту энергию получает новый игрок, пришедший по приглашению: после 5 завершённых игр и подключения Google у обоих. Сумма в игре «Пригласить друга» — другая награда, пригласившему.';
-  if(path==='economy.androidEnergyV2.simpleBonus.videoCooldownSec')help='Минимальная пауза после успешного начисления рекламной награды. Проверяется по серверному времени.';
+  if(path==='economy.interstitialGraceSec')help='Сколько секунд должно пройти после установки Android, прежде чем разрешатся автоматические ролики. Отсчёт один раз, не при каждом открытии. 0 — без этой задержки; остальные ограничения сохраняются.';
+  if(path==='economy.interstitialSessionGraceSec')help='Сколько секунд после полного запуска приложения нельзя показывать автоматические ролики. Возврат из фона настраивается отдельно — «После возврата». 180 с = 3 минуты.';
+  if(path==='economy.interstitialSessionFreeRounds')help='Сколько первых завершённых игр после полного запуска приложения проходят без автоматических роликов. Например, 10 — первые 10 игр без рекламы. Затем продолжают действовать временные ограничения.';
+  if(path==='economy.interstitialCooldownSec')help='Минимум секунд от закрытия предыдущего автоматического ролика до следующего. Например, 220 с = 3 минуты 40 секунд. Видео за энергию настраивается отдельно.';
+  if(path==='economy.interstitialMinLives')help='Минимальный остаток энергии после игры, при котором разрешён автоматический ролик. Если энергии меньше указанного значения, ролик пропускается. 0 — без ограничения по энергии.';
+  if(path==='economy.androidEnergyV2.simpleBonus.videoReward')help='Сколько энергии получает игрок за один успешно завершённый просмотр по своей кнопке. Автоматические ролики энергии не дают. 0 — новые просмотры за энергию недоступны.';
+  if(path==='economy.androidEnergyV2.simpleBonus.videoCooldownSec')help='Сколько секунд ждать до следующего видео за энергию. Отсчёт начинается после начисления награды, а не при открытии ролика. Ошибка или раннее закрытие эту паузу не запускают.';
   if(path==='economy.androidEnergyV2.simpleBonus.videoDailyLimit')help='Максимум успешных рекламных наград на аккаунт за календарные сутки. Сброс в 00:00 по Минску (UTC+3). Ошибка и раннее закрытие не расходуют лимит.';
   if(path==='economy.androidEnergyV2.simpleBonus.inviterReward')help='Эту энергию получает тот, кто пригласил друга: после 5 завершённых игр друга и подключения Google у обоих. Именно эта сумма показана в игре в пункте «Пригласить друга».';
   if(path==='economy.androidEnergyV2.chargeHours')help='Серверная политика зарядки, часы. Содержимое купленных товаров не переопределяется.';
@@ -120,9 +130,19 @@ function walk(value,path=''){if(value&&typeof value==='object')for(const [key,it
 walk(defaults.config);
 if(!defaults.config.enemyPace)walk({enemyPace:enemyPaceDefaults});
 if(!defaults.config.ranking?.average)walk({ranking:{average:averageDefaults}});
+const adFields=[
+  ['banner.enabled','Показывать баннер','boolean','ads-banner','Нижняя рекламная полоска в Android. Этот переключатель управляет только баннером; оба вида роликов включаются отдельно.'],
+  ['banner.installDelaySec','После установки','number','ads-banner','Через сколько секунд после установки Android разрешить баннер. 86400 с = сутки; 0 — без этой задержки. Отсчёт один раз, не при каждом открытии приложения.'],
+  ['banner.unitId','ID баннера Яндекса','string','ads-banner','Идентификатор отдельного баннерного блока из кабинета Яндекса, вида R-M-…-…. Пока поле пустое, запросов настоящей рекламы нет.'],
+  ['automatic.enabled','Ролики между играми','boolean','ads-automatic','Разрешает автоматическую полноэкранную рекламу после игры с учётом ограничений ниже. Баннер и видео за энергию включаются отдельно.'],
+  ['automatic.longAbsenceSec','Долгое отсутствие','number','ads-automatic','Сколько секунд в фоне считать долгим отсутствием. 300 с = 5 минут; 0 — любое сворачивание. После такого возврата пауза будет не короче значения «После запуска приложения».'],
+  ['automatic.resumeGraceSec','После возврата','number','ads-automatic','Сколько секунд не показывать автоматические ролики после разворачивания приложения. После долгого отсутствия действует большая из двух пауз: эта или «После запуска приложения». Ожидавший показ отменяется при сворачивании.'],
+  ['rewarded.enabled','Видео за энергию','boolean','ads-rewarded','Разрешает игроку самому запустить видео ради награды. Выключение запрещает новые просмотры, но сохраняет уже заработанную награду. Баннер и автоматические ролики не затрагивает.']
+];
+for(const [path,label,type,section,help]of adFields)leaves.push({path:'advertising.'+path,label,type,section,help,readOnly:false,default:path.split('.').reduce((v,k)=>v[k],adFormatsDefaults),...(type==='number'?{min:0,max:2592000,step:1,unit:'с'}:{})});
 export const fields=Object.freeze(leaves);
 export const defaultsSnapshot=defaults;
-export const getValue=(object,path)=>path.split('.').reduce((value,key)=>value?.[key],object)??(path==='game.helmetCooldownSec'?0:path.startsWith('ranking.average.')?averageDefaults[path.split('.').at(-1)]:path.startsWith('enemyPace.')?enemyPaceDefaults[path.split('.').at(-1)]:undefined);
+export const getValue=(object,path)=>path.split('.').reduce((value,key)=>value?.[key],object)??(path.startsWith('advertising.')?path.split('.').slice(1).reduce((v,k)=>v?.[k],adFormatsDefaults):path==='game.helmetCooldownSec'?0:path.startsWith('ranking.average.')?averageDefaults[path.split('.').at(-1)]:path.startsWith('enemyPace.')?enemyPaceDefaults[path.split('.').at(-1)]:undefined);
 export function setValue(object,path,value){const parts=path.split('.');let target=object;for(const part of parts.slice(0,-1))target=target[part]??={};target[parts.at(-1)]=value;}
 export class ConfigInputError extends Error{constructor(code,details=[]){super(code);this.code=code;this.status=400;this.details=details;}}
 export function validateField(field,value){
@@ -140,6 +160,7 @@ export function applyChanges(snapshot,patches){
   for(const patch of patches){const field=fields.find(f=>f.path===patch?.path);if(!field||seen.has(patch.path)){errors.push({path:patch?.path,error:'Неизвестное или повторяющееся поле'});continue;}seen.add(patch.path);
     const error=validateField(field,patch.value);if(error)errors.push({path:patch.path,error});else setValue(config,patch.path,patch.value);
   }
+  if(config.advertising){try{config.advertising=adFormatsConfig(config.advertising);}catch{errors.push({path:'advertising',error:'Недопустимые настройки форматов рекламы'});}}
   if(config.enemyPace||patches.some(p=>p.path.startsWith('enemyPace.')))config.enemyPace={...enemyPaceDefaults,...config.enemyPace};
   if(!enemyPaceValid(config))errors.push({path:'enemyPace',error:'Недопустимые параметры скорости и торможения'});
   if(config.enemies.angleMaxDeg<config.enemies.angleMinDeg)errors.push({path:'enemies.angleMaxDeg',error:'Максимальный угол должен быть не меньше минимального'});
@@ -152,7 +173,7 @@ export function applyChanges(snapshot,patches){
   return config;
 }
 export function changesBetween(before,after){
-  const raw=(object,path)=>path.split('.').reduce((value,key)=>value?.[key],object);
+  const raw=(object,path)=>path.startsWith('advertising.')?getValue(object,path):path.split('.').reduce((value,key)=>value?.[key],object);
   return fields.filter(f=>!f.readOnly&&JSON.stringify(raw(before,f.path))!==JSON.stringify(raw(after,f.path)))
     .map(f=>({path:f.path,label:f.label,before:raw(before,f.path)??null,after:raw(after,f.path)??null}));
 }

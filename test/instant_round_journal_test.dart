@@ -879,11 +879,11 @@ void main() {
         await t.pump();
         await t.pump(const Duration(seconds: 1));
         expect(t.widget<ArcadeHud>(find.byType(ArcadeHud)).timeMs(), paused);
+        t.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
         await t.pumpWidget(const SizedBox());
         scores.dispose();
         a.dispose();
         e.dispose();
-        t.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
       },
     );
   }

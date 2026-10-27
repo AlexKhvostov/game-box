@@ -10,6 +10,15 @@ function fixture(){let stamp=Date.UTC(2026,9,18,20);const config=structuredClone
  const engine=createEngine({db,now:()=>stamp,getPolicy:async()=>({ok:true,config,revision:hash(config)})});
  const uid='daily_'+id();const op=(kind,args={},operationId=id())=>engine.execute(uid,{action:'wallet_operation',kind,args,operationId});
  return {uid,config,op,advance:ms=>stamp+=ms,at:ms=>stamp=ms,profile:()=>engine.execute(uid,{action:'profile'})};}
+test('rewarded switch denies new sessions and still pays an already quoted session',async()=>{
+ const f=fixture();await f.profile();const sessionId=id();
+ await f.op('rewarded_ad_start',{sessionId});
+ f.config.advertising={rewarded:{enabled:false}};
+ await assert.rejects(f.op('rewarded_ad_start',{sessionId:id()}),e=>e.code==='ad_unavailable');
+ const paid=await f.op('watch_ad',{sessionId});
+ assert.equal(paid.profile.wallet.energy,90);
+ assert.equal(paid.profile.wallet.adQuota.used,1);
+});
 test('20 confirmed rewards per Minsk day; duplicate ACK never consumes twice; next midnight resets',async()=>{
  const f=fixture();await f.profile();let last;
  for(let i=1;i<=20;i++){

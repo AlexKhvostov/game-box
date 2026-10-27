@@ -494,14 +494,19 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
           e.energyConfig.reward('watch_ad'),
           context.watch<AdsService?>()?.busy == true
               ? _tr(context, 'Загрузка…', 'Loading…')
-              : context.watch<AdsService?>() == null
+              : context.watch<AdsService?>() == null ||
+                    !e.advertising.rewardedEnabled
               ? _tr(context, 'Недоступно', 'Unavailable')
               : e.watchAdDailyLimitReached
               ? _tr(context, 'До завтра', 'Tomorrow')
               : e.watchAdCooldownRemaining == null
               ? _tr(context, 'Смотреть', 'Watch')
               : bonusTime(e.watchAdCooldownRemaining!),
-          e.canClaimWatchAd && !_busy && !e.energyBusy
+          e.canClaimWatchAd &&
+                  e.advertising.rewardedEnabled &&
+                  !_busy &&
+                  !e.energyBusy &&
+                  context.watch<AdsService?>()?.busy != true
               ? () => _open(EnergyPage.video)
               : null,
           'video',
@@ -823,7 +828,10 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
         height: 52,
         primary: true,
         onTap:
-            !_busy && e.canClaimWatchAd && context.watch<AdsService?>() != null
+            !_busy &&
+                e.canClaimWatchAd &&
+                e.advertising.rewardedEnabled &&
+                context.watch<AdsService?>() != null
             ? () => _watchVideo(e)
             : null,
         child: Row(

@@ -13,7 +13,7 @@ function fixture(){
   const state=reactive({profile:{id:'review-owner',wallet:{simpleBonus:{lastClaimAt:0},energySubscription:null}},screen:'result',resultId:'',locale:'ru',externalBusy:false,
     config:{revision:'review-revision',config:{economy:{interstitialSessionGraceSec:180,interstitialSessionFreeRounds:10,interstitialGraceSec:210,interstitialCooldownSec:220,interstitialMinLives:6}}},
     platform:{ads:{enabled:true,interstitialEnabled:true,rewardedBlockId:'55424',interstitialBlockId:'int-55425'}}});
-  const energy=reactive({value:100}),doc={hidden:false},tg={isActive:true,onEvent(){},offEvent(){}};
+  const energy=reactive({value:100}),doc={hidden:false,addEventListener(){},removeEventListener(){}},tg={isActive:true,onEvent(){},offEvent(){}};
   const stored=new Map(),views=[],sdkCalls=[],walletCalls=[];let delayed=false,destroyed=0,complete=true;
   const presenter={async show(block,rewarded,debug,canShow){views.push({block,rewarded,debug});if(delayed)await new Promise(resolve=>release=resolve);if(!canShow())return false;sdkCalls.push({block,rewarded});return complete;},destroy(){destroyed++;}};
   class ApiError extends Error{constructor(code){super(code);this.code=code;}}

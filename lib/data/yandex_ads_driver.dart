@@ -72,6 +72,9 @@ class YandexAdsDriver implements AdsDriver, AdsPrivacyDriver {
     }
   }
 
+  /// Shares the same privacy checks and SDK initialization with fullscreen ads.
+  Future<void> initializeForBanner() => _initialize();
+
   Future<void> _init() async {
     // Location and advertising-ID access stay disabled independently of consent.
     await YandexAds.setLocationTracking(false);

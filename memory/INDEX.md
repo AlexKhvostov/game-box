@@ -507,3 +507,6 @@ Telegram1.0.69 опубликован (v1.0.69_20261014_210147_890); FTPS 121 ф
 2026-10-18 00:19 Europe/Minsk — Готово: рейтинг «Среднее»50/q0.92/>1с/допуск20; четыре параметра в админке,RC50 и APIv9 опубликованы, Huawei1.0.163+164установлен/осмотрен без очистки.67backend+финальные14/70Flutter+21delivery/analyze6/подписьCRC16KiBOAuth PASS; настоящее2.717с/25/место1 совпало с независимым расчётом. Начальные865→863и27→28: одна1.796с/2энергии попытка завершена00:13:34 на163,до установки164в00:13:56; актор неизвестен. После установки стартов0, данные сверены, игра остановлена/font1/USB2. Play/Telegram/FTP/push не было. [Итог](../docs/release-evidence/average-ranking-20261018/FINAL.md), [задача](tasks/2026-10-18-average-ranking.md).
 
 - [Исправления Android по ревью](tasks/2026-10-18-android-review-fixes.md): завершено,175 установлена; F01–F16/R1–R4,989Flutter/92server/Huawei12PASS; сервер доставлен, данные сохранены. [Отчёт](../docs/reviews/ANDROID_REVIEW_FIXES_20261018.md).
+
+## Реклама · независимые форматы ·27.10.2026
+Кодbanner/automatic/rewarded,поясненияадминкииQA225готовы.96Flutter/24backend/18Telegram/6adminPASS;Androidrelease/webbuilds/analyzePASS. ПолныйFlutterимеет20сбоевбазыb489,новых0;общиестарыеfixtureсбоиописанывотчёте. Рабочийвыпускотдельно,QAключ75обаOFF. [Отчёт](tasks/2026-10-27-ad-formats-controls.md).

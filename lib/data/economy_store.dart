@@ -8,6 +8,7 @@ import '../domain/economy_config.dart';
 import '../domain/android_energy.dart';
 import '../domain/arcade_rules.dart';
 import 'energy_presentation.dart';
+import '../domain/ad_formats_config.dart';
 
 class EconomyStore extends ChangeNotifier {
   final energyPresentation = EnergyPresentation();
@@ -37,7 +38,11 @@ class EconomyStore extends ChangeNotifier {
     int Function()? monotonicMilliseconds,
     this.storagePrefix = '',
     this.serverEnergyRequired = false,
+    this.advertising = const AdFormatsConfig(),
+    DateTime? installedAt,
   }) : config = config ?? const EconomyConfig(),
+       // ignore: prefer_initializing_formals
+       _installedAt = installedAt,
        _now = now ?? DateTime.now,
        _fixtureWallClock = now != null && monotonicMilliseconds == null,
        // Public named injection keeps production independent of device wall time.
@@ -60,6 +65,49 @@ class EconomyStore extends ChangeNotifier {
   void recordCompletedRound() => _sessionCompletedRounds++;
 
   EconomyConfig config;
+  AdFormatsConfig advertising;
+  DateTime? _installedAt;
+  DateTime? _adBackgroundAt;
+  DateTime? _adResumeNotBefore;
+  int _adForegroundEpoch = 0;
+  int get adForegroundEpoch => _adForegroundEpoch;
+
+  void applyAdvertising(AdFormatsConfig value) {
+    advertising = value;
+    notifyListeners();
+  }
+
+  Duration? bannerDelayLeft(int delaySec) {
+    final installed = _installedAt;
+    if (installed == null) return null;
+    final left = installed.add(Duration(seconds: delaySec)).difference(_now());
+    return left.isNegative ? Duration.zero : left;
+  }
+
+  void advertisingBackgrounded() {
+    _adBackgroundAt ??= _now();
+    // Never resurrect a load that started before the app left foreground.
+    _adForegroundEpoch++;
+  }
+
+  void advertisingResumed() {
+    final leftAt = _adBackgroundAt;
+    _adBackgroundAt = null;
+    if (leftAt != null) {
+      final longAbsence =
+          _now().difference(leftAt).inSeconds >=
+          advertising.automatic.longAbsenceSec;
+      final seconds = longAbsence
+          ? (advertising.automatic.resumeGraceSec >
+                    config.interstitialSessionGraceSec
+                ? advertising.automatic.resumeGraceSec
+                : config.interstitialSessionGraceSec)
+          : advertising.automatic.resumeGraceSec;
+      _adResumeNotBefore = _now().add(Duration(seconds: seconds));
+    }
+    notifyListeners();
+  }
+
   void Function(String kind, Map<String, dynamic> args)? sendOperation;
   Future<void> Function(String kind, Map<String, dynamic> args)?
   sendEnergyOperation;
@@ -589,6 +637,17 @@ class EconomyStore extends ChangeNotifier {
         _firstAdLaunchAt = null;
       }
     }
+    final installKey = '${storagePrefix}advertising_installed_at_v1';
+    final cachedInstall = _prefs.getInt(installKey);
+    if (_installedAt == null && cachedInstall != null && cachedInstall > 0) {
+      _installedAt = DateTime.fromMillisecondsSinceEpoch(cachedInstall);
+    }
+    _installedAt ??= _firstAdLaunchAt;
+    if (_installedAt != null) {
+      try {
+        await _prefs.setInt(installKey, _installedAt!.millisecondsSinceEpoch);
+      } catch (_) {}
+    }
     if (serverEnergyRequired) {
       // Show the existing energy UI while offline, with no fabricated startup
       // credit. Only an owner-confirmed cache or server response sets balance.
@@ -789,13 +848,20 @@ class EconomyStore extends ChangeNotifier {
   }
 
   bool get canShowResultInterstitial {
+    if (!advertising.automatic.enabled ||
+        _adBackgroundAt != null ||
+        (_adResumeNotBefore != null && _now().isBefore(_adResumeNotBefore!))) {
+      return false;
+    }
     if (hasPremium ||
         energySubscribed ||
         (energyEnabled ? energy : lives) <
             config.interstitialMinLives.clamp(0, 1000000000)) {
       return false;
     }
-    final armed = energyEnabled ? _firstAdLaunchAt : interstitialArmedAt;
+    final armed = energyEnabled
+        ? (_installedAt ?? _firstAdLaunchAt)
+        : interstitialArmedAt;
     if (armed == null) return false;
     final now = _now();
     if (_sessionCompletedRounds <=

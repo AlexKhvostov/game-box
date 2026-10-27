@@ -58,7 +58,8 @@ class MainActivity : FlutterActivity() {
                         }
                         result.success(mapOf(
                             "version" to (info.versionName ?: ""),
-                            "buildNumber" to buildNumber.toString()
+                            "buildNumber" to buildNumber.toString(),
+                            "firstInstallTime" to info.firstInstallTime
                         ))
                     } catch (error: Exception) {
                         result.error("version_unavailable", "App version unavailable", null)

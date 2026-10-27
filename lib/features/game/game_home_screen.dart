@@ -16,6 +16,7 @@ import 'game_debug_panel.dart';
 import '../../data/app_analytics.dart';
 import '../../data/economy_store.dart';
 import '../../data/ads_service.dart';
+import '../../ui/android_bottom_banner.dart';
 import '../../data/player_preferences.dart';
 import '../profile/profile_screen.dart';
 import 'arcade_hud.dart';
@@ -325,18 +326,28 @@ class _GameHomeScreenState extends State<GameHomeScreen>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    final wasBackgrounded = _backgrounded;
     _backgrounded = state != AppLifecycleState.resumed;
     _lastElapsed = null;
     _clearPointers();
     if (_backgrounded) {
+      context.read<EconomyStore>().advertisingBackgrounded();
       _ticker.stop();
       _hintPulse.stop();
     } else if (_routeCurrent && _phase != _Phase.result) {
       if (!_ticker.isActive) _ticker.start();
       if (_phase == _Phase.idle) _hintPulse.repeat(reverse: true);
     }
+    if (!_backgrounded && wasBackgrounded) {
+      context.read<EconomyStore>().advertisingResumed();
+    }
     // Android account/ranking reconnect is owned by MobileConnection. Keep
     // gameplay's lifecycle independent of the native Google activity.
+    if (mounted && wasBackgrounded != _backgrounded) {
+      // Entry prompts read this flag during build. A wallet update while hidden
+      // must not leave their interruption gate closed after Android resumes.
+      setState(() {});
+    }
   }
 
   void _ensureWorld(Size field, GameplayConfig config) {
@@ -1892,7 +1903,16 @@ class _GameHomeScreenState extends State<GameHomeScreen>
               );
             }
             return SafeArea(
-              child: TickerMode(enabled: _routeCurrent, child: body),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: ClipRect(
+                      child: TickerMode(enabled: _routeCurrent, child: body),
+                    ),
+                  ),
+                  AndroidBottomBanner(active: _routeCurrent && !_backgrounded),
+                ],
+              ),
             );
           },
         ),

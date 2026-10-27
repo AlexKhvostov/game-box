@@ -12,7 +12,7 @@ import {mountModeration} from './moderation.js';
 import './feedback.css';
 
 const rewardedAdPaths=new Set(['economy.androidEnergyV2.simpleBonus.videoReward','economy.androidEnergyV2.simpleBonus.videoCooldownSec','economy.androidEnergyV2.simpleBonus.videoDailyLimit']);
-const baseFields=schemaFields.map(field=>rewardedAdPaths.has(field.path)?{...field,section:'ads'}:field);
+const baseFields=schemaFields.map(field=>rewardedAdPaths.has(field.path)?{...field,section:'ads-rewarded'}:field);
 const $=selector=>document.querySelector(selector);
 const escape=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const icons={feedback:'<path d="M4 4h16v12H9l-5 4V4Z"/><path d="M8 8h8M8 12h5"/>',settings:'<path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3"/><circle cx="15" cy="17" r="3"/>',history:'<path d="M3 10a9 9 0 1 1 2 8M3 4v6h6M12 7v5l3 2"/>',search:'<circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/>',arrow:'<path d="m9 5 7 7-7 7"/>',check:'<path d="m5 12 4 4L19 6"/>',lock:'<rect x="5" y="10" width="14" height="11" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>',logout:'<path d="M9 4H4v16h5m6-13 5 5-5 5m-7-5h12"/>',refresh:'<path d="M20 7v5h-5M4 17v-5h5M6 7a7 7 0 0 1 12-1l2 6M4 12l2 6a7 7 0 0 0 12-1"/>'};
@@ -23,7 +23,7 @@ let defaultsSnapshot=commonDefaults;
 const scopeLabels={common:'Общие для всех платформ',android:'Android',telegram:'Telegram'};
 function configureScope(next){
   scope=next;fields=scope==='common'?baseFields.filter(f=>configFieldScope(f.path)==='common'):platformFields[scope];
-  sections=scope==='common'?baseSections:[['platform',scopeLabels[scope],scope==='android'?'Ограничения рекламы находятся в общем разделе «Реклама». Рекламные блоки Android заданы в сборке приложения.':'Рекламные площадки, включение показов и цены Stars. Общие ограничения показов находятся в разделе «Реклама» общих настроек.']];
+  sections=scope==='common'?baseSections:[['platform',scopeLabels[scope],scope==='android'?'Три формата рекламы настраиваются отдельно в общих разделах «Баннер», «Автоматическая реклама» и «Реклама по запросу».':'Площадки Telegram и цены Stars. Три формата и интервалы показов управляются в отдельных рекламных разделах общих настроек.']];
   defaultsSnapshot=scope==='common'?commonDefaults:{config:initialPlatformSettings(commonDefaults.config)[scope]};
 }
 function changesBetween(before,after){return scope==='common'?commonChanges(before,after):fields.filter(f=>JSON.stringify(getValue(before,f.path))!==JSON.stringify(getValue(after,f.path))).map(f=>({path:f.path,label:f.label,before:getValue(before,f.path),after:getValue(after,f.path)}));}
@@ -104,18 +104,20 @@ function renderSections(){
 function renderFields(){
   if(!$('#fields'))return;const query=state.query.trim().toLowerCase();
   const matches=fields.filter(field=>!field.hidden&&(query?`${field.label} ${field.path} ${field.help}`.toLowerCase().includes(query):field.section===state.section)&&(!state.changedOnly||getValue(state.base.config,field.path)!==getValue(state.config,field.path)));
+  if(!query&&state.section.startsWith('ads-'))matches.sort((a,b)=>Number(b.type==='boolean')-Number(a.type==='boolean'));
   const section=sections.find(item=>item[0]===state.section);
   $('#fields').innerHTML=`<div class="section-heading"><div><h2>${query?'Результаты поиска':escape(section[1])}</h2><p>${query?`Найдено параметров: ${matches.length}`:escape(section[2])}</p></div><span class="section-number">${String(sections.findIndex(item=>item[0]===state.section)+1).padStart(2,'0')}</span></div>${matches.length?matches.map(fieldRow).join(''):(!fields.length?'<div class="empty">Отдельных параметров Android нет.<small>Частота показов и награды за видео находятся в общем разделе «Реклама».</small></div>':'<div class="empty">Подходящих параметров нет.<small>Измените поисковый запрос или выключите фильтр изменений.</small></div>')}`;
   document.querySelectorAll('[data-field]').forEach(input=>input.addEventListener('input',()=>onChange(input)));
 }
 function fieldRow(field){
   const value=getValue(state.config,field.path),before=getValue(state.base.config,field.path),changed=value!==before;
+  const helpId=`help-${field.path.replaceAll('.','-')}`,description=`aria-describedby="${helpId}"`;
   let control;
   if(field.readOnly)control=`<output class="readonly">${escape(display(value))}</output>`;
-  else if(field.type==='boolean')control=`<label class="toggle"><input data-field="${field.path}" type="checkbox" ${value?'checked':''} aria-label="${escape(field.label)}"><span></span></label>`;
-  else if(field.options)control=`<select data-field="${field.path}" aria-label="${escape(field.label)}">${field.options.map(option=>`<option ${option===value?'selected':''}>${option}</option>`).join('')}</select>`;
-  else control=`<div class="value-control"><input data-field="${field.path}" aria-label="${escape(field.label)}" type="${field.type==='number'?'number':'text'}" value="${escape(field.displayScale?value/field.displayScale:value)}" ${field.type==='number'?`min="${field.displayMin??field.min}" max="${field.displayMax??field.max}" step="${field.displayStep??field.step}"`:''}>${field.displayUnit||field.unit?`<span>${escape(field.displayUnit??field.unit)}</span>`:''}</div>`;
-  return`<div class="field-row ${changed?'modified':''}" id="row-${field.path.replaceAll('.','-')}"><div class="field-copy"><label>${escape(field.label)}${changed?'<span class="modified-mark" title="Изменено"></span>':''}</label><p>${escape(field.help)}</p><span class="field-error" aria-live="polite"></span></div><div class="field-value">${control}${changed?`<small>Было: ${escape(fieldDisplay(field.path,before))}</small>`:''}</div></div>`;
+  else if(field.type==='boolean')control=`<label class="toggle"><input data-field="${field.path}" type="checkbox" ${value?'checked':''} aria-label="${escape(field.label)}" ${description}><span></span></label>`;
+  else if(field.options)control=`<select data-field="${field.path}" aria-label="${escape(field.label)}" ${description}>${field.options.map(option=>`<option ${option===value?'selected':''}>${option}</option>`).join('')}</select>`;
+  else control=`<div class="value-control"><input data-field="${field.path}" aria-label="${escape(field.label)}" ${description} type="${field.type==='number'?'number':'text'}" value="${escape(field.displayScale?value/field.displayScale:value)}" ${field.type==='number'?`min="${field.displayMin??field.min}" max="${field.displayMax??field.max}" step="${field.displayStep??field.step}"`:''}>${field.displayUnit||field.unit?`<span>${escape(field.displayUnit??field.unit)}</span>`:''}</div>`;
+  return`<div class="field-row ${field.section.startsWith('ads-')?'ad-field':''} ${changed?'modified':''}" id="row-${field.path.replaceAll('.','-')}"><div class="field-copy"><label>${escape(field.label)}${changed?'<span class="modified-mark" title="Изменено"></span>':''}</label><p id="${helpId}">${escape(field.help)}</p><span class="field-error" aria-live="polite"></span></div><div class="field-value">${control}${changed?`<small>Было: ${escape(fieldDisplay(field.path,before))}</small>`:''}</div></div>`;
 }
 function onChange(input){
   const field=fields.find(item=>item.path===input.dataset.field);let value=field.type==='boolean'?input.checked:field.type==='number'?input.value===''?NaN:Number(input.value)*(field.displayScale??1):input.value;

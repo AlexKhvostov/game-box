@@ -53,6 +53,7 @@ class AndroidConfigSession extends ChangeNotifier {
     snapshot = next;
     gameplay = MobileGameplayTuning.apply(next.gameplay);
     economy.applyConfig(next.economy);
+    economy.applyAdvertising(next.advertising);
     account.applyRulesRevision(next.revision);
     notifyListeners();
     return true;
