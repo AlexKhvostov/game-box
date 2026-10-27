@@ -103,7 +103,7 @@ void main() {
         find.byKey(const ValueKey('simple-energy-video')),
       );
       expect(button.onTap, isNull);
-      expect(find.text('Сегодня: 20 из 20'), findsOneWidget);
+      expect(find.text('Сегодня · 20/20'), findsOneWidget);
       await t.pumpWidget(const SizedBox.shrink());
       e.dispose();
     },

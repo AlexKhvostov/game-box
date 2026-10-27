@@ -1,7 +1,7 @@
 // Additive policy: missing fields retain legacy behavior without changing a
 // published snapshot or its revision merely by reading it.
 export const adFormatsDefaults = Object.freeze({
-  banner: Object.freeze({enabled:false,installDelaySec:86400,unitId:''}),
+  banner: Object.freeze({enabled:false,installDelaySec:86400,unlockAfterGames:100,unitId:''}),
   automatic: Object.freeze({enabled:true,longAbsenceSec:300,resumeGraceSec:180}),
   rewarded: Object.freeze({enabled:true})
 });
@@ -17,7 +17,7 @@ export function adFormatsConfig(raw){
     for(const [key,defaultValue]of Object.entries(defaults)){
       const actual=out[format][key];
       if(typeof actual!==typeof defaultValue)throw Error('ad_formats_invalid');
-      if(typeof actual==='number'&&(!Number.isSafeInteger(actual)||actual<0||actual>2592000))throw Error('ad_formats_invalid');
+      if(typeof actual==='number'&&(!Number.isSafeInteger(actual)||actual<0||actual>(key==='unlockAfterGames'?1000000:2592000)))throw Error('ad_formats_invalid');
       if(key==='unitId'&&actual!==''&&!/^R-M-\d+-\d+$/.test(actual))throw Error('ad_formats_invalid');
     }
   }

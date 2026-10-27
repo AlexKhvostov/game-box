@@ -1,0 +1,109 @@
+{
+  "artifact": "C:\\Users\\alexe\\.codex\\artifacts\\untouch\\banner-unlock229-20261027\\source\\build\\app\\outputs\\bundle\\release\\app-release.aab",
+  "sha256": "da1bb2e9715143918c32de60c1ef1458d0e2d4f34699640d92cc667b2a56608b",
+  "manifest": {
+    "package": "com.best4u.untouch",
+    "versionCode": "229",
+    "versionName": "1.0.228",
+    "compileSdkVersion": "36",
+    "platformBuildVersionCode": "36",
+    "compileSdkVersionCodename": "16",
+    "platformBuildVersionName": "16"
+  },
+  "sdk": {
+    "minSdkVersion": "24",
+    "targetSdkVersion": "36"
+  },
+  "permissions": [
+    "android.permission.INTERNET",
+    "android.permission.ACCESS_NETWORK_STATE",
+    "android.permission.USE_BIOMETRIC",
+    "android.permission.USE_FINGERPRINT",
+    "com.android.vending.BILLING",
+    "com.best4u.untouch.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION",
+    "com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE"
+  ],
+  "metadata": {
+    "firebase_analytics_collection_deactivated": "true",
+    "com.yandex.mobile.ads.AUTOMATIC_SDK_INITIALIZATION": "false",
+    "flutterEmbedding": "2",
+    "io.flutter.embedding.android.EnableImpeller": "false",
+    "io.appmetrica.analytics.plugin_id": "flutter-4.1.0",
+    "com.google.android.play.billingclient.version": "8.0.0",
+    "com.google.android.gms.version": "@integer/google_play_services_version"
+  },
+  "providers": [
+    "dev.fluttercommunity.plus.share.ShareFileProvider",
+    "com.yandex.mobile.ads.features.debugpanel.data.local.DebugPanelFileProvider",
+    "androidx.startup.InitializationProvider"
+  ],
+  "nativeLibraries": [
+    {
+      "path": "base/lib/arm64-v8a/libapp.so",
+      "bits": 64,
+      "minimumLoadAlignment": 65536
+    },
+    {
+      "path": "base/lib/arm64-v8a/libdartjni.so",
+      "bits": 64,
+      "minimumLoadAlignment": 16384
+    },
+    {
+      "path": "base/lib/arm64-v8a/libdatastore_shared_counter.so",
+      "bits": 64,
+      "minimumLoadAlignment": 16384
+    },
+    {
+      "path": "base/lib/arm64-v8a/libflutter.so",
+      "bits": 64,
+      "minimumLoadAlignment": 65536
+    },
+    {
+      "path": "base/lib/armeabi-v7a/libapp.so",
+      "bits": 32,
+      "minimumLoadAlignment": 16384
+    },
+    {
+      "path": "base/lib/armeabi-v7a/libdartjni.so",
+      "bits": 32,
+      "minimumLoadAlignment": 16384
+    },
+    {
+      "path": "base/lib/armeabi-v7a/libdatastore_shared_counter.so",
+      "bits": 32,
+      "minimumLoadAlignment": 16384
+    },
+    {
+      "path": "base/lib/armeabi-v7a/libflutter.so",
+      "bits": 32,
+      "minimumLoadAlignment": 65536
+    },
+    {
+      "path": "base/lib/x86_64/libapp.so",
+      "bits": 64,
+      "minimumLoadAlignment": 65536
+    },
+    {
+      "path": "base/lib/x86_64/libdartjni.so",
+      "bits": 64,
+      "minimumLoadAlignment": 16384
+    },
+    {
+      "path": "base/lib/x86_64/libdatastore_shared_counter.so",
+      "bits": 64,
+      "minimumLoadAlignment": 16384
+    },
+    {
+      "path": "base/lib/x86_64/libflutter.so",
+      "bits": 64,
+      "minimumLoadAlignment": 65536
+    }
+  ],
+  "zipChecksumsVerified": true,
+  "elf64Supports16KB": true,
+  "signature": "See separate jarsigner verification",
+  "limitations": [
+    "AAB ELF validation is not APK ZIP alignment validation",
+    "Physical device and Google Play processing still required"
+  ]
+}

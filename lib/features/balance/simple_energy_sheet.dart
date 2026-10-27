@@ -1,3 +1,5 @@
+import 'subscription_choice_panel.dart';
+import 'subscription_offer_presentation.dart';
 import '../../ui/analytics_feature.dart';
 import '../../data/app_analytics.dart';
 import '../../ui/analytics_navigation.dart';
@@ -24,6 +26,7 @@ export '../../ui/neon_chrome.dart' show NeonGlass;
 import '../../ui/watch_rewarded_ad.dart';
 import '../../ui/rewarded_ad_disclosure.dart';
 import '../../ui/rewarded_ad_guide.dart';
+import '../../ui/rewarded_ad_age_gate.dart';
 import 'energy_services.dart'
     show EnergyBillingStatus, buySimpleEnergy, EnergyFeedbackForm;
 
@@ -182,6 +185,7 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
   Future<void> _watchVideo(EconomyStore e) => _act(
     () => watchRewardedAd(
       context,
+      confirmedInRewardedGuide: true,
       // The shared confirmed-wallet observer presents the reward exactly once.
       onReward: (_) async {
         if (mounted && _page == EnergyPage.video) {
@@ -215,11 +219,7 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
   );
   String get _title => switch (_page) {
     EnergyPage.energy => _tr(context, 'Энергия', 'Energy'),
-    EnergyPage.subscription => _tr(
-      context,
-      'Увеличить размер бонуса',
-      'Increase the bonus amount',
-    ),
+    EnergyPage.subscription => _tr(context, 'Подписка', 'Subscription'),
     EnergyPage.video => _tr(context, 'Энергия за рекламу', 'Energy for ads'),
     EnergyPage.friends => _tr(context, 'Пригласить друга', 'Invite a friend'),
     EnergyPage.feedback => _tr(context, 'Обратная связь', 'Feedback'),
@@ -257,6 +257,8 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
               radius: 20,
               padding: _page == EnergyPage.friends
                   ? const EdgeInsets.fromLTRB(10, 6, 10, 10)
+                  : _page == EnergyPage.subscription
+                  ? const EdgeInsets.fromLTRB(12, 10, 12, 6)
                   : const EdgeInsets.fromLTRB(17, 10, 17, 15),
               child: LayoutBuilder(
                 builder: (c, constraints) {
@@ -269,6 +271,8 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
                       children: [
                         Row(
                           children: [
+                            if (_page == EnergyPage.subscription)
+                              const SizedBox(width: 40),
                             Expanded(
                               child: GestureDetector(
                                 key: const ValueKey('energy-hidden-title'),
@@ -278,13 +282,18 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
                                     : null,
                                 child: _text(
                                   _title,
+                                  align: _page == EnergyPage.subscription
+                                      ? TextAlign.center
+                                      : TextAlign.left,
                                   size: _page == EnergyPage.friends
                                       ? 20
                                       : _page == EnergyPage.video
                                       ? 20
                                       : _page == EnergyPage.packs ||
                                             _page == EnergyPage.subscription
-                                      ? 22
+                                      ? (_page == EnergyPage.subscription
+                                            ? 28
+                                            : 22)
                                       : 24,
                                   weight: FontWeight.w900,
                                 ),
@@ -345,7 +354,8 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
                             ),
                           ],
                         ),
-                        if (_page == EnergyPage.video)
+                        if (_page == EnergyPage.video ||
+                            _page == EnergyPage.subscription)
                           const SizedBox(height: 5)
                         else
                           _line(),
@@ -510,16 +520,9 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
               ? () => _open(EnergyPage.video)
               : null,
           'video',
-        ),
-        _text(
-          _tr(
-            context,
-            'Сегодня: ${e.watchAdsToday} из ${e.watchAdDailyLimit}',
-            'Today: ${e.watchAdsToday} of ${e.watchAdDailyLimit}',
-          ),
-          size: 11,
-          color: _muted,
-          align: TextAlign.right,
+          showQuota: true,
+          quotaUsed: e.energyEnabled ? e.watchAdsToday : null,
+          quotaLimit: e.energyEnabled ? e.watchAdDailyLimit : null,
         ),
         _line(),
         _rewardRow(
@@ -576,8 +579,11 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
     int reward,
     String action,
     VoidCallback? tap,
-    String id,
-  ) => Row(
+    String id, {
+    bool showQuota = false,
+    int? quotaUsed,
+    int? quotaLimit,
+  }) => Row(
     children: [
       Icon(icon, color: const Color(0xFF9DECFF), size: 32),
       const SizedBox(width: 9),
@@ -595,11 +601,19 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
         child: NeonAction(
           key: ValueKey('simple-energy-$id'),
           height: 44,
+          disabledOpacity: showQuota ? 1 : .48,
           onTap: tap,
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: _text(action, size: 13, weight: FontWeight.w800),
-          ),
+          child: showQuota
+              ? AdQuotaButtonContent(
+                  action: action,
+                  used: quotaUsed,
+                  limit: quotaLimit,
+                  enabled: tap != null,
+                )
+              : FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: _text(action, size: 13, weight: FontWeight.w800),
+                ),
         ),
       ),
     ],
@@ -615,137 +629,51 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
             )
             .firstOrNull ??
         offers.firstOrNull;
+    final period = e.simpleEnergyBonus?.periodSec ?? 28800;
+    final locale = Localizations.localeOf(context).toString();
+    final tiles = offers.map((offer) {
+      final reward =
+          e.simpleEnergyBonus?.rewardFor(offer.totalBatteries) ??
+          offer.totalBatteries * 30;
+      final saving = billing == null
+          ? null
+          : subscriptionSaving(
+              offer: offer,
+              offers: offers,
+              priceFor: billing.energyOfferPrice,
+              locale: locale,
+            );
+      return SubscriptionTileData(
+        id: offer.id,
+        multiplier: offer.totalBatteries,
+        baseEnergy: e.simpleEnergyBonus?.rewardFor(1) ?? 30,
+        reward: reward,
+        daily: period > 0 ? (86400 ~/ period) * reward : 0,
+        periodDays: offer.periodDays,
+        price:
+            billing?.energyOfferPrice(offer.id)?.price ??
+            _tr(context, 'Недоступно', 'Unavailable'),
+        discount: saving?.percent,
+        comparisonPrice: saving?.comparisonPrice,
+        active: e.energyTier == offer.totalBatteries,
+      );
+    }).toList();
     final price = chosen == null ? null : billing?.energyOfferPrice(chosen.id);
     return Column(
       mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _text(
-          _tr(
-            context,
-            'Бонус с одной кнопки каждые ${_hours(e.simpleEnergyBonus?.periodSec ?? 28800)} часов',
-            'One button, every ${_hours(e.simpleEnergyBonus?.periodSec ?? 28800)} hours',
-          ),
-          size: 13,
-        ),
-        const SizedBox(height: 14),
-        for (final offer in offers)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 10),
-            child: Semantics(
-              selected: chosen?.id == offer.id,
-              button: true,
-              child: GestureDetector(
-                key: ValueKey('simple-tier-${offer.totalBatteries}'),
-                onTap: _busy
-                    ? null
-                    : () {
-                        AppAnalytics.click(
-                          offer.id,
-                          placement: 'subscription_choice',
-                        );
-                        setState(() => _selectedSku = offer.id);
-                      },
-                child: NeonGlass(
-                  radius: 12,
-                  selected: chosen?.id == offer.id,
-                  padding: const EdgeInsets.all(9),
-                  child: Row(
-                    children: [
-                      Icon(
-                        chosen?.id == offer.id
-                            ? Icons.radio_button_checked
-                            : Icons.radio_button_off,
-                        color: _cyan,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 6),
-                      SizedBox(
-                        width: 63,
-                        height: 63,
-                        child: GoldMedallion(label: '×${offer.totalBatteries}'),
-                      ),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child: EnergyText(
-                                e.simpleEnergyBonus?.rewardFor(
-                                      offer.totalBatteries,
-                                    ) ??
-                                    offer.totalBatteries * 30,
-                                size: 30,
-                              ),
-                            ),
-                            _text(
-                              _tr(context, 'за один бонус', 'per bonus'),
-                              size: 11,
-                            ),
-                            if (e.energyTier == offer.totalBatteries)
-                              _text(
-                                _tr(context, 'Подключено', 'Active'),
-                                size: 11,
-                                color: const Color(0xFF8CFB95),
-                              ),
-                          ],
-                        ),
-                      ),
-                      ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 91),
-                        child: _text(
-                          '${billing?.energyOfferPrice(offer.id)?.price ?? _tr(context, 'Недоступно', 'Unavailable')}\n/ ${_tr(context, '7 дней', '7 days')}',
-                          size: 14,
-                          weight: FontWeight.w800,
-                          align: TextAlign.center,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        const SizedBox(height: 6),
-        Row(
-          children: [
-            const Icon(Icons.eco, color: Color(0xFF68FFD7), size: 28),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _text(
-                    _tr(
-                      context,
-                      'Без автоматической рекламы',
-                      'No automatic ads',
-                    ),
-                    size: 14,
-                  ),
-                  const SizedBox(height: 4),
-                  _text(
-                    _tr(
-                      context,
-                      'Доступность видео за энергию проверяется отдельно.',
-                      'Rewarded video availability is checked separately.',
-                    ),
-                    size: 11,
-                    color: _muted,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        _line(),
-        NeonAction(
-          key: const ValueKey('simple-subscribe'),
-          height: 60,
-          primary: true,
-          onTap:
+        SubscriptionChoicePanel(
+          offers: tiles,
+          selected: tiles.where((o) => o.id == chosen?.id).firstOrNull,
+          ru: Localizations.localeOf(context).languageCode == 'ru',
+          showAds: e.subscriptionBlocksSeenAds,
+          periodHours: _hours(period),
+          busy: _busy,
+          onSelect: (id) {
+            AppAnalytics.click(id, placement: 'subscription_choice');
+            setState(() => _selectedSku = id);
+          },
+          onBuy:
               chosen != null &&
                   price != null &&
                   billing?.busy == false &&
@@ -754,121 +682,71 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
                   chosen.totalBatteries != e.energyTier
               ? () => _act(() => buySimpleEnergy(context, chosen.id))
               : null,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _text(
-                chosen?.totalBatteries == e.energyTier
-                    ? _tr(context, 'Подключено', 'Active')
-                    : _tr(
-                        context,
-                        'Подключить ×${chosen?.totalBatteries ?? 5}',
-                        'Subscribe ×${chosen?.totalBatteries ?? 5}',
-                      ),
-                size: 20,
-                weight: FontWeight.w800,
-              ),
-              if (price != null)
-                _text(
-                  '${price.price} / ${_tr(context, '7 дней', '7 days')}',
-                  size: 13,
-                ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 10),
-        _text(
-          _tr(
-            context,
-            'Автопродление. Отмена в Google Play.\nСумма и условия подтверждаются в магазине.',
-            'Auto-renews. Cancel in Google Play.\nConfirm price and terms in the store.',
-          ),
-          size: 11,
-          color: _muted,
-          align: TextAlign.center,
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            Expanded(
-              child: TextButton(
-                onPressed: _busy
-                    ? null
-                    : () => _act(() => restoreGooglePurchases(context)),
-                child: Text(
-                  _tr(context, 'Восстановить', 'Restore'),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ),
-            Expanded(
-              child: TextButton(
-                onPressed: () => manageGoogleSubscription(context),
-                child: Text(
-                  _tr(context, 'Управлять', 'Manage'),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ),
-          ],
+          onRestore: _busy
+              ? null
+              : () => _act(() => restoreGooglePurchases(context)),
+          onManage: () => manageGoogleSubscription(context),
         ),
         const EnergyBillingStatus(showRestore: false, collapseWhenIdle: true),
       ],
     );
   }
 
-  Widget _video(EconomyStore e) => Column(
-    mainAxisSize: MainAxisSize.min,
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      RewardedAdGuide(reward: e.energyConfig.reward('watch_ad')),
-      const SizedBox(height: 12),
-      NeonAction(
-        key: const ValueKey('simple-watch-video'),
-        height: 52,
-        primary: true,
-        onTap:
-            !_busy &&
-                e.canClaimWatchAd &&
-                e.advertising.rewardedEnabled &&
-                context.watch<AdsService?>() != null
-            ? () => _watchVideo(e)
-            : null,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (!_busy &&
-                !e.watchAdDailyLimitReached &&
-                e.watchAdCooldownRemaining == null) ...[
-              const Icon(
-                Icons.play_arrow_rounded,
-                color: Colors.white,
-                size: 25,
+  Widget _video(EconomyStore e) => RewardedAdAgeGate(
+    onAlternatives: () => _open(EnergyPage.energy),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        RewardedAdGuide(reward: e.energyConfig.reward('watch_ad')),
+        const SizedBox(height: 12),
+        NeonAction(
+          key: const ValueKey('simple-watch-video'),
+          height: 52,
+          primary: true,
+          onTap:
+              !_busy &&
+                  e.canClaimWatchAd &&
+                  e.advertising.rewardedEnabled &&
+                  context.watch<AdsService?>() != null
+              ? () => _watchVideo(e)
+              : null,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (!_busy &&
+                  !e.watchAdDailyLimitReached &&
+                  e.watchAdCooldownRemaining == null) ...[
+                const Icon(
+                  Icons.play_arrow_rounded,
+                  color: Colors.white,
+                  size: 25,
+                ),
+                const SizedBox(width: 6),
+              ],
+              Flexible(
+                child: _text(
+                  _busy
+                      ? _tr(context, 'Проверяем…', 'Checking…')
+                      : e.watchAdDailyLimitReached
+                      ? _tr(context, 'Лимит на сегодня', 'Daily limit reached')
+                      : e.watchAdCooldownRemaining != null
+                      ? bonusTime(e.watchAdCooldownRemaining!)
+                      : _tr(context, 'Смотреть рекламу', 'Watch ad'),
+                  size: 19,
+                  weight: FontWeight.w800,
+                ),
               ),
-              const SizedBox(width: 6),
             ],
-            Flexible(
-              child: _text(
-                _busy
-                    ? _tr(context, 'Проверяем…', 'Checking…')
-                    : e.watchAdDailyLimitReached
-                    ? _tr(context, 'Лимит на сегодня', 'Daily limit reached')
-                    : e.watchAdCooldownRemaining != null
-                    ? bonusTime(e.watchAdCooldownRemaining!)
-                    : _tr(context, 'Смотреть рекламу', 'Watch ad'),
-                size: 19,
-                weight: FontWeight.w800,
-              ),
-            ),
-          ],
+          ),
         ),
-      ),
-      TextButton(
-        onPressed: _busy ? null : _back,
-        child: Text(_tr(context, 'Не сейчас', 'Not now')),
-      ),
-      const RewardedAdDisclosure(),
-    ],
+        TextButton(
+          onPressed: _busy ? null : _back,
+          child: Text(_tr(context, 'Не сейчас', 'Not now')),
+        ),
+        const RewardedAdDisclosure(),
+      ],
+    ),
   );
   Widget _friends(EconomyStore e, double available) =>
       CompactInvitations(availableHeight: available);
@@ -1173,6 +1051,91 @@ class _SimpleEnergyWindowState extends State<SimpleEnergyWindow> {
   }
 }
 
+/// The daily count stays legible when the ad action is unavailable or waiting.
+class AdQuotaButtonContent extends StatelessWidget {
+  const AdQuotaButtonContent({
+    super.key,
+    required this.action,
+    this.used,
+    this.limit,
+    required this.enabled,
+  });
+  final String action;
+  final int? used, limit;
+  final bool enabled;
+
+  @override
+  Widget build(BuildContext context) {
+    final known = used != null && limit != null;
+    final fraction = known && limit! > 0
+        ? (used! / limit!).clamp(0.0, 1.0)
+        : 0.0;
+    final count = known ? '$used/$limit' : '—';
+    final color = enabled ? const Color(0xFFD6F8FF) : const Color(0xFFADC7D4);
+    return Semantics(
+      label:
+          '$action. ${known ? _tr(context, 'Сегодня просмотрено $used из $limit видео', 'Today watched $used of $limit videos') : _tr(context, 'Счётчик загружается', 'Loading daily count')}',
+      excludeSemantics: true,
+      child: SizedBox(
+        height: 31,
+        child: Column(
+          children: [
+            Expanded(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  action,
+                  style: TextStyle(
+                    color: color,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 1),
+            Expanded(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  '${_tr(context, 'Сегодня', 'Today')} · $count',
+                  key: const ValueKey('ad-quota-count'),
+                  style: TextStyle(
+                    color: color,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 2),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(2),
+              child: SizedBox(
+                height: 1,
+                width: double.infinity,
+                child: ColoredBox(
+                  color: const Color(0x334B9DB3),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: FractionallySizedBox(
+                      key: const ValueKey('ad-quota-fill'),
+                      widthFactor: fraction,
+                      child: ColoredBox(
+                        color: enabled ? _cyan : const Color(0xFF769BA9),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class NeonAction extends StatelessWidget {
   const NeonAction({
     super.key,
@@ -1180,11 +1143,13 @@ class NeonAction extends StatelessWidget {
     this.onTap,
     this.height = 48,
     this.primary = false,
+    this.disabledOpacity = .48,
   });
   final Widget child;
   final VoidCallback? onTap;
   final double height;
   final bool primary;
+  final double disabledOpacity;
   @override
   Widget build(BuildContext context) => AnalyticsFeature(
     feature: key is ValueKey<String>
@@ -1212,7 +1177,7 @@ class NeonAction extends StatelessWidget {
           borderRadius: BorderRadius.circular(9),
           child: AnimatedOpacity(
             duration: const Duration(milliseconds: 100),
-            opacity: onTap == null ? .48 : 1,
+            opacity: onTap == null ? disabledOpacity : 1,
             child: Container(
               constraints: BoxConstraints(minHeight: height),
               padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),

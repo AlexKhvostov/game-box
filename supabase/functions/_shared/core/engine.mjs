@@ -301,6 +301,14 @@ function createEngine({db, getPolicy = async () => defaults, verifyPlay, googleL
     const w=p.wallet,e=policy.config.economy.androidEnergyV2,b=e.simpleBonus;
     const empty=() => requireThat(Object.keys(args).length === 0,'operation_invalid',400);
     if (kind === 'energy_hidden_tap') {empty();w.energy+=20;return {energyGrant:{kind,operationId:opId,amount:20}};}
+    if (kind === 'energy_ad_unavailable_bonus') {
+      empty();
+      requireThat(identity.platform==='android','platform_action_invalid',400);
+      // Age remains a device-only declaration. This bounded support credit
+      // is account-owned and cannot be reset by changing that declaration.
+      if (w.claimed.includes(kind)) return {};
+      w.energy+=20;w.claimed.push(kind);return {};
+    }
     if (kind === 'energy_bonus_claim') {
       empty();const sub=w.energySubscription;
       requireThat(!sub || sub.expiresAt > stamp || sub.endConfirmed,'subscription_verification_pending');

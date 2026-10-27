@@ -1,0 +1,78 @@
+00:00 +0: loading C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart
+00:00 +0: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Bonus has an indivisible boundary and freezes period
+00:00 +1: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Pending claim never changes confirmed balance before response
+00:00 +2: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Subscriber can watch voluntary rewarded video; cooldown persists
+00:00 +3: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.energy Size(393.0, 852.0) font1.0 fits with fallback
+00:00 +4: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.energy Size(393.0, 852.0) font1.0 fits with fallback
+00:00 +5: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.energy Size(393.0, 852.0) font1.0 fits with fallback
+00:01 +6: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/rewarded_daily_limit_test.dart: daily quota explains tomorrow and disables SDK entry before presentation
+00:01 +7: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.subscription Size(393.0, 852.0) font1.0 fits with fallback
+00:01 +8: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.video Size(393.0, 852.0) font1.0 fits with fallback
+00:01 +9: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.friends Size(393.0, 852.0) font1.0 fits with fallback
+00:01 +10: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.friends Size(393.0, 852.0) font1.0 fits with fallback
+00:01 +11: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.friends Size(393.0, 852.0) font1.0 fits with fallback
+00:01 +12: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.friends Size(393.0, 852.0) font1.0 fits with fallback
+00:01 +13: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.friends Size(393.0, 852.0) font1.0 fits with fallback
+00:01 +14: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.friends Size(393.0, 852.0) font1.0 fits with fallback
+00:01 +15: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.friends Size(393.0, 852.0) font1.0 fits with fallback
+00:01 +16: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.friends Size(393.0, 852.0) font1.0 fits with fallback
+00:02 +17: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.feedback Size(393.0, 852.0) font1.0 fits with fallback
+00:02 +18: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.packs Size(393.0, 852.0) font1.0 fits with fallback
+00:02 +19: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.helmet Size(393.0, 852.0) font1.0 fits with fallback
+00:02 +20: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.helmet Size(393.0, 852.0) font1.0 fits with fallback
+00:02 +21: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.jump Size(393.0, 852.0) font1.0 fits with fallback
+00:02 +22: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.energy Size(393.0, 852.0) font2.0 fits with fallback
+00:02 +23: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.subscription Size(393.0, 852.0) font2.0 fits with fallback
+00:02 +24: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.video Size(393.0, 852.0) font2.0 fits with fallback
+00:03 +25: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.friends Size(393.0, 852.0) font2.0 fits with fallback
+00:03 +26: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/between_round_ad_break_test.dart: between-round break: shown; no late ad or reward
+00:03 +27: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/between_round_ad_break_test.dart: between-round break: shown; no late ad or reward
+00:03 +28: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/between_round_ad_break_test.dart: between-round break: shown; no late ad or reward
+00:03 +29: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/between_round_ad_break_test.dart: between-round break: shown; no late ad or reward
+00:03 +30: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/between_round_ad_break_test.dart: between-round break: shown; no late ad or reward
+00:03 +31: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/between_round_ad_break_test.dart: between-round break: shown; no late ad or reward
+00:03 +32: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/between_round_ad_break_test.dart: between-round break: shown; no late ad or reward
+00:03 +33: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/between_round_ad_break_test.dart: between-round break: shown; no late ad or reward
+00:04 +34: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/between_round_ad_break_test.dart: between-round break: shown; no late ad or reward
+00:04 +35: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.feedback Size(320.0, 568.0) font1.0 fits with fallback
+00:04 +36: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/between_round_ad_break_test.dart: between-round break: skip; no late ad or reward
+00:04 +37: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.packs Size(320.0, 568.0) font1.0 fits with fallback
+00:04 +38: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/between_round_ad_break_test.dart: between-round break: background; no late ad or reward
+00:04 +39: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/between_round_ad_break_test.dart: between-round break: background; no late ad or reward
+00:04 +40: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.jump Size(320.0, 568.0) font1.0 fits with fallback
+00:04 +41: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/between_round_ad_break_test.dart: between-round break: new-round; no late ad or reward
+00:04 +42: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.energy Size(320.0, 568.0) font2.0 fits with fallback
+00:04 +43: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/between_round_ad_break_test.dart: between-round break: revoke; no late ad or reward
+00:04 +44: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.subscription Size(320.0, 568.0) font2.0 fits with fallback
+00:04 +45: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.subscription Size(320.0, 568.0) font2.0 fits with fallback
+00:04 +46: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.subscription Size(320.0, 568.0) font2.0 fits with fallback
+00:04 +47: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.subscription Size(320.0, 568.0) font2.0 fits with fallback
+00:04 +48: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/between_round_ad_break_test.dart: between-round break: navigation; no late ad or reward
+00:04 +49: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.video Size(320.0, 568.0) font2.0 fits with fallback
+00:04 +50: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.friends Size(320.0, 568.0) font2.0 fits with fallback
+00:04 +51: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.friends Size(320.0, 568.0) font2.0 fits with fallback
+00:04 +52: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.feedback Size(320.0, 568.0) font2.0 fits with fallback
+00:05 +53: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.packs Size(320.0, 568.0) font2.0 fits with fallback
+00:05 +54: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.helmet Size(320.0, 568.0) font2.0 fits with fallback
+00:05 +55: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.jump Size(320.0, 568.0) font2.0 fits with fallback
+00:05 +56: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.energy Size(320.0, 480.0) font1.0 fits with fallback
+00:05 +57: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.subscription Size(320.0, 480.0) font1.0 fits with fallback
+00:05 +58: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.video Size(320.0, 480.0) font1.0 fits with fallback
+00:05 +59: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.friends Size(320.0, 480.0) font1.0 fits with fallback
+00:05 +60: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.feedback Size(320.0, 480.0) font1.0 fits with fallback
+00:05 +61: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.packs Size(320.0, 480.0) font1.0 fits with fallback
+00:05 +62: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.helmet Size(320.0, 480.0) font1.0 fits with fallback
+00:05 +63: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.jump Size(320.0, 480.0) font1.0 fits with fallback
+00:05 +64: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.energy Size(320.0, 480.0) font2.0 fits with fallback
+00:06 +65: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.subscription Size(320.0, 480.0) font2.0 fits with fallback
+00:06 +66: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.video Size(320.0, 480.0) font2.0 fits with fallback
+00:06 +67: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.friends Size(320.0, 480.0) font2.0 fits with fallback
+00:06 +68: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.feedback Size(320.0, 480.0) font2.0 fits with fallback
+00:06 +69: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.packs Size(320.0, 480.0) font2.0 fits with fallback
+00:06 +70: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.helmet Size(320.0, 480.0) font2.0 fits with fallback
+00:06 +71: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Current window EnergyPage.jump Size(320.0, 480.0) font2.0 fits with fallback
+00:06 +72: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: Children return using system Back; UI does not claim energy
+00:06 +73: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: H01 50 keeps round plus
+00:06 +74: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: H01 1500 keeps round plus
+00:06 +75: C:/Users/alexe/.codex/worktrees/ads-main-integration/Untouch/test/simple_energy_test.dart: H01 99999 keeps round plus
+00:06 +76: All tests passed!

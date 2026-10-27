@@ -1,0 +1,80 @@
+TAP version 13
+# (node:32620) ExperimentalWarning: Importing JSON modules is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: banner game threshold publishes independently in game units and preserves time/other formats
+ok 1 - banner game threshold publishes independently in game units and preserves time/other formats
+  ---
+  duration_ms: 16.3005
+  ...
+# Subtest: three ad formats retain legacy behavior; reading does not mutate published revision
+ok 2 - three ad formats retain legacy behavior; reading does not mutate published revision
+  ---
+  duration_ms: 1.1197
+  ...
+# Subtest: format switches/parameters are independent and preserve the existing pacing
+ok 3 - format switches/parameters are independent and preserve the existing pacing
+  ---
+  duration_ms: 1.9989
+  ...
+# Subtest: malformed types, delays and banner IDs are rejected at the server boundary
+ok 4 - malformed types, delays and banner IDs are rejected at the server boundary
+  ---
+  duration_ms: 2.7845
+  ...
+# Subtest: existing platform envelopes remain valid and explicit ad publication reaches Android/Telegram
+ok 5 - existing platform envelopes remain valid and explicit ad publication reaches Android/Telegram
+  ---
+  duration_ms: 7.577
+  ...
+# Subtest: independent banner and automatic OFF switches survive RC materialization
+ok 6 - independent banner and automatic OFF switches survive RC materialization
+  ---
+  duration_ms: 11.4748
+  ...
+# (node:8960) ExperimentalWarning: Importing JSON modules is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# (node:8960) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+# Subtest: one common ad policy reaches both snapshots; platform providers remain isolated
+ok 7 - one common ad policy reaches both snapshots; platform providers remain isolated
+  ---
+  duration_ms: 8.8951
+  ...
+# Subtest: wrong scope/unknown duplicate fields, sales enablement and external legacy drift are rejected
+ok 8 - wrong scope/unknown duplicate fields, sales enablement and external legacy drift are rejected
+  ---
+  duration_ms: 3.1757
+  ...
+# Subtest: old admin publication stays compatible after split; scoped settings remain isolated
+ok 9 - old admin publication stays compatible after split; scoped settings remain isolated
+  ---
+  duration_ms: 5.3339
+  ...
+# Subtest: grouped Android and platform parameters stay grouped, duplicate keys are rejected
+ok 10 - grouped Android and platform parameters stay grouped, duplicate keys are rejected
+  ---
+  duration_ms: 5.1715
+  ...
+# Subtest: admin scoped drafts, preview confirmation, stale etag and audited publication
+ok 11 - admin scoped drafts, preview confirmation, stale etag and audited publication
+  ---
+  duration_ms: 29.5346
+  ...
+# Subtest: new enemy curve and brake parameters stay common across Android and Telegram materialization
+ok 12 - new enemy curve and brake parameters stay common across Android and Telegram materialization
+  ---
+  duration_ms: 1.918
+  ...
+# Subtest: brake and meter toggles are independent shared parameters for both platform snapshots
+ok 13 - brake and meter toggles are independent shared parameters for both platform snapshots
+  ---
+  duration_ms: 1.2261
+  ...
+1..13
+# tests 13
+# suites 0
+# pass 13
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1691.0435

@@ -1,0 +1,3 @@
+00:00 +0: loading C:/Users/alexe/.codex/artifacts/untouch/android-main228-20261027/source/test/phone_release_rc228_test.dart
+00:00 +0: current production RC77 parses with independent advertising controls
+00:00 +1: All tests passed!

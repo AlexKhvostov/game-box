@@ -1,0 +1,28 @@
+{
+  "checkedAt": "2026-10-27T16:03:06.988Z",
+  "rcVersion": "77",
+  "revision": "9030b709dad24d22a7e48a19fefce266cd1a262271f026229791cabf3b2909ef",
+  "advertising": {
+    "banner": {
+      "enabled": false,
+      "installDelaySec": 86400,
+      "unitId": "R-M-20184253-3"
+    },
+    "automatic": {
+      "enabled": true,
+      "longAbsenceSec": 300,
+      "resumeGraceSec": 180
+    },
+    "rewarded": {
+      "enabled": true
+    }
+  },
+  "automatic": {
+    "interstitialGraceSec": 500,
+    "interstitialSessionGraceSec": 500,
+    "interstitialSessionFreeRounds": 10,
+    "interstitialCooldownSec": 400,
+    "interstitialMinLives": 10
+  },
+  "published": false
+}

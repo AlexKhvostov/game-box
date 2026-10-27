@@ -16,6 +16,7 @@ import '../data/economy_store.dart';
 abstract class BottomBannerSession extends ChangeNotifier {
   bool get loaded;
   bool get failed;
+  bool get impressed => false;
   Widget get view;
   Future<void> load(String unit);
   Future<void> close();
@@ -24,6 +25,12 @@ abstract class BottomBannerSession extends ChangeNotifier {
 class _YandexBannerSession extends BottomBannerSession {
   _YandexBannerSession(int width)
     : _ad = BannerAd(adSize: BannerAdSize.inline(width: width, maxHeight: 50)) {
+    _events = _ad.events.listen((event) {
+      if (event is BannerAdImpressionEvent) {
+        impressed = true;
+        notifyListeners();
+      }
+    });
     _subscription = _ad.loadStateStream.listen((state) {
       loaded = state is BannerAdLoadStateLoaded;
       failed = state is BannerAdLoadStateError;
@@ -31,6 +38,9 @@ class _YandexBannerSession extends BottomBannerSession {
     });
   }
   final BannerAd _ad;
+  late final StreamSubscription<BannerAdEvent> _events;
+  @override
+  bool impressed = false;
   late final StreamSubscription<BannerAdLoadState> _subscription;
   @override
   bool loaded = false;
@@ -42,6 +52,7 @@ class _YandexBannerSession extends BottomBannerSession {
   Future<void> load(String unit) => _ad.load(AdRequest(adUnitId: unit));
   @override
   Future<void> close() async {
+    await _events.cancel();
     await _subscription.cancel();
     await _ad.destroy();
     dispose();
@@ -114,6 +125,10 @@ class _AndroidBottomBannerState extends State<AndroidBottomBanner>
 
   void _changed() {
     if (!mounted) return;
+    if (_foreground && widget.active && _session?.impressed == true) {
+      final e = context.read<EconomyStore?>();
+      if (e != null) unawaited(e.recordUnrequestedAdShown(banner: true));
+    }
     if (_session?.failed == true) {
       // No immediate retry loop on no-fill/offline. A single retry per minute.
       _retry ??= Timer(const Duration(minutes: 1), () {
@@ -186,7 +201,10 @@ class _AndroidBottomBannerState extends State<AndroidBottomBanner>
     final delay = settings?.installDelaySec ?? 0;
     final remaining = delay == 0
         ? Duration.zero
-        : economy?.bannerDelayLeft(delay);
+        : economy?.bannerDelayLeft(
+            delay,
+            unlockAfterGames: settings?.unlockAfterGames ?? 0,
+          );
     _eligibilityTimer?.cancel();
     _eligibilityTimer = null;
     if (_foreground &&
@@ -208,6 +226,8 @@ class _AndroidBottomBannerState extends State<AndroidBottomBanner>
         widget.active &&
         _foreground &&
         audience?.adsEnabled == true &&
+        economy?.energySubscribed != true &&
+        economy?.hasPremium != true &&
         remaining == Duration.zero &&
         ads?.busy != true &&
         settings?.enabled == true &&

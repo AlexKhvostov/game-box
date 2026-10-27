@@ -31,7 +31,12 @@ void main() {
           expect(find.text('Энергия за рекламу'), findsOneWidget);
         }
         expect(disclosure, findsOneWidget);
-        expect(find.textContaining('Яндекс: данные'), findsOneWidget);
+        expect(
+          find.textContaining('вы соглашаетесь на обработку данных Яндексом'),
+          findsOneWidget,
+        );
+        expect(find.textContaining('18+ · Добровольно'), findsNothing);
+        expect(find.text('ссылка'), findsOneWidget);
         expect(find.text('Подождите'), findsOneWidget);
         expect(find.text('Закройте'), findsOneWidget);
         expect(find.byType(RewardedAdGuide), findsOneWidget);
@@ -46,7 +51,10 @@ void main() {
             )
             .data!;
         expect(text, contains('одно видео за указанную награду'));
-        expect(text, contains('запрашивается отдельно'));
+        expect(text, contains('IP-адрес'));
+        expect(text, contains('персонализированной'));
+        expect(text, contains('Отозвать его можно'));
+        expect(text, isNot(contains('запрашивается отдельно')));
         expect(text, contains('Геолокация Android и рекламный ID отключены'));
         expect(text, isNot(contains('Без персонализации')));
         await t.tap(find.text('Понятно'));
@@ -66,7 +74,7 @@ void main() {
         ),
       );
       expect(
-        find.textContaining('Yandex: connection and device data'),
+        find.textContaining('consent to Yandex processing data'),
         findsOneWidget,
       );
       expect(find.byType(Checkbox), findsNothing);

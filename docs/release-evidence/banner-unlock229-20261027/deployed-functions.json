@@ -1,0 +1,27 @@
+{
+  "passed": true,
+  "functions": [
+    {
+      "name": "android-api",
+      "version": 38,
+      "files": 32,
+      "sourceMatches": true,
+      "verifyJwtUnchanged": true
+    },
+    {
+      "name": "telegram-api",
+      "version": 22,
+      "files": 36,
+      "sourceMatches": true,
+      "verifyJwtUnchanged": true
+    },
+    {
+      "name": "remote-config-admin",
+      "version": 27,
+      "files": 16,
+      "sourceMatches": true,
+      "verifyJwtUnchanged": true
+    }
+  ],
+  "otherFunctionsUnchanged": true
+}

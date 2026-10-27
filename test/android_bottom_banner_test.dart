@@ -9,6 +9,7 @@ import 'package:game_box/data/audience_policy.dart';
 import 'package:game_box/data/bottom_banner_config.dart';
 import 'package:game_box/data/economy_store.dart';
 import 'package:game_box/ui/android_bottom_banner.dart';
+import 'simple_energy_test.dart' as subscription_fixture;
 
 class NoFullscreenAds implements AdsDriver {
   Completer<bool>? interstitial;
@@ -23,6 +24,8 @@ class NoFullscreenAds implements AdsDriver {
 class FakeBanner extends BottomBannerSession {
   @override
   bool loaded = false;
+  @override
+  bool impressed = false;
   @override
   bool failed = false;
   bool closed = false;
@@ -116,6 +119,7 @@ void main() {
       List<FakeBanner> sessions,
       ValueNotifier<bool> active,
       Future<void> Function(bool) configure,
+      Future<void> Function(int) configureGames,
     })
   >
   mount(
@@ -124,6 +128,7 @@ void main() {
     bool consent = true,
     bool adult = true,
     int installDelaySec = 0,
+    int unlockAfterGames = 100,
     EconomyStore? economy,
     Future<void> Function()? initialize,
   }) async {
@@ -138,6 +143,7 @@ void main() {
       fetch: () async => BottomBannerSettings(
         enabled: enabled,
         installDelaySec: installDelaySec,
+        unlockAfterGames: unlockAfterGames,
       ),
     );
     await config.refresh();
@@ -195,6 +201,10 @@ void main() {
         enabled = value;
         await config.refresh();
       },
+      configureGames: (int value) async {
+        unlockAfterGames = value;
+        await config.refresh();
+      },
     );
   }
 
@@ -207,183 +217,238 @@ void main() {
     expect(find.byKey(const ValueKey('android-bottom-banner')), findsNothing);
   });
 
-  group(
-    'demo-enabled privacy and lifecycle',
-    skip: !AudiencePolicy.demoAds,
-    () {
-      testWidgets('no request for a minor', (tester) async {
-        final f = await mount(tester, adult: false);
-        expect(f.sessions, isEmpty);
-      });
-      testWidgets('no request without consent', (tester) async {
-        final f = await mount(tester, consent: false);
-        expect(f.sessions, isEmpty);
-      });
-      testWidgets(
-        'banner waits for installation delay before any SDK session is created',
-        (tester) async {
-          var now = DateTime.utc(2026, 10, 27);
-          final economy = EconomyStore(
-            now: () => now,
-            installedAt: now,
-            storagePrefix: 'banner_delay_',
-          );
-          await economy.load();
-          final f = await mount(tester, installDelaySec: 60, economy: economy);
-          expect(f.sessions, isEmpty);
-          now = now.add(const Duration(seconds: 59));
-          await tester.pump(const Duration(seconds: 59));
-          expect(f.sessions, isEmpty);
-          now = now.add(const Duration(seconds: 1));
-          await tester.pump(const Duration(seconds: 1));
-          await tester.pump();
-          expect(f.sessions.length, 1);
-          economy.dispose();
-        },
-      );
-      testWidgets('loaded banner, then RC off closes ad and collapses space', (
-        tester,
-      ) async {
-        final f = await mount(tester);
-        final ad = f.sessions.single;
-        expect(ad.unit, 'demo-banner-yandex');
-        ad.complete();
-        await tester.pump();
-        expect(
-          tester
-              .getSize(find.byKey(const ValueKey('android-bottom-banner')))
-              .height,
-          58,
+  group('demo-enabled privacy and lifecycle', skip: !AudiencePolicy.demoAds, () {
+    testWidgets(
+      '100th game unlocks before a day, threshold RC and OFF still gate SDK',
+      (tester) async {
+        final now = DateTime.utc(2026, 10, 27, 12);
+        final economy = EconomyStore(
+          now: () => now,
+          installedAt: now.subtract(const Duration(hours: 1)),
         );
-        await f.configure(false);
+        await economy.load();
+        addTearDown(economy.dispose);
+        final f = await mount(tester, economy: economy, installDelaySec: 86400);
+        for (var i = 0; i < 99; i++) {
+          economy.recordCompletedRound();
+        }
+        await tester.pump();
+        expect(f.sessions, isEmpty);
+        economy.recordCompletedRound();
         await tester.pump();
         await tester.pump();
-        expect(ad.closed, true);
+        expect(f.sessions, hasLength(1));
+        await f.configureGames(101);
+        await tester.pump();
+        await tester.pump();
+        expect(f.sessions.single.closed, true);
         expect(
           find.byKey(const ValueKey('android-bottom-banner')),
           findsNothing,
         );
-      });
-      testWidgets('consent withdrawal closes native view immediately', (
-        tester,
-      ) async {
-        final f = await mount(tester);
-        final ad = f.sessions.single;
-        ad.complete();
-        await tester.pump();
-        await f.audience.setAdDataConsent(false);
+        await f.configure(false);
+        economy.recordCompletedRound();
         await tester.pump();
         await tester.pump();
-        expect(ad.closed, true);
-        expect(find.byKey(const ValueKey('native-banner')), findsNothing);
-      });
-      testWidgets('failed load hides space; does not spin retry requests', (
-        tester,
-      ) async {
-        final f = await mount(tester);
-        f.sessions.single.complete(error: true);
-        await tester.pump(const Duration(seconds: 20));
+        expect(f.sessions, hasLength(1));
+        await f.configure(true);
+        await tester.pump();
+        await tester.pump();
+        expect(f.sessions, hasLength(2));
+      },
+    );
+    testWidgets('no request for a minor', (tester) async {
+      final f = await mount(tester, adult: false);
+      expect(f.sessions, isEmpty);
+    });
+    testWidgets('no request without consent', (tester) async {
+      final f = await mount(tester, consent: false);
+      expect(f.sessions, isEmpty);
+    });
+    testWidgets(
+      'banner waits for installation delay before any SDK session is created',
+      (tester) async {
+        var now = DateTime.utc(2026, 10, 27);
+        final economy = EconomyStore(
+          now: () => now,
+          installedAt: now,
+          storagePrefix: 'banner_delay_',
+        );
+        await economy.load();
+        final f = await mount(tester, installDelaySec: 60, economy: economy);
+        expect(f.sessions, isEmpty);
+        now = now.add(const Duration(seconds: 59));
+        await tester.pump(const Duration(seconds: 59));
+        expect(f.sessions, isEmpty);
+        now = now.add(const Duration(seconds: 1));
+        await tester.pump(const Duration(seconds: 1));
+        await tester.pump();
         expect(f.sessions.length, 1);
-        expect(
-          find.byKey(const ValueKey('android-bottom-banner')),
-          findsNothing,
-        );
-      });
-      testWidgets(
-        'route deactivation closes, reactivation loads a fresh banner',
-        (tester) async {
-          final f = await mount(tester);
-          final first = f.sessions.single;
-          f.active.value = false;
-          await tester.pump();
-          await tester.pump();
-          expect(first.closed, true);
-          f.active.value = true;
-          await tester.pump();
-          await tester.pump();
-          expect(f.sessions.length, 2);
-        },
+        economy.dispose();
+      },
+    );
+    testWidgets('loaded banner, then RC off closes ad and collapses space', (
+      tester,
+    ) async {
+      final f = await mount(tester);
+      final ad = f.sessions.single;
+      expect(ad.unit, 'demo-banner-yandex');
+      ad.complete();
+      await tester.pump();
+      expect(
+        tester
+            .getSize(find.byKey(const ValueKey('android-bottom-banner')))
+            .height,
+        58,
       );
-      testWidgets('foreground return loads a fresh banner', (tester) async {
-        final f = await mount(tester);
-        final first = f.sessions.single;
-        tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+      await f.configure(false);
+      await tester.pump();
+      await tester.pump();
+      expect(ad.closed, true);
+      expect(find.byKey(const ValueKey('android-bottom-banner')), findsNothing);
+    });
+    testWidgets('consent withdrawal closes native view immediately', (
+      tester,
+    ) async {
+      final f = await mount(tester);
+      final ad = f.sessions.single;
+      ad.complete();
+      await tester.pump();
+      await f.audience.setAdDataConsent(false);
+      await tester.pump();
+      await tester.pump();
+      expect(ad.closed, true);
+      expect(find.byKey(const ValueKey('native-banner')), findsNothing);
+    });
+    testWidgets(
+      'subscription hides existing banner; loaded alone never records impression',
+      (tester) async {
+        final e = EconomyStore(storagePrefix: 'banner_subscription_test_');
+        await e.load();
+        final f = await mount(tester, economy: e);
+        final session = f.sessions.single;
+        session.complete();
         await tester.pump();
+        expect(e.bannerAdSeen, false);
+        session.impressed = true;
+        session.notifyListeners();
         await tester.pump();
-        expect(first.closed, true);
-        tester.binding.handleAppLifecycleStateChanged(
-          AppLifecycleState.resumed,
+        expect(e.bannerAdSeen, true);
+        await e.applyServerWallet(
+          subscription_fixture.simpleWallet(tier: 5),
+          serverNow: subscription_fixture.stamp,
+          owner: 'android:subscriber',
         );
         await tester.pump();
         await tester.pump();
-        expect(f.sessions.length, 2);
-        f.config.pause();
-      });
-      testWidgets('fullscreen ad suspends banner until dismissed', (
-        tester,
-      ) async {
-        final f = await mount(tester);
-        final first = f.sessions.single;
-        final driver = f.ads.driver as NoFullscreenAds;
-        driver.interstitial = Completer<bool>();
-        final showing = f.ads.showInterstitial(canShow: () => true);
-        await tester.pump();
-        await tester.pump();
-        expect(first.closed, true);
-        driver.interstitial!.complete(true);
-        await showing;
-        await tester.pump();
-        await tester.pump();
-        expect(f.sessions.length, 2);
-      });
-      testWidgets('RC OFF during initialization prevents a late SDK request', (
-        tester,
-      ) async {
-        final initializing = Completer<void>();
-        final f = await mount(tester, initialize: () => initializing.future);
-        await f.configure(false);
-        await tester.pump();
-        initializing.complete();
-        await tester.pump();
-        await tester.pump();
-        expect(f.sessions, isEmpty);
         expect(
           find.byKey(const ValueKey('android-bottom-banner')),
           findsNothing,
         );
-      });
-      testWidgets('RC OFF ON OFF ON creates only fresh banner sessions', (
-        tester,
-      ) async {
-        final f = await mount(tester, enabled: false);
-        expect(f.sessions, isEmpty);
-        await f.configure(true);
-        await tester.pump();
-        await tester.pump();
+        expect(session.closed, true);
+        // mount teardown releases providers before disposing the store.
+        await tester.pumpWidget(const SizedBox.shrink());
+        e.dispose();
+      },
+    );
+    testWidgets('failed load hides space; does not spin retry requests', (
+      tester,
+    ) async {
+      final f = await mount(tester);
+      f.sessions.single.complete(error: true);
+      await tester.pump(const Duration(seconds: 20));
+      expect(f.sessions.length, 1);
+      expect(find.byKey(const ValueKey('android-bottom-banner')), findsNothing);
+    });
+    testWidgets(
+      'route deactivation closes, reactivation loads a fresh banner',
+      (tester) async {
+        final f = await mount(tester);
         final first = f.sessions.single;
-        await f.configure(false);
-        await tester.pump();
-        await tester.pump();
-        expect(first.closed, true);
-        expect(find.byKey(const ValueKey('native-banner')), findsNothing);
-        await f.configure(true);
-        await tester.pump();
-        await tester.pump();
-        expect(f.sessions.length, 2);
-        expect(identical(first, f.sessions.last), false);
-      });
-      testWidgets('late initialization cannot load after switch off', (
-        tester,
-      ) async {
-        final initializing = Completer<void>();
-        final f = await mount(tester, initialize: () => initializing.future);
         f.active.value = false;
         await tester.pump();
-        initializing.complete();
+        await tester.pump();
+        expect(first.closed, true);
+        f.active.value = true;
         await tester.pump();
         await tester.pump();
-        expect(f.sessions, isEmpty);
-      });
-    },
-  );
+        expect(f.sessions.length, 2);
+      },
+    );
+    testWidgets('foreground return loads a fresh banner', (tester) async {
+      final f = await mount(tester);
+      final first = f.sessions.single;
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+      await tester.pump();
+      await tester.pump();
+      expect(first.closed, true);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      await tester.pump();
+      await tester.pump();
+      expect(f.sessions.length, 2);
+      f.config.pause();
+    });
+    testWidgets('fullscreen ad suspends banner until dismissed', (
+      tester,
+    ) async {
+      final f = await mount(tester);
+      final first = f.sessions.single;
+      final driver = f.ads.driver as NoFullscreenAds;
+      driver.interstitial = Completer<bool>();
+      final showing = f.ads.showInterstitial(canShow: () => true);
+      await tester.pump();
+      await tester.pump();
+      expect(first.closed, true);
+      driver.interstitial!.complete(true);
+      await showing;
+      await tester.pump();
+      await tester.pump();
+      expect(f.sessions.length, 2);
+    });
+    testWidgets('RC OFF during initialization prevents a late SDK request', (
+      tester,
+    ) async {
+      final initializing = Completer<void>();
+      final f = await mount(tester, initialize: () => initializing.future);
+      await f.configure(false);
+      await tester.pump();
+      initializing.complete();
+      await tester.pump();
+      await tester.pump();
+      expect(f.sessions, isEmpty);
+      expect(find.byKey(const ValueKey('android-bottom-banner')), findsNothing);
+    });
+    testWidgets('RC OFF ON OFF ON creates only fresh banner sessions', (
+      tester,
+    ) async {
+      final f = await mount(tester, enabled: false);
+      expect(f.sessions, isEmpty);
+      await f.configure(true);
+      await tester.pump();
+      await tester.pump();
+      final first = f.sessions.single;
+      await f.configure(false);
+      await tester.pump();
+      await tester.pump();
+      expect(first.closed, true);
+      expect(find.byKey(const ValueKey('native-banner')), findsNothing);
+      await f.configure(true);
+      await tester.pump();
+      await tester.pump();
+      expect(f.sessions.length, 2);
+      expect(identical(first, f.sessions.last), false);
+    });
+    testWidgets('late initialization cannot load after switch off', (
+      tester,
+    ) async {
+      final initializing = Completer<void>();
+      final f = await mount(tester, initialize: () => initializing.future);
+      f.active.value = false;
+      await tester.pump();
+      initializing.complete();
+      await tester.pump();
+      await tester.pump();
+      expect(f.sessions, isEmpty);
+    });
+  });
 }

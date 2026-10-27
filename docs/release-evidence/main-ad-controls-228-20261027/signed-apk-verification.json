@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "versionCode": 228,
+  "playCertificate": "a1282130e301ebabb44f8804f4a6f69ae98d3de9e464f56a034c9da0f1f0d701",
+  "splitSignaturesAndCrcVerified": 5,
+  "assetsMatchReviewedBundle": 68,
+  "arm64LibrariesMatchReviewedBundle": 4,
+  "productionRcKeyPresent": true,
+  "qaRcKeyAbsent": true,
+  "livePublisherUnitsPresent": true,
+  "bundleSha256": "21e30f414e74eb78963acf77106183f32d194cb25d3a48e41973b6c9db94f54b"
+}

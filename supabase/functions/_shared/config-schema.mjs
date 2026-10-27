@@ -11,7 +11,7 @@ export const sections=[
   ['enemies','Враги','Движение, форма и столкновения'],['player','Игрок','Размер и внешний вид'],
   ['field','Игровое поле','Границы, размеры и освещение'],['game','Управление и игра','Прыжок, защита и вибрация'],
   ['audio','Звук','Музыка и звуковые эффекты'],
-  ['ads-banner','Баннер','Нижняя полоса Android: отдельное включение и задержка после установки. Не включает автоматические ролики.'],
+  ['ads-banner','Баннер','Нижняя полоса Android: время после установки ИЛИ количество завершённых игр — что наступит раньше. Не включает автоматические ролики.'],
   ['ads-automatic','Автоматическая реклама','Ролик возможен только после игры, когда выполнены все ограничения ниже. Окончание паузы само по себе рекламу не запускает. Общие интервалы Android и Telegram.'],
   ['ads-rewarded','Реклама по запросу','Ролик только по действию игрока: отдельное включение, награда, интервал и дневной лимит.'],
   ['technical','Служебные параметры','Справочные и фиксированные значения']
@@ -132,14 +132,15 @@ if(!defaults.config.enemyPace)walk({enemyPace:enemyPaceDefaults});
 if(!defaults.config.ranking?.average)walk({ranking:{average:averageDefaults}});
 const adFields=[
   ['banner.enabled','Показывать баннер','boolean','ads-banner','Нижняя рекламная полоска в Android. Этот переключатель управляет только баннером; оба вида роликов включаются отдельно.'],
-  ['banner.installDelaySec','После установки','number','ads-banner','Через сколько секунд после установки Android разрешить баннер. 86400 с = сутки; 0 — без этой задержки. Отсчёт один раз, не при каждом открытии приложения.'],
+  ['banner.installDelaySec','После установки','number','ads-banner','Через сколько секунд после установки Android разрешить баннер. 86400 с = сутки; 0 — сразу. Баннер также разрешится раньше после указанного количества завершённых игр. Достаточно любого одного условия.'],
+  ['banner.unlockAfterGames','После N игр','number','ads-banner','Сколько игр нужно завершить на этой установке, чтобы разрешить баннер раньше срока. Например, 100 игр за час — баннер разрешён уже через час. Счётчик сохраняется между запусками. 0 — учитывать только время после установки.'],
   ['banner.unitId','ID баннера Яндекса','string','ads-banner','Идентификатор отдельного баннерного блока из кабинета Яндекса, вида R-M-…-…. Пока поле пустое, запросов настоящей рекламы нет.'],
   ['automatic.enabled','Ролики между играми','boolean','ads-automatic','Разрешает автоматическую полноэкранную рекламу после игры с учётом ограничений ниже. Баннер и видео за энергию включаются отдельно.'],
   ['automatic.longAbsenceSec','Долгое отсутствие','number','ads-automatic','Сколько секунд в фоне считать долгим отсутствием. 300 с = 5 минут; 0 — любое сворачивание. После такого возврата пауза будет не короче значения «После запуска приложения».'],
   ['automatic.resumeGraceSec','После возврата','number','ads-automatic','Сколько секунд не показывать автоматические ролики после разворачивания приложения. После долгого отсутствия действует большая из двух пауз: эта или «После запуска приложения». Ожидавший показ отменяется при сворачивании.'],
   ['rewarded.enabled','Видео за энергию','boolean','ads-rewarded','Разрешает игроку самому запустить видео ради награды. Выключение запрещает новые просмотры, но сохраняет уже заработанную награду. Баннер и автоматические ролики не затрагивает.']
 ];
-for(const [path,label,type,section,help]of adFields)leaves.push({path:'advertising.'+path,label,type,section,help,readOnly:false,default:path.split('.').reduce((v,k)=>v[k],adFormatsDefaults),...(type==='number'?{min:0,max:2592000,step:1,unit:'с'}:{})});
+for(const [path,label,type,section,help]of adFields)leaves.push({path:'advertising.'+path,label,type,section,help,readOnly:false,default:path.split('.').reduce((v,k)=>v[k],adFormatsDefaults),...(type==='number'?{min:0,max:path==='banner.unlockAfterGames'?1000000:2592000,step:1,unit:path==='banner.unlockAfterGames'?'игр':'с'}:{})});
 export const fields=Object.freeze(leaves);
 export const defaultsSnapshot=defaults;
 export const getValue=(object,path)=>path.split('.').reduce((value,key)=>value?.[key],object)??(path.startsWith('advertising.')?path.split('.').slice(1).reduce((v,k)=>v?.[k],adFormatsDefaults):path==='game.helmetCooldownSec'?0:path.startsWith('ranking.average.')?averageDefaults[path.split('.').at(-1)]:path.startsWith('enemyPace.')?enemyPaceDefaults[path.split('.').at(-1)]:undefined);

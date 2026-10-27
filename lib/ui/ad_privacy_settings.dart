@@ -7,15 +7,59 @@ import 'neon_chrome.dart';
 
 final _activeAdDataRequest = Expando<Future<bool>>();
 
-/// Called at an eligible placement, never on startup or as a reward-tap consent.
-Future<bool> ensureAdDataConsent(BuildContext context) {
+Future<void> openAdDataPolicy(BuildContext context) async {
+  try {
+    await const MethodChannel(
+      'untouch/adPrivacy',
+    ).invokeMethod<void>('openPolicy');
+  } catch (_) {
+    if (!context.mounted) return;
+    final ru = Localizations.localeOf(context).languageCode == 'ru';
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          ru ? 'Не удалось открыть браузер.' : 'Could not open browser.',
+        ),
+      ),
+    );
+  }
+}
+
+/// Eligible placements use a separate dialog unless E03's visible notice was
+/// explicitly confirmed by its launch button. Startup and details cannot grant.
+Future<bool> ensureAdDataConsent(
+  BuildContext context, {
+  bool confirmedInRewardedGuide = false,
+}) async {
   final policy = context.read<AudiencePolicy?>();
   if (policy == null ||
       !AudiencePolicy.adsBuildEnabled ||
       !policy.isAdEligibleAge) {
-    return Future.value(false);
+    return false;
   }
-  if (policy.adDataConsent != null) return Future.value(policy.adsEnabled);
+  // Only E03's explicit launch button, beside the visible data notice, uses
+  // this path. Opening the guide/details and automatic ads cannot grant consent.
+  if (confirmedInRewardedGuide && policy.adDataConsent != true) {
+    try {
+      await policy.setAdDataConsent(true);
+    } catch (_) {
+      if (context.mounted) {
+        final ru = Localizations.localeOf(context).languageCode == 'ru';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              ru
+                  ? 'Не удалось сохранить согласие. Повторите попытку.'
+                  : 'Could not save your consent. Please try again.',
+            ),
+          ),
+        );
+      }
+      return false;
+    }
+    return context.mounted && policy.adsEnabled;
+  }
+  if (policy.adDataConsent != null) return policy.adsEnabled;
   return _requestAdData(context, policy);
 }
 
@@ -79,24 +123,7 @@ Future<bool> _showAdData(
                 ),
               ),
               TextButton(
-                onPressed: () async {
-                  try {
-                    await const MethodChannel(
-                      'untouch/adPrivacy',
-                    ).invokeMethod<void>('openPolicy');
-                  } catch (_) {
-                    if (!dialog.mounted) return;
-                    ScaffoldMessenger.of(dialog).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          ru
-                              ? 'Не удалось открыть браузер.'
-                              : 'Could not open browser.',
-                        ),
-                      ),
-                    );
-                  }
-                },
+                onPressed: () => openAdDataPolicy(dialog),
                 child: Text(ru ? 'Политика Яндекса' : 'Yandex privacy policy'),
               ),
               if (settings && granted) ...[

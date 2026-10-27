@@ -1,0 +1,19 @@
+{
+  "sha256": "da1bb2e9715143918c32de60c1ef1458d0e2d4f34699640d92cc667b2a56608b",
+  "applicationLabels": [
+    "untouch"
+  ],
+  "jarVerified": true,
+  "uploadCertificateMatches184": true,
+  "certificateSha256": "d1e6c24577de4870860938c0acf5c84f039f2a740daa0c02a33342b23b9ecdde",
+  "zipCrc": true,
+  "sdkScreenshotAssetsVerified": [],
+  "guideMode": "schematic",
+  "bundledRevision": "308fe79cb6cc0c2d3f73d6bac1262196d7b11c412b1aefd4616f263f1414b619",
+  "minAttempts": 1,
+  "minDurationMs": 0,
+  "oauthClientPreserved": true,
+  "yandexPublisherUnitsPresent": true,
+  "installedThroughPlay": false,
+  "published": false
+}

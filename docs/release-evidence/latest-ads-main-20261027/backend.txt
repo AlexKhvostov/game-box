@@ -1,0 +1,124 @@
+TAP version 13
+# (node:43960) ExperimentalWarning: Importing JSON modules is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: banner game threshold publishes independently in game units and preserves time/other formats
+ok 1 - banner game threshold publishes independently in game units and preserves time/other formats
+  ---
+  duration_ms: 15.0983
+  ...
+# Subtest: three ad formats retain legacy behavior; reading does not mutate published revision
+ok 2 - three ad formats retain legacy behavior; reading does not mutate published revision
+  ---
+  duration_ms: 1.0898
+  ...
+# Subtest: format switches/parameters are independent and preserve the existing pacing
+ok 3 - format switches/parameters are independent and preserve the existing pacing
+  ---
+  duration_ms: 2.2
+  ...
+# Subtest: malformed types, delays and banner IDs are rejected at the server boundary
+ok 4 - malformed types, delays and banner IDs are rejected at the server boundary
+  ---
+  duration_ms: 1.6919
+  ...
+# Subtest: existing platform envelopes remain valid and explicit ad publication reaches Android/Telegram
+ok 5 - existing platform envelopes remain valid and explicit ad publication reaches Android/Telegram
+  ---
+  duration_ms: 9.1662
+  ...
+# Subtest: independent banner and automatic OFF switches survive RC materialization
+ok 6 - independent banner and automatic OFF switches survive RC materialization
+  ---
+  duration_ms: 15.7969
+  ...
+# (node:28644) ExperimentalWarning: Importing JSON modules is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: distinct concurrent requests and retries grant only 20 to the account
+ok 7 - distinct concurrent requests and retries grant only 20 to the account
+  ---
+  duration_ms: 220.6241
+  ...
+# Subtest: the client cannot choose amount, age, or recipient; another account has its own single grant
+ok 8 - the client cannot choose amount, age, or recipient; another account has its own single grant
+  ---
+  duration_ms: 97.6813
+  ...
+# Subtest: the shared engine does not enable this Android bonus for Telegram
+ok 9 - the shared engine does not enable this Android bonus for Telegram
+  ---
+  duration_ms: 71.9498
+  ...
+# (node:2284) ExperimentalWarning: Importing JSON modules is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# (node:2284) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+# Subtest: one common ad policy reaches both snapshots; platform providers remain isolated
+ok 10 - one common ad policy reaches both snapshots; platform providers remain isolated
+  ---
+  duration_ms: 16.0692
+  ...
+# Subtest: wrong scope/unknown duplicate fields, sales enablement and external legacy drift are rejected
+ok 11 - wrong scope/unknown duplicate fields, sales enablement and external legacy drift are rejected
+  ---
+  duration_ms: 4.7398
+  ...
+# Subtest: old admin publication stays compatible after split; scoped settings remain isolated
+ok 12 - old admin publication stays compatible after split; scoped settings remain isolated
+  ---
+  duration_ms: 14.5432
+  ...
+# Subtest: grouped Android and platform parameters stay grouped, duplicate keys are rejected
+ok 13 - grouped Android and platform parameters stay grouped, duplicate keys are rejected
+  ---
+  duration_ms: 20.7162
+  ...
+# Subtest: admin scoped drafts, preview confirmation, stale etag and audited publication
+ok 14 - admin scoped drafts, preview confirmation, stale etag and audited publication
+  ---
+  duration_ms: 77.7874
+  ...
+# Subtest: new enemy curve and brake parameters stay common across Android and Telegram materialization
+ok 15 - new enemy curve and brake parameters stay common across Android and Telegram materialization
+  ---
+  duration_ms: 18.6029
+  ...
+# Subtest: brake and meter toggles are independent shared parameters for both platform snapshots
+ok 16 - brake and meter toggles are independent shared parameters for both platform snapshots
+  ---
+  duration_ms: 3.1783
+  ...
+# (node:4152) ExperimentalWarning: Importing JSON modules is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: rewarded switch denies new sessions and still pays an already quoted session
+ok 17 - rewarded switch denies new sessions and still pays an already quoted session
+  ---
+  duration_ms: 119.8228
+  ...
+# Subtest: 20 confirmed rewards per Minsk day; duplicate ACK never consumes twice; next midnight resets
+ok 18 - 20 confirmed rewards per Minsk day; duplicate ACK never consumes twice; next midnight resets
+  ---
+  duration_ms: 994.264
+  ...
+# Subtest: last daily credit is atomic across sessions; abandoned sessions consume no quota
+ok 19 - last daily credit is atomic across sessions; abandoned sessions consume no quota
+  ---
+  duration_ms: 121.3303
+  ...
+# Subtest: RC changes quota/cooldown immediately and preserves today usage; old config defaults to20
+ok 20 - RC changes quota/cooldown immediately and preserves today usage; old config defaults to20
+  ---
+  duration_ms: 93.5154
+  ...
+# Subtest: admin exposes daily count and cooldown with integer ranges; unrelated fields stay unchanged
+ok 21 - admin exposes daily count and cooldown with integer ranges; unrelated fields stay unchanged
+  ---
+  duration_ms: 4.6438
+  ...
+1..21
+# tests 21
+# suites 0
+# pass 21
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 5386.6254

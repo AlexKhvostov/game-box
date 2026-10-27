@@ -1,4 +1,5 @@
 import 'app_analytics.dart';
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -62,10 +63,50 @@ class EconomyStore extends ChangeNotifier {
   DateTime? _firstAdLaunchAt;
   int _sessionCompletedRounds = 0;
 
-  void recordCompletedRound() => _sessionCompletedRounds++;
+  int _bannerCompletedGames = 0;
+  int get bannerCompletedGames => _bannerCompletedGames;
+  String get _bannerGamesKey => '${storagePrefix}banner_completed_games_v1';
+
+  void recordCompletedRound() {
+    _sessionCompletedRounds++;
+    _bannerCompletedGames++;
+    // Installation-local progress: independent of account and ad switches.
+    unawaited(
+      _prefs
+          .setInt(_bannerGamesKey, _bannerCompletedGames)
+          .catchError((_) => false),
+    );
+    notifyListeners();
+  }
 
   EconomyConfig config;
   AdFormatsConfig advertising;
+  bool advertisingConfigKnown = false;
+  bool automaticAdSeen = false, bannerAdSeen = false;
+  bool get subscriptionBlocksSeenAds =>
+      advertisingConfigKnown &&
+      ((advertising.automatic.enabled && automaticAdSeen) ||
+          (advertising.banner.enabled && bannerAdSeen));
+
+  /// Only an SDK presentation/impression may record this; loading is insufficient.
+  Future<void> recordUnrequestedAdShown({required bool banner}) async {
+    if (banner ? bannerAdSeen : automaticAdSeen) return;
+    if (banner) {
+      bannerAdSeen = true;
+    } else {
+      automaticAdSeen = true;
+    }
+    notifyListeners();
+    try {
+      await _prefs.setBool(
+        '$storagePrefix${banner ? 'banner' : 'automatic'}_ad_seen_v1',
+        true,
+      );
+    } catch (_) {
+      /* Presentation history must never break an ad or the wallet. */
+    }
+  }
+
   DateTime? _installedAt;
   DateTime? _adBackgroundAt;
   DateTime? _adResumeNotBefore;
@@ -74,10 +115,15 @@ class EconomyStore extends ChangeNotifier {
 
   void applyAdvertising(AdFormatsConfig value) {
     advertising = value;
+    advertisingConfigKnown = true;
     notifyListeners();
   }
 
-  Duration? bannerDelayLeft(int delaySec) {
+  Duration? bannerDelayLeft(int delaySec, {int unlockAfterGames = 0}) {
+    if (delaySec == 0 ||
+        (unlockAfterGames > 0 && _bannerCompletedGames >= unlockAfterGames)) {
+      return Duration.zero;
+    }
     final installed = _installedAt;
     if (installed == null) return null;
     final left = installed.add(Duration(seconds: delaySec)).difference(_now());
@@ -133,6 +179,13 @@ class EconomyStore extends ChangeNotifier {
       simpleEnergyBonus!.remainingAt(energyNow) == Duration.zero;
   Future<void> claimHiddenEnergy() =>
       performEnergyOperation('energy_hidden_tap', const {});
+  bool get adUnavailableBonusClaimed =>
+      claimedEarnIds.contains('energy_ad_unavailable_bonus');
+  Future<void> claimAdUnavailableBonus() async {
+    if (adUnavailableBonusClaimed) return;
+    await performEnergyOperation('energy_ad_unavailable_bonus', const {});
+  }
+
   Future<void> claimSimpleEnergyBonus() =>
       performEnergyOperation('energy_bonus_claim', const {});
   int _confirmedEnergy = 0;
@@ -621,6 +674,13 @@ class EconomyStore extends ChangeNotifier {
 
   Future<void> load() async {
     _prefs = await SharedPreferences.getInstance();
+    _bannerCompletedGames = (_prefs.getInt(_bannerGamesKey) ?? 0).clamp(
+      0,
+      1000000000,
+    );
+    automaticAdSeen =
+        _prefs.getBool('${storagePrefix}automatic_ad_seen_v1') ?? false;
+    bannerAdSeen = _prefs.getBool('${storagePrefix}banner_ad_seen_v1') ?? false;
     // Energy has no legacy Daily claim. Its first-launch grace must not depend
     // on that retired action, or automatic ads remain permanently unarmed.
     final firstLaunchKey = '${storagePrefix}interstitial_first_launch_v1';

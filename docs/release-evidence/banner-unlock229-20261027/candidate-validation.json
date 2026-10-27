@@ -1,0 +1,26 @@
+{
+  "passed": true,
+  "functions": [
+    {
+      "name": "remote-config-admin",
+      "passed": true,
+      "previousFields": 144,
+      "fields": 145,
+      "existingFieldContractsUnchanged": true
+    },
+    {
+      "name": "android-api",
+      "passed": true,
+      "previousFields": 144,
+      "fields": 145,
+      "existingFieldContractsUnchanged": true
+    },
+    {
+      "name": "telegram-api",
+      "passed": true,
+      "previousFields": 144,
+      "fields": 145,
+      "existingFieldContractsUnchanged": true
+    }
+  ]
+}

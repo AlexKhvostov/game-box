@@ -5,6 +5,22 @@ import {defaults,hash,validatePolicy} from '../functions/_shared/core/policy.mjs
 import {fields,sections,applyChanges,getValue,changesBetween} from '../functions/_shared/config-schema.mjs';
 import {patchScopedTemplate,readPlatformTemplate,materializePlatform} from '../functions/_shared/platform-config.mjs';
 
+test('banner game threshold publishes independently in game units and preserves time/other formats',()=>{
+ const field=fields.find(f=>f.path==='advertising.banner.unlockAfterGames');
+ assert.equal(field.default,100);assert.equal(field.unit,'игр');assert.equal(field.min,0);assert.equal(field.max,1000000);
+ const template={parameters:{android_config_v1:{defaultValue:{value:JSON.stringify(defaults)}}}};
+ const initial=patchScopedTemplate(template,defaults,'common',[]);
+ const next=patchScopedTemplate(initial.template,initial.android,'common',[{path:field.path,value:150}]);
+ for(const platform of ['android','telegram']){
+  const ads=materializePlatform(next.envelope,platform).config.advertising;
+  assert.equal(ads.banner.unlockAfterGames,150);assert.equal(ads.banner.installDelaySec,86400);assert.equal(ads.banner.enabled,false);
+  assert.deepEqual(ads.automatic,adFormatsConfig().automatic);assert.deepEqual(ads.rewarded,adFormatsConfig().rewarded);
+ }
+ assert.deepEqual(next.android.config.economy,defaults.config.economy);
+ assert.equal(applyChanges(next.android,[{path:field.path,value:0}]).advertising.banner.unlockAfterGames,0);
+ for(const value of [-1,1.5,'100',true,1000001])assert.throws(()=>adFormatsConfig({banner:{unlockAfterGames:value}}));
+});
+
 test('three ad formats retain legacy behavior; reading does not mutate published revision',()=>{
  const before=structuredClone(defaults), oldHash=before.revision;
  assert.deepEqual(adFormatsConfig().automatic,{enabled:true,longAbsenceSec:300,resumeGraceSec:180});

@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "beforeVersion": "76",
+  "afterVersion": "77",
+  "onlyBannerUnitChanged": true,
+  "bannerStillOff": true,
+  "otherFormatsTimingProviderAndQaUnchanged": true,
+  "parameterChanges": [
+    "android_config_v1",
+    "untouch_platforms_v1"
+  ]
+}

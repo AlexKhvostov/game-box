@@ -1,0 +1,14 @@
+{
+  "created": true,
+  "name": "Untouch Android — нижний баннер",
+  "appId": "20184253",
+  "unitId": "R-M-20184253-3",
+  "format": "banner",
+  "status": "active",
+  "applicationStatus": "test",
+  "url": "https://partner.yandex.ru/v2/inapp/adunit/R-M-20184253-3/",
+  "existingRewardedInterstitialRetained": true,
+  "rcVersion": "77",
+  "bannerEnabled": false,
+  "installDelaySec": 86400
+}

@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "buildMode": "release",
+  "versionCode": 229,
+  "sha256": "2428b6226862d8c16f44770f226e3004deda8156fa60eb8db1c5ce29c290f3c5",
+  "signatureVerified": true,
+  "zipCrcVerified": true,
+  "productionRcAndAdUnitsPresent": true,
+  "persistentBannerCounterPresent": true,
+  "qaRcKeyAbsent": true,
+  "installed": false,
+  "uploaded": false,
+  "reason": "Compile verification of the ad-only main integration; physical229 also includes unrelated game changes kept outside this scope."
+}

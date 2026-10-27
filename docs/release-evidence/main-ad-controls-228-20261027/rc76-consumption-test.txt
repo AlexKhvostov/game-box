@@ -1,0 +1,3 @@
+00:00 +0: loading D:/_P_R_O_J_E_C_T/game/square/Untouch/tmp/main-ad-controls-228-20261027/test/phone_release_rc228_test.dart
+00:00 +0: current production RC76 parses with independent advertising controls
+00:00 +1: All tests passed!

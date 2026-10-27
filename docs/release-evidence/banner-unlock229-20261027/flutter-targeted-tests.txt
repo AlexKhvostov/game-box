@@ -1,0 +1,57 @@
+00:00 +0: loading C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/banner_unlock_criteria_test.dart
+00:00 +0: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/banner_unlock_criteria_test.dart: first of one day or 100 completed games unlocks, inclusive boundary
+00:00 +1: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/banner_unlock_criteria_test.dart: completed games survive restart, accumulate while OFF, stay installation-local
+00:00 +2: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/banner_unlock_criteria_test.dart: old installation unlocks by time with no games; zero seconds is immediate
+00:00 +3: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/banner_unlock_criteria_test.dart: RC count uses integer game units and rejects bad thresholds
+00:00 +4: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/android_bottom_banner_test.dart: live placement requires both enabled flag and a separate valid unit
+00:00 +5: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/android_bottom_banner_test.dart: RC fetches once concurrently, preserves state on failure, ignores late dispose
+00:00 +6: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/android_bottom_banner_test.dart: disabled build or RC never requests an ad
+00:01 +7: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/android_bottom_banner_test.dart: disabled build or RC never requests an ad
+00:01 +8: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/android_bottom_banner_test.dart: disabled build or RC never requests an ad
+00:01 +9: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/android_bottom_banner_test.dart: disabled build or RC never requests an ad
+00:01 +10: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/android_bottom_banner_test.dart: disabled build or RC never requests an ad
+00:01 +11: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/android_bottom_banner_test.dart: disabled build or RC never requests an ad
+00:01 +12: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/android_bottom_banner_test.dart: disabled build or RC never requests an ad
+00:01 +13: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/android_bottom_banner_test.dart: disabled build or RC never requests an ad
+00:01 +14: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/ads_service_test.dart: rewarded request from a closed route does not load or credit
+00:01 +15: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/android_bottom_banner_test.dart: demo-enabled privacy and lifecycle 100th game unlocks before a day, threshold RC and OFF still gate SDK
+00:01 +16: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/android_bottom_banner_test.dart: demo-enabled privacy and lifecycle 100th game unlocks before a day, threshold RC and OFF still gate SDK
+00:01 +17: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/android_bottom_banner_test.dart: demo-enabled privacy and lifecycle 100th game unlocks before a day, threshold RC and OFF still gate SDK
+00:01 +18: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/android_bottom_banner_test.dart: demo-enabled privacy and lifecycle 100th game unlocks before a day, threshold RC and OFF still gate SDK
+00:01 +19: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/android_bottom_banner_test.dart: demo-enabled privacy and lifecycle 100th game unlocks before a day, threshold RC and OFF still gate SDK
+00:01 +20: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/android_bottom_banner_test.dart: demo-enabled privacy and lifecycle 100th game unlocks before a day, threshold RC and OFF still gate SDK
+00:01 +21: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/android_bottom_banner_test.dart: demo-enabled privacy and lifecycle 100th game unlocks before a day, threshold RC and OFF still gate SDK
+00:01 +22: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/android_bottom_banner_test.dart: demo-enabled privacy and lifecycle 100th game unlocks before a day, threshold RC and OFF still gate SDK
+00:01 +23: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/android_bottom_banner_test.dart: demo-enabled privacy and lifecycle 100th game unlocks before a day, threshold RC and OFF still gate SDK
+00:01 +24: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/android_bottom_banner_test.dart: demo-enabled privacy and lifecycle no request for a minor
+00:02 +25: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/android_bottom_banner_test.dart: demo-enabled privacy and lifecycle no request without consent
+00:02 +26: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/android_bottom_banner_test.dart: demo-enabled privacy and lifecycle banner waits for installation delay before any SDK session is created
+00:02 +27: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/android_bottom_banner_test.dart: demo-enabled privacy and lifecycle loaded banner, then RC off closes ad and collapses space
+00:02 +28: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/android_bottom_banner_test.dart: demo-enabled privacy and lifecycle consent withdrawal closes native view immediately
+00:02 +29: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/android_bottom_banner_test.dart: demo-enabled privacy and lifecycle subscription hides existing banner; loaded alone never records impression
+00:02 +30: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/android_bottom_banner_test.dart: demo-enabled privacy and lifecycle failed load hides space; does not spin retry requests
+00:02 +31: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/android_bottom_banner_test.dart: demo-enabled privacy and lifecycle route deactivation closes, reactivation loads a fresh banner
+00:02 +32: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/android_bottom_banner_test.dart: demo-enabled privacy and lifecycle foreground return loads a fresh banner
+00:02 +33: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/android_bottom_banner_test.dart: demo-enabled privacy and lifecycle fullscreen ad suspends banner until dismissed
+00:02 +34: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/android_bottom_banner_test.dart: demo-enabled privacy and lifecycle RC OFF during initialization prevents a late SDK request
+00:02 +35: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/android_config_session_test.dart: background prefetch coalesces, never delays a run or applies its rules
+00:02 +36: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/android_config_session_test.dart: background prefetch coalesces, never delays a run or applies its rules
+00:02 +37: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/android_bottom_banner_test.dart: demo-enabled privacy and lifecycle late initialization cannot load after switch off
+00:02 +38: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/android_config_session_test.dart: prefetch backs off after offline and skips busy or forbidden connections
+00:02 +39: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/android_config_session_test.dart: first server profile replaces stale bundled rules without restart or new account
+00:02 +40: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/android_config_session_test.dart: rejected revision unblocks in same process; old rejected attempt never resubmits
+00:02 +41: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/android_config_session_test.dart: invalid server snapshot cannot mutate active rules or wallet
+00:03 +42: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/subscription_android_test.dart: 25% comparison uses same-duration, same-currency live prices; no invented discount
+00:03 +43: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/subscription_android_test.dart: all16 format/history cases and persistence; unknown config never promises ad removal
+00:03 +44: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/subscription_android_test.dart: E02 side by side at320.0/font1.0 keeps live data, choice and billing price
+00:04 +45: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/subscription_android_test.dart: E02 side by side at320.0/font1.5 keeps live data, choice and billing price
+00:04 +46: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/subscription_android_test.dart: E02 side by side at320.0/font2.0 keeps live data, choice and billing price
+00:05 +47: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/subscription_android_test.dart: E02 side by side at360.0/font1.0 keeps live data, choice and billing price
+00:05 +48: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/subscription_android_test.dart: E02 side by side at360.0/font1.5 keeps live data, choice and billing price
+00:05 +49: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/subscription_android_test.dart: E02 side by side at360.0/font2.0 keeps live data, choice and billing price
+00:05 +50: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/subscription_android_test.dart: E02 side by side at430.0/font1.0 keeps live data, choice and billing price
+00:05 +51: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/subscription_android_test.dart: E02 side by side at430.0/font1.5 keeps live data, choice and billing price
+00:06 +52: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/subscription_android_test.dart: E02 side by side at430.0/font2.0 keeps live data, choice and billing price
+00:06 +53: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/subscription_android_test.dart: base circle follows live bonus policy instead of a fixed30
+00:06 +54: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/subscription_android_test.dart: enabled shown format exposes common shield; off removes it; owned retains management
+00:06 +55: All tests passed!

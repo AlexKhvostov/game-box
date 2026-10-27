@@ -1,0 +1,26 @@
+[
+  {
+    "function": "remote-config-admin",
+    "changedFiles": [
+      "functions/_shared/ad-formats-config.mjs",
+      "functions/_shared/config-schema.mjs"
+    ],
+    "otherFilesIdentical": true
+  },
+  {
+    "function": "android-api",
+    "changedFiles": [
+      "functions/_shared/ad-formats-config.mjs",
+      "functions/_shared/config-schema.mjs"
+    ],
+    "otherFilesIdentical": true
+  },
+  {
+    "function": "telegram-api",
+    "changedFiles": [
+      "functions/_shared/ad-formats-config.mjs",
+      "functions/_shared/config-schema.mjs"
+    ],
+    "otherFilesIdentical": true
+  }
+]

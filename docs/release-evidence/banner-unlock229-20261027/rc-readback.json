@@ -1,0 +1,29 @@
+{
+  "checkedAt": "2026-10-27T16:30:50.966Z",
+  "rcVersion": "78",
+  "revision": "4e6ed559caa78ffdd17a49d9032339754f76b1145bf4e69748311e2fe2364a7c",
+  "advertising": {
+    "banner": {
+      "enabled": false,
+      "installDelaySec": 86400,
+      "unlockAfterGames": 100,
+      "unitId": "R-M-20184253-3"
+    },
+    "automatic": {
+      "enabled": true,
+      "longAbsenceSec": 300,
+      "resumeGraceSec": 180
+    },
+    "rewarded": {
+      "enabled": true
+    }
+  },
+  "automatic": {
+    "interstitialGraceSec": 500,
+    "interstitialSessionGraceSec": 500,
+    "interstitialSessionFreeRounds": 10,
+    "interstitialCooldownSec": 400,
+    "interstitialMinLives": 10
+  },
+  "published": false
+}

@@ -13,14 +13,22 @@ import 'test_service_preview.dart';
 Future<void> watchRewardedAd(
   BuildContext context, {
   Future<void> Function(int reward)? onReward,
+  bool confirmedInRewardedGuide = false,
 }) async {
   if (!context.read<EconomyStore>().advertising.rewardedEnabled) return;
+  if (!await ensureResourceAge(context) || !context.mounted) return;
   if (!context.read<EconomyStore>().canClaimWatchAd) return;
   final ads = context.read<AdsService?>();
   if (ads != null &&
       AudiencePolicy.adsBuildEnabled &&
       ads.audience.isAdEligibleAge) {
-    if (!await ensureAdDataConsent(context) || !context.mounted) return;
+    if (!await ensureAdDataConsent(
+          context,
+          confirmedInRewardedGuide: confirmedInRewardedGuide,
+        ) ||
+        !context.mounted) {
+      return;
+    }
   }
   if (ads == null || !ads.available) {
     if (testServicePreviewActive(context)) {

@@ -39,6 +39,7 @@ class ProbeAdFormatsRemote {
       return BottomBannerSettings(
         enabled: next.banner.enabled,
         installDelaySec: next.banner.installDelaySec,
+        unlockAfterGames: next.banner.unlockAfterGames,
         adUnitId: next.banner.unitId,
       );
     } catch (error) {

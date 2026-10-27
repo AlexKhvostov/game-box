@@ -1,0 +1,37 @@
+{
+  "installed": true,
+  "before": {
+    "uid": "10253",
+    "versionCode": "219",
+    "versionName": "1.0.218",
+    "firstInstallTime": "2026-10-26 23:27:12",
+    "dataDir": "/data/user/0/com.best4u.untouch"
+  },
+  "dataCleared": false,
+  "uninstalled": false,
+  "tracksChanged": false,
+  "after": {
+    "uid": "10253",
+    "versionCode": "228",
+    "versionName": "1.0.227",
+    "firstInstallTime": "2026-10-26 23:27:12",
+    "dataDir": "/data/user/0/com.best4u.untouch"
+  },
+  "identityPreserved": true,
+  "stopped": true,
+  "usbStayAwake": "2",
+  "configRevisionObserved": true,
+  "configRevision": "9030b709dad24d22a7e48a19fefce266cd1a262271f026229791cabf3b2909ef",
+  "rcVersion": "77",
+  "appErrors": false,
+  "startupChecks": [
+    {
+      "rc77Observed": true,
+      "errors": false,
+      "configLines": []
+    }
+  ],
+  "energyBefore": 1517,
+  "energyAfter": 1517,
+  "balancePreserved": true
+}

@@ -1,0 +1,33 @@
+{
+  "copiedExactlyFrom229": [
+    "lib/domain/ad_formats_config.dart",
+    "lib/data/bottom_banner_config.dart",
+    "lib/data/ads_service.dart",
+    "lib/ui/android_bottom_banner.dart",
+    "lib/ui/ad_privacy_settings.dart",
+    "lib/ui/watch_rewarded_ad.dart",
+    "lib/ui/rewarded_ad_disclosure.dart",
+    "lib/ui/rewarded_ad_age_gate.dart",
+    "lib/features/balance/subscription_choice_panel.dart",
+    "lib/features/balance/subscription_offer_presentation.dart",
+    "tools/ad_formats_rc_probe.dart",
+    "test/banner_unlock_criteria_test.dart",
+    "test/android_bottom_banner_test.dart",
+    "test/ad_formats_policy_test.dart",
+    "test/ads_service_test.dart",
+    "test/subscription_android_test.dart",
+    "test/ad_unavailable_bonus_wallet_test.dart",
+    "test/rewarded_ad_age_flow_test.dart",
+    "test/rewarded_disclosure_test.dart",
+    "test/rewarded_privacy_roundtrip_test.dart",
+    "test/ad_quota_button_test.dart",
+    "test/compact_ad_guide_test.dart"
+  ],
+  "partialFiles": {
+    "lib/data/economy_store.dart": "advertising state/counter/seen/subscription guards and existing ad-unavailable grant only; invite journals excluded",
+    "lib/features/balance/simple_energy_sheet.dart": "rewarded consent/age/quota and checked subscription panel; invite tracking, hidden-tap animation, jump art excluded",
+    "supabase/functions/_shared/config-schema.mjs": "banner ad fields/section only; unrelated invite schema not imported",
+    "supabase/functions/_shared/core/engine.mjs": "exact existing production energy_ad_unavailable_bonus branch only"
+  },
+  "noNewProductionDeployment": true
+}

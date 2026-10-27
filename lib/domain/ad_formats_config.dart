@@ -2,10 +2,12 @@ class BannerFormatConfig {
   const BannerFormatConfig({
     this.enabled = false,
     this.installDelaySec = 86400,
+    this.unlockAfterGames = 100,
     this.unitId = '',
   });
   final bool enabled;
   final int installDelaySec;
+  final int unlockAfterGames;
   final String unitId;
 }
 
@@ -33,6 +35,7 @@ class AdFormatsConfig {
     'banner': {
       'enabled': banner.enabled,
       'installDelaySec': banner.installDelaySec,
+      'unlockAfterGames': banner.unlockAfterGames,
       'unitId': banner.unitId,
     },
     'automatic': {
@@ -59,10 +62,10 @@ class AdFormatsConfig {
       return value[key] as bool;
     }
 
-    int seconds(Map value, String key, int fallback) {
+    int seconds(Map value, String key, int fallback, {int max = 2592000}) {
       if (!value.containsKey(key)) return fallback;
       final v = value[key];
-      if (v is! int || v < 0 || v > 2592000) {
+      if (v is! int || v < 0 || v > max) {
         throw const FormatException('Invalid ad delay');
       }
       return v;
@@ -78,6 +81,7 @@ class AdFormatsConfig {
       banner: BannerFormatConfig(
         enabled: flag(b, 'enabled', false),
         installDelaySec: seconds(b, 'installDelaySec', 86400),
+        unlockAfterGames: seconds(b, 'unlockAfterGames', 100, max: 1000000),
         unitId: unit,
       ),
       automatic: AutomaticFormatConfig(

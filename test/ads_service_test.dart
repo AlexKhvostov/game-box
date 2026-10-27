@@ -111,12 +111,18 @@ void main() {
   });
   test('ad can present while the same result remains visible', () async {
     final driver = DelayedInterstitialDriver();
-    final ads = AdsService(driver, audience: audience);
+    final economy = EconomyStore();
+    await economy.load();
+    final ads = AdsService(driver, audience: audience, economy: economy);
     final pending = ads.showInterstitial(canShow: () => true);
+    expect(economy.automaticAdSeen, false);
     driver.loaded.complete();
     expect(await pending, true);
     expect(driver.presentations, 1);
+    expect(economy.automaticAdSeen, true);
     expect(ads.busy, false);
+    ads.dispose();
+    economy.dispose();
   });
   for (final outcome in [
     AdOutcome.rewarded,

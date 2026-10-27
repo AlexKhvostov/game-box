@@ -11,10 +11,12 @@ class BottomBannerSettings {
     this.enabled = false,
     this.adUnitId = '',
     this.installDelaySec = 0,
+    this.unlockAfterGames = 100,
   });
   final bool enabled;
   final String adUnitId;
   final int installDelaySec;
+  final int unlockAfterGames;
 
   // No rewarded/interstitial ID is reused for a banner placement.
   bool get configured => enabled && RegExp(r'^R-M-\d+-\d+$').hasMatch(adUnitId);
@@ -55,7 +57,8 @@ class BottomBannerConfig extends ChangeNotifier {
       if (_disposed) return;
       if (settings.enabled != next.enabled ||
           settings.adUnitId != next.adUnitId ||
-          settings.installDelaySec != next.installDelaySec) {
+          settings.installDelaySec != next.installDelaySec ||
+          settings.unlockAfterGames != next.unlockAfterGames) {
         settings = next;
         notifyListeners();
       }
@@ -77,6 +80,7 @@ class BottomBannerConfig extends ChangeNotifier {
       enabled: banner.enabled,
       adUnitId: banner.unitId,
       installDelaySec: banner.installDelaySec,
+      unlockAfterGames: banner.unlockAfterGames,
     );
   }
 

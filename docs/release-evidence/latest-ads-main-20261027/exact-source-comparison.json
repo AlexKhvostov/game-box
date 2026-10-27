@@ -1,0 +1,120 @@
+{
+  "passed": true,
+  "files": [
+    {
+      "path": "lib/domain/ad_formats_config.dart",
+      "matchesVerified229": true,
+      "sha256": "929f93288729759533119262630ab931595734004dede53ed7b01c99c2d64a39"
+    },
+    {
+      "path": "lib/data/bottom_banner_config.dart",
+      "matchesVerified229": true,
+      "sha256": "009a4fed4046a4eef44802fe9d433395bef5e19acd763b2d932c0700a5ae0169"
+    },
+    {
+      "path": "lib/data/ads_service.dart",
+      "matchesVerified229": true,
+      "sha256": "7159acc120a7993690bd35218f938fadd7dc173465595468b81d5250db2afa21"
+    },
+    {
+      "path": "lib/ui/android_bottom_banner.dart",
+      "matchesVerified229": true,
+      "sha256": "c0bfcdd218fe5232e5103b5b7d979bdf8fea6ddb67fc921e5492989d0f0f0a3e"
+    },
+    {
+      "path": "lib/ui/ad_privacy_settings.dart",
+      "matchesVerified229": true,
+      "sha256": "06fc9a4c999bde6c62095bf7bb64970a6bd42f5dbfa6698bfbe4cb013e1c6956"
+    },
+    {
+      "path": "lib/ui/watch_rewarded_ad.dart",
+      "matchesVerified229": true,
+      "sha256": "61d1599aa020fc07a126b7b2a3a47c380dad03dd349c64866f2467155ac7a04d"
+    },
+    {
+      "path": "lib/ui/rewarded_ad_disclosure.dart",
+      "matchesVerified229": true,
+      "sha256": "bff09d9845267e4e53720b1caa9d187feeabb02c2c451e9df147e36ae759153f"
+    },
+    {
+      "path": "lib/ui/rewarded_ad_age_gate.dart",
+      "matchesVerified229": true,
+      "sha256": "736982eb433e6435c7a5fe476898b548c7d8dcb3e78a541f36f7aac1870b0602"
+    },
+    {
+      "path": "lib/features/balance/subscription_choice_panel.dart",
+      "matchesVerified229": true,
+      "sha256": "281476c68a56a09780a3f77ca2224f45f0f8808e9e29144d6f2592e07f28aa7a"
+    },
+    {
+      "path": "lib/features/balance/subscription_offer_presentation.dart",
+      "matchesVerified229": true,
+      "sha256": "8a70a3fdefc0b872c423e33ebab971fdde59666db274d49340213418cec3477e"
+    },
+    {
+      "path": "tools/ad_formats_rc_probe.dart",
+      "matchesVerified229": true,
+      "sha256": "9eacee765b97e0e92b356e4a90ba2027f324cf023e4afe0242cf67565d3ca28e"
+    },
+    {
+      "path": "test/banner_unlock_criteria_test.dart",
+      "matchesVerified229": true,
+      "sha256": "4c107c1c76e4a223c718f6eed53ce0b7ff1d11430edd1ae03287ca66841b21ff"
+    },
+    {
+      "path": "test/android_bottom_banner_test.dart",
+      "matchesVerified229": true,
+      "sha256": "bf032bbfd8d451efa10f5bcc52bbf341f635e76e428b99296b7a059cb23bc267"
+    },
+    {
+      "path": "test/ad_formats_policy_test.dart",
+      "matchesVerified229": true,
+      "sha256": "5498e29a5e9be2bbc68e822b2430b583abcfb4815407b9f805bf41b4b76db533"
+    },
+    {
+      "path": "test/ads_service_test.dart",
+      "matchesVerified229": true,
+      "sha256": "4f351073c22d0987471d38275fb77b53b695e2370c3d0557d300ce2e0fc2a598"
+    },
+    {
+      "path": "test/subscription_android_test.dart",
+      "matchesVerified229": true,
+      "sha256": "183379f779565c54f263697c98a10be9f3f9c6788e3158d3ba29ce4352327a98"
+    },
+    {
+      "path": "test/ad_unavailable_bonus_wallet_test.dart",
+      "matchesVerified229": true,
+      "sha256": "556205652c6eed47de85e0a50791aa7c9bf046a8a6088a595dc8fa1d7938c0fe"
+    },
+    {
+      "path": "test/rewarded_ad_age_flow_test.dart",
+      "matchesVerified229": true,
+      "sha256": "967e2cc2ed702b3616ab3fdd2fd4a438fd1c6aaa0b8f0592a042a049a8d71cb1"
+    },
+    {
+      "path": "test/rewarded_disclosure_test.dart",
+      "matchesVerified229": true,
+      "sha256": "0c75c7a5e27bbe1da6d3a608309776b349dd2cb8e652298f170e51928dc3dd31"
+    },
+    {
+      "path": "test/rewarded_privacy_roundtrip_test.dart",
+      "matchesVerified229": true,
+      "sha256": "d9d95153c89796207ea2c06281d79dfad2d018794b23c1c9431686e5a386b3f6"
+    },
+    {
+      "path": "test/ad_quota_button_test.dart",
+      "matchesVerified229": true,
+      "sha256": "0ecabbe8aa68d4350e09288eea9e699446d9c0b27c931c28bbd3eb31fef6c3d3"
+    },
+    {
+      "path": "test/compact_ad_guide_test.dart",
+      "matchesVerified229": true,
+      "sha256": "d45afbb790a011b16bd38c36f2b891d0073150c82304bb9747962f8b0954d652"
+    },
+    {
+      "path": "test/support/android_test_fonts.dart",
+      "matchesVerified229": true,
+      "sha256": "11e9cbcb9c5039faad1ee9eae5dba6bb4bef5dc165474390156be76b4e356b02"
+    }
+  ]
+}

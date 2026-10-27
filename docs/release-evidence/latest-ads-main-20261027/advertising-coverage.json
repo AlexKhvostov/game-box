@@ -1,0 +1,179 @@
+{
+  "passed": true,
+  "files": [
+    {
+      "path": "lib/domain/ad_formats_config.dart",
+      "matches229": true,
+      "status": "integrated"
+    },
+    {
+      "path": "lib/data/bottom_banner_config.dart",
+      "matches229": true,
+      "status": "integrated"
+    },
+    {
+      "path": "lib/data/ads_service.dart",
+      "matches229": true,
+      "status": "integrated"
+    },
+    {
+      "path": "lib/ui/android_bottom_banner.dart",
+      "matches229": true,
+      "status": "integrated"
+    },
+    {
+      "path": "lib/ui/ad_privacy_settings.dart",
+      "matches229": true,
+      "status": "integrated"
+    },
+    {
+      "path": "lib/ui/watch_rewarded_ad.dart",
+      "matches229": true,
+      "status": "integrated"
+    },
+    {
+      "path": "lib/ui/rewarded_ad_disclosure.dart",
+      "matches229": true,
+      "status": "integrated"
+    },
+    {
+      "path": "lib/ui/rewarded_ad_age_gate.dart",
+      "matches229": true,
+      "status": "integrated"
+    },
+    {
+      "path": "lib/features/balance/subscription_choice_panel.dart",
+      "matches229": true,
+      "status": "integrated"
+    },
+    {
+      "path": "lib/features/balance/subscription_offer_presentation.dart",
+      "matches229": true,
+      "status": "integrated"
+    },
+    {
+      "path": "tools/ad_formats_rc_probe.dart",
+      "matches229": true,
+      "status": "integrated"
+    },
+    {
+      "path": "test/banner_unlock_criteria_test.dart",
+      "matches229": true,
+      "status": "integrated"
+    },
+    {
+      "path": "test/android_bottom_banner_test.dart",
+      "matches229": true,
+      "status": "integrated"
+    },
+    {
+      "path": "test/ad_formats_policy_test.dart",
+      "matches229": true,
+      "status": "integrated"
+    },
+    {
+      "path": "test/ads_service_test.dart",
+      "matches229": true,
+      "status": "integrated"
+    },
+    {
+      "path": "test/subscription_android_test.dart",
+      "matches229": true,
+      "status": "integrated"
+    },
+    {
+      "path": "test/ad_unavailable_bonus_wallet_test.dart",
+      "matches229": true,
+      "status": "integrated"
+    },
+    {
+      "path": "test/rewarded_ad_age_flow_test.dart",
+      "matches229": true,
+      "status": "integrated"
+    },
+    {
+      "path": "test/rewarded_disclosure_test.dart",
+      "matches229": true,
+      "status": "integrated"
+    },
+    {
+      "path": "test/rewarded_privacy_roundtrip_test.dart",
+      "matches229": true,
+      "status": "integrated"
+    },
+    {
+      "path": "test/ad_quota_button_test.dart",
+      "matches229": true,
+      "status": "integrated"
+    },
+    {
+      "path": "test/compact_ad_guide_test.dart",
+      "matches229": true,
+      "status": "integrated"
+    },
+    {
+      "path": "test/support/android_test_fonts.dart",
+      "matches229": true,
+      "status": "integrated"
+    },
+    {
+      "path": "test/rewarded_daily_limit_test.dart",
+      "matches229": true,
+      "status": "integrated"
+    },
+    {
+      "path": "lib/data/audience_policy.dart",
+      "matches229": true,
+      "status": "already-in-main"
+    },
+    {
+      "path": "lib/data/yandex_ads_driver.dart",
+      "matches229": true,
+      "status": "already-in-main"
+    },
+    {
+      "path": "lib/app/android_audience_startup.dart",
+      "matches229": true,
+      "status": "already-in-main"
+    },
+    {
+      "path": "lib/ui/audience_gate.dart",
+      "matches229": true,
+      "status": "already-in-main"
+    },
+    {
+      "path": "lib/ui/rewarded_ad_guide.dart",
+      "matches229": true,
+      "status": "already-in-main"
+    },
+    {
+      "path": "lib/data/ad_presentation_lease.dart",
+      "matches229": true,
+      "status": "already-in-main"
+    },
+    {
+      "path": "lib/data/android_config_session.dart",
+      "matches229": false,
+      "status": "unrelated-prefetch-excluded",
+      "advertisingCodeMatches229": true,
+      "reason": "Only optional profile-prefetch clock/method differs; the complete synchronize/apply pipeline is identical."
+    },
+    {
+      "path": "lib/data/android_firebase_config.dart",
+      "matches229": true,
+      "status": "already-in-main"
+    },
+    {
+      "path": "lib/data/app_installation.dart",
+      "matches229": true,
+      "status": "already-in-main"
+    }
+  ],
+  "mixedFilesReviewed": {
+    "lib/data/economy_store.dart": "advertising state/counter/seen/subscription guards and existing ad-unavailable grant only; invite journals excluded",
+    "lib/features/balance/simple_energy_sheet.dart": "rewarded consent/age/quota and checked subscription panel; invite tracking, hidden-tap animation, jump art excluded",
+    "supabase/functions/_shared/config-schema.mjs": "banner ad fields/section only; unrelated invite schema not imported",
+    "supabase/functions/_shared/core/engine.mjs": "exact existing production energy_ad_unavailable_bonus branch only"
+  },
+  "unrelatedOriginalWorkingTreePreserved": true
+}

@@ -161,6 +161,8 @@ class AdsService extends ChangeNotifier {
     bool allowed() =>
         audience.adsEnabled &&
         (economy?.advertising.automatic.enabled ?? true) &&
+        economy?.energySubscribed != true &&
+        economy?.hasPremium != true &&
         foregroundEpoch == economy?.adForegroundEpoch &&
         audience.adConsentRevision == consentRevision &&
         canShow();
@@ -169,6 +171,7 @@ class AdsService extends ChangeNotifier {
     notifyListeners();
     try {
       final shown = await driver.showInterstitial(canShow: allowed);
+      if (shown) await economy?.recordUnrequestedAdShown(banner: false);
       AppAnalytics.event('ad_result', {
         'format': 'interstitial',
         'status': shown ? 'shown' : 'not_shown',

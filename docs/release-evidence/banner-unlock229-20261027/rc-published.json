@@ -1,0 +1,28 @@
+{
+  "passed": true,
+  "published": true,
+  "alreadyExplicit": false,
+  "checkedAt": "2026-10-27T16:27:22.569Z",
+  "previousVersion": "77",
+  "version": "78",
+  "advertising": {
+    "banner": {
+      "enabled": false,
+      "installDelaySec": 86400,
+      "unlockAfterGames": 100,
+      "unitId": "R-M-20184253-3"
+    },
+    "automatic": {
+      "enabled": true,
+      "longAbsenceSec": 300,
+      "resumeGraceSec": 180
+    },
+    "rewarded": {
+      "enabled": true
+    }
+  },
+  "existingEconomyAndProviderRulesUnchanged": true,
+  "otherParametersIncludingQaUnchanged": true,
+  "adminRoundtrip": true,
+  "playerDataWritten": false
+}

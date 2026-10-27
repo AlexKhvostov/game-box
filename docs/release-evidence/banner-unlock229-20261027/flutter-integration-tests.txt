@@ -1,0 +1,146 @@
+00:00 +0: loading C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/admin_config_consumption_test.dart
+00:00 +0: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/admin_config_consumption_test.dart: Remote Config color reaches the actual mobile painter instead of fixed design override
+00:00 +1: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/admin_config_consumption_test.dart: Remote Config color reaches the actual mobile painter instead of fixed design override
+00:00 +2: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/admin_config_consumption_test.dart: Remote Config color reaches the actual mobile painter instead of fixed design override
+00:00 +3: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/admin_config_consumption_test.dart: Remote Config color reaches the actual mobile painter instead of fixed design override
+00:01 +4: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/admin_config_consumption_test.dart: Remote Config color reaches the actual mobile painter instead of fixed design override
+00:01 +5: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/admin_config_consumption_test.dart: Remote Config color reaches the actual mobile painter instead of fixed design override
+00:01 +6: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/admin_config_consumption_test.dart: Remote Config color reaches the actual mobile painter instead of fixed design override
+00:01 +7: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/admin_config_consumption_test.dart: Remote Config color reaches the actual mobile painter instead of fixed design override
+00:01 +8: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/admin_config_consumption_test.dart: Remote Config color reaches the actual mobile painter instead of fixed design override
+00:01 +9: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/admin_config_consumption_test.dart: Remote Config color reaches the actual mobile painter instead of fixed design override
+00:01 +10: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/admin_config_consumption_test.dart: Remote Config color reaches the actual mobile painter instead of fixed design override
+00:01 +11: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/admin_config_consumption_test.dart: Remote Config color reaches the actual mobile painter instead of fixed design override
+00:01 +12: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/admin_config_consumption_test.dart: Remote Config color reaches the actual mobile painter instead of fixed design override
+00:01 +13: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/admin_config_consumption_test.dart: Remote Config color reaches the actual mobile painter instead of fixed design override
+00:01 +14: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/admin_config_consumption_test.dart: Remote Config color reaches the actual mobile painter instead of fixed design override
+00:01 +15: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/admin_config_consumption_test.dart: Remote Config color reaches the actual mobile painter instead of fixed design override
+00:01 +16: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/admin_config_consumption_test.dart: Remote Config color reaches the actual mobile painter instead of fixed design override
+00:01 +17: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/admin_config_consumption_test.dart: Remote Config color reaches the actual mobile painter instead of fixed design override
+00:01 +18: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:01 +19: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +20: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +21: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +22: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +23: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +24: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +25: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +26: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +27: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +28: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +29: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +30: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +31: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +32: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +33: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +34: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +35: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +36: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +37: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +38: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +39: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +40: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +41: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +42: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +43: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +44: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +45: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +46: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +47: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +48: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +49: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +50: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +51: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +52: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +53: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +54: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +55: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +56: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +57: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +58: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +59: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +60: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +61: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +62: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +63: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +64: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +65: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +66: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +67: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +68: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +69: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +70: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +71: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +72: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +73: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +74: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +75: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +76: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +77: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +78: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +79: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +80: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +81: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +82: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +83: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +84: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:02 +85: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:03 +86: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: zero energy never starts the field offline
+00:03 +87: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.subscription Size(393.0, 852.0) font1.0 fits with fallback
+00:03 +88: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.subscription Size(393.0, 852.0) font1.0 fits with fallback
+00:03 +89: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.subscription Size(393.0, 852.0) font1.0 fits with fallback
+00:03 +90: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.subscription Size(393.0, 852.0) font1.0 fits with fallback
+00:03 +91: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.subscription Size(393.0, 852.0) font1.0 fits with fallback
+00:03 +92: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: touch keeps visible enemies and enters playing while HTTP is unresolved: idleMove=false
+00:03 +93: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: touch keeps visible enemies and enters playing while HTTP is unresolved: idleMove=false
+00:04 +94: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: touch keeps visible enemies and enters playing while HTTP is unresolved: idleMove=false
+00:04 +95: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: touch keeps visible enemies and enters playing while HTTP is unresolved: idleMove=false
+00:04 +96: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.packs Size(393.0, 852.0) font1.0 fits with fallback
+00:04 +97: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: touch keeps visible enemies and enters playing while HTTP is unresolved: idleMove=true
+00:04 +98: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: touch keeps visible enemies and enters playing while HTTP is unresolved: idleMove=true
+00:04 +99: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/instant_round_journal_test.dart: touch keeps visible enemies and enters playing while HTTP is unresolved: idleMove=true
+00:04 +100: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.energy Size(393.0, 852.0) font2.0 fits with fallback
+00:04 +101: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.subscription Size(393.0, 852.0) font2.0 fits with fallback
+00:05 +102: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.video Size(393.0, 852.0) font2.0 fits with fallback
+00:05 +103: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.friends Size(393.0, 852.0) font2.0 fits with fallback
+00:05 +104: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.feedback Size(393.0, 852.0) font2.0 fits with fallback
+00:05 +105: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.packs Size(393.0, 852.0) font2.0 fits with fallback
+00:05 +106: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.helmet Size(393.0, 852.0) font2.0 fits with fallback
+00:05 +107: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.jump Size(393.0, 852.0) font2.0 fits with fallback
+00:05 +108: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.energy Size(320.0, 568.0) font1.0 fits with fallback
+00:05 +109: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.subscription Size(320.0, 568.0) font1.0 fits with fallback
+00:05 +110: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.video Size(320.0, 568.0) font1.0 fits with fallback
+00:05 +111: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.friends Size(320.0, 568.0) font1.0 fits with fallback
+00:05 +112: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.feedback Size(320.0, 568.0) font1.0 fits with fallback
+00:05 +113: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.packs Size(320.0, 568.0) font1.0 fits with fallback
+00:06 +114: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.helmet Size(320.0, 568.0) font1.0 fits with fallback
+00:06 +115: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.jump Size(320.0, 568.0) font1.0 fits with fallback
+00:06 +116: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.energy Size(320.0, 568.0) font2.0 fits with fallback
+00:06 +117: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.subscription Size(320.0, 568.0) font2.0 fits with fallback
+00:06 +118: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.video Size(320.0, 568.0) font2.0 fits with fallback
+00:06 +119: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.friends Size(320.0, 568.0) font2.0 fits with fallback
+00:06 +120: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.feedback Size(320.0, 568.0) font2.0 fits with fallback
+00:06 +121: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.packs Size(320.0, 568.0) font2.0 fits with fallback
+00:06 +122: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.helmet Size(320.0, 568.0) font2.0 fits with fallback
+00:06 +123: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.jump Size(320.0, 568.0) font2.0 fits with fallback
+00:06 +124: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.energy Size(320.0, 480.0) font1.0 fits with fallback
+00:06 +125: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.subscription Size(320.0, 480.0) font1.0 fits with fallback
+00:06 +126: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.video Size(320.0, 480.0) font1.0 fits with fallback
+00:06 +127: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.friends Size(320.0, 480.0) font1.0 fits with fallback
+00:07 +128: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.feedback Size(320.0, 480.0) font1.0 fits with fallback
+00:07 +129: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.packs Size(320.0, 480.0) font1.0 fits with fallback
+00:07 +130: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.helmet Size(320.0, 480.0) font1.0 fits with fallback
+00:07 +131: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.jump Size(320.0, 480.0) font1.0 fits with fallback
+00:07 +132: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.energy Size(320.0, 480.0) font2.0 fits with fallback
+00:07 +133: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.subscription Size(320.0, 480.0) font2.0 fits with fallback
+00:07 +134: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.video Size(320.0, 480.0) font2.0 fits with fallback
+00:07 +135: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.friends Size(320.0, 480.0) font2.0 fits with fallback
+00:07 +136: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.feedback Size(320.0, 480.0) font2.0 fits with fallback
+00:07 +137: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.packs Size(320.0, 480.0) font2.0 fits with fallback
+00:07 +138: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.helmet Size(320.0, 480.0) font2.0 fits with fallback
+00:07 +139: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Current window EnergyPage.jump Size(320.0, 480.0) font2.0 fits with fallback
+00:07 +140: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: Children return using system Back; UI does not claim energy
+00:07 +141: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: H01 50 keeps round plus
+00:07 +142: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: H01 1500 keeps round plus
+00:07 +143: C:/Users/alexe/.codex/artifacts/untouch/banner-unlock229-20261027/source/test/simple_energy_test.dart: H01 99999 keeps round plus
+00:08 +144: All tests passed!
