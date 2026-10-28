@@ -1,0 +1,13 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.best4u.untouch",
+      "sha256_cert_fingerprints": [
+        "A1:28:21:30:E3:01:EB:AB:B4:4F:88:04:F4:A6:F6:9A:E9:8D:3D:E9:E4:64:F5:6A:03:4C:9D:A0:F1:F0:D7:01",
+        "D1:E6:C2:45:77:DE:48:70:86:09:38:C0:AC:F5:C8:4F:03:9F:2A:74:0D:AA:0C:02:A3:33:42:B2:3B:9E:CD:DE"
+      ]
+    }
+  }
+]

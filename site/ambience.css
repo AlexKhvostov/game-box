@@ -1,0 +1,147 @@
+/* Decorative layers never take space or intercept the playable demo. */
+body { isolation: isolate; }
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: linear-gradient(#72dce810 1px, transparent 1px),
+    linear-gradient(90deg, #72dce810 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: linear-gradient(90deg, transparent, #000 48%, #000 78%, transparent);
+}
+.hero.first-screen { position: relative; isolation: isolate; }
+.hero.first-screen::before {
+  content: "";
+  position: absolute;
+  inset: 0 -24px;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 53% 40%, #16d8bc17, transparent 39%);
+}
+.hero-companion {
+  position: absolute;
+  left: 51%;
+  top: 102px;
+  width: 144px;
+  margin: 0;
+  transform: translateX(-50%);
+  pointer-events: none;
+  user-select: none;
+}
+.hero-companion::before {
+  content: "";
+  position: absolute;
+  width: 195px;
+  height: 95px;
+  left: -64px;
+  top: 98px;
+  border-bottom: 1px solid #57ebdc6b;
+  border-radius: 50%;
+  transform: rotate(-24deg);
+  filter: drop-shadow(0 0 6px #43ecc05c);
+  opacity: .65;
+}
+.watching-cube {
+  position: relative;
+  aspect-ratio: 1;
+  animation: cube-drift 5s ease-in-out infinite alternate;
+  filter: drop-shadow(0 8px 17px #20e8c12e);
+}
+.watching-cube > img { width: 100%; height: 100%; }
+.cube-eye {
+  position: absolute;
+  width: 18.6%;
+  height: 24.8%;
+  border-radius: 50%;
+  overflow: hidden;
+  transform: translate(-50%, -50%);
+}
+.cube-eye.left { left: 28.2%; top: 46.8%; }
+.cube-eye.right { left: 58.6%; top: 50%; }
+.cube-pupil {
+  position: absolute;
+  top: 53%;
+  left: 50%;
+  width: 62%;
+  height: 74%;
+  border-radius: 50%;
+  background: linear-gradient(#02131e 15%, #052c45 62%, #12bad0);
+  box-shadow: inset 0 0 2px #001627;
+  transform: translate(calc(-50% + var(--look-x, 0px)), calc(-50% + var(--look-y, 0px)));
+  transition: transform 110ms ease-out;
+}
+.cube-pupil::before {
+  content: "";
+  position: absolute;
+  width: 35%;
+  height: 28%;
+  left: 17%;
+  top: 14%;
+  border-radius: 50%;
+  background: #fffef5;
+}
+.cube-pupil::after {
+  content: "";
+  position: absolute;
+  width: 15%;
+  height: 12%;
+  right: 15%;
+  top: 46%;
+  border-radius: 50%;
+  background: #fffef5;
+}
+.final-cta { position: relative; isolation: isolate; overflow: hidden; }
+.resting-scene {
+  position: absolute;
+  z-index: -1;
+  right: 5px;
+  bottom: 0;
+  width: 370px;
+  height: 340px;
+  pointer-events: none;
+  opacity: .67;
+  background: url("assets/neon-rest.webp") right top / 560px auto no-repeat;
+  mask-image: linear-gradient(90deg, transparent, #000 32%, #000 92%, transparent),
+    linear-gradient(transparent, #000 13%, #000 77%, transparent);
+  mask-composite: intersect;
+}
+.final-cta::after {
+  content: "";
+  position: absolute;
+  z-index: -2;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(#72dce80a 1px, transparent 1px),
+    linear-gradient(90deg, #72dce80a 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: linear-gradient(90deg, #000, transparent 40%, transparent 65%, #000);
+}
+@keyframes cube-drift {
+  from { transform: translateY(0) rotate(-4deg); }
+  to { transform: translateY(-7px) rotate(2deg); }
+}
+@media (min-width: 1450px) {
+  .hero-companion { left: 50%; width: 158px; }
+}
+@media (max-width: 1100px) and (min-width: 701px) {
+  .hero-companion { left: 44%; top: 0; width: 82px; }
+  .hero-companion::before { display: none; }
+  .resting-scene { right: -35px; width: 270px; opacity: .45; }
+}
+@media (max-width: 700px) {
+  body::before { background-size: 40px 40px; opacity: .55; }
+  .hero-companion { left: auto; right: -4px; top: 10px; width: 83px; transform: none; }
+  .hero-companion::before { display: none; }
+  .watching-cube { animation: none; }
+  .hero.first-screen::before { inset: 0; background: radial-gradient(ellipse at 88% 10%, #16d8bc12, transparent 36%); }
+  .resting-scene { right: -60px; bottom: -15px; width: 200px; height: 210px; background-size: 360px auto; opacity: .15; }
+}
+@media (max-width: 360px) {
+  .hero-companion { top: 23px; right: -5px; width: 68px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .watching-cube { animation: none; }
+  .cube-pupil { transition: none; }
+}

@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: untouch-landing
+    runtime: static
+    buildCommand: ""
+    staticPublishPath: site
+    routes:
+      - type: rewrite
+        source: /a/*
+        destination: /invitation/index.html
+    headers:
+      - path: /.well-known/assetlinks.json
+        name: Content-Type
+        value: application/json
+      - path: /a/*
+        name: Cache-Control
+        value: no-store
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
