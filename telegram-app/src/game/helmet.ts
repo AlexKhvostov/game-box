@@ -5,24 +5,38 @@ export function helmetFlash(s:WorldState,reduced=false) {
   const age=s.helmetCharge?.readyAgeMs;
   return reduced||!s.helmet||age==null||age<0||age>=420?0:Math.sin(Math.PI*age/420);
 }
-// Clockwise rounded contour, starting at the middle of the top edge.
-function rim(c:CanvasRenderingContext2D,x:number,y:number,size:number,r:number) {
-  r=Math.min(r,size/2);c.beginPath();c.moveTo(x+size/2,y);c.lineTo(x+size-r,y);
-  c.arcTo(x+size,y,x+size,y+r,r);c.lineTo(x+size,y+size-r);
-  c.arcTo(x+size,y+size,x+size-r,y+size,r);c.lineTo(x+r,y+size);
-  c.arcTo(x,y+size,x,y+size-r,r);c.lineTo(x,y+r);
-  c.arcTo(x,y,x+r,y,r);c.lineTo(x+size/2,y);
-  return 4*(size-2*r)+2*Math.PI*r;
+// Build the charged geometry itself. Canvas dash lengths can scale differently
+// from the already transformed path in a mobile WebView.
+function rim(c:CanvasRenderingContext2D,x:number,y:number,size:number,r:number,progress=1) {
+  r=Math.min(r,size/2);
+  let left=(4*(size-2*r)+2*Math.PI*r)*progress,px=x+size/2,py=y;
+  c.beginPath();c.moveTo(px,py);
+  const line=(tx:number,ty:number)=>{
+    const length=Math.hypot(tx-px,ty-py),amount=Math.min(left,length);
+    if(amount>0){c.lineTo(px+(tx-px)*amount/length,py+(ty-py)*amount/length);left-=amount;}
+    px=tx;py=ty;return left>1e-9;
+  };
+  const corner=(cx:number,cy:number,start:number)=>{
+    const amount=Math.min(left,Math.PI*r/2);
+    if(amount>0){c.arc(cx,cy,r,start,start+amount/r);left-=amount;}
+    px=cx+r*Math.cos(start+Math.PI/2);py=cy+r*Math.sin(start+Math.PI/2);return left>1e-9;
+  };
+  if(!line(x+size-r,y)||!corner(x+size-r,y+r,-Math.PI/2))return;
+  if(!line(x+size,y+size-r)||!corner(x+size-r,y+size-r,0))return;
+  if(!line(x+r,y+size)||!corner(x+r,y+size-r,Math.PI/2))return;
+  if(!line(x,y+r)||!corner(x+r,y+r,Math.PI))return;
+  line(x+size/2,y);
 }
 export function paintHelmet(c:CanvasRenderingContext2D,s:WorldState,x:number,y:number,size:number,reduced=false) {
   const charge=s.helmetCharge;if(!charge?.equipped)return;
-  const k=size/44,p=s.helmet?1:Math.max(0,Math.min(1,charge.progress));
-  c.save();const f=helmetFlash(s,reduced),length=rim(c,x-3.5*k,y-3.5*k,size+7*k,8*k);
-  for(const [width,color] of [[4.8,'#05182e'],[3.6,!s.helmet&&p===0?'#36536b':'#4c93b3'],[2.5,'#092439']] as [number,string][]) {
+  const k=size/44,p=s.helmet?1:Math.max(0,Math.min(1,Number.isFinite(charge.progress)?charge.progress:0));
+  c.save();c.setLineDash([]);c.lineDashOffset=0;
+  const f=helmetFlash(s,reduced);rim(c,x-3.5*k,y-3.5*k,size+7*k,8*k);
+  for(const [width,color] of [[4.8,'#05182e'],[3.6,s.helmet?'#4c93b3':'#36536b'],[2.5,'#092439']] as [number,string][]) {
     c.lineWidth=width*k;c.strokeStyle=color;c.stroke();
   }
   if(p>0){
-    c.setLineDash([length*p,length+1]);c.lineCap='round';
+    rim(c,x-3.5*k,y-3.5*k,size+7*k,8*k,p);c.lineCap='round';
     c.shadowColor='#36d9ff';c.shadowBlur=(s.helmet?4+f*2:2.5)*k;
     c.lineWidth=(3.2+f*.6)*k;c.strokeStyle=s.helmet?'#a0f5ff':'#39dbff';c.stroke();
     c.shadowBlur=0;c.lineWidth=(1.05+f*.35)*k;c.strokeStyle=s.helmet?'#edffff':'#b6f8ff';c.stroke();
