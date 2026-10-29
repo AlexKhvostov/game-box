@@ -9,6 +9,8 @@ import { viewportGeometry, textScale } from '../domain/viewport';
 import { GameController } from '../game/controller';
 import { setupTelegram, telegram, safeInsets } from '../platform/telegram';
 import EnemySpeed from '../components/EnemySpeed.vue';
+import SpeedHelpWindow from '../features/SpeedHelpWindow.vue';
+import {ENEMY_SPEED_SLOT_HEIGHT} from '../domain/speed-help';
 import GameHud from '../components/GameHud.vue';
 import TouchpadFloor from '../components/TouchpadFloor.vue';
 import GameFloorBrand from '../components/GameFloorBrand.vue';
@@ -41,7 +43,7 @@ const legacyInputPaint=ref(false);
 const width = ref(window.innerWidth), height = ref(window.innerHeight), insets = ref(safeInsets());
 const usableWidth=computed(()=>Math.max(1,width.value-insets.value.left-insets.value.right));
 const geometry = computed(() => viewportGeometry(usableWidth.value, height.value, insets.value.top, insets.value.bottom));
-const touchpadHeight = computed(() => geometry.value.logicalHeight - geometry.value.hudHeight / geometry.value.scale - (world.value?.brake?.speedBarEnabled ? 15 : 0));
+const touchpadHeight = computed(() => geometry.value.logicalHeight - geometry.value.hudHeight / geometry.value.scale - (world.value?.brake?.speedBarEnabled ? ENEMY_SPEED_SLOT_HEIGHT : 0));
 const css = computed(() => ({ '--scale': geometry.value.scale, '--logical-height': `${geometry.value.logicalHeight}px`, '--hud-height': `${geometry.value.hudHeight / geometry.value.scale}px`, '--text-scale': textScale(usableWidth.value, height.value, 1, insets.value.top + insets.value.bottom), width: `${geometry.value.width}px`, height: `${Math.max(0,height.value - insets.value.top - insets.value.bottom)}px`, marginTop: `${insets.value.top}px`, left:`${(insets.value.left-insets.value.right)/2}px` }));
 const t=(ru:string,en:string)=>state.locale==='ru'?ru:en;
 let controller: GameController | undefined;
@@ -102,6 +104,7 @@ onBeforeUnmount(() => { controller?.dispose(); disposeAudio?.(); adPresenter.des
       <RankingWindow v-else-if="['ranking','history','chart','player-result','name-actions'].includes(state.screen)" />
       <ResultWindow v-else-if="['result','share'].includes(state.screen)" />
       <AgeWindow v-else-if="state.screen==='age'" />
+      <SpeedHelpWindow v-else-if="state.screen==='speed-help'" />
       <HelpWindow v-else-if="state.screen" />
       <StatusOverlay v-if="!state.screen && state.initialized"/>
       <InviteRewardHost :ready="resourcesReady"/>

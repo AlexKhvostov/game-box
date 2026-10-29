@@ -19,22 +19,28 @@ function enemy(c: CanvasRenderingContext2D, e: Body, fill: string | CanvasGradie
 }
 export class FieldPainter {
   private c: CanvasRenderingContext2D;
-  private background: HTMLCanvasElement;
+  private backgroundBase = '#08253B';
+  private backgroundCenter = '#0B374C';
   private reduced=matchMedia('(prefers-reduced-motion: reduce)');
   private jumpGlow: ReturnType<typeof createJumpReadyDrawer>;
   constructor(private canvas: HTMLCanvasElement) {
     this.c = canvas.getContext('2d', { alpha: false })!;
-    this.background = document.createElement('canvas'); this.background.width = 760; this.background.height = 760;
     // Glass capsule adapter uses the existing simulation readiness.
     this.jumpGlow = createJumpReadyDrawer();
   }
   configure(config: Record<string, any>) {
-    const c = this.background.getContext('2d')!; c.setTransform(2, 0, 0, 2, 0, 0);
-    const gradient = c.createRadialGradient(190, 152, 0, 190, 152, 323);
     let base = config.field.colorHex || '#08253B'; if (/^#[a-f0-9]{8}$/i.test(base)) base='#'+base.slice(3);
     const brightness=Math.max(.4,Math.min(1.8,config.field.brightness??1));
     if(brightness>1)base=mix(base,'#ffffff',(brightness-1)/.8);else if(brightness<1)base=mix(base,'#000000',(1-brightness)/.6);
-    gradient.addColorStop(0, mix(base,'#168899',.18)); gradient.addColorStop(1, base);
+    this.backgroundBase = base; this.backgroundCenter = mix(base,'#168899',.18);
+  }
+  private paintBackground(c: CanvasRenderingContext2D, config: Record<string, any>) {
+    // Repaint an opaque field from geometry each frame. An offscreen bitmap can
+    // lose its backing store after iOS suspends the WebView; source-over copying
+    // an empty bitmap would otherwise leave the previous enemies on screen.
+    c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
+    const gradient = c.createRadialGradient(190, 152, 0, 190, 152, 323);
+    gradient.addColorStop(0, this.backgroundCenter); gradient.addColorStop(1, this.backgroundBase);
     c.fillStyle = '#061B2D'; c.fillRect(0, 0, 380, 380); rounded(c, 0, 0, 380, 380, config.field.cornerRadius); c.fillStyle = gradient; c.fill();
     c.save(); c.clip(); c.beginPath(); for (let i = 1; i < 12; i++) { const v = 380 * i / 12; c.moveTo(v, 0); c.lineTo(v, 380); c.moveTo(0, v); c.lineTo(380, v); } c.strokeStyle = '#58E2EC16'; c.lineWidth = .7; c.stroke(); c.restore();
     rounded(c, 0, 0, 380, 380, config.field.cornerRadius); c.strokeStyle = '#0000001f'; c.lineWidth = 380 * .08; c.stroke();
@@ -44,7 +50,7 @@ export class FieldPainter {
     const c = this.c, dpr = Math.min(devicePixelRatio || 1, 3), side = this.canvas.clientWidth;
     const pixels = Math.max(1, Math.round(side * dpr)); if (this.canvas.width !== pixels) { this.canvas.width = pixels; this.canvas.height = pixels; }
     const t1=t0?motionProbe.clock():0;
-    c.setTransform(pixels / 380, 0, 0, pixels / 380, 0, 0); c.drawImage(this.background, 0, 0, 380, 380);c.save();rounded(c,0,0,380,380,config.field.cornerRadius);c.clip();
+    c.setTransform(pixels / 380, 0, 0, pixels / 380, 0, 0); this.paintBackground(c,config);c.save();rounded(c,0,0,380,380,config.field.cornerRadius);c.clip();
     paintBrake(c,s,this.reduced.matches,config.enemyPace);
     const t2=t0?motionProbe.clock():0;
     const brightness = Math.max(.4, Math.min(2.5, config.field.shadowBrightness ?? 1));

@@ -50,7 +50,9 @@ export function syncInviteRewards():Promise<void>{
       if(disposed||epoch!==generation||owner!==state.profile?.id)return;
       journal.confirm(id);inviteRevision.value++;
     }
-    await request({action:'profile'});
+    // This foreground poll also prefetches rules for the next run. During a
+    // live run accept() stages them without changing its frozen configuration.
+    await request({action:'profile',includeGameConfig:true});
   })().finally(()=>{inviteSync=null;});
   return inviteSync;
 }
@@ -59,7 +61,7 @@ let journal: RoundJournal | null = null, flushing: Promise<void> | null = null, 
 let generation = 0;
 let disposed = false;
 let pendingConfig: GameConfig | null = null, serverAnchor = 0, monotonicAnchor = 0;
-let requestSerial = 0, configSerial = 0;
+let requestSerial = 0, configSerial = 0, platformSerial = 0;
 let liveResultId='';
 let bootstrapHash='',bootstrapIdentity:OfflineIdentity|null=null,profileReceivedAt=0;
 let initializationFlight:Promise<void>|undefined;
@@ -70,7 +72,7 @@ export function moreAttemptHistory(){serverHistory.setOwner(state.profile?.id??'
 export function retryAttemptHistory(){serverHistory.setOwner(state.profile?.id??'');return serverHistory.retry();}
 function cacheBootstrap(){
   if(!state.profile||!state.config||!bootstrapHash)return;
-  const cached:Bootstrap={version:1,namespace:api.cacheNamespace(),profile:state.profile,config:state.config,platform:state.platform,identity:bootstrapIdentity,sessionHash:bootstrapHash,receivedAt:profileReceivedAt};
+  const cached:Bootstrap={version:1,namespace:api.cacheNamespace(),profile:state.profile,config:pendingConfig??state.config,platform:state.platform,identity:bootstrapIdentity,sessionHash:bootstrapHash,receivedAt:profileReceivedAt};
   try{storage.set('bootstrap:v1',cached);}catch{/* Optional startup cache must not prevent persisting a game proof. */}
 }
 const writerHost = window as Window & { __untouchWriter?: { owner: string; release: () => void } };
@@ -92,25 +94,27 @@ async function acquireWriter(owner: string) {
 export const energy = computed(() => Math.max(0, (state.profile?.wallet.energy ?? 0) - state.history.filter(a => a.phase === 'prepared'||a.debitWalletVersion!==undefined&&a.debitWalletVersion>(state.profile?.walletVersion??0)).reduce((sum, a) => sum + a.cost, 0)));
 export const attemptCost = computed(() => { const e = state.profile?.wallet.energyConfig; return e ? e.baseAttemptCost + (state.helmet ? e.helmetExtraCost : 0) + (state.jump ? e.jumpExtraCost : 0) : 0; });
 export function now() { return serverAnchor ? serverAnchor + performance.now() - monotonicAnchor : Date.now(); }
-export function applyPendingConfig() { if (pendingConfig) { state.config = pendingConfig; pendingConfig = null; } }
+export function applyPendingConfig() { if (pendingConfig && !world.value?.playing) { const next=pendingConfig;pendingConfig=null;state.config=next; } }
 function history() { state.history = journal?.all ?? []; }
 function accept(result: ApiResult, serial: number) {
   if(result.offlineIdentity?.environment==='production'&&/^\d{5,15}$/.test(result.offlineIdentity.botId??'')&&/^\d+$/.test(result.offlineIdentity.subject??''))bootstrapIdentity=result.offlineIdentity;
   if (result.profile) {
     if (state.profile && state.profile.id !== result.profile.id) { generation++; journal = null; serverHistory.setOwner(''); throw new Error('owner_changed'); }
-    if (state.profile && (result.profile.walletVersion < state.profile.walletVersion ||
-      (result.profile.walletVersion === state.profile.walletVersion && result.profile.serverNow < state.profile.serverNow))) return;
-    if (!state.profile || result.profile.walletVersion >= state.profile.walletVersion) {
+    const stale=state.profile && (result.profile.walletVersion < state.profile.walletVersion ||
+      (result.profile.walletVersion === state.profile.walletVersion && result.profile.serverNow < state.profile.serverNow));
+    // Wallet versions and rules are independent: a stale wallet must not hide
+    // a fresh rules snapshot returned by a later request.
+    if (!stale) {
       storage.set(`profile:${result.profile.id}`, result.profile); state.profile = result.profile;profileReceivedAt=Date.now();
       state.serverOffset = result.profile.serverNow - Date.now();
       serverAnchor = result.profile.serverNow; monotonicAnchor = performance.now();
     }
   }
-  if (serial >= configSerial && (result.gameConfig || result.platformConfig)) {
+  if (serial >= configSerial && result.gameConfig) {
     configSerial = serial;
     if (result.gameConfig) { storage.set(`config:${result.profile?.id ?? state.profile!.id}`, result.gameConfig); if (world.value?.playing) pendingConfig = result.gameConfig; else { pendingConfig = null; state.config = result.gameConfig; } }
-    if (result.platformConfig) state.platform = result.platformConfig;
   }
+  if(serial>=platformSerial&&result.platformConfig){platformSerial=serial;state.platform=result.platformConfig;}
   cacheBootstrap();
 }
 export const errorText = (error: unknown) => {

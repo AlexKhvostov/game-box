@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, onMounted, onBeforeUnmount } from 'vue';
+import SubscriptionChoice from '../components/SubscriptionChoice.vue';
+import {subscriptionOffers} from '../domain/subscription-choice';
 import CompactInvitations from '../components/CompactInvitations.vue';
 import BonusOrb from '../components/BonusOrb.vue';
 import EnergyBoostTile from '../components/EnergyBoostTile.vue';
@@ -18,10 +20,11 @@ import { starsAvailable, buyStarsProduct, cancelStarsSubscription } from '../ser
 const t = (ru: string, en: string) => state.locale === 'ru' ? ru : en;
 const page = computed(() => state.screen), wallet = computed(() => state.profile!.wallet);
 const clock = ref(now()); const interval = setInterval(() => clock.value = now(), 1000); onBeforeUnmount(() => clearInterval(interval));
-const title = computed(() => ({ energy: t('Энергия','Energy'), subscription: t('Увеличить размер бонуса','Increase the bonus amount'), video: t('Энергия за рекламу','Energy for ads'), friends: t('Пригласить друга','Invite a friend'), feedback: t('Обратная связь','Feedback'), packs: t('Купить энергию','Buy energy'), helmet: t('Шлем','Helmet'), jump: t('Прыжок','Jump') }[page.value] ?? ''));
+const title = computed(() => ({ energy: t('Энергия','Energy'), subscription: t('Подписка','Subscription'), video: t('Энергия за рекламу','Energy for ads'), friends: t('Пригласить друга','Invite a friend'), feedback: t('Обратная связь','Feedback'), packs: t('Купить энергию','Buy energy'), helmet: t('Шлем','Helmet'), jump: t('Прыжок','Jump') }[page.value] ?? ''));
 const selectedTier=ref(state.profile?.wallet.energySubscription?.batteryCount??5);
 const tierActive=computed(()=>wallet.value.energySubscription&&wallet.value.energySubscription.expiresAt>clock.value?wallet.value.energySubscription.batteryCount:1);
-const days=computed(()=>Math.round((state.platform?.stars.periodSec??2592000)/86400));
+const subscriptionOptions=computed(()=>subscriptionOffers(state.config?.config.economy?.androidEnergyV2?.simpleBonus,state.platform?.stars,bonus.value.policy.periodSec));
+const subscriptionAds=computed(()=>adsState.automaticSeen&&state.platform?.ads.enabled===true&&state.platform.ads.interstitialEnabled===true&&state.config?.config.advertising?.automatic?.enabled!==false);
 const bonus = computed(() => wallet.value.simpleBonus), remaining = computed(() => Math.max(0, bonus.value.nextAt - clock.value));
 const timer = computed(() => { const s = Math.ceil(remaining.value / 1000); return `${String(Math.floor(s/3600)).padStart(2,'0')}:${String(Math.floor(s/60)%60).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`; });
 const adUsed=computed(()=>wallet.value.adQuota.resetAt&&clock.value>=wallet.value.adQuota.resetAt?0:wallet.value.adQuota.used);
@@ -45,7 +48,7 @@ const offers = computed(() => [100,250,500,1000].map(amount => ({ amount, price:
 const invitesPanel=ref<InstanceType<typeof CompactInvitations>>();
 </script>
 <template>
-  <GameWindow :title="title" :tall="!['helmet','jump'].includes(page)" class="energy-window" :data-page="page" :class="{rewarding:rewardMotion.active,'ability-window':['helmet','jump'].includes(page)}">
+  <GameWindow :title="title" :tall="!['helmet','jump'].includes(page)" class="energy-window" :data-page="page" :class="{rewarding:rewardMotion.active,'ability-window':['helmet','jump'].includes(page),'subscription-window':page==='subscription'}">
     <template v-if="page==='friends'" #header-extra><button v-analytics="{feature: 'invites_panel', placement: 'energy'}" class="icon-button" :aria-label="t('Как работает приглашение','How invitations work')" @click="invitesPanel?.showHelp()">ⓘ</button></template>
     <template #title><button v-analytics="{feature: 'header_tap', placement: 'energy'}" class="energy-title-trigger" @click="headerTap">{{ title }}</button></template>
     <template v-if="['energy','packs'].includes(page)" #header-extra><EnergyAmount class="energy-window-balance" :style="{fontSize:`${Math.min(26,170/String(displayEnergy).length)}px`}" :amount="displayEnergy"/><button v-analytics="{feature: 'refresh', placement: 'energy'}" v-if="page==='energy'" class="icon-button refresh-balance" :aria-label="t('Обновить баланс','Refresh balance')" :disabled="state.busy" @click="action(()=>request({action:'profile'}))">↻</button></template>
@@ -68,11 +71,7 @@ const invitesPanel=ref<InstanceType<typeof CompactInvitations>>();
       <hr class="neon-divider"><p class="next-attempt-cost">{{ t('Следующая попытка стоит','Next attempt costs') }} <EnergyAmount :amount="attemptCost"/></p>
     </div>
     <div v-else-if="page === 'subscription'">
-      <p class="intro">{{ t(`Бонус с одной кнопки каждые ${bonus.policy.periodSec/3600} часов`,`One button, every ${bonus.policy.periodSec/3600} hours`) }}</p>
-      <button v-analytics="{feature: 'select_subscription', placement: 'energy'}" v-for="tier in [2,5]" :key="tier" class="subscription-option full" :class="{selected:selectedTier===tier}" :aria-pressed="selectedTier===tier" :disabled="state.busy" @click="selectedTier=tier"><span class="tier-radio">{{ selectedTier===tier?'◉':'○' }}</span><strong class="gold-medallion">×{{tier}}</strong><span class="tier-reward"><EnergyAmount :amount="tier===2?state.config!.config.economy.androidEnergyV2.simpleBonus.tier2Reward:state.config!.config.economy.androidEnergyV2.simpleBonus.tier5Reward"/><small>{{ t('за один бонус','per bonus') }}</small><small v-if="tierActive===tier" class="mint">{{t('Подключено','Active')}}</small></span><span class="tier-price">{{ tier===2?state.platform?.stars.tier2Price??'—':state.platform?.stars.tier5Price??'—' }} ★<small>/ {{days}} {{t('дней','days')}}</small></span></button>
-      <p class="subscription-ad-policy">♧ {{ t('Без автоматической рекламы','No automatic ads') }}<small>{{ t('Доступность видео за энергию проверяется отдельно.','Rewarded video availability is checked separately.') }}</small></p>
-      <button v-analytics="{feature: 'buy_subscription', placement: 'energy'}" class="primary full subscribe-action" :disabled="!starsAvailable()||state.busy||tierActive>1" @click="action(()=>buyStarsProduct(`energy_batteries_${selectedTier}_v1`))">{{ tierActive===selectedTier?t('Подключено','Active'):t(`Подключить ×${selectedTier}`,`Subscribe ×${selectedTier}`) }}<small>{{ t(`${days} дней · автопродление`,`${days} days · auto-renewal`) }}</small></button>
-      <p v-if="!starsAvailable()" class="hint">{{ t('Покупки пока недоступны.','Purchases are not available yet.') }}</p>
+      <SubscriptionChoice :offers="subscriptionOptions" :selected="selectedTier" :active="tierActive" :locale="state.locale" :period-hours="bonus.policy.periodSec/3600" :busy="state.busy" :available="starsAvailable()" :show-ads="subscriptionAds" @select="selectedTier=$event" @buy="action(()=>buyStarsProduct(`energy_batteries_${selectedTier}_v1`))"/>
       <template v-if="wallet.energySubscription?.provider==='telegram'&&wallet.energySubscription.expiresAt>clock"><p>{{ t('Активно до','Active until') }} {{ new Date(wallet.energySubscription.expiresAt).toLocaleDateString(state.locale) }} · {{ wallet.energySubscription.autoRenew?t('Автопродление включено','Auto-renewal on'):t('Без продления','Will not renew') }}</p><button v-analytics="{feature: 'cancel_subscription', placement: 'energy'}" v-if="wallet.energySubscription.autoRenew" class="text-button full" :disabled="state.busy" @click="action(cancelStarsSubscription)">{{ t('Отключить автопродление','Turn off auto-renewal') }}</button></template>
     </div>
     <div v-else-if="page === 'packs'"><div class="pack-grid"><div v-for="(offer,i) in offers" :key="offer.amount" class="energy-pack-card"><EnergyAmount :amount="offer.amount"/><EnergyPackArt :beams="[1,3,5,7][i]!"/><button v-analytics="{feature: 'buy_pack', placement: 'energy'}" class="secondary full" :disabled="!starsAvailable()||state.busy" @click="action(()=>buyStarsProduct(`energy_${offer.amount}_v1`))">{{ offer.price??'—' }} ★</button></div></div><p class="pack-provider">♙ {{ t('Оплата через Telegram Stars','Pay with Telegram Stars') }}</p><p v-if="!starsAvailable()" class="hint">{{ t('Покупки пока недоступны.','Purchases are not available yet.') }}</p></div>
@@ -83,3 +82,7 @@ const invitesPanel=ref<InstanceType<typeof CompactInvitations>>();
     
   </GameWindow>
 </template>
+
+<style scoped>
+.subscription-window :deep(.game-window){width:430px;max-width:calc(100vw - 20px);padding-top:0}.subscription-window :deep(.window-header){position:relative;min-height:0;height:0;padding:0;border:0;z-index:3}.subscription-window :deep(.window-header h1){position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}.subscription-window :deep(.window-header .icon-button){position:absolute;top:8px;left:6px;background:#032233aa}.subscription-window :deep(.window-header .close-window){left:auto;right:6px}.subscription-window :deep(.window-body){padding:0 10px 8px}.subscription-window :deep(.sub-additive .sub-header-copy){padding-left:56px}
+</style>

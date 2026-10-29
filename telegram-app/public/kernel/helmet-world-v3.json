@@ -10,7 +10,7 @@
     "lib/domain/gameplay_config.dart": "29ab1c7480a6d8ecc15bc63435e16f65f1b818b2abcc7e74a904e506f6078d68",
     "lib/domain/arcade_rules.dart": "c75401265070b14ce604441fbcfe595048a78258c70ac2424a9d737342cbe5b4",
     "lib/domain/economy_config.dart": "bfe78947fd90ee5bbe98aadf2d00c34ee4ddc8d20e1dbc546b112ca3869ec006",
-    "lib/domain/android_energy.dart": "6e8a835252f1715428bc254b5fb116dfee9fd72372938f820ecc9d2bfa2fd228",
+    "lib/domain/android_energy.dart": "0451486fd6f34286561e6abca9378ded52e3b980fbcf83114580d2977cfaaaee",
     "lib/domain/enemy_pace.dart": "3c1d415877b1202530a3e1292f2b3483590baf7e189dd49b596a554f351dfa0c",
     "lib/domain/replay_random.dart": "8a4326a81f2450541f9438d7ad9ca3d0044dcfe26d353970deef86b43e4e5db2",
     "lib/domain/helmet_charge.dart": "3b35c6d17a41a480b0b004dde3c6d86e88b2188afcecf44a39676919f4030e1b",
