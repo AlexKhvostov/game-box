@@ -4,8 +4,8 @@
   function render(lang) {
     document.documentElement.lang = lang;
     document.title = lang === 'ru'
-      ? 'Untouch — Набор тестировщиков завершён'
-      : 'Untouch — Test recruitment ended';
+      ? 'Untouch — Уже в Google Play'
+      : 'Untouch — Available on Google Play';
     for (const element of document.querySelectorAll('[data-en]')) {
       element.textContent = element.dataset[lang];
     }

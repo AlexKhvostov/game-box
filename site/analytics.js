@@ -80,7 +80,7 @@
     if (control.hasAttribute('data-app-store')) {
       send('download_click', {store:'app_store', placement:placement(control), availability:'coming_soon'});
     } else if (/^https:\/\/play\.google\.com\//.test(link)) {
-      send('download_click', {store:'google_play', placement:placement(control), availability:'closed_test'});
+      send('download_click', {store:'google_play', placement:placement(control), availability:'public'});
     } else if (/^https:\/\/t\.me\/UntouchGameBot(?:\/|$)/.test(link)) {
       send('telegram_click', {placement:placement(control)});
     }
