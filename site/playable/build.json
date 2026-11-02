@@ -3,8 +3,11 @@
   "attempts": 3,
   "brakeCooldownSec": 6,
   "bytes": 1291396,
-  "sha256": "06e696a56f78ba26d16e48b1fa3199526d669f63fee7dd2c59d92403d333e126",
+  "sha256": "a82e967d70710aeb283bf0f541ede88fa2d688a8d703de5af97b310855c97390",
   "sourceKernelSha256": "755316f98e69c9d7a1d4e6a39ac750d50c115b625976ad5ad1df0be4875bd5f7",
   "sourceModified": false,
-  "externalAssets": 0
+  "externalAssets": 0,
+  "brakeFirstReadySec": 6,
+  "brakeRewindSec": 3,
+  "timeScale": 1
 }
