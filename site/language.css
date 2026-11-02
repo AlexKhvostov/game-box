@@ -1,0 +1,12 @@
+/* Language controls follow the existing landing palette and keyboard focus style. */
+.header-actions{display:flex;align-items:center;gap:18px;flex-shrink:0}
+.language-switch{display:inline-flex;align-items:center;gap:3px;padding:4px;border:1px solid var(--line);border-radius:12px;background:#0b2b43}
+.language-switch button{min-width:42px;min-height:36px;padding:8px 10px;border:0;border-radius:8px;background:transparent;color:var(--muted);font-size:12px;font-weight:700;line-height:20px}
+.language-switch button:hover{color:var(--text);background:#123b53}
+.language-switch button[aria-pressed="true"]{color:#05352d;background:var(--mint)}
+@media(max-width:1000px){.header{gap:16px}.header nav{gap:16px}.header-actions{gap:12px}}
+@media(max-width:700px){.header-actions{gap:10px}.language-switch button{min-width:40px;min-height:36px;padding:8px}.header .header-telegram{padding:10px;font-size:11px}}
+@media(max-width:480px){.header .header-telegram{display:none}.language-switch button{min-width:42px;min-height:36px}.header-actions{margin-left:auto}}
+
+/* Translation leaves must not inherit the old accent rule for decorative heading spans. */
+.hero h1>span[data-en],.hero h1 .demo-reset span,h2>span[data-en]{color:inherit}
