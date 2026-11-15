@@ -5,6 +5,8 @@ import type { Body, WorldState } from '../domain/kernel';
 import {motionProbe} from './motion-probe';
 import {createJumpReadyDrawer} from './jump-ready-drawer';
 import {jumpGlowProgress} from './jump-glow-progress';
+import type {EnemyReactions} from './enemy-reactions';
+export interface FieldPresentation {showPlayerFace?:boolean;enemyReactions?:EnemyReactions|null;locale?:string}
 // Direct Canvas translation of GameFieldPainter/paintHeroFace. Geometry comes
 // exclusively from the compiled Dart world; visible effects never alter bodies.
 function rounded(c: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
@@ -24,7 +26,9 @@ export class FieldPainter {
   private reduced=matchMedia('(prefers-reduced-motion: reduce)');
   private jumpGlow: ReturnType<typeof createJumpReadyDrawer>;
   constructor(private canvas: HTMLCanvasElement) {
-    this.c = canvas.getContext('2d', { alpha: false })!;
+    // Keep the opaque surface; a supported low-latency context avoids an extra
+    // presentation queue in Telegram WebView. Unsupported hints are ignored.
+    this.c = canvas.getContext('2d', { alpha: false, desynchronized: true })!;
     // Glass capsule adapter uses the existing simulation readiness.
     this.jumpGlow = createJumpReadyDrawer();
   }
@@ -45,26 +49,38 @@ export class FieldPainter {
     c.save(); c.clip(); c.beginPath(); for (let i = 1; i < 12; i++) { const v = 380 * i / 12; c.moveTo(v, 0); c.lineTo(v, 380); c.moveTo(0, v); c.lineTo(380, v); } c.strokeStyle = '#58E2EC16'; c.lineWidth = .7; c.stroke(); c.restore();
     rounded(c, 0, 0, 380, 380, config.field.cornerRadius); c.strokeStyle = '#0000001f'; c.lineWidth = 380 * .08; c.stroke();
   }
-  draw(s: WorldState, config: Record<string, any>, frame: number, impacts:ImpactEffect[] = [], jumpReadyAgeMs: number | null = null) {
+  draw(s: WorldState, config: Record<string, any>, frame: number, impacts:ImpactEffect[] = [], jumpReadyAgeMs: number | null = null, presentation:FieldPresentation = {}) {
     const t0=motionProbe.clock();
-    const c = this.c, dpr = Math.min(devicePixelRatio || 1, 3), side = this.canvas.clientWidth;
+    const c = this.c, dpr = Math.min(devicePixelRatio || 1, 3), displaySide = this.canvas.getBoundingClientRect().width;
+    // The 380px logical canvas is scaled by its viewport. Allocate physical
+    // pixels for the displayed field, including that scale, rather than its
+    // untransformed layout box. Before layout, retain the safe existing size.
+    const side = Number.isFinite(displaySide) && displaySide > 0 ? displaySide : this.canvas.clientWidth;
     const pixels = Math.max(1, Math.round(side * dpr)); if (this.canvas.width !== pixels) { this.canvas.width = pixels; this.canvas.height = pixels; }
     const t1=t0?motionProbe.clock():0;
     c.setTransform(pixels / 380, 0, 0, pixels / 380, 0, 0); this.paintBackground(c,config);c.save();rounded(c,0,0,380,380,config.field.cornerRadius);c.clip();
-    paintBrake(c,s,this.reduced.matches,config.enemyPace);
+    paintBrake(c,s,this.reduced.matches,config.enemyPace,presentation.locale);
     const t2=t0?motionProbe.clock():0;
     const brightness = Math.max(.4, Math.min(2.5, config.field.shadowBrightness ?? 1));
-    for (const e of s.enemies) enemy(c, e, `rgba(0,0,0,${Math.min(.85, .42 / brightness)})`, 5.5);
+    const reactions=presentation.enemyReactions,faceElapsed=reactions?.beginPaint()??0;
+    const poses=s.enemies.map((_,index)=>reactions?.pose(index,this.reduced.matches)??{lift:0,tilt:0});
+    for (let i=0;i<s.enemies.length;i++) {
+      const e=s.enemies[i]!,pose=poses[i]!;
+      enemy(c,{...e,y:e.y-pose.lift,angle:e.angle+pose.tilt},`rgba(0,0,0,${Math.min(.85, .42 / brightness)})`,5.5);
+    }
     const p = s.player, vis = p.size * p.visualScale, x = p.x + (p.size - vis) / 2, y = p.y + (p.size - vis) / 2 - p.jumpLift * 8;
     const shadow = () => { rounded(c, x + 5 + p.jumpLift * 10, y + 6 + p.jumpLift * 12, vis, vis, 4); c.fillStyle = `rgba(0,0,0,${.4 * (1 - p.jumpLift * .25) / brightness})`; c.fill(); };
     if (p.jumpLift <= .02 && s.playing) shadow();
-    for (const e of s.enemies) {
-      enemy(c, e, '#f0363e3d', 0, 3);
-      c.save(); c.translate(e.x + e.w / 2, e.y + e.h / 2); c.rotate(e.angle * Math.PI / 180);
+    for (let i=0;i<s.enemies.length;i++) {
+      const e=s.enemies[i]!,pose=poses[i]!;
+      enemy(c,{...e,y:e.y-pose.lift,angle:e.angle+pose.tilt},'#f0363e3d',0,3);
+      c.save(); c.translate(e.x + e.w / 2, e.y + e.h / 2-pose.lift); c.rotate((e.angle+pose.tilt) * Math.PI / 180);
       const fill = c.createLinearGradient(-e.w / 2, -e.h / 2, e.w / 2, e.h / 2);
       for (const [at, color] of [[0, '#FE837D'], [.22, '#F0363E'], [.7, '#F0363E'], [1, '#DC2433']] as [number, string][]) fill.addColorStop(at, color);
       rounded(c, -e.w / 2, -e.h / 2, e.w, e.h, 3); c.fillStyle = fill; c.fill(); c.strokeStyle = '#FFC8B9b3'; c.lineWidth = 1; c.stroke();
-      if (config.enemies.collideWithEachOther) { rounded(c, -e.w / 2 - 1.2, -e.h / 2 - 1.2, e.w + 2.4, e.h + 2.4, 4.2); c.strokeStyle = '#ffffffd1'; c.lineWidth = 2; c.stroke(); } c.restore();
+      if (config.enemies.collideWithEachOther) { rounded(c, -e.w / 2 - 1.2, -e.h / 2 - 1.2, e.w + 2.4, e.h + 2.4, 4.2); c.strokeStyle = '#ffffffd1'; c.lineWidth = 2; c.stroke(); }
+      reactions?.paintFace(c,e,s,i,faceElapsed,pose.tilt,this.reduced.matches);
+      c.restore();
     }
     for(const e of s.enemies)paintBrakeHit(c,s,e,this.reduced.matches);
     const t3=t0?motionProbe.clock():0;
@@ -81,7 +97,7 @@ export class FieldPainter {
     }
     paintHelmet(c,s,x,y,vis,this.reduced.matches);
     c.beginPath(); c.moveTo(x + vis * .17, y + vis * .083); c.lineTo(x + vis * .83, y + vis * .083); c.strokeStyle = '#C4FFE3a6'; c.lineWidth = 1.2; c.stroke();
-    if (config.player.showFace) {
+    if (config.player.showFace && presentation.showPlayerFace!==false) {
       const center={x:p.x+p.size/2,y:p.y+p.size/2};
       const nearest = s.enemies.reduce<Body|undefined>((a,b)=>!a||Math.hypot(b.x+b.w/2-center.x,b.y+b.h/2-center.y)<Math.hypot(a.x+a.w/2-center.x,a.y+a.h/2-center.y)?b:a,undefined);
       const dx=nearest?nearest.x+nearest.w/2-center.x:0,dy=nearest?nearest.y+nearest.h/2-center.y:0,len=Math.hypot(dx,dy);

@@ -1,0 +1,56 @@
+@import url('./rays.css');
+
+.lu-stage{position:relative;isolation:isolate;width:100%;aspect-ratio:4/5;overflow:hidden;background:#032443}
+.lu-stage video,.lu-final{display:block;width:100%;height:100%;object-fit:contain}
+.lu-final,.lu-confetti{position:absolute;inset:0;pointer-events:none}
+.lu-final[hidden]{display:none}
+.lu-confetti{width:100%;height:100%;z-index:1}
+.lu-shield{position:absolute;left:50%;top:75%;width:50%;aspect-ratio:90/84;z-index:2;pointer-events:none;opacity:0;transform:translate(-50%,-50%) translateY(42px) scale(.35)}
+.lu-shield img{position:relative;z-index:1;display:block;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 0 5px #74f6ff) drop-shadow(0 0 13px #168aff)}
+.lu-shield.arrived{animation:lu-award .8s cubic-bezier(.18,.8,.23,1) forwards}
+.lu-stage.is-static .lu-shield.arrived{animation:none;opacity:1;transform:translate(-50%,-50%)}
+@keyframes lu-award{to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+
+/* Self-contained game window. No gallery/app stylesheet is required. */
+.lu-window,.lu-window *,.lu-window *::before,.lu-window *::after{box-sizing:border-box}
+.lu-window{position:relative;padding:4px;border:1px solid #65cbe9;border-radius:25px;background:linear-gradient(140deg,#318eb4,#0a3457 34%,#0c3659 70%,#25718d);box-shadow:0 0 0 1px #062a45,0 15px 60px #0009,0 0 24px #179fd31a;font:14px/1.4 Inter,"Segoe UI",sans-serif;color:#edf8ff;isolation:isolate}
+.lu-window::before{content:'';position:absolute;inset:1px;border:1px solid #9eebff3d;border-radius:23px;pointer-events:none;z-index:7}
+.lu-window-content{position:relative;overflow:hidden;border:1px solid #164f70;border-radius:20px;background:#072740}
+.lu-window button{font:inherit;-webkit-tap-highlight-color:transparent;cursor:pointer}
+.lu-window button:focus-visible{outline:2px solid #ddfbff;outline-offset:4px}
+body:has(dialog.lu-dialog[open]){overflow:hidden}
+dialog.lu-dialog{position:fixed;inset:0;margin:auto;width:min(420px,calc(100vw - 24px),calc((100dvh - 140px)*.8));max-width:none;max-height:calc(100dvh - 24px);overflow:auto;scrollbar-width:thin;scrollbar-color:#267697 #08273d}
+.lu-dialog::backdrop{background:#020c1bcb;backdrop-filter:blur(6px)}
+.lu-dialog[open]{animation:lu-window-in 160ms cubic-bezier(.22,.8,.25,1) both}
+.lu-dialog.is-closing{pointer-events:none;animation:lu-window-out 100ms ease-out both}
+.lu-dialog-head{position:absolute;inset:0 0 auto;z-index:4;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:16px 17px 26px;background:linear-gradient(180deg,#03213ce8,#062c4391 61%,transparent);pointer-events:none}
+.lu-dialog-head small{display:block;font-size:8px;letter-spacing:.16em;line-height:1.3;color:#a2efff;margin-bottom:3px;font-weight:800;text-shadow:0 1px 4px #032035}
+.lu-dialog-head h2{margin:0;font-size:26px;line-height:1.08;letter-spacing:-.7px;font-weight:850;color:#e8fdff;text-shadow:0 2px 0 #0a415f,0 0 12px #25b5e94a}
+.lu-close{position:relative;display:grid;place-items:center;flex:none;width:40px;height:40px;min-width:40px;margin:0;padding:0;pointer-events:auto;border:1px solid #7ad8f37d;border-radius:12px;background:linear-gradient(145deg,#174f6dd9,#082c48e6);color:#bcf4ff;box-shadow:inset 0 1px 0 #c1faff24,0 2px 3px #00152e55}
+.lu-close svg{display:block;width:20px;height:20px;pointer-events:none}
+.lu-close:hover{background:linear-gradient(#216281,#0d3c5c);border-color:#adefff}
+.lu-dialog-footer{position:relative;z-index:3;margin-top:-43px;padding:20px 18px 23px;background:linear-gradient(180deg,#082b4300,#0a344b9c 10%,#0a3049 22%,#08263e);text-align:center}
+.lu-rank-announcement{position:relative;display:grid;justify-items:center;margin:0 0 16px;isolation:isolate}
+.lu-rank-kicker{position:relative;z-index:2;display:block;padding:4px 13px;margin-bottom:-1px;border:1px solid #347fa1;border-radius:6px 6px 0 0;background:linear-gradient(#165470,#0c344f);color:#b5eaff;font-size:9px;line-height:1.2;font-weight:800;letter-spacing:.15em;box-shadow:inset 0 1px 0 #baf5ff1a}
+.lu-rank-banner{position:relative;display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:57px;padding:10px 17px;clip-path:polygon(5% 0,95% 0,100% 50%,95% 100%,5% 100%,0 50%);background:linear-gradient(105deg,#24708f,#88eaff 36%,#b9eaff 50%,#6cd8f5 68%,#1d6386)}
+.lu-rank-banner::before{content:'';position:absolute;inset:1px;clip-path:inherit;background:linear-gradient(180deg,#1a5271,#0d3554 48%,#174363);box-shadow:inset 0 1px 12px #90e7ff1a}
+.lu-rank-banner::after{content:'';position:absolute;left:20%;right:20%;top:1px;height:1px;background:linear-gradient(90deg,transparent,#fff1b1,transparent)}
+.lu-rank-banner strong{position:relative;z-index:1;display:block;font-size:26px;line-height:1.13;letter-spacing:-.8px;font-weight:850;color:#fff0b8;text-shadow:0 2px 0 #05243f,0 0 13px #e6bb6038;white-space:nowrap}
+.lu-rank-wing{position:relative;z-index:1;flex:none;width:11px;height:18px;opacity:.85;background:linear-gradient(#fdf6bd,#d6ab52);clip-path:polygon(0 0,35% 0,100% 50%,35% 100%,0 100%,65% 50%)}
+.lu-rank-wing--right{transform:rotate(180deg)}
+.lu-accept{position:relative;display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:49px;padding:12px 22px;border:1px solid #b9faff;border-radius:12px;background:linear-gradient(180deg,#e0ffff,#9df5ff 14%,#57daec 52%,#2cadce);color:#05354f;font-size:15px!important;font-weight:850!important;letter-spacing:.02em;line-height:1.2;text-shadow:0 1px 0 #e9ffff80;box-shadow:inset 0 2px 0 #ffffffa8,inset 0 -3px 0 #1081ac88,0 4px 0 #043f65,0 8px 18px #001b3699;transition:filter 130ms ease,transform 130ms ease,box-shadow 130ms ease}
+.lu-accept i{width:9px;height:9px;border-top:2px solid currentColor;border-right:2px solid currentColor;transform:rotate(45deg);opacity:.75}
+.lu-accept:hover{filter:brightness(1.06);transform:translateY(-1px)}
+.lu-accept:active{transform:translateY(2px);box-shadow:inset 0 1px 0 #fff9,inset 0 -2px 0 #1081ac88,0 2px 0 #043f65,0 4px 10px #001b3666}
+.lu-accept:disabled{opacity:.7;transform:none}
+.lu-dialog[open] .lu-rank-announcement{animation:lu-rank-enter 440ms cubic-bezier(.18,.8,.23,1) 160ms both}
+.lu-dialog[open] .lu-accept{animation:lu-action-enter 260ms ease-out 230ms both}
+@keyframes lu-window-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes lu-window-out{to{opacity:0;transform:translateY(8px)}}
+@keyframes lu-rank-enter{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+@keyframes lu-action-enter{from{opacity:0}to{opacity:1}}
+.lu-screen-reader{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+@media(max-width:360px){.lu-dialog-head{padding:12px 12px 25px}.lu-dialog-head h2{font-size:23px}.lu-dialog-footer{padding:20px 11px 18px}.lu-rank-banner{gap:7px;padding:10px 8px;min-height:52px}.lu-rank-banner strong{font-size:23px;letter-spacing:-.8px}.lu-rank-wing{width:8px;height:15px}.lu-rank-kicker{font-size:8px;letter-spacing:.12em}.lu-close{width:36px;height:36px;min-width:36px}}
+@media(prefers-reduced-motion:reduce){.lu-dialog[open],.lu-dialog.is-closing,.lu-dialog[open] .lu-rank-announcement,.lu-dialog[open] .lu-accept{animation:none}.lu-shield.arrived{animation-duration:1ms}.lu-accept{transition:none}}
+
+.lu-stage.is-final video{visibility:hidden}.lu-media-notice{position:absolute;top:43%;left:8%;right:8%;z-index:4;padding:9px;border:1px solid #74c4dd66;border-radius:8px;background:#062338e8;color:#c9f7ff;font:600 13px/1.35 sans-serif;text-align:center;pointer-events:none}.lu-media-notice[hidden]{display:none}

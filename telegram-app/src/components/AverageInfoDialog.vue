@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {onMounted, onBeforeUnmount} from 'vue';
+import {ref,onMounted, onBeforeUnmount} from 'vue';
 import GameWindow from './GameWindow.vue';
 import {state} from '../services/game-store';
 import {registerOverlayBack} from '../services/ui-overlays';
@@ -7,18 +7,21 @@ import type {AverageBoard} from '../services/contracts';
 defineProps<{rules: AverageBoard['rules']; incomplete?: boolean}>();
 const emit = defineEmits<{close: []}>();
 const t = (ru: string, en: string) => state.locale === 'ru' ? ru : en;
+const closing=ref(false);let closeTimer:ReturnType<typeof setTimeout>|undefined;
+function close(){if(closing.value)return;closing.value=true;closeTimer=setTimeout(()=>emit('close'),matchMedia('(prefers-reduced-motion: reduce)').matches?0:100);}
 let removeBack: (() => void) | undefined;
-onMounted(() => {removeBack = registerOverlayBack(() => emit('close'),'average_help');});
-onBeforeUnmount(() => removeBack?.());
+onMounted(() => {removeBack = registerOverlayBack(close,'average_help');});
+onBeforeUnmount(() => {clearTimeout(closeTimer);removeBack?.();});
 </script>
 <template>
-  <GameWindow class="attempts-average-help" :title="t('Как считается среднее','How the average is calculated')">
+  <GameWindow class="attempts-average-help" :closing="closing" :title="t('Как считается среднее','How the average is calculated')">
     <p>{{t('Среднее показывает ваш текущий уровень игры в секундах.','The average shows your current playing level in seconds.')}}</p>
-    <p>{{t('Учитываем последние подтверждённые попытки.','We use your recent confirmed attempts.')}} {{rules.previousWeightPercent===100?t('Все они имеют одинаковый вес.','They all have equal weight.'):t('Свежие попытки влияют сильнее старых.','Recent attempts matter more than older ones.')}}</p>
-    <p v-if="rules.algorithm==='weighted_rms_v1'">{{t('Большие результаты влияют сильнее маленьких. Поэтому удачная длинная попытка заметнее повышает среднее.','Higher results matter more than lower ones, so a good long attempt gives your average a bigger boost.')}}</p>
-    <p>{{t('Среднее обновляется после подтверждения попытки. Чем оно выше, тем лучше.','Your average updates after an attempt is confirmed. Higher is better.')}}</p>
+    <p>{{rules.algorithm==='ew_rms_v2'?t('Среднее обновляется после каждой попытки без фиксированного окна. Влияние прежних результатов плавно уменьшается.','Your average updates after each run without a fixed window. Earlier results gradually lose influence.'):t(`Учитываем последние ${rules.windowSize} подтверждённых попыток.`,`We use your last ${rules.windowSize} confirmed attempts.`)}} {{rules.previousWeightPercent===100?t('Все они имеют одинаковый вес.','They all have equal weight.'):t('Последние попытки влияют сильнее старых.','Recent attempts have more influence than older ones.')}}</p>
+    <p v-if="['weighted_rms_v1','ew_rms_v2'].includes(rules.algorithm)">{{t('Это не обычное среднее: высокие результаты влияют сильнее низких.','This is not a simple average: higher results have more influence than lower ones.')}}</p>
+    <p>{{rules.minDurationMs===0?t('Короткие попытки тоже учитываются.','Short attempts also count.'):t(`Учитываются попытки дольше ${rules.minDurationMs/1000} с.`,`Only attempts longer than ${rules.minDurationMs/1000} s count.`)}} {{t(`В общем списке — после ${rules.minAttempts} подходящих попыток. Чем выше среднее, тем выше место.`,`Listed after ${rules.minAttempts} eligible attempts. A higher average means a higher rank.`)}}</p>
+    <p v-if="incomplete" class="attempts-help-note">{{t('На этом устройстве есть не вся подтверждённая история. График может отличаться от среднего в рейтинге.','This device does not contain the complete confirmed history. The chart may differ from the ranking average.')}}</p>
     <p class="attempts-help-note">{{t('Лучшая попытка — ваш отдельный рекорд за всё время.','Your best attempt is a separate all-time record.')}}</p>
-    <template #footer><button class="secondary full" @click="emit('close')">{{t('Понятно','Got it')}}</button></template>
+    <template #footer><button class="secondary full" @click="close">{{t('Понятно','Got it')}}</button></template>
   </GameWindow>
 </template>
 <style scoped>

@@ -1,4 +1,8 @@
-import { computed, reactive, shallowRef, ref, toRaw } from 'vue';
+import { computed, reactive, shallowRef, ref, toRaw, watch } from 'vue';
+import {DailyBestRead,emptyDailyBest,utcDay} from '../domain/daily-best-read';
+import {LocalAwardsLedger} from '../domain/local-awards';
+import {achievementLevel,levelCounts,emptyAchievementSnapshot} from '../domain/achievements';
+import type {AchievementPanelModel} from '../domain/achievement-presentation';
 import {InviteRewardJournal,parseInviteRewards} from '../domain/invite-rewards';
 import { TelegramApi, ApiError } from './api';
 import { DurableStorage, operationId } from './storage';
@@ -10,16 +14,40 @@ import { telegram } from '../platform/telegram';
 import {closeTopOverlay} from './ui-overlays';
 import {readBootstrap,sessionHash,type Bootstrap,type OfflineIdentity} from './bootstrap-cache';
 import {emitResultReward} from './reward-events';
-import {ServerHistoryLoader} from '../domain/server-attempt-history';
+import {ServerHistoryLoader,validateHistory} from '../domain/server-attempt-history';
 import type {AttemptHistorySnapshot} from './contracts';
 const storage = new DurableStorage();
+const awardRevision=ref(0),awardLedgers=new Map<string,LocalAwardsLedger>();
+let pendingAwardResponse:ApiResult|null=null,awardSync:Promise<void>|null=null;
+function awardLedger(owner=state.profile?.id){if(!owner)return null;const key=`${api.cacheNamespace()}:${owner}`;let ledger=awardLedgers.get(key);if(!ledger){ledger=new LocalAwardsLedger(storage,api.cacheNamespace(),owner);awardLedgers.set(key,ledger);}return ledger;}
+function awardsChanged(){awardRevision.value++;}
+export const achievementSnapshot=computed(()=>{awardRevision.value;return awardLedger()?.snapshot??emptyAchievementSnapshot(state.profile?.id??'');});
+export const pendingAwards=computed(()=>{awardRevision.value;return awardLedger()?.pending??[];});
+export const pendingLevels=computed(()=>{awardRevision.value;return awardLedger()?.pendingLevels??[];});
+export const localAwardsReady=computed(()=>{awardRevision.value;return !state.localAwardsSupported||awardLedger()?.ready===true;});
+export const localAwardCredits=computed(()=>{awardRevision.value;return awardLedger()?.creditTotal??0;});
+export const achievementPanel=computed<AchievementPanelModel>(()=>{const a=achievementSnapshot.value;return {earnedIds:a.earned,earnedRewards:a.earnedRewards,energyByTier:a.rewards,bestTimeMs:Math.max((a.metrics.time??0)*1000,state.profile?.wallet.bestTimeMs??0),averageMs:a.metrics.average===undefined?null:a.metrics.average*1000,totalAttempts:a.metrics.attempts??0,level:achievementLevel(a.earned),levelCounts:levelCounts(a.earned),recordRank:a.recordPlace,averageRank:a.averagePlace,confirmed:a.confirmed,metrics:a.metrics};});
+export function markAwardPresented(id:string,owner:string){if(owner!==state.profile?.id)return;awardLedger()?.markPresented(id);awardsChanged();}
+export function markLevelPresented(level:number,owner:string){if(owner!==state.profile?.id)return;awardLedger()?.markLevelPresented(level,owner);awardsChanged();}
+export async function refreshAchievements():Promise<void>{
+ if(awardSync)return awardSync;if(disposed||!state.initialized||!state.localAwardsSupported||world.value?.playing||document.hidden||telegram()?.isActive===false)return;
+ const owner=state.profile!.id,epoch=generation,current=journal,ledger=awardLedger(owner)!;
+ awardSync=(async()=>{
+  while(ledger.pendingAcknowledgements.length){const ids=ledger.pendingAcknowledgements.slice(0,50);await request({action:'achievements_ack',ack:ids});if(epoch!==generation||owner!==state.profile?.id)return;ledger.confirmAcknowledgements(ids);awardsChanged();}
+  const drained=!!current&&current.pending.length===0;
+  await request({action:'achievements_state',...(drained?ledger.backfillRequest:{personalMedalsVersion:3})});
+ })().finally(()=>{awardSync=null;});return awardSync;
+}
+function projectFinishedRun(entry:Attempt){if(!entry.result||!entry.localAwards)return;const ledger=awardLedger(entry.owner);ledger?.completeRun({requestId:entry.requestId,roundId:entry.roundId,owner:entry.owner,...entry.result,hadJump:entry.jump,hadHelmet:entry.helmet,frozen:entry.localAwards});if(!state.presentation.cupAutoCelebrationsEnabled)ledger?.suppressCupCeremonies();awardsChanged();}
+
 export const state = reactive({ profile: null as Profile | null, config: null as GameConfig | null, platform: null as PlatformConfig | null,
-  initialized: false, online: true, connection: 'unknown' as ConnectionStatus, busy: false, externalBusy: false, error: '', notice: '', screen: '' as string, parent: '',
+  initialized: false, online: true, connection: 'unknown' as ConnectionStatus, busy: false, externalBusy: false, error: '', notice: '',windowClosing:false, screen: '' as string, parent: '',
   inviteNoticeOpen:false,
-  helmet: false, jump: false, history: [] as Attempt[], periods: {} as Record<string, Score[]>, average: null as AverageBoard | null,
-  serverHistory: null as AttemptHistorySnapshot | null, historyLoading: false, historyError: '',
-  bestResult: null as Score | null, invites: null as InviteState | null, period: 'all', rankingTab: 'record', locale: 'ru',
-  preferences: { sound: true, music: true, vibration: true }, serverOffset: 0, resultId: '', selectedScore: null as Score | null, selectedPlayer:null as {userId:string;playerName:string}|null, rulesAccepted: false });
+  helmet: false, jump: false, history: [] as Attempt[], periods: {} as Record<string, Score[]>, average: null as AverageBoard | null, personalSummary: null as AverageBoard | null,
+  serverHistory: null as AttemptHistorySnapshot | null, historyLoading: false, historyError: '',dailyBest:emptyDailyBest(),dailyBestReady:false,
+  resultPreviewKind:'best' as 'best'|'history'|'ranking',resultPreviewPhase:null as Attempt['phase']|null,bestResult: null as Score | null, invites: null as InviteState | null, period: 'all', rankingTab: 'record', locale: 'ru',
+  presentation:{enemyReactionsEnabled:true,characterSettingsEnabled:true,cupAutoCelebrationsEnabled:false,startupLoadingMinMs:2000}, localAwardsSupported:false,
+  preferences: { sound: true, music: true, vibration: true,controlSensitivity:1,showPlayerFace:true,enemyReactionsEnabled:true }, serverOffset: 0, resultId: '', selectedScore: null as Score | null, selectedPlayer:null as {userId:string;playerName:string}|null, rulesAccepted: false });
 export const api = new TelegramApi(status => { state.connection = status; state.online = status !== 'offline'; });
 export const world = shallowRef<WorldState | null>(null);
 const inviteRevision=ref(0),inviteJournals=new Map<string,InviteRewardJournal>(),invitePresentedMemory=new Set<string>();
@@ -37,10 +65,10 @@ export const pendingInviteRewards=computed(()=>{
 export const heldInviteEnergy=computed(()=>pendingInviteRewards.value.filter(n=>!inviteWasPresented(n.id)).reduce((sum,n)=>sum+n.amount,0));
 export function inviteWasPresented(id:string){inviteRevision.value;return invitePresentedMemory.has(`${api.cacheNamespace()}:${state.profile?.id}:${id}`)||(inviteJournal()?.presented(id)??false);}
 export function markInvitePresented(id:string,owner:string){if(owner!==state.profile?.id)return;try{inviteJournal(owner)?.markPresented(id);}finally{invitePresentedMemory.add(`${api.cacheNamespace()}:${owner}:${id}`);inviteRevision.value++;}}
-export function acknowledgeInviteReward(id:string){inviteJournal()?.acknowledge(id);inviteRevision.value++;void syncInviteRewards().catch(()=>{});}
-let inviteSync:Promise<void>|null=null;
-export function syncInviteRewards():Promise<void>{
-  if(disposed||!state.initialized||document.hidden||telegram()?.isActive===false)return Promise.resolve();
+export function acknowledgeInviteReward(id:string){inviteJournal()?.acknowledge(id);inviteRevision.value++;void syncInviteRewards({refreshProfile:false}).catch(()=>{});}
+let inviteSync:Promise<void>|null=null,lastRulesPrefetch=0;
+export function syncInviteRewards(options:{refreshProfile?:boolean}={}):Promise<void>{
+  if(disposed||!state.initialized||document.hidden||world.value?.playing||telegram()?.isActive===false)return Promise.resolve();
   if(inviteSync)return inviteSync;
   const owner=state.profile!.id,epoch=generation,journal=inviteJournal(owner)!;
   inviteSync=(async()=>{
@@ -50,9 +78,12 @@ export function syncInviteRewards():Promise<void>{
       if(disposed||epoch!==generation||owner!==state.profile?.id)return;
       journal.confirm(id);inviteRevision.value++;
     }
-    // This foreground poll also prefetches rules for the next run. During a
-    // live run accept() stages them without changing its frozen configuration.
-    await request({action:'profile',includeGameConfig:true});
+    // Match AndroidConfigSession: one idle rules/profile prefetch per 30s.
+    // ACK responses already carry the updated wallet; startup has a fresh guest.
+    if(options.refreshProfile!==false&&Date.now()-lastRulesPrefetch>=30000){
+      lastRulesPrefetch=Date.now();
+      await request({action:'profile',includeGameConfig:true});
+    }
   })().finally(()=>{inviteSync=null;});
   return inviteSync;
 }
@@ -61,15 +92,28 @@ let journal: RoundJournal | null = null, flushing: Promise<void> | null = null, 
 let generation = 0;
 let disposed = false;
 let pendingConfig: GameConfig | null = null, serverAnchor = 0, monotonicAnchor = 0;
-let requestSerial = 0, configSerial = 0, platformSerial = 0;
+let requestSerial = 0, configSerial = 0, platformSerial = 0,presentationPinned=false;
 let liveResultId='';
 let bootstrapHash='',bootstrapIdentity:OfflineIdentity|null=null,profileReceivedAt=0;
 let initializationFlight:Promise<void>|undefined;
 let bootstrapRetry:ReturnType<typeof setTimeout>|undefined,bootstrapFlight:Promise<void>|undefined;
-const serverHistory=new ServerHistoryLoader(body=>request(body),value=>{state.serverHistory=value.snapshot;state.historyLoading=value.loading;state.historyError=value.error;},storage);
+const serverHistory=new ServerHistoryLoader(async body=>{
+  const current=journal,owner=state.profile?.id,covered=current?.all.filter(a=>a.awaitingHistory).map(a=>a.requestId)??[];
+  const result=await request(body);
+  validateHistory(result,owner??'');
+  if(!body.cursor&&current===journal&&owner===state.profile?.id){for(const id of covered)current?.update(id,{awaitingHistory:false});history();}
+  return result;
+},value=>{state.serverHistory=value.snapshot;state.historyLoading=value.loading;state.historyError=value.error;},storage);
 export function refreshAttemptHistory(){serverHistory.setOwner(state.profile?.id??'');return serverHistory.refresh();}
 export function moreAttemptHistory(){serverHistory.setOwner(state.profile?.id??'');return serverHistory.more();}
 export function retryAttemptHistory(){serverHistory.setOwner(state.profile?.id??'');return serverHistory.retry();}
+function dailyBestAllowed(){return !disposed&&state.initialized&&state.dailyBestReady&&!!state.profile&&state.online&&!document.hidden&&telegram()?.isActive!==false&&!world.value?.playing&&!state.screen&&!state.windowClosing&&!state.busy&&!state.externalBusy&&!state.inviteNoticeOpen;}
+const dailyHead=new DailyBestRead(async()=>{const epoch=generation;try{return await api.execute({action:'daily_best'});}catch(error){if(!disposed&&epoch===generation)blockRevokedSession(error);throw error;}},value=>{state.dailyBest=value;},dailyBestAllowed);
+const stopDailyOwner=watch(()=>state.profile?.id??'',owner=>dailyHead.setOwner(owner),{flush:'sync'});
+export function refreshDailyBest(force=false){dailyHead.setOwner(state.profile?.id??'');return dailyHead.refresh(force);}
+// Called by the existing HUD second tick only on UTC-day changes, never as TTL polling.
+export function observeDailyBestDay(){if(!disposed&&dailyHead.observeDay())void refreshDailyBest();}
+const stopDailyIdle=watch([dailyBestAllowed,()=>state.profile?.id],([allowed])=>{if(allowed)void refreshDailyBest();},{flush:'post'});
 function cacheBootstrap(){
   if(!state.profile||!state.config||!bootstrapHash)return;
   const cached:Bootstrap={version:1,namespace:api.cacheNamespace(),profile:state.profile,config:pendingConfig??state.config,platform:state.platform,identity:bootstrapIdentity,sessionHash:bootstrapHash,receivedAt:profileReceivedAt};
@@ -91,12 +135,17 @@ async function acquireWriter(owner: string) {
     }).catch(reject);
   });
 }
-export const energy = computed(() => Math.max(0, (state.profile?.wallet.energy ?? 0) - state.history.filter(a => a.phase === 'prepared'||a.debitWalletVersion!==undefined&&a.debitWalletVersion>(state.profile?.walletVersion??0)).reduce((sum, a) => sum + a.cost, 0)));
+export const energy = computed(() => Math.max(0, (state.profile?.wallet.energy ?? 0) + localAwardCredits.value - state.history.filter(a => a.phase === 'prepared'||a.debitWalletVersion!==undefined&&a.debitWalletVersion>(state.profile?.walletVersion??0)).reduce((sum, a) => sum + a.cost, 0)));
 export const attemptCost = computed(() => { const e = state.profile?.wallet.energyConfig; return e ? e.baseAttemptCost + (state.helmet ? e.helmetExtraCost : 0) + (state.jump ? e.jumpExtraCost : 0) : 0; });
 export function now() { return serverAnchor ? serverAnchor + performance.now() - monotonicAnchor : Date.now(); }
 export function applyPendingConfig() { if (pendingConfig && !world.value?.playing) { const next=pendingConfig;pendingConfig=null;state.config=next; } }
 function history() { state.history = journal?.all ?? []; }
 function accept(result: ApiResult, serial: number) {
+  if(result.telegramPresentation&&!presentationPinned&&!world.value?.playing){presentationPinned=true;const p=result.telegramPresentation;state.presentation={enemyReactionsEnabled:p.enemyReactionsEnabled===true,characterSettingsEnabled:p.characterSettingsEnabled===true,cupAutoCelebrationsEnabled:p.cupAutoCelebrationsEnabled===true,startupLoadingMinMs:Number.isFinite(p.startupLoadingMinMs)?Math.max(0,Math.min(10000,p.startupLoadingMinMs)):2000};}
+  const owner=result.profile?.id??state.profile?.id;
+  if(owner&&journal?.owner===owner){const ledger=awardLedger(owner)!;ledger.accept(result);if(!state.presentation.cupAutoCelebrationsEnabled)ledger.suppressCupCeremonies();awardsChanged();}else if(owner)pendingAwardResponse=result;
+  if(result.localAwardsSupported===true)state.localAwardsSupported=true;
+
   if(result.offlineIdentity?.environment==='production'&&/^\d{5,15}$/.test(result.offlineIdentity.botId??'')&&/^\d+$/.test(result.offlineIdentity.subject??''))bootstrapIdentity=result.offlineIdentity;
   if (result.profile) {
     if (state.profile && state.profile.id !== result.profile.id) { generation++; journal = null; serverHistory.setOwner(''); throw new Error('owner_changed'); }
@@ -105,13 +154,15 @@ function accept(result: ApiResult, serial: number) {
     // Wallet versions and rules are independent: a stale wallet must not hide
     // a fresh rules snapshot returned by a later request.
     if (!stale) {
+      if(state.profile&&JSON.stringify([state.profile.nickname,state.profile.hiddenPlayers,state.profile.hideTelegramAccount])!==JSON.stringify([result.profile.nickname,result.profile.hiddenPlayers,result.profile.hideTelegramAccount]))invalidateRankingReads();
       storage.set(`profile:${result.profile.id}`, result.profile); state.profile = result.profile;profileReceivedAt=Date.now();
       state.serverOffset = result.profile.serverNow - Date.now();
-      serverAnchor = result.profile.serverNow; monotonicAnchor = performance.now();
+      serverAnchor = Math.max(serverAnchor?now():0,result.profile.serverNow); monotonicAnchor = performance.now();
     }
   }
   if (serial >= configSerial && result.gameConfig) {
     configSerial = serial;
+    if(JSON.stringify((pendingConfig??state.config)?.config.ranking)!==JSON.stringify(result.gameConfig.config.ranking))invalidateRankingReads();
     if (result.gameConfig) { storage.set(`config:${result.profile?.id ?? state.profile!.id}`, result.gameConfig); if (world.value?.playing) pendingConfig = result.gameConfig; else { pendingConfig = null; state.config = result.gameConfig; } }
   }
   if(serial>=platformSerial&&result.platformConfig){platformSerial=serial;state.platform=result.platformConfig;}
@@ -137,7 +188,8 @@ export async function request(body: Record<string, unknown>,beforeAccept?:(resul
   if(disposed)throw new Error('store_disposed');
   const serial=++requestSerial,epoch=generation;
   try{
-    const result=await api.execute(body);
+    const known=(pendingConfig??state.config)?.revision;
+    const result=await api.execute({localAwardsVersion:1,silentBackfillVersion:1,invitationMedalsVersion:2,...body,...(body.includeGameConfig===true&&known?{knownConfigRevision:known}:{})});
     if(disposed)throw new Error('store_disposed');
     if(epoch!==generation)throw new Error('store_session_changed');
     beforeAccept?.(result);accept(result,serial);return result;
@@ -157,12 +209,12 @@ export async function refreshBonusEntryProfile():Promise<boolean>{
 function blockRevokedSession(error:unknown){
   const code=error instanceof Error?error.message:String(error);
   if(!['telegram_unauthorized','telegram_session_expired','profile_disabled','owner_changed','platform_owner_invalid','telegram_bot_namespace_invalid'].includes(code))return;
-  generation++;state.initialized=false;serverHistory.setOwner('');
+  generation++;state.initialized=false;state.dailyBestReady=false;dailyHead.setOwner('');state.localAwardsSupported=false;pendingAwardResponse=null;serverHistory.setOwner('');state.periods={};state.average=null;state.personalSummary=null;boardFresh.clear();summaryAt=0;
   if(bootstrapRetry){clearTimeout(bootstrapRetry);bootstrapRetry=undefined;}
   try{storage.set('bootstrap-revoked:v1',api.cacheNamespace());}catch{/* Current session remains blocked even if the marker cannot be saved. */}
   state.error=errorText(error);
 }
-async function openJournal(owner:string){if(disposed)return;await acquireWriter(owner);if(disposed)return;journal=new RoundJournal(storage,owner);journal.recoverUnfinished();history();serverHistory.setOwner(owner);state.initialized=true;void syncInviteRewards().catch(()=>{});}
+async function openJournal(owner:string){if(disposed)return;await acquireWriter(owner);if(disposed)return;journal=new RoundJournal(storage,owner);journal.recoverUnfinished();const ledger=awardLedger(owner)!;state.localAwardsSupported=ledger.supported||state.localAwardsSupported;if(pendingAwardResponse){ledger.accept(pendingAwardResponse);pendingAwardResponse=null;}for(const entry of journal.pending)if(entry.result&&entry.localAwards)projectFinishedRun(entry);if(!state.presentation.cupAutoCelebrationsEnabled)ledger.suppressCupCeremonies();awardsChanged();history();serverHistory.setOwner(owner);state.initialized=true;}
 function refreshBootstrap():Promise<void>{
   if(disposed)return Promise.resolve();
   if(bootstrapFlight)return bootstrapFlight;
@@ -170,8 +222,10 @@ function refreshBootstrap():Promise<void>{
   bootstrapFlight=(async()=>{
     try{
       const result=await request({action:'guest',includeGameConfig:true,nicknameAutoLocked:state.history.length>0});
+      lastRulesPrefetch=Date.now();
       if(!state.initialized)await openJournal(result.profile!.id);
       if(disposed||epoch!==generation)return;
+      state.dailyBestReady=true;void refreshDailyBest();void syncInviteRewards({refreshProfile:false}).catch(()=>{});void refreshAchievements().catch(()=>{});
       storage.set('bootstrap-revoked:v1',null);cacheBootstrap();
       state.error='';if(result.inviteError)state.notice=errorText(new Error(result.inviteError));void flush();
     }catch(error){
@@ -191,27 +245,27 @@ async function initializeOnce() {
   const epoch=generation,isCurrent=()=>!disposed&&epoch===generation;
   if(!isCurrent())return;
   try {
-    const prefs = storage.get('preferences', null as null | Partial<typeof state.preferences>); state.preferences={sound:typeof prefs?.sound==='boolean'?prefs.sound:true,music:typeof prefs?.music==='boolean'?prefs.music:true,vibration:typeof prefs?.vibration==='boolean'?prefs.vibration:true};
+    const prefs = storage.get('preferences', null as null | Partial<typeof state.preferences>); state.preferences={sound:typeof prefs?.sound==='boolean'?prefs.sound:true,music:typeof prefs?.music==='boolean'?prefs.music:true,vibration:typeof prefs?.vibration==='boolean'?prefs.vibration:true,controlSensitivity:typeof prefs?.controlSensitivity==='number'&&Number.isFinite(prefs.controlSensitivity)?Math.max(.5,Math.min(3,prefs.controlSensitivity)):1,showPlayerFace:typeof prefs?.showPlayerFace==='boolean'?prefs.showPlayerFace:true,enemyReactionsEnabled:typeof prefs?.enemyReactionsEnabled==='boolean'?prefs.enemyReactionsEnabled:true};
     state.helmet = storage.get('helmet', false); state.jump = storage.get('jump', false);
     const locale=storage.get('locale','ru');state.locale=['ru','en'].includes(locale)?locale:'ru';
     await api.initialize();if(!isCurrent())return;bootstrapHash=await sessionHash(api.sessionMaterial());if(!isCurrent())return;
     const cached=await readBootstrap(storage,api.sessionMaterial(),api.cacheNamespace());if(!isCurrent())return;
-    if(cached){await acquireWriter(cached.profile.id);if(!isCurrent())return;state.profile=cached.profile;state.config=cached.config;state.platform=cached.platform;bootstrapIdentity=cached.identity;profileReceivedAt=cached.receivedAt;serverAnchor=cached.profile.serverNow+Math.max(0,Date.now()-cached.receivedAt);monotonicAnchor=performance.now();await openJournal(cached.profile.id);if(isCurrent())void refreshBootstrap();}
+    if(cached){await acquireWriter(cached.profile.id);if(!isCurrent())return;state.profile=cached.profile;state.config=cached.config;state.platform=cached.platform;const p=cached.platform?.presentation;if(p){state.presentation={enemyReactionsEnabled:p.enemyReactionsEnabled===true,characterSettingsEnabled:p.characterSettingsEnabled===true,cupAutoCelebrationsEnabled:p.cupAutoCelebrationsEnabled===true,startupLoadingMinMs:Number.isFinite(p.startupLoadingMinMs)?Math.max(0,Math.min(10000,p.startupLoadingMinMs)):2000};presentationPinned=true;}bootstrapIdentity=cached.identity;profileReceivedAt=cached.receivedAt;serverAnchor=cached.profile.serverNow+Math.max(0,Date.now()-cached.receivedAt);monotonicAnchor=performance.now();await openJournal(cached.profile.id);if(isCurrent())void refreshBootstrap();}
     else await refreshBootstrap();
   } catch (error) { if (!disposed) state.error = errorText(error); }
 }
-export function setPreference(key: keyof typeof state.preferences, value: boolean) { const next = { ...state.preferences, [key]: value }; storage.set('preferences', next); state.preferences = next; }
+export function setPreference(key: keyof typeof state.preferences, value: boolean|number) { if(key==='controlSensitivity'){if(typeof value!=='number'||!Number.isFinite(value))return;value=Math.max(.5,Math.min(3,value));}else if(typeof value!=='boolean')return;const next = { ...state.preferences, [key]: value }; storage.set('preferences', next); state.preferences = next as typeof state.preferences; }
 export function setLocale(value:string) { if(!['ru','en'].includes(value))return;storage.set('locale',value);state.locale=value; }
 export function selectAbility(key: 'helmet' | 'jump', value: boolean) { storage.set(key, value); state[key] = value; }
 export function prepareAttempt(id: string) {
   if (failedFinish.value) throw new Error('storage_unavailable');
   if (!journal || !state.config || !state.profile) throw new Error('profile_unavailable');
-  const entry = journal.prepare(id, state.config, state.helmet, state.jump, state.profile.wallet.energy, now(), state.profile.wallet.bestTimeMs,state.profile.walletVersion,5); history();
+  const entry = journal.prepare(id, state.config, state.helmet, state.jump, state.profile.wallet.energy+localAwardCredits.value, now(), achievementPanel.value.bestTimeMs,state.profile.walletVersion,6,awardLedger()?.ready?awardLedger()!.freezeRun({run:Math.max(1,state.config.config.economy.runRewardEvery),risk:Math.max(1,state.config.config.economy.riskRewardEvery)}):undefined); history();
   void flush(); return entry;
 }
 export function finishAttempt(id: string, s: WorldState, proof: RoundProof) {
   const payload = { id, owner: state.profile!.id, finishedAt: now(), result: { timeMs: s.timeMs, runDistance: s.runDistance, riskCount: s.riskCount, proof } };
-  try { journal!.update(id, { finishedAt: payload.finishedAt, result: payload.result }); }
+  try { journal!.update(id, { finishedAt: payload.finishedAt, result: payload.result });projectFinishedRun(journal!.all.find(a=>a.requestId===id)!); }
   catch (error) { failedFinish.value = payload; throw error; }
   history();liveResultId=id; void flush();
 }
@@ -231,13 +285,11 @@ export async function retryFailedFinish() {
   const pending = failedFinish.value; if (!pending) return;
   if (pending.owner !== state.profile?.id) throw new Error('owner_changed');
   journal!.update(pending.id, { finishedAt: pending.finishedAt, result: pending.result });
-  failedFinish.value = null; history();liveResultId=pending.id; await flush();
+  projectFinishedRun(journal!.all.find(a=>a.requestId===pending.id)!);failedFinish.value = null; history();liveResultId=pending.id; await flush();
 }
 let needsWork = false;
 let retryAt = Infinity;
-const finishNotBefore = new Map<string, number>();
 const activationAge = new Map<string, number>();
-const timeRefusals = new Map<string, number>();
 function later(delay: number) {
   if (disposed) return;
   const deadline = performance.now() + Math.max(100, delay); if (retryTimer && retryAt <= deadline) return;
@@ -262,7 +314,7 @@ export async function flush() {
       if (disposed || epoch !== generation || owner !== state.profile?.id) return;
       try {
         if (entry.phase === 'prepared') {
-          await request({ action: 'round_start', requestId: entry.requestId, proofVersion: entry.proofVersion??1, rulesRevision: entry.config.revision, revision: entry.config.config.economy.androidEnergyV2.revision, helmet: entry.helmet, jump: entry.jump },result=>{
+          await request({ action: 'round_start', requestId: entry.requestId, proofVersion: entry.proofVersion??1, personalMedalsVersion:entry.personalMedalsVersion??entry.localAwards?.personalMedalsVersion??1,rankingSnapshotId:entry.localAwards?.rankingSnapshot?.id, rulesRevision: entry.config.revision, revision: entry.config.config.economy.androidEnergyV2.revision, helmet: entry.helmet, jump: entry.jump },result=>{
             if(!result.profile||!Number.isSafeInteger(result.profile.walletVersion))throw new Error('profile_unavailable');
             current.update(entry.requestId,{phase:'started',roundId:result.roundId,debitWalletVersion:result.profile.walletVersion});history();
           });
@@ -273,27 +325,29 @@ export async function flush() {
         if (entry.abandoned && entry.phase === 'activated') { current.update(entry.requestId, { phase: 'abandoned' }); history(); continue; }
         if (entry.result && entry.phase === 'activated') {
           if (!entry.result.proof) throw new Error('journal_invalid');
-          const notBefore = finishNotBefore.get(entry.requestId) ?? 0;
-          if (notBefore > now()) { later(notBefore - now()); continue; }
+          const notBefore = entry.finishNotBefore ?? 0;
+          if (notBefore > now()) { later(notBefore - now()); return; }
           if (!activationAge.has(entry.requestId)) activationAge.set(entry.requestId, now());
           const remaining = entry.result.timeMs - (now() - activationAge.get(entry.requestId)!);
-          if (remaining > 0) { later(remaining); continue; }
+          if (remaining > 0) { later(remaining); return; }
           const result = await request({ action: 'round_finish', roundId: entry.roundId, ...entry.result, hadHelmet: entry.helmet, hadJump: entry.jump });
           if(liveResultId===entry.requestId&&current.all.find(a=>a.requestId===entry.requestId)?.rewardVisualShown&&Number.isSafeInteger(result.energyReward)&&result.energyReward!>0) {
             emitResultReward({key:`confirmed:${entry.requestId}`,owner,amount:result.energyReward!,after:state.profile!.wallet.energy,provisional:false,kind:'wallet',counterOnly:true});
           }
-          current.update(entry.requestId, { phase: 'confirmed', reward: result.energyReward }); history();
-          void refreshBoards().catch(() => {});
+          current.update(entry.requestId, { phase: 'confirmed', reward: result.energyReward, awaitingHistory:true }); history();
+          invalidateRankingReads();
+          if(state.screen==='ranking') void refreshBoards().catch(() => {});
           if(state.screen==='history'){serverHistory.invalidate(true);void refreshAttemptHistory();}
         }
       } catch (error) {
         if (disposed) return;
         if (error instanceof ApiError && error.code === 'result_time_invalid') {
-          const refusals = (timeRefusals.get(entry.requestId) ?? 0) + 1; timeRefusals.set(entry.requestId, refusals);
-          if (refusals < 8) { const wait = Math.min(3600000, error.retryAfterMs ?? 5000) + 100; finishNotBefore.set(entry.requestId, now() + wait); later(wait); continue; }
-          current.update(entry.requestId, { phase: 'rejected', error: error.code }); history(); continue;
+          const refusals = (entry.timeRefusals ?? 0) + 1;
+          if (refusals < 8) { const wait = Math.min(3600000, error.retryAfterMs ?? 5000) + 100; current.update(entry.requestId,{timeRefusals:refusals,finishNotBefore:now()+wait});history();later(wait);return; }
+          awardLedger(owner)?.rejectRun(entry.requestId);awardsChanged();current.update(entry.requestId, { phase: 'rejected', error: error.code,timeRefusals:refusals }); history(); continue;
         }
         if (error instanceof ApiError && ['insufficient_energy', 'rules_changed', 'revision_mismatch', 'update_required', 'result_proof_invalid', 'round_canceled', 'result_metrics_invalid'].includes(error.code)) {
+          awardLedger(owner)?.rejectRun(entry.requestId);awardsChanged();
           if (['insufficient_energy','rules_changed','revision_mismatch','update_required'].includes(error.code)) {
             try { await request({ action: 'profile', includeGameConfig: true }); } catch (refreshError) { deliveryNotice(refreshError); later(5000); return; }
           }
@@ -306,6 +360,7 @@ export async function flush() {
       }
     }
     } while (needsWork);
+    if(!world.value?.playing)void refreshAchievements().catch(()=>{});
   })().catch(error => { if (!disposed) { deliveryNotice(error); later(5000); } }).finally(() => { flushing = null; if (!disposed && needsWork) { needsWork = false; queueMicrotask(() => { void flush(); }); } });
   return flushing;
 }
@@ -329,51 +384,103 @@ export async function walletOperation(kind: string, args: Record<string, unknown
   }
   storage.set(key, null); return result;
 }
-let boardSerial = 0, inviteSerial = 0;
+let inviteSerial = 0;
+let boardRevision=0;
+const boardFlights = new Map<string,Promise<void>>(), boardFresh = new Map<string,number>();
+function invalidateRankingReads(){boardFresh.clear();boardRevision++;summaryAt=0;}
 let invitePage: Promise<void> | null = null;
-export async function refreshBoards() { const serial = ++boardSerial; const result = await request({ action: 'scores', period: 'allPeriods' }); if (serial === boardSerial) { state.periods = result.periods ?? {}; state.average = result.average ?? null; } }
-export async function refreshInvites() { const serial = ++inviteSerial; const result = await request({ action: 'invites_state',inviteContract:2 }); if (serial === inviteSerial) state.invites = result.invites ?? null; }
+export function refreshBoards(force = false):Promise<void> {
+  const period=state.rankingTab==='average'?'average':state.period, owner=state.profile?.id, epoch=generation,revision=boardRevision,headRevision=dailyHead.revision,headStartedAt=Date.now(),headDay=utcDay(headStartedAt);
+  if(!owner)return Promise.resolve();
+  const key=`${epoch}:${owner}:${period}`,pending=boardFlights.get(key);
+  if(pending)return pending;
+  const stamp=Date.now(),last=boardFresh.get(key);
+  if(!force&&last&&stamp-last<20000&&new Date(last).toISOString().slice(0,10)===new Date(stamp).toISOString().slice(0,10))return Promise.resolve();
+  const operation=(async()=>{
+    const result=await request({action:'scores',period});
+    if(epoch!==generation||owner!==state.profile?.id)return;
+    if(period==='average')state.average=result.average??{rules:result.rules!,rows:result.rows!,mine:result.mine!};
+    else {state.periods[period]=result.scores??result.periods?.[period]??[];if(period==='day')dailyHead.reuseRanking(state.periods.day?.[0]?.timeMs??null,headDay,headRevision,headStartedAt);}
+    if(revision===boardRevision)boardFresh.set(key,stamp);
+  })().finally(()=>{
+    if(boardFlights.get(key)===operation)boardFlights.delete(key);
+    const visible=state.rankingTab==='average'?'average':state.period;
+    if(!disposed&&epoch===generation&&owner===state.profile?.id&&revision!==boardRevision&&state.screen==='ranking'&&visible===period)
+      void refreshBoards().catch(()=>{});
+  });
+  boardFlights.set(key,operation);return operation;
+}
+export async function refreshInvites() { const serial = ++inviteSerial; const result = await request({ action: 'invites_state',inviteContract:3 }); if (serial === inviteSerial) state.invites = result.invites ?? null; }
 export async function moreInvites() {
   if(invitePage)return invitePage;
   const current=state.invites,owner=state.profile?.id,serial=inviteSerial;
   if(!current?.nextCursor)return;
   invitePage=(async()=>{
-    const result=await request({action:'invites_list',inviteContract:2,before:current.nextCursor}),page=result.invites;
+    const result=await request({action:'invites_list',inviteContract:3,before:current.nextCursor}),page=result.invites;
     if(!page||serial!==inviteSerial||owner!==state.profile?.id||state.invites!==current)return;
     const unique=(rows:any[])=>Array.from(new Map(rows.map(row=>[row.inviteeUid??row.id??row.code, row])).values());
     state.invites={...page,paidRows:unique([...current.paidRows,...page.paidRows]),pendingRows:unique([...current.pendingRows,...page.pendingRows])};
   })().finally(()=>{invitePage=null;});
   return invitePage;
 }
+let summaryFlight:Promise<void>|null=null, summaryOwner='', summaryAt=0, summaryUnsupported=false;
+export function refreshPersonalSummary():Promise<void>{
+  const owner=state.profile?.id,epoch=generation,revision=boardRevision;
+  if(!owner)return Promise.resolve();
+  if(summaryOwner===owner){if(summaryFlight)return summaryFlight;if(Date.now()-summaryAt<20000)return Promise.resolve();}
+  summaryOwner=owner;
+  const operation=(async()=>{
+    let result:ApiResult;
+    try{if(summaryUnsupported)throw new ApiError('action_invalid');result=await request({action:'player_summary'});}
+    catch(error){if(!(error instanceof Error)||!['action_invalid','action_unknown','unknown_action','platform_action_invalid'].includes(error.message))throw error;summaryUnsupported=true;result=await request({action:'attempts_history',limit:1});}
+    if(owner!==state.profile?.id||epoch!==generation)return;
+    state.personalSummary=result.average??null;if(revision===boardRevision)summaryAt=Date.now();
+  })().finally(()=>{if(summaryFlight===operation)summaryFlight=null;});summaryFlight=operation;return operation;
+}
 let navigation: string[] = [];
-export function returnToPlay() {
-  if (failedFinish.value) return;
-  openScreen(energy.value < attemptCost.value ? 'energy' : '');
+let replayGate:(()=>Promise<unknown>)|undefined,replayPending=false;
+export function installReplayGate(gate:()=>Promise<unknown>){replayGate=gate;return()=>{if(replayGate===gate)replayGate=undefined;};}
+export async function returnToPlay(){
+ if(failedFinish.value||replayPending||state.externalBusy)return;
+ const owner=state.profile?.id,epoch=generation;replayPending=true;
+ try{if(replayGate&&state.screen==='result'&&!state.bestResult)await replayGate();}
+ catch{/* Optional advertising never blocks another run. */}
+ finally{replayPending=false;if(epoch===generation&&owner===state.profile?.id&&state.screen==='result')openScreen(energy.value<attemptCost.value?'energy':'');}
 }
 export function openScreen(screen: string, parent = '') {
+  if(state.windowClosing)return;
   if (failedFinish.value && screen !== 'result') return;
   if (screen !== 'result' && screen !== 'share') state.bestResult = null;
   if (!parent) navigation = [];
   else if (parent === state.screen) navigation.push(parent);
   else navigation = [parent];
-  state.error = ''; state.screen = screen; state.parent = navigation.at(-1) ?? '';
+  changeWindow(()=>{state.error='';state.screen=screen;state.parent=navigation.at(-1)??'';});
 }
-export function openBestAttemptResult(score: Score) {
+export function openBestAttemptResult(score: Score,parent='history',kind:'best'|'history'|'ranking'='best',phase?:Attempt['phase']) {
   if (failedFinish.value || !state.profile || score.userId !== state.profile.id) return;
-  state.bestResult = {...score};
-  openScreen('result', 'history');
+  state.bestResult = {...score};state.resultPreviewKind=kind;state.resultPreviewPhase=phase??'confirmed';
+  openScreen('result',parent);
 }
-export function back() { if(closeTopOverlay())return; if (failedFinish.value) return; state.screen = navigation.pop() ?? ''; if(state.screen!=='result'&&state.screen!=='share')state.bestResult=null; state.parent = navigation.at(-1) ?? ''; state.error = ''; }
-const online = () => { if (!disposed) { void api.checkConnection(); void flush(); void syncInviteRewards().catch(()=>{}); } };
+let closeTimer:ReturnType<typeof setTimeout>|undefined;
+function changeWindow(apply:()=>void){
+ const animated=!!state.screen&&typeof document.querySelector==='function'&&typeof window.matchMedia==='function'&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+ if(!animated){apply();return;}state.windowClosing=true;const owner=state.profile?.id,epoch=generation;
+ closeTimer=setTimeout(()=>{closeTimer=undefined;state.windowClosing=false;if(epoch===generation&&owner===state.profile?.id)apply();},100);
+}
+export function closeScreen(options:{immediate?:boolean}={}){if(failedFinish.value||state.windowClosing)return;const apply=()=>{state.screen=navigation.pop()??'';if(state.screen!=='result'&&state.screen!=='share')state.bestResult=null;state.parent=navigation.at(-1)??'';state.error='';};if(options.immediate)apply();else changeWindow(apply);}
+export function back(){if(closeTopOverlay())return;closeScreen();}
+
+const online = () => { if (!disposed) { void api.checkConnection(); void refreshDailyBest(); void flush(); void syncInviteRewards().then(()=>refreshAchievements()).catch(()=>{}); } };
 const offline = () => { if (!disposed) void api.checkConnection(); };
-const activity = () => { if (!disposed) { const active = !document.hidden && telegram()?.isActive !== false; api.setActive(active); if (active) {void flush();void syncInviteRewards().catch(()=>{});} } };
+const activity = () => { if (!disposed) { const active = !document.hidden && telegram()?.isActive !== false; api.setActive(active); if (active) {void refreshDailyBest();void flush();void syncInviteRewards().then(()=>refreshAchievements()).catch(()=>{});} } };
 const beforeUnload = (event: BeforeUnloadEvent) => { if (failedFinish.value) { event.preventDefault(); event.returnValue = ''; } };
 window.addEventListener('online', online); window.addEventListener('offline', offline); window.addEventListener('beforeunload', beforeUnload);
 document.addEventListener('visibilitychange',activity); telegram()?.onEvent('activated',activity); telegram()?.onEvent('deactivated',activity); activity();
-const invitePoll=setInterval(()=>{if(state.initialized&&!state.busy&&!state.externalBusy)void syncInviteRewards().catch(()=>{});},30000);
+// Android's idle prefetch stops while another route covers the game.
+const invitePoll=setInterval(()=>{if(state.initialized&&!state.screen&&!state.windowClosing&&!state.busy&&!state.externalBusy)void syncInviteRewards().catch(()=>{});},30000);
 export function disposeStore() {
   serverHistory.setOwner('');
-  disposed = true; generation++; needsWork = false; clearInterval(invitePoll);if (retryTimer) clearTimeout(retryTimer);if(bootstrapRetry)clearTimeout(bootstrapRetry);
+  disposed = true;state.dailyBestReady=false;stopDailyIdle();stopDailyOwner();dailyHead.dispose(); generation++;if(closeTimer)clearTimeout(closeTimer);needsWork = false; clearInterval(invitePoll);if (retryTimer) clearTimeout(retryTimer);if(bootstrapRetry)clearTimeout(bootstrapRetry);
   api.dispose(); document.removeEventListener('visibilitychange',activity); telegram()?.offEvent('activated',activity); telegram()?.offEvent('deactivated',activity);
   window.removeEventListener('online', online); window.removeEventListener('offline', offline); window.removeEventListener('beforeunload', beforeUnload);
 }

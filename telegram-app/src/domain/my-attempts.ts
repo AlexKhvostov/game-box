@@ -28,7 +28,7 @@ export function myAttemptsModel(input: {attempts: Attempt[]; profile: Profile | 
   const activeIds=new Set(server?.history.rows.filter(row=>row.included).slice(0,board!.mine.usedCount).map(row=>row.id));
   // Local confirmed rows absent from a loaded page are not proof of missing server
   // history. Keep only unsent/rejected delivery statuses in a separate list.
-  const pending=local.filter(a=>a.phase!=='confirmed'&&!serverIds.has(a.roundId??'')&&!serverIds.has(a.requestId));
+  const pending=local.filter(a=>(a.phase!=='confirmed'||a.awaitingHistory===true)&&!serverIds.has(a.roundId??'')&&!serverIds.has(a.requestId));
   const rows:AttemptRow[]=server?server.history.rows.slice().reverse().map(row=>({
     attempt:{requestId:row.id,roundId:row.id,owner:owner!,createdAt:row.createdAt,config:input.config!,cost:0,helmet:row.hadHelmet,jump:row.hadJump,phase:'confirmed',result:{timeMs:row.timeMs,runDistance:row.runDistance,riskCount:row.riskCount}},
     number:row.number,averageMs:row.averageMs,included:row.included,inCurrentWindow:activeIds.has(row.id),

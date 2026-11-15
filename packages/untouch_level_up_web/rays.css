@@ -1,0 +1,87 @@
+/* Three independently rotating fans. Only their transforms animate. */
+.lu-shield-rays {
+  position:absolute;left:50%;top:50%;
+  width:150%;aspect-ratio:1;
+  transform:translate(-50%,-50%);z-index:0;
+}
+.lu-ray-band {
+  position:absolute;inset:0;border-radius:50%;
+  filter:blur(1.1px);
+  /* Fade only along the beam length; keep both side boundaries straight. */
+  mask-image:radial-gradient(circle,transparent 13%,#000 25%,#000 38%,transparent 58%);
+  -webkit-mask-image:radial-gradient(circle,transparent 13%,#000 25%,#000 38%,transparent 58%);
+  animation:lu-rays-turn var(--period) linear infinite paused;
+}
+/* A faint angular afterimage adds motion softness without blurring the core. */
+.lu-ray-band::after {
+  content:'';position:absolute;inset:0;background:inherit;
+  transform:rotate(2deg);opacity:.10;filter:blur(.6px);
+}
+.lu-ray-band--wide {
+  --period:18s;
+  background:conic-gradient(
+    transparent 0deg 9deg,
+    rgba(40,179,255,0.32) 9deg 23deg,
+    transparent 23deg 57deg,
+    rgba(40,179,255,0.24) 57deg 66deg,
+    transparent 66deg 93deg,
+    rgba(40,179,255,0.35) 93deg 113deg,
+    transparent 113deg 144deg,
+    rgba(40,179,255,0.27) 144deg 154deg,
+    transparent 154deg 191deg,
+    rgba(40,179,255,0.33) 191deg 209deg,
+    transparent 209deg 244deg,
+    rgba(40,179,255,0.25) 244deg 257deg,
+    transparent 257deg 293deg,
+    rgba(40,179,255,0.32) 293deg 309deg,
+    transparent 309deg 337deg,
+    rgba(40,179,255,0.24) 337deg 344deg,
+    transparent 344deg 360deg);
+}
+.lu-ray-band--medium {
+  --period:12s;
+  background:conic-gradient(
+    transparent 0deg 26deg,
+    rgba(62,216,255,0.5) 26deg 32deg,
+    transparent 32deg 68deg,
+    rgba(62,216,255,0.4) 68deg 74deg,
+    transparent 74deg 119deg,
+    rgba(62,216,255,0.51) 119deg 124deg,
+    transparent 124deg 162deg,
+    rgba(62,216,255,0.44) 162deg 170deg,
+    transparent 170deg 218deg,
+    rgba(62,216,255,0.48) 218deg 224deg,
+    transparent 224deg 266deg,
+    rgba(62,216,255,0.4) 266deg 271deg,
+    transparent 271deg 313deg,
+    rgba(62,216,255,0.46) 313deg 320deg,
+    transparent 320deg 350deg,
+    rgba(62,216,255,0.4) 350deg 354deg,
+    transparent 354deg 360deg);
+}
+.lu-ray-band--fine {
+  --period:8.5s;
+  background:conic-gradient(
+    rgba(139,245,255,0.58) 0deg 2deg,
+    transparent 2deg 42deg,
+    rgba(139,245,255,0.53) 42deg 45deg,
+    transparent 45deg 83deg,
+    rgba(139,245,255,0.61) 83deg 85deg,
+    transparent 85deg 134deg,
+    rgba(139,245,255,0.47) 134deg 137deg,
+    transparent 137deg 182deg,
+    rgba(139,245,255,0.58) 182deg 184deg,
+    transparent 184deg 232deg,
+    rgba(139,245,255,0.54) 232deg 235deg,
+    transparent 235deg 281deg,
+    rgba(139,245,255,0.59) 281deg 283deg,
+    transparent 283deg 326deg,
+    rgba(139,245,255,0.48) 326deg 328deg,
+    transparent 328deg 360deg);
+}
+.lu-shield.arrived .lu-ray-band {animation-play-state:running}
+.lu-shield:not(.arrived) .lu-ray-band {animation-name:none}
+.lu-shield.rays-stopped .lu-ray-band,
+.lu-stage.suspended .lu-ray-band {animation-play-state:paused}
+@keyframes lu-rays-turn {to{transform:rotate(-360deg)}}
+@media(prefers-reduced-motion:reduce) {.lu-ray-band{animation:none}}

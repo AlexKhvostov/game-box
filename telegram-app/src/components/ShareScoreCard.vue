@@ -1,17 +1,22 @@
 <script setup lang="ts">
-import {computed} from 'vue';
-import GameArt from './GameArt.vue';
+import {computed,ref,watch,nextTick,onMounted,onBeforeUnmount} from 'vue';
 import GameIcon from './GameIcon.vue';
 import {state} from '../services/game-store';
-import {shareArtwork} from '../services/share-card';
-const props=defineProps<{timeMs:number;riskCount:number;steps:number}>();
+import type {ShareInvitation} from '../domain/share-invitation';
+const props=defineProps<{timeMs:number;riskCount:number;steps:number;invitation?:ShareInvitation|null;artUrl?:string}>();
+const emit=defineEmits<{layout:[textScale:number]}>();
+const card=ref<HTMLElement>(),timeNode=ref<HTMLElement>(),largeText=ref(false);let resize:ResizeObserver|undefined,fitKey='';
+function fitTime(){const el=card.value,time=timeNode.value;if(!el||!time)return;const style=getComputedStyle(el),scale=parseFloat(style.getPropertyValue('--text-scale'))||1,available=Math.min(time.parentElement!.clientWidth,el.clientWidth-parseFloat(style.paddingLeft)-parseFloat(style.paddingRight)),key=`${props.timeMs}:${props.invitation?.code}:${available}:${scale}`;if(key===fitKey)return;fitKey=key;time.style.fontSize='';if(time.scrollWidth>available)time.style.fontSize=Math.max(8,parseFloat(getComputedStyle(time).fontSize)*available/time.scrollWidth*.98)+'px';}
+watch(()=>[props.timeMs,props.invitation?.code],()=>{void nextTick(fitTime);});
+onMounted(()=>{const measure=()=>{const scale=card.value?parseFloat(getComputedStyle(card.value).getPropertyValue('--text-scale'))||1:1;largeText.value=scale>1.3;emit('layout',scale);void nextTick(fitTime);};resize=new ResizeObserver(measure);if(card.value)resize.observe(card.value);measure();});
+onBeforeUnmount(()=>resize?.disconnect());
 const seconds=computed(()=>(props.timeMs/1000).toFixed(3));
 const t=(ru:string,en:string)=>state.locale==='ru'?ru:en;
 </script>
 <template>
-  <article class="share-score-card" :aria-label="t('Предпросмотр публикации','Post preview')">
-    <GameArt class="share-card-scene" :src="shareArtwork" :alt="t('Кубик уворачивается от красных препятствий','A cube dodges red obstacles')"/>
-    <div class="share-card-top"><span class="share-card-brand">untouch</span><strong class="share-card-time" :class="{'share-card-time-long':seconds.length>8}">{{seconds}} <small>{{t('с','s')}}</small></strong></div>
+  <article ref="card" class="share-score-card" :aria-label="t('Предпросмотр публикации','Post preview')">
+    <img v-if="artUrl" class="share-card-scene" :src="artUrl" :alt="t('Кубик уворачивается от красных препятствий','A cube dodges red obstacles')"/>
+    <div class="share-card-top" :class="{'share-card-top-stacked':largeText||(invitation?.code.length??0)>8}"><div class="share-card-score"><span class="share-card-brand">untouch</span><strong ref="timeNode" class="share-card-time" :class="{'share-card-time-long':seconds.length>8}">{{seconds}} <small>{{t('с','s')}}</small></strong></div><div v-if="invitation" class="share-card-invitation" data-share-invitation><small>{{invitation.codeLabel}}</small><strong>{{invitation.code}}</strong><span>{{invitation.title}}</span></div></div>
     <div class="share-card-art-space" aria-hidden="true"/>
     <div class="share-card-bottom"><div class="share-card-metrics">
       <span class="share-card-metric share-card-risk"><GameIcon name="risk"/><span>{{t('Риск','Risk')}} <b>{{riskCount}}</b></span></span>

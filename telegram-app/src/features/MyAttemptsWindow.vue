@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, ref, watch, nextTick, onMounted, useId} from 'vue';
+import {onBeforeUnmount,computed, ref, watch, nextTick, onMounted, useId} from 'vue';
 import GameWindow from '../components/GameWindow.vue';
 import GameArt from '../components/GameArt.vue';
 import AverageInfoDialog from '../components/AverageInfoDialog.vue';
@@ -27,14 +27,9 @@ function stamp(timestamp?: number | null) {
   return `${day}, ${date.toLocaleTimeString(locale,{hour:'2-digit',minute:'2-digit'})}`;
 }
 const phase = (attempt: Attempt) => attempt.phase === 'confirmed' ? '' : attempt.phase === 'rejected' || attempt.phase === 'abandoned' ? t(' · Не зачтена',' · Not counted') : t(' · Ожидает',' · Pending');
-function scrollSelected() {void nextTick(() => {
-  const row = Array.from(list.value?.querySelectorAll<HTMLElement>('[data-attempt-id]') ?? []).find(el => el.dataset.attemptId === selectedId.value);
-  if (!row || !list.value) return;
-  // Scroll only the history container; never move the modal or page.
-  const top = row.offsetTop, bottom = top + row.offsetHeight;
-  if (top < list.value.scrollTop) list.value.scrollTop = top;
-  else if (bottom > list.value.scrollTop + list.value.clientHeight) list.value.scrollTop = bottom - list.value.clientHeight;
-});}
+let scrollFrame=0;
+function scrollSelected(){void nextTick(()=>{cancelAnimationFrame(scrollFrame);const container=list.value,row=Array.from(container?.querySelectorAll<HTMLElement>('[data-attempt-id]')??[]).find(el=>el.dataset.attemptId===selectedId.value);if(!row||!container)return;const before=container.scrollTop,target=Math.max(0,Math.min(container.scrollHeight-container.clientHeight,row.offsetTop-container.clientHeight/2+row.offsetHeight/2));if(matchMedia('(prefers-reduced-motion: reduce)').matches){container.scrollTop=target;return;}const start=performance.now();const tick=(stamp:number)=>{const p=Math.max(0,Math.min(1,(stamp-start)/180));let lo=0,hi=1;for(let n=0;n<18;n++){const q=(lo+hi)/2,x=3*(1-q)*q*q*.58+q*q*q;if(x<p)lo=q;else hi=q;}const q=(lo+hi)/2,t=3*(1-q)*q*q+q*q*q;container.scrollTop=before+(target-before)*t;if(p<1)scrollFrame=requestAnimationFrame(tick);else scrollFrame=0;};scrollFrame=requestAnimationFrame(tick);});}
+onBeforeUnmount(()=>cancelAnimationFrame(scrollFrame));
 function select(id: string, scroll = false) {selectedId.value = id; missingBest.value = false; if (scroll) scrollSelected();}
 function showAttempt(attempt: Attempt) { select(attempt.requestId); emit('detail',attempt); }
 function selectBest() {const score = bestAttemptScore(state.serverHistory, state.profile); if (score) openBestAttemptResult(score);}
@@ -61,7 +56,7 @@ watch(() => model.value.rows.map(row => row.attempt.requestId).join(','), () => 
 onMounted(() => {void refreshAttemptHistory();});
 </script>
 <template>
-  <GameWindow class="my-attempts-window" :title="t('Мои попытки','My attempts')" tall :inactive="showInfo">
+  <GameWindow class="my-attempts-window" :status-busy="state.busy||state.historyLoading" :status-message="state.historyLoading?t('Обновляем историю…','Refreshing history…'):undefined" :title="t('Мои попытки','My attempts')" tall :inactive="showInfo">
     <template #title><GameArt class="ma-hero" src="/assets/branding/ranking/my-attempts-hero.png"/>{{t('Мои попытки','My attempts')}}</template>
     <template v-if="state.parent" #back>‹</template>
     <section class="ma-graph" :aria-label="t('Результаты попыток','Attempt results')">
@@ -92,7 +87,7 @@ onMounted(() => {void refreshAttemptHistory();});
             <polyline v-if="averageLine" :points="averageLine" class="ma-average-line"/>
             <circle v-for="(row,i) in visible.filter(row=>row.averageMs!==null)" :key="`point-${row.attempt.requestId}`" :cx="x(visible.indexOf(row))" :cy="y(row.averageMs!)" :r="row.attempt.requestId===selectedId?3.8:2" class="ma-average-dot" :data-point="i"/>
           </svg>
-          <p v-else class="ma-empty-chart"><span v-if="state.historyLoading" class="loading-spinner" aria-hidden="true"/>{{state.historyLoading?t('Загружаем историю…','Loading history…'):state.historyError?t('Не удалось загрузить историю','Could not load history'):t('Здесь появится ваш прогресс','Your progress will appear here')}}</p>
+          <p v-else class="ma-empty-chart" role="status">{{state.historyLoading?t('Загружаем историю…','Loading history…'):state.historyError?t('Не удалось загрузить историю','Could not load history'):t('Здесь появится ваш прогресс','Your progress will appear here')}}</p>
         </div>
       </div>
       <div v-show="expanded" class="ma-selection" aria-live="polite"><strong v-if="model.averageMs!==null">{{t('Среднее','Average')}} {{seconds(model.averageMs)}} {{t('с','s')}}</strong></div>

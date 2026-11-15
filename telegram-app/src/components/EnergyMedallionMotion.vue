@@ -1,0 +1,16 @@
+<script setup lang="ts">
+import {computed,ref,useId,onMounted,onBeforeUnmount} from 'vue';
+import {telegram} from '../platform/telegram';
+const props=withDefaults(defineProps<{size?:number;base?:boolean}>(),{size:48,base:false});
+const size=computed(()=>Math.max(1,props.size)),center=computed(()=>size.value/2),radius=computed(()=>size.value*.42);
+const palette=computed(()=>props.base?['#fff0a2','#ba7a08','#654009','#ffda36']:['#b98521','#483007','#211a04','#d39b20']);
+const scene=ref<SVGSVGElement>(),id=useId().replace(/:/g,'');let animations:Animation[]=[];
+const dots=computed(()=>Array.from({length:18},(_,i)=>{const a=i*Math.PI*2/18+.13,d=radius.value+6+(i%3)*1.2;return{x:center.value+Math.cos(a)*d,y:center.value+Math.sin(a)*d,r:i%3===0?1.25:.7};}));
+function color(p:number,i:number){const t=.5+.25*Math.sin(p*Math.PI*3+i);return `rgb(255,${Math.round(189+(250-189)*t)},${Math.round(22+(210-22)*t)})`;}
+function finish(){scene.value?.querySelectorAll<SVGCircleElement>('[data-spark]').forEach((node,i)=>node.setAttribute('fill',color(1,i)));for(const animation of animations){animation.onfinish=null;animation.cancel();}animations=[];}
+function activity(){if(document.hidden||telegram()?.isActive===false)finish();}
+onMounted(()=>{const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;if(!reduced&&!document.hidden&&telegram()?.isActive!==false)scene.value?.querySelectorAll<SVGCircleElement>('[data-spark]').forEach((node,i)=>{const animation=node.animate(Array.from({length:65},(_,n)=>({fill:color(n/64,i),offset:n/64})),{duration:1800,easing:'linear',fill:'forwards'});animation.onfinish=()=>{node.setAttribute('fill',color(1,i));animation.onfinish=null;animation.cancel();animations=animations.filter(a=>a!==animation);};animations.push(animation);});document.addEventListener('visibilitychange',activity);telegram()?.onEvent('deactivated',activity);});
+onBeforeUnmount(()=>{finish();document.removeEventListener('visibilitychange',activity);telegram()?.offEvent('deactivated',activity);});
+</script>
+<template><svg ref="scene" class="energy-medallion-motion" :data-base="base" :data-size="size" :viewBox="`0 0 ${size} ${size}`" aria-hidden="true"><defs><radialGradient :id="id+'-fill'" cx="32.5%" cy="30%"><stop :stop-color="palette[0]"/><stop offset=".35" :stop-color="palette[1]"/><stop offset=".7" :stop-color="palette[2]"/><stop offset="1" :stop-color="palette[3]"/></radialGradient><filter :id="id+'-glow'" x="-100%" y="-100%" width="300%" height="300%" filterUnits="objectBoundingBox"><feGaussianBlur stdDeviation="7"/></filter><filter :id="id+'-spark'" x="-200%" y="-200%" width="500%" height="500%"><feGaussianBlur stdDeviation="2"/></filter></defs><circle :cx="center" :cy="center" :r="radius" fill="#ffb80099" :filter="`url(#${id}-glow)`"/><circle :cx="center" :cy="center" :r="radius" :fill="`url(#${id}-fill)`" stroke="#fffad2" stroke-width="1.6"/><circle :cx="center" :cy="center" :r="radius+3" fill="none" stroke="#ffd43e" stroke-width="1"/><g v-for="(dot,i) in dots" :key="i"><circle data-spark :cx="dot.x" :cy="dot.y" :r="dot.r" :fill="color(1,i)"/><circle :cx="dot.x" :cy="dot.y" r="2" fill="#ffd32977" :filter="`url(#${id}-spark)`"/></g></svg></template>
+<style scoped>.energy-medallion-motion{position:absolute;inset:0;display:block;width:100%;height:100%;overflow:visible;pointer-events:none}</style>

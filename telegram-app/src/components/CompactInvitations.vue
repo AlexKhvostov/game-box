@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {computed,ref,watch,onBeforeUnmount} from 'vue';
+import {registerOverlayBack} from '../services/ui-overlays';
 import {analyticsOverlay} from '../services/analytics';
 import EnergyAmount from './EnergyAmount.vue';
 import GameIcon from './GameIcon.vue';
@@ -15,19 +16,20 @@ function copy(){const value=invite.value?.ownCode;if(!value)return;void navigato
 function name(row:any){return state.profile?.hiddenPlayers.includes(row.userId)?t('Скрытое имя','Hidden name'):row.nickname||t('Игрок','Player');}
 function canAct(row:any){return !!row.userId&&row.userId!==state.profile?.id;}
 function nameActions(row:any){if(!canAct(row))return;state.selectedPlayer={userId:row.userId,playerName:row.nickname||t('Игрок','Player')};openScreen('name-actions','friends');}
-function waiting(row:any){return row.bonusStatus==='inviter_unavailable'?t('Пригласивший недоступен','Inviter unavailable'):row.identityReady||row.googleLinked?t('Вход подтверждён','Sign-in verified'):row.platform==='telegram'?t('Нужен вход в Telegram','Telegram sign-in needed'):t('Нужен вход в Google','Google sign-in needed');}
+function waiting(row:any){return row.bonusStatus==='inviter_unavailable'?t('Пригласивший недоступен','Inviter unavailable'):t('Ожидаются завершённые игры','Waiting for completed games');}
 async function apply(){if(state.busy||invite.value?.inviterAssigned||!invite.value||!code.value.trim())return;await action(async()=>{if(!await ensureResourceAge())return;await request({action:'invites_bind',code:code.value.trim().toUpperCase()});await refreshInvites();});}
+const helpClosing=ref(false);let helpCloseTimer:ReturnType<typeof setTimeout>|undefined,removeHelpBack:(()=>void)|undefined;
 let stopHelpAnalytics:(()=>void)|undefined;
-function releaseHelpAnalytics(){stopHelpAnalytics?.();stopHelpAnalytics=undefined;}
-function showHelp(){help.value?.showModal();if(help.value?.open&&!stopHelpAnalytics)stopHelpAnalytics=analyticsOverlay('invitation_help');}
-function closeHelp(){help.value?.close();releaseHelpAnalytics();}
+function releaseHelpAnalytics(){stopHelpAnalytics?.();stopHelpAnalytics=undefined;removeHelpBack?.();removeHelpBack=undefined;}
+function showHelp(){clearTimeout(helpCloseTimer);helpClosing.value=false;help.value?.showModal();if(help.value?.open&&!stopHelpAnalytics){stopHelpAnalytics=analyticsOverlay('invitation_help');removeHelpBack=registerOverlayBack(closeHelp,'invitation_help');}}
+function closeHelp(){if(!help.value?.open||helpClosing.value)return;helpClosing.value=true;helpCloseTimer=setTimeout(()=>{help.value?.close();helpClosing.value=false;releaseHelpAnalytics();},matchMedia('(prefers-reduced-motion: reduce)').matches?0:100);}
 function trap(event:KeyboardEvent){
   if(event.key!=='Tab')return;
   const buttons=Array.from(help.value?.querySelectorAll<HTMLButtonElement>('button:not([disabled])')??[]),first=buttons[0],last=buttons.at(-1);
   if(event.shiftKey&&document.activeElement===first){event.preventDefault();last?.focus();}
   else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus();}
 }
-onBeforeUnmount(closeHelp);
+onBeforeUnmount(()=>{clearTimeout(helpCloseTimer);help.value?.close();releaseHelpAnalytics();});
 defineExpose({showHelp});
 </script>
 <template>
@@ -44,9 +46,9 @@ defineExpose({showHelp});
     </ul>
     <button v-analytics="{feature: 'refresh_invites', placement: 'friends'}" v-if="!invite" class="text-button full" :disabled="state.busy" @click="action(refreshInvites)">{{t('Повторить загрузку','Retry loading')}}</button>
     <details class="ci-inviter"><summary>{{t('Кто пригласил вас','Who invited you')}}</summary><div class="ci-editor"><label :for="'inviter-code'">{{t('Код пригласившего','Inviter code')}}</label><div class="ci-apply"><input id="inviter-code" :value="invite?.inviterAssigned?invite.inviterCode:code" :readonly="invite?.inviterAssigned" :disabled="state.busy||!invite" :placeholder="t('Введите код','Enter code')" maxlength="12" autocomplete="off" autocapitalize="characters" @input="code=($event.target as HTMLInputElement).value" @keydown.enter.prevent="apply"><button v-analytics="{feature: 'apply', placement: 'friends'}" v-if="!invite?.inviterAssigned" class="secondary" :disabled="state.busy||!invite||!code.trim()" @click="apply">{{t('Применить','Apply')}}</button></div><p>{{t('Ваш прогресс','Your progress')}}: {{ownProgress}}</p><p class="ci-binding">{{invite?.inviterAssigned?t('Код закреплён и больше не меняется.','This code is fixed and cannot be changed.'):t('Пригласившего можно выбрать один раз.','Choose your inviter only once.')}}</p></div></details>
-    <dialog @close="releaseHelpAnalytics" ref="help" class="ci-help" :aria-label="t('Как работает приглашение','How invitations work')" @cancel.prevent="closeHelp" @keydown.stop="trap" @click.self="closeHelp">
+    <dialog @close="releaseHelpAnalytics" ref="help" class="ci-help" :class="{'ci-help-closing':helpClosing}" :inert="helpClosing?true:undefined" :aria-label="t('Как работает приглашение','How invitations work')" @cancel.prevent="closeHelp" @keydown.stop="trap" @click.self="closeHelp">
       <header><h2>{{t('Как получить','How to earn')}} <EnergyAmount :amount="state.profile?.wallet.simpleBonus.policy.inviterReward??invite?.reward??0" prefix="+"/></h2><button v-analytics="{feature: 'close_help', placement: 'friends'}" class="icon-button" :aria-label="t('Закрыть подсказку','Close help')" @click="closeHelp">×</button></header>
-      <ol><li><span class="ci-step" aria-hidden="true">1</span><strong>{{t('Передайте другу свой код','Give your friend your code')}}</strong><small>{{t('Друг введёт его в «Кто пригласил вас».','Your friend enters it in “Who invited you”.')}}</small></li><li><span class="ci-step" aria-hidden="true">2</span><strong>{{invite?.minimumEnergy?t(`Друг завершает игру и тратит от ${invite.minimumEnergy} энергии на завершённые игры`,`Your friend completes a game and spends at least ${invite.minimumEnergy} energy on completed games`):t(`Друг завершает ${invite?.requiredGames??5} игр`,`Your friend finishes ${invite?.requiredGames??5} games`)}}</strong></li><li><span class="ci-step" aria-hidden="true">3</span><strong>{{t('У обоих подтверждён вход','Both players verify sign-in')}}</strong><small>{{t('Google в Android или Telegram в Mini App.','Google on Android or Telegram in the Mini App.')}}</small></li></ol>
+      <ol><li><span class="ci-step" aria-hidden="true">1</span><strong>{{t('Передайте другу свой код','Give your friend your code')}}</strong><small>{{t('Друг введёт его в «Кто пригласил вас».','Your friend enters it in “Who invited you”.')}}</small></li><li><span class="ci-step" aria-hidden="true">2</span><strong>{{invite?.minimumEnergy?t(`Друг завершает игру и тратит от ${invite.minimumEnergy} энергии на завершённые игры`,`Your friend completes a game and spends at least ${invite.minimumEnergy} energy on completed games`):t(`Друг завершает ${invite?.requiredGames??5} игр`,`Your friend finishes ${invite?.requiredGames??5} games`)}}</strong></li><li><span class="ci-step" aria-hidden="true">3</span><strong>{{t('Награда обеим сторонам','A reward for both players')}}</strong><small>{{t('Google для участия не требуется.','Google sign-in is not required.')}}</small></li></ol>
       <p>{{t('Награда начисляется автоматически.','Rewards are credited automatically.')}}</p><p>{{t('Пригласившего можно выбрать только один раз.','Choose your inviter only once.')}}</p><button v-analytics="{feature: 'close_help', placement: 'friends'}" class="primary full" @click="closeHelp">{{t('Понятно','Got it')}}</button>
     </dialog>
   </div>
@@ -93,7 +95,7 @@ defineExpose({showHelp});
 .energy-window[data-page="friends"] .ci-editor p{font-size:12px;color:#a5cae8;margin:6px 0 0}
 .energy-window[data-page="friends"] .compact-invites:has(.ci-inviter[open]) .ci-list{max-height:max(88px,calc(var(--logical-height) - 420px))}
 .energy-window[data-page="friends"] .ci-help{width:calc(100% - 32px);max-width:390px;max-height:calc(100dvh - 40px);overflow:auto;color:#eef8ff;padding:13px;border:2px solid #61e9fb;border-radius:18px;background:linear-gradient(150deg,#062f44,#031b2d 70%);box-shadow:0 0 0 3px #043044,0 0 0 4px #36c4e699;font-family:Roboto,Arial,sans-serif}
-.energy-window[data-page="friends"] .ci-help::backdrop{background:#061b2dcc}
+.energy-window[data-page="friends"] .ci-help::backdrop{background:#061b2db8}
 .energy-window[data-page="friends"] .ci-help header{display:flex;align-items:center;gap:8px}
 .energy-window[data-page="friends"] .ci-help h2{display:flex;align-items:center;gap:6px;flex:1;font-size:19px;margin:0}
 .energy-window[data-page="friends"] .ci-help h2 .energy-amount{font-size:19px}
@@ -105,4 +107,9 @@ defineExpose({showHelp});
 .energy-window[data-page="friends"] .ci-help .primary{margin-top:12px;min-height:38px}
 .energy-window[data-page="friends"] .ci-help .icon-button{width:32px;height:36px}
 .energy-window[data-page="friends"] .window-header{margin:0}.energy-window[data-page="friends"] .window-header::after{display:none}
+</style>
+
+<style>
+.ci-help[open]{animation:ci-help-enter 160ms cubic-bezier(.22,.8,.25,1) both}.ci-help[open]::backdrop{animation:ci-barrier-enter 160ms ease both}.ci-help[open].ci-help-closing{animation:ci-help-exit 100ms ease-out both}.ci-help[open].ci-help-closing::backdrop{animation:ci-barrier-exit 100ms cubic-bezier(.75,0,.75,.9) both}
+@keyframes ci-help-enter{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}@keyframes ci-help-exit{to{opacity:0;transform:translateY(8px)}}@keyframes ci-barrier-enter{from{background-color:transparent}to{background-color:#061b2db8}}@keyframes ci-barrier-exit{from{background-color:#061b2db8}to{background-color:transparent}}@media(prefers-reduced-motion:reduce){.ci-help[open],.ci-help[open]::backdrop{animation:none!important}}
 </style>

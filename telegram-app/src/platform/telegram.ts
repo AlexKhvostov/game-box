@@ -7,7 +7,7 @@ export interface TelegramWebApp {
   onEvent(event: string, callback: (...args: unknown[]) => void): void;
   offEvent(event: string, callback: (...args: unknown[]) => void): void;
   setHeaderColor(color: string): void; setBackgroundColor(color: string): void;
-  openTelegramLink(url: string): void; openLink(url: string): void;
+  openTelegramLink(url: string): void; openLink(url: string,options?:{try_browser?:'chrome';try_instant_view?:boolean}): void;
   openInvoice?(url: string, callback: (status: 'paid' | 'cancelled' | 'failed' | 'pending') => void): void;
   HapticFeedback?: { impactOccurred(style: string): void; notificationOccurred(type: string): void };
   BackButton: { show(): void; hide(): void; onClick(fn: () => void): void; offClick(fn: () => void): void };

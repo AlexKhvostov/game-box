@@ -1,0 +1,1992 @@
+{
+  "source": "current Android385-compatible working tree",
+  "createdAt": "2026-11-13T18:22:05.506Z",
+  "files": [
+    {
+      "source": "assets/achievements/art-256/attempts-1000.webp",
+      "path": "assets/achievements/art-256/attempts-1000.webp",
+      "bytes": 12672,
+      "sha256": "02a6aae7c2f70ba8b4aca360e96d46aee1e99a974af391a6ad950e6dd193512d"
+    },
+    {
+      "source": "assets/achievements/art-256/attempts-10000.webp",
+      "path": "assets/achievements/art-256/attempts-10000.webp",
+      "bytes": 12532,
+      "sha256": "6a4b38c4eaada6b44ff70599e56ae4f1f990258ecd3c4408bd43aeacbe5c35ab"
+    },
+    {
+      "source": "assets/achievements/art-256/attempts-200.webp",
+      "path": "assets/achievements/art-256/attempts-200.webp",
+      "bytes": 13484,
+      "sha256": "2b7f23c69c991ad07469e3351bb5378226ce4170113954921b5e5df70dc9e3ac"
+    },
+    {
+      "source": "assets/achievements/art-256/attempts-50.webp",
+      "path": "assets/achievements/art-256/attempts-50.webp",
+      "bytes": 13396,
+      "sha256": "d76664a2f36a6f2f46b683c996744bd05d8ebe553bbb50d591b00b2c357044d6"
+    },
+    {
+      "source": "assets/achievements/art-256/attempts-500.webp",
+      "path": "assets/achievements/art-256/attempts-500.webp",
+      "bytes": 13600,
+      "sha256": "6208291af7d0796cbe45fda8388a81422bb27982643c4a4811328a76925b8976"
+    },
+    {
+      "source": "assets/achievements/art-256/average-10.webp",
+      "path": "assets/achievements/art-256/average-10.webp",
+      "bytes": 14960,
+      "sha256": "212de0e145c80b59923cf1d3f662cb48754b7cf1ea1d19107e39aeffa3d7b59a"
+    },
+    {
+      "source": "assets/achievements/art-256/average-20.webp",
+      "path": "assets/achievements/art-256/average-20.webp",
+      "bytes": 15226,
+      "sha256": "0838a58d82eac1d2def5329a884d340a174982cf523748ad369eba0a31a09879"
+    },
+    {
+      "source": "assets/achievements/art-256/average-30.webp",
+      "path": "assets/achievements/art-256/average-30.webp",
+      "bytes": 15502,
+      "sha256": "0c089bd9c053cb5cc32692e0d2c2d3e7894c677a788456e6b9b2ea2df462eec9"
+    },
+    {
+      "source": "assets/achievements/art-256/average-60.webp",
+      "path": "assets/achievements/art-256/average-60.webp",
+      "bytes": 13574,
+      "sha256": "3f00e193f1039003668f47b4f99d7357253ad1ce93840a25378d9645a6b353a8"
+    },
+    {
+      "source": "assets/achievements/art-256/average-90.webp",
+      "path": "assets/achievements/art-256/average-90.webp",
+      "bytes": 13508,
+      "sha256": "76010b89969f5107544dffae8fdeee2c81d2204663ddf5a9f402e8f605c939ed"
+    },
+    {
+      "source": "assets/achievements/art-256/average-cups-1.webp",
+      "path": "assets/achievements/art-256/average-cups-1.webp",
+      "bytes": 13448,
+      "sha256": "7139b3561b1fb071cf3ae9b1c004d30e0505ba624d94fb9304fe181060b6d17e"
+    },
+    {
+      "source": "assets/achievements/art-256/average-cups-10.webp",
+      "path": "assets/achievements/art-256/average-cups-10.webp",
+      "bytes": 13332,
+      "sha256": "b837f83d59776689d8cca1eb4704d56e7c38e02403a3aa66c8d0f18cbbf04a18"
+    },
+    {
+      "source": "assets/achievements/art-256/average-cups-100.webp",
+      "path": "assets/achievements/art-256/average-cups-100.webp",
+      "bytes": 13032,
+      "sha256": "9fe04e3471dbde0a0c828f6ef6695fb0dc78372ceca6139e3fd3fb1a8114f8bc"
+    },
+    {
+      "source": "assets/achievements/art-256/average-cups-1000.webp",
+      "path": "assets/achievements/art-256/average-cups-1000.webp",
+      "bytes": 13108,
+      "sha256": "c6a75a2d6841281561423d5fbe8ddd8fdaeb4e49bcd5ca3a0136d60ecbe52da6"
+    },
+    {
+      "source": "assets/achievements/art-256/average-cups-500.webp",
+      "path": "assets/achievements/art-256/average-cups-500.webp",
+      "bytes": 12760,
+      "sha256": "06ecdbeb2462314fd87b651fad3ecd61dc3ec8002fd03ca70befe275d6ff9c7f"
+    },
+    {
+      "source": "assets/achievements/art-256/clean-120.webp",
+      "path": "assets/achievements/art-256/clean-120.webp",
+      "bytes": 13078,
+      "sha256": "8b17c33cf8b18971163f172c161c237a256fd32d2bb488e149dfcdfed2826f26"
+    },
+    {
+      "source": "assets/achievements/art-256/clean-20.webp",
+      "path": "assets/achievements/art-256/clean-20.webp",
+      "bytes": 12950,
+      "sha256": "d6d4e994eeaa0b15e700fe89e660dc97c630dc414d7005307584846371cc5f44"
+    },
+    {
+      "source": "assets/achievements/art-256/clean-30.webp",
+      "path": "assets/achievements/art-256/clean-30.webp",
+      "bytes": 13018,
+      "sha256": "a2c603c4db0c529ffabdedaa6aa85fb84f5e3b3ac8789754e815cc17fd198dbb"
+    },
+    {
+      "source": "assets/achievements/art-256/clean-60.webp",
+      "path": "assets/achievements/art-256/clean-60.webp",
+      "bytes": 12938,
+      "sha256": "70c463614ca2999c5f48f8af71579833eb10a75c372661d5f44691e2d60348fe"
+    },
+    {
+      "source": "assets/achievements/art-256/clean-90.webp",
+      "path": "assets/achievements/art-256/clean-90.webp",
+      "bytes": 12810,
+      "sha256": "adaf43f6cd84a397fa9441c0e917a245032f9f786d7a6ec9e6960821ec3fd242"
+    },
+    {
+      "source": "assets/achievements/art-256/distance-1000.webp",
+      "path": "assets/achievements/art-256/distance-1000.webp",
+      "bytes": 13554,
+      "sha256": "2cb87a3fa9ac9b423752d98f9a08232a1f002184371df7c2680af6c7220f8ea6"
+    },
+    {
+      "source": "assets/achievements/art-256/distance-10000.webp",
+      "path": "assets/achievements/art-256/distance-10000.webp",
+      "bytes": 11744,
+      "sha256": "84d016feb1c2f8778323047424b97d02d850069b43dc7f6846e1a61eb1337c51"
+    },
+    {
+      "source": "assets/achievements/art-256/distance-2000.webp",
+      "path": "assets/achievements/art-256/distance-2000.webp",
+      "bytes": 13626,
+      "sha256": "24d221c65ccdc852ffb8adcfac9d542eb4352f1f073886943e43ee446e27cd7f"
+    },
+    {
+      "source": "assets/achievements/art-256/distance-20000.webp",
+      "path": "assets/achievements/art-256/distance-20000.webp",
+      "bytes": 11708,
+      "sha256": "ffb7d1bbc20fd16ced38b9cd1604ab8a492f9d5b151f39f6634c226f288500d4"
+    },
+    {
+      "source": "assets/achievements/art-256/distance-5000.webp",
+      "path": "assets/achievements/art-256/distance-5000.webp",
+      "bytes": 13930,
+      "sha256": "1f2bfc33dda6a41f20273659b658d7624c09f08b34d992c2b1161136e20dad6a"
+    },
+    {
+      "source": "assets/achievements/art-256/distance-50000.webp",
+      "path": "assets/achievements/art-256/distance-50000.webp",
+      "bytes": 11636,
+      "sha256": "d774f65a8de78bb6cd0249c6a27acd01b91953d5dec8de415c853f8dfe8c01b3"
+    },
+    {
+      "source": "assets/achievements/art-256/invites-1.webp",
+      "path": "assets/achievements/art-256/invites-1.webp",
+      "bytes": 13652,
+      "sha256": "94c5e928c79d29e706b74e5507162a69a2349e91283dbc1d896108f143eae7b5"
+    },
+    {
+      "source": "assets/achievements/art-256/invites-10.webp",
+      "path": "assets/achievements/art-256/invites-10.webp",
+      "bytes": 13984,
+      "sha256": "4612054bda187508085438a9a086dc3d44c3cdf18f9d5a64f8ae9eb31db7812e"
+    },
+    {
+      "source": "assets/achievements/art-256/invites-100.webp",
+      "path": "assets/achievements/art-256/invites-100.webp",
+      "bytes": 12952,
+      "sha256": "d5278110135d4940e764fc90d91352b301c7301f899219acfc15cbb349fdcada"
+    },
+    {
+      "source": "assets/achievements/art-256/invites-5.webp",
+      "path": "assets/achievements/art-256/invites-5.webp",
+      "bytes": 13816,
+      "sha256": "1df3b93dc5e069a637c94e56d2e7bacc5c87bdfa16170a3b574797d4958ada74"
+    },
+    {
+      "source": "assets/achievements/art-256/invites-50.webp",
+      "path": "assets/achievements/art-256/invites-50.webp",
+      "bytes": 12782,
+      "sha256": "d86eee58ea5c451860cc21f28e39f958652162481a4583917f7dfcc1b032310c"
+    },
+    {
+      "source": "assets/achievements/art-256/ranking-day.webp",
+      "path": "assets/achievements/art-256/ranking-day.webp",
+      "bytes": 15872,
+      "sha256": "f6ab9469f184d54ae090a62b306cb1de3e7823c31da55846a502424545b25c2e"
+    },
+    {
+      "source": "assets/achievements/art-256/ranking-first.webp",
+      "path": "assets/achievements/art-256/ranking-first.webp",
+      "bytes": 14084,
+      "sha256": "e729d02b8a5263fb55319b4dd200b7663b34bdf693b763706b28d157b3832f70"
+    },
+    {
+      "source": "assets/achievements/art-256/ranking-month.webp",
+      "path": "assets/achievements/art-256/ranking-month.webp",
+      "bytes": 15758,
+      "sha256": "afae11a0ade820d41f1b603f3d38b0bf04424f3dce510b7f7b819e152e1bdbe4"
+    },
+    {
+      "source": "assets/achievements/art-256/ranking-week.webp",
+      "path": "assets/achievements/art-256/ranking-week.webp",
+      "bytes": 15700,
+      "sha256": "a5bc5120b1fee0eedc0ce1140039d6288593d63029a46962303fa917cfccbfb0"
+    },
+    {
+      "source": "assets/achievements/art-256/ranking-year.webp",
+      "path": "assets/achievements/art-256/ranking-year.webp",
+      "bytes": 14130,
+      "sha256": "d5b2466eeafe08daf58ff20cd821a753fe595d052c84900706061cd2e40e1427"
+    },
+    {
+      "source": "assets/achievements/art-256/record-cups-1.webp",
+      "path": "assets/achievements/art-256/record-cups-1.webp",
+      "bytes": 13660,
+      "sha256": "2a44dceb3eef6259d2e161eb001e6ec4bb634dc74181b853b6af89389cd0a464"
+    },
+    {
+      "source": "assets/achievements/art-256/record-cups-10.webp",
+      "path": "assets/achievements/art-256/record-cups-10.webp",
+      "bytes": 13142,
+      "sha256": "5b8d4fb42725f2dcf8ded304682216760d1ddbcf256b47a8ca1fa894075e10e9"
+    },
+    {
+      "source": "assets/achievements/art-256/record-cups-100.webp",
+      "path": "assets/achievements/art-256/record-cups-100.webp",
+      "bytes": 13036,
+      "sha256": "76063fc8c2319872736a43ed3cba041545342db1e7702476c47f2a14f7e778a9"
+    },
+    {
+      "source": "assets/achievements/art-256/record-cups-1000.webp",
+      "path": "assets/achievements/art-256/record-cups-1000.webp",
+      "bytes": 13256,
+      "sha256": "997d05c456973b266346bbab5e5a649d2caa7ef9fe6efafcca9fd9d7a506dfe2"
+    },
+    {
+      "source": "assets/achievements/art-256/record-cups-500.webp",
+      "path": "assets/achievements/art-256/record-cups-500.webp",
+      "bytes": 13038,
+      "sha256": "5b9b12a28bcc3dc110403ca66a2b7d136f21828ec081c6cd462d12696f940935"
+    },
+    {
+      "source": "assets/achievements/art-256/risk-10.webp",
+      "path": "assets/achievements/art-256/risk-10.webp",
+      "bytes": 11436,
+      "sha256": "cfda1536589a0ceb4ed585095226d3e3d2997eb8002961afeadc5a5869dcdae3"
+    },
+    {
+      "source": "assets/achievements/art-256/risk-2.webp",
+      "path": "assets/achievements/art-256/risk-2.webp",
+      "bytes": 11034,
+      "sha256": "88fd7972f340d813ff7781c8518adfb27ced2530d81d6ce9e188e85372950462"
+    },
+    {
+      "source": "assets/achievements/art-256/risk-20.webp",
+      "path": "assets/achievements/art-256/risk-20.webp",
+      "bytes": 11162,
+      "sha256": "1ab533116b9b9ffe1253b71f369833c6804db4da93d9179c1543b56ad7148d3d"
+    },
+    {
+      "source": "assets/achievements/art-256/risk-5.webp",
+      "path": "assets/achievements/art-256/risk-5.webp",
+      "bytes": 10946,
+      "sha256": "16780732c38bddfac61b934d64ac72ed7095b8408b4a3e4b195f05d21b0cd703"
+    },
+    {
+      "source": "assets/achievements/art-256/risk-50.webp",
+      "path": "assets/achievements/art-256/risk-50.webp",
+      "bytes": 11294,
+      "sha256": "426bb5cf623dabc1e98e5040686f52e785998f3ee7054842a4c24dc7edc45e09"
+    },
+    {
+      "source": "assets/achievements/art-256/time-120.webp",
+      "path": "assets/achievements/art-256/time-120.webp",
+      "bytes": 15252,
+      "sha256": "819c039446ebebeb65256e7cee880cb1f16e654c4a8c6ba5ae3516478ce1c3fd"
+    },
+    {
+      "source": "assets/achievements/art-256/time-180.webp",
+      "path": "assets/achievements/art-256/time-180.webp",
+      "bytes": 15238,
+      "sha256": "71d83f992f18e05d61cf4b09510337a2fb8561c22768441c65dc3605ddea2dc0"
+    },
+    {
+      "source": "assets/achievements/art-256/time-30.webp",
+      "path": "assets/achievements/art-256/time-30.webp",
+      "bytes": 14530,
+      "sha256": "eca0186f37f32840540cf2dad4afe685a4bfda07a561d978d62f93b405bde735"
+    },
+    {
+      "source": "assets/achievements/art-256/time-360.webp",
+      "path": "assets/achievements/art-256/time-360.webp",
+      "bytes": 14314,
+      "sha256": "1a9d76ee06bd52fb067a606300018e818a7c62f04416f0e522f013a819d65d16"
+    },
+    {
+      "source": "assets/achievements/art-256/time-60.webp",
+      "path": "assets/achievements/art-256/time-60.webp",
+      "bytes": 14694,
+      "sha256": "fd5552e80728faaf75f27a2bd10a0fd453f8906c0b237f359c0f99aa714f5351"
+    },
+    {
+      "source": "assets/achievements/art-256/time-90.webp",
+      "path": "assets/achievements/art-256/time-90.webp",
+      "bytes": 14256,
+      "sha256": "62ff5afb5efee6d012e96d17df9fd27da4fd559e4c8a08eaa7bba1384d12b349"
+    },
+    {
+      "source": "assets/achievements/art-768/attempts-1000.webp",
+      "path": "assets/achievements/art-768/attempts-1000.webp",
+      "bytes": 55066,
+      "sha256": "e0bf349038b218813db8aa24ee10cfe8a99840fc28638c2ce759e8e4efaa6e33"
+    },
+    {
+      "source": "assets/achievements/art-768/attempts-10000.webp",
+      "path": "assets/achievements/art-768/attempts-10000.webp",
+      "bytes": 55592,
+      "sha256": "57872b1cf7eca0e2138ed6b1eb01db37be98cbd21621bba775f2bb21f3438614"
+    },
+    {
+      "source": "assets/achievements/art-768/attempts-200.webp",
+      "path": "assets/achievements/art-768/attempts-200.webp",
+      "bytes": 57022,
+      "sha256": "ec8770d06467fd61fbae3a1454fd97ac3e4fbf0ee0d1a4e14bdc797f7d6f4a0b"
+    },
+    {
+      "source": "assets/achievements/art-768/attempts-50.webp",
+      "path": "assets/achievements/art-768/attempts-50.webp",
+      "bytes": 56784,
+      "sha256": "1ed794575b44d9f9def5624e9b2d285b63897c7dc8adfb9e637b2c24ba52a1bd"
+    },
+    {
+      "source": "assets/achievements/art-768/attempts-500.webp",
+      "path": "assets/achievements/art-768/attempts-500.webp",
+      "bytes": 58322,
+      "sha256": "0ae68bbf77d7a31d89469ec9f01e1416f2b57f85cd9907503ae732deda3863f5"
+    },
+    {
+      "source": "assets/achievements/art-768/average-10.webp",
+      "path": "assets/achievements/art-768/average-10.webp",
+      "bytes": 65974,
+      "sha256": "0e6bcdb1da308e35bbea74e36f92402bf78dc439ccdc40c3b1d258da75275f45"
+    },
+    {
+      "source": "assets/achievements/art-768/average-20.webp",
+      "path": "assets/achievements/art-768/average-20.webp",
+      "bytes": 66270,
+      "sha256": "f71d6a3a0f2e9f8c7d29fb05a4a3079179549c5c4af3dbd12ddefe916377da7b"
+    },
+    {
+      "source": "assets/achievements/art-768/average-30.webp",
+      "path": "assets/achievements/art-768/average-30.webp",
+      "bytes": 68916,
+      "sha256": "0858f98fb5b06d8897f8c804b939fd4bd514dfbd1925860d77b8fa42e271d70c"
+    },
+    {
+      "source": "assets/achievements/art-768/average-60.webp",
+      "path": "assets/achievements/art-768/average-60.webp",
+      "bytes": 61060,
+      "sha256": "855ad02c465eb763afa006b53f4ffbab6db100f7e6148196eb93d3af753d96ac"
+    },
+    {
+      "source": "assets/achievements/art-768/average-90.webp",
+      "path": "assets/achievements/art-768/average-90.webp",
+      "bytes": 62286,
+      "sha256": "7b5cc318083d7c30d1a49c6f173189973172c0017f0b48f043c320ecccf0121c"
+    },
+    {
+      "source": "assets/achievements/art-768/average-cups-1.webp",
+      "path": "assets/achievements/art-768/average-cups-1.webp",
+      "bytes": 55432,
+      "sha256": "f7fca89ad239185056c8e64a2426f401c26107eb65069aef69ae19445273d003"
+    },
+    {
+      "source": "assets/achievements/art-768/average-cups-10.webp",
+      "path": "assets/achievements/art-768/average-cups-10.webp",
+      "bytes": 54358,
+      "sha256": "937b123b5ce34d636e88ab310e86db0ebf654694f525eda1b2425f26842f4279"
+    },
+    {
+      "source": "assets/achievements/art-768/average-cups-100.webp",
+      "path": "assets/achievements/art-768/average-cups-100.webp",
+      "bytes": 54222,
+      "sha256": "b321bce93b7250466d5fe21afe3bfc3c9cb1cb86d67c82702f700145fe91ab24"
+    },
+    {
+      "source": "assets/achievements/art-768/average-cups-1000.webp",
+      "path": "assets/achievements/art-768/average-cups-1000.webp",
+      "bytes": 54432,
+      "sha256": "97f33214584b3b88118102f10bd8ca224dbd6cc89d7633dbbed3910b15b882b5"
+    },
+    {
+      "source": "assets/achievements/art-768/average-cups-500.webp",
+      "path": "assets/achievements/art-768/average-cups-500.webp",
+      "bytes": 53814,
+      "sha256": "b10fe716a44b3427cee83367e9dabed4144553ce80e91c346eeec4b85f7c30a6"
+    },
+    {
+      "source": "assets/achievements/art-768/clean-120.webp",
+      "path": "assets/achievements/art-768/clean-120.webp",
+      "bytes": 56306,
+      "sha256": "98447b78649e6c9f8103fb8cd8b1a95019b9a6ccad43979188986f75697130b4"
+    },
+    {
+      "source": "assets/achievements/art-768/clean-20.webp",
+      "path": "assets/achievements/art-768/clean-20.webp",
+      "bytes": 55034,
+      "sha256": "7ec86143809993c0122ab4e38ca638521c3db7d4d05a0d92f84cfc4f9c4067ac"
+    },
+    {
+      "source": "assets/achievements/art-768/clean-30.webp",
+      "path": "assets/achievements/art-768/clean-30.webp",
+      "bytes": 54238,
+      "sha256": "7dd334c2200fc11cead0a427f20637b0ce759c7fb14d5d972746e09c31d319bf"
+    },
+    {
+      "source": "assets/achievements/art-768/clean-60.webp",
+      "path": "assets/achievements/art-768/clean-60.webp",
+      "bytes": 54752,
+      "sha256": "f8eb638e654522e5682127a74d45e0c09af908fef52450be5ba4b4bd24135676"
+    },
+    {
+      "source": "assets/achievements/art-768/clean-90.webp",
+      "path": "assets/achievements/art-768/clean-90.webp",
+      "bytes": 54766,
+      "sha256": "7a9b51657f7f110c4a4e9786f5e160b1bce7efec773b62838bbaeb8916d03997"
+    },
+    {
+      "source": "assets/achievements/art-768/distance-1000.webp",
+      "path": "assets/achievements/art-768/distance-1000.webp",
+      "bytes": 60292,
+      "sha256": "83f0ea861d3a1ecd141b5625d263659b69a3943775f53e7740f197814bf69f34"
+    },
+    {
+      "source": "assets/achievements/art-768/distance-10000.webp",
+      "path": "assets/achievements/art-768/distance-10000.webp",
+      "bytes": 51462,
+      "sha256": "fb01211b150eb1d517bb4e579fa362ab38e53e48c3982caaacf09c8d85dacbe7"
+    },
+    {
+      "source": "assets/achievements/art-768/distance-2000.webp",
+      "path": "assets/achievements/art-768/distance-2000.webp",
+      "bytes": 60102,
+      "sha256": "202df89c9e9c4f77c2081495fb253db72a7242026e3c7e97e8cdbc4a6a95f913"
+    },
+    {
+      "source": "assets/achievements/art-768/distance-20000.webp",
+      "path": "assets/achievements/art-768/distance-20000.webp",
+      "bytes": 52020,
+      "sha256": "6f25ae54616f294b3e9c7cb17524a9897be45df9d65ea2c68a32cee2a1ce2008"
+    },
+    {
+      "source": "assets/achievements/art-768/distance-5000.webp",
+      "path": "assets/achievements/art-768/distance-5000.webp",
+      "bytes": 60764,
+      "sha256": "bd443d07ac45992f237d5f9d2c4d1926b28a819ce75fea9398c26dc8b2bdb8a4"
+    },
+    {
+      "source": "assets/achievements/art-768/distance-50000.webp",
+      "path": "assets/achievements/art-768/distance-50000.webp",
+      "bytes": 51690,
+      "sha256": "28b53898d98663bfdb4f569163a9f3b34a3572170e6d2e4988b24b65f9ad08aa"
+    },
+    {
+      "source": "assets/achievements/art-768/invites-1.webp",
+      "path": "assets/achievements/art-768/invites-1.webp",
+      "bytes": 57882,
+      "sha256": "a39a41ffbae11772605ab53d220d9f00eeacd1b23ef3483e46bf4769b539b73d"
+    },
+    {
+      "source": "assets/achievements/art-768/invites-10.webp",
+      "path": "assets/achievements/art-768/invites-10.webp",
+      "bytes": 58764,
+      "sha256": "991f1655c894e0578b14881c10377ca4eb16c4ea570df8e54e3efe8a70d389be"
+    },
+    {
+      "source": "assets/achievements/art-768/invites-100.webp",
+      "path": "assets/achievements/art-768/invites-100.webp",
+      "bytes": 55896,
+      "sha256": "40db3e31b7e8e70bb499d24217d074bf01872fab9d5c40f5e726151b6071b3d2"
+    },
+    {
+      "source": "assets/achievements/art-768/invites-5.webp",
+      "path": "assets/achievements/art-768/invites-5.webp",
+      "bytes": 58264,
+      "sha256": "8eb5479d412946b1b14b07a1cb92730b93a1735cff993d06cc8c2142fc8c80ef"
+    },
+    {
+      "source": "assets/achievements/art-768/invites-50.webp",
+      "path": "assets/achievements/art-768/invites-50.webp",
+      "bytes": 53758,
+      "sha256": "b3c07d0706739d92863778cdc3440f9be4c94347ae23c0a8346abc437cb69a0b"
+    },
+    {
+      "source": "assets/achievements/art-768/ranking-day.webp",
+      "path": "assets/achievements/art-768/ranking-day.webp",
+      "bytes": 68426,
+      "sha256": "dbc7fbb256a830fb01ed6a7f6d960f6ec96189dc8dc5ddfad8df4dde898dcf76"
+    },
+    {
+      "source": "assets/achievements/art-768/ranking-first.webp",
+      "path": "assets/achievements/art-768/ranking-first.webp",
+      "bytes": 61060,
+      "sha256": "44b4c034b1307530d20bfb2cb72e94998b41f0241e5f3c4c612c234649a8c234"
+    },
+    {
+      "source": "assets/achievements/art-768/ranking-month.webp",
+      "path": "assets/achievements/art-768/ranking-month.webp",
+      "bytes": 67442,
+      "sha256": "fdb6a43c558b9f163a1158b5de9cedd66f014e351252f1bad8ce86256593ddd1"
+    },
+    {
+      "source": "assets/achievements/art-768/ranking-week.webp",
+      "path": "assets/achievements/art-768/ranking-week.webp",
+      "bytes": 67498,
+      "sha256": "0ba023c36ec02ce13b3bd1169f4ea5540dcc943d518362b623eec901784c468a"
+    },
+    {
+      "source": "assets/achievements/art-768/ranking-year.webp",
+      "path": "assets/achievements/art-768/ranking-year.webp",
+      "bytes": 62620,
+      "sha256": "ebda37df43564268c445cf4fb139299a2b30c98d40676182a81f9d4e18cf7fee"
+    },
+    {
+      "source": "assets/achievements/art-768/record-cups-1.webp",
+      "path": "assets/achievements/art-768/record-cups-1.webp",
+      "bytes": 57526,
+      "sha256": "92980a8dd865d4bf32ab920dd8249a920b97ae9234efafb8af0f5ae09e114311"
+    },
+    {
+      "source": "assets/achievements/art-768/record-cups-10.webp",
+      "path": "assets/achievements/art-768/record-cups-10.webp",
+      "bytes": 55612,
+      "sha256": "83b63b67028fa0d3da9d8a19732aa70d17bf9f5b756ca39a83f454fc930b5782"
+    },
+    {
+      "source": "assets/achievements/art-768/record-cups-100.webp",
+      "path": "assets/achievements/art-768/record-cups-100.webp",
+      "bytes": 54440,
+      "sha256": "91388e3748fd1db8a3e3f75d9dacbd0831422be39f186cd2a5dcd74df3eee9a3"
+    },
+    {
+      "source": "assets/achievements/art-768/record-cups-1000.webp",
+      "path": "assets/achievements/art-768/record-cups-1000.webp",
+      "bytes": 56374,
+      "sha256": "62addbc9c66a312fc698d1f87ca16c1b30ccddc119c4f1b6720411bc3306aa15"
+    },
+    {
+      "source": "assets/achievements/art-768/record-cups-500.webp",
+      "path": "assets/achievements/art-768/record-cups-500.webp",
+      "bytes": 54544,
+      "sha256": "ee9c39dcfecbc1a1e1a27c91c64e7825914cfb6c9bb7f99ff9ddfd4673498d40"
+    },
+    {
+      "source": "assets/achievements/art-768/risk-10.webp",
+      "path": "assets/achievements/art-768/risk-10.webp",
+      "bytes": 46270,
+      "sha256": "c2b7c8a1d98525f751387401e0273d8c4726816e90c6ec98dd7aa7b6939729ad"
+    },
+    {
+      "source": "assets/achievements/art-768/risk-2.webp",
+      "path": "assets/achievements/art-768/risk-2.webp",
+      "bytes": 45154,
+      "sha256": "e1745423730029241d02bf12de63746dc7f212dcdf27835a1974907aec8842d6"
+    },
+    {
+      "source": "assets/achievements/art-768/risk-20.webp",
+      "path": "assets/achievements/art-768/risk-20.webp",
+      "bytes": 45950,
+      "sha256": "592035412d0f62f2e82e905d3bbcb71a72d4714a5550cb58b0fbf08d2d385ea2"
+    },
+    {
+      "source": "assets/achievements/art-768/risk-5.webp",
+      "path": "assets/achievements/art-768/risk-5.webp",
+      "bytes": 44876,
+      "sha256": "48a625a107beaaf8d5368595e22dffe543bf22edbfa0fe6f884090e44d6813f1"
+    },
+    {
+      "source": "assets/achievements/art-768/risk-50.webp",
+      "path": "assets/achievements/art-768/risk-50.webp",
+      "bytes": 46142,
+      "sha256": "66a74cc10d0c93e077f9fde7d31833e07feaf0ebe5fda802c408f8d8e61ae3d5"
+    },
+    {
+      "source": "assets/achievements/art-768/time-120.webp",
+      "path": "assets/achievements/art-768/time-120.webp",
+      "bytes": 71852,
+      "sha256": "869d9936e897b5704c6f19ebedcf5adbfebb6dfa53a0e9f36afc9570a52c0661"
+    },
+    {
+      "source": "assets/achievements/art-768/time-180.webp",
+      "path": "assets/achievements/art-768/time-180.webp",
+      "bytes": 73112,
+      "sha256": "abecb05afe11967d3e77a1f2ae94c136079fdce4fe8629daae5c680fc2cdaa98"
+    },
+    {
+      "source": "assets/achievements/art-768/time-30.webp",
+      "path": "assets/achievements/art-768/time-30.webp",
+      "bytes": 71258,
+      "sha256": "239430ba329ec3ef02357d6c7550f6ca4b22e102772925f44fe2c5af241901b1"
+    },
+    {
+      "source": "assets/achievements/art-768/time-360.webp",
+      "path": "assets/achievements/art-768/time-360.webp",
+      "bytes": 64438,
+      "sha256": "147315b7dace9549200c983c1e882df772eb5a854a750cbe4be5168cbc21f330"
+    },
+    {
+      "source": "assets/achievements/art-768/time-60.webp",
+      "path": "assets/achievements/art-768/time-60.webp",
+      "bytes": 71672,
+      "sha256": "431f211dfda4626d68c998fba5629e986f78d00af74cc9dc1860e211bff4afdb"
+    },
+    {
+      "source": "assets/achievements/art-768/time-90.webp",
+      "path": "assets/achievements/art-768/time-90.webp",
+      "bytes": 69378,
+      "sha256": "6861ee8edf1e820774e451fdda7cfbd6d8d3ed2ac8b74c02dff719d174516dca"
+    },
+    {
+      "source": "assets/achievements/animations-v1/attempts-1000.atlas.webp",
+      "path": "assets/achievements/animations-v1/attempts-1000.atlas.webp",
+      "bytes": 1215328,
+      "sha256": "cdfc6912ad1927b88ab90084723bf8167bfd3d29d69f704cd3700f52d978fcf0"
+    },
+    {
+      "source": "assets/achievements/animations-v1/attempts-1000.end.webp",
+      "path": "assets/achievements/animations-v1/attempts-1000.end.webp",
+      "bytes": 62762,
+      "sha256": "5829251aadd6bc11ec1061009497114430141facc3bd8d909ad39e7299310238"
+    },
+    {
+      "source": "assets/achievements/animations-v1/attempts-1000.json",
+      "path": "assets/achievements/animations-v1/attempts-1000.json",
+      "bytes": 150,
+      "sha256": "75bc90b6d03ba573d0d653af0d2aa78ca14eb8f1659a2c4818a8d1b3c4c4f5eb"
+    },
+    {
+      "source": "assets/achievements/animations-v1/attempts-1000.start.webp",
+      "path": "assets/achievements/animations-v1/attempts-1000.start.webp",
+      "bytes": 35716,
+      "sha256": "50b8be49c3af653146b163d1401a13c157f20fccda183dbfbae00bb301de985c"
+    },
+    {
+      "source": "assets/achievements/animations-v1/attempts-10000.atlas.webp",
+      "path": "assets/achievements/animations-v1/attempts-10000.atlas.webp",
+      "bytes": 1227882,
+      "sha256": "c79fd33f4607ca4911f2e75393faa19c93840eb7fa96c9aaaa57b3c7b0013c28"
+    },
+    {
+      "source": "assets/achievements/animations-v1/attempts-10000.end.webp",
+      "path": "assets/achievements/animations-v1/attempts-10000.end.webp",
+      "bytes": 63546,
+      "sha256": "87eaedaaa6f81e5a6e7c49b9c8ffeb19fff903a3bf9bf82a6a5d209c5be07b76"
+    },
+    {
+      "source": "assets/achievements/animations-v1/attempts-10000.json",
+      "path": "assets/achievements/animations-v1/attempts-10000.json",
+      "bytes": 151,
+      "sha256": "cf8523f12c9784a3e140c65345754d8ae2ef786dc34afc7ed8e4ad495d7610f0"
+    },
+    {
+      "source": "assets/achievements/animations-v1/attempts-10000.start.webp",
+      "path": "assets/achievements/animations-v1/attempts-10000.start.webp",
+      "bytes": 35940,
+      "sha256": "9ec0838309e5fb0f2ee191f78cbc9b4e9b9a9c393d1f0991beb8e9570853e568"
+    },
+    {
+      "source": "assets/achievements/animations-v1/attempts-200.atlas.webp",
+      "path": "assets/achievements/animations-v1/attempts-200.atlas.webp",
+      "bytes": 1114038,
+      "sha256": "7d1bc364dc606fa12cff397d3ee879ae3ea678f4016cad89c512417cd2582943"
+    },
+    {
+      "source": "assets/achievements/animations-v1/attempts-200.end.webp",
+      "path": "assets/achievements/animations-v1/attempts-200.end.webp",
+      "bytes": 60508,
+      "sha256": "31204a77f4ef3e42aeba7a31ba8ade92592b9ad75e1f68efca4846092a4badbe"
+    },
+    {
+      "source": "assets/achievements/animations-v1/attempts-200.json",
+      "path": "assets/achievements/animations-v1/attempts-200.json",
+      "bytes": 149,
+      "sha256": "a6eb9f7f26f158629dfadc56c8081f870b222c305a295cdd41794b683aa9e367"
+    },
+    {
+      "source": "assets/achievements/animations-v1/attempts-200.start.webp",
+      "path": "assets/achievements/animations-v1/attempts-200.start.webp",
+      "bytes": 31152,
+      "sha256": "297a8ebcaa92916521f218f1618c03aaf1188de3f6db9f907cd6feb102dce6bc"
+    },
+    {
+      "source": "assets/achievements/animations-v1/attempts-50.atlas.webp",
+      "path": "assets/achievements/animations-v1/attempts-50.atlas.webp",
+      "bytes": 1107480,
+      "sha256": "13fa1ace143a1279f60b2af5e142fc8276bd27dd4f9628046150a7f27156bc9b"
+    },
+    {
+      "source": "assets/achievements/animations-v1/attempts-50.end.webp",
+      "path": "assets/achievements/animations-v1/attempts-50.end.webp",
+      "bytes": 59626,
+      "sha256": "3a812fda00d41744a78deafe5531cfb44ac79a99de1c96325bf89ad5853ad4d9"
+    },
+    {
+      "source": "assets/achievements/animations-v1/attempts-50.json",
+      "path": "assets/achievements/animations-v1/attempts-50.json",
+      "bytes": 148,
+      "sha256": "eeb1336c37832f600079bb11ab95afcf00e094cbe6cbdf9bd3ee23cbb4352c68"
+    },
+    {
+      "source": "assets/achievements/animations-v1/attempts-50.start.webp",
+      "path": "assets/achievements/animations-v1/attempts-50.start.webp",
+      "bytes": 31152,
+      "sha256": "297a8ebcaa92916521f218f1618c03aaf1188de3f6db9f907cd6feb102dce6bc"
+    },
+    {
+      "source": "assets/achievements/animations-v1/attempts-500.atlas.webp",
+      "path": "assets/achievements/animations-v1/attempts-500.atlas.webp",
+      "bytes": 1118892,
+      "sha256": "7f3e800ddf4236eae12837842c7e8596085cbb520dd02d035f207221ef94bdde"
+    },
+    {
+      "source": "assets/achievements/animations-v1/attempts-500.end.webp",
+      "path": "assets/achievements/animations-v1/attempts-500.end.webp",
+      "bytes": 61162,
+      "sha256": "33ecd75faee08219b7d10be4db091a087de646808d579bb3e4e2a4748391ec90"
+    },
+    {
+      "source": "assets/achievements/animations-v1/attempts-500.json",
+      "path": "assets/achievements/animations-v1/attempts-500.json",
+      "bytes": 149,
+      "sha256": "9e71951cdf4bc46f40fac77242a66fa9fe3d7b3b158bd33cd7122c0806c5d04c"
+    },
+    {
+      "source": "assets/achievements/animations-v1/attempts-500.start.webp",
+      "path": "assets/achievements/animations-v1/attempts-500.start.webp",
+      "bytes": 31152,
+      "sha256": "297a8ebcaa92916521f218f1618c03aaf1188de3f6db9f907cd6feb102dce6bc"
+    },
+    {
+      "source": "assets/achievements/animations-v1/average-10.atlas.webp",
+      "path": "assets/achievements/animations-v1/average-10.atlas.webp",
+      "bytes": 1309260,
+      "sha256": "48aa517a3ac2a50667584b8a70f4a726ecb3924a9359be4c94055624efe3e7d3"
+    },
+    {
+      "source": "assets/achievements/animations-v1/average-10.end.webp",
+      "path": "assets/achievements/animations-v1/average-10.end.webp",
+      "bytes": 69276,
+      "sha256": "8085a19845900f27f991b35dcd0bbe974613fe45b3910c8643e04366b94e4dea"
+    },
+    {
+      "source": "assets/achievements/animations-v1/average-10.json",
+      "path": "assets/achievements/animations-v1/average-10.json",
+      "bytes": 147,
+      "sha256": "ae005f6172b2d32e132a5d9fd9a289a0ed4721325ce69cd6af8b323ebecb64e6"
+    },
+    {
+      "source": "assets/achievements/animations-v1/average-10.start.webp",
+      "path": "assets/achievements/animations-v1/average-10.start.webp",
+      "bytes": 38786,
+      "sha256": "3ac5247643165fa03e84507f72b10a7ba24d6eab1282178d39b8d773d2b93177"
+    },
+    {
+      "source": "assets/achievements/animations-v1/average-20.atlas.webp",
+      "path": "assets/achievements/animations-v1/average-20.atlas.webp",
+      "bytes": 1317042,
+      "sha256": "dff29cbd5106f37113e9844b82970380bcb430674e8b2af511fe3023f1ac6063"
+    },
+    {
+      "source": "assets/achievements/animations-v1/average-20.end.webp",
+      "path": "assets/achievements/animations-v1/average-20.end.webp",
+      "bytes": 70158,
+      "sha256": "f0af10e55be9dbb6825f92e2342ddc026916929ce4332076c128b8ebaf08dc4a"
+    },
+    {
+      "source": "assets/achievements/animations-v1/average-20.json",
+      "path": "assets/achievements/animations-v1/average-20.json",
+      "bytes": 147,
+      "sha256": "30ec3a40710550d51bbf70e348231bda2f7868d76048991028344b7d72a36681"
+    },
+    {
+      "source": "assets/achievements/animations-v1/average-20.start.webp",
+      "path": "assets/achievements/animations-v1/average-20.start.webp",
+      "bytes": 38786,
+      "sha256": "3ac5247643165fa03e84507f72b10a7ba24d6eab1282178d39b8d773d2b93177"
+    },
+    {
+      "source": "assets/achievements/animations-v1/average-30.atlas.webp",
+      "path": "assets/achievements/animations-v1/average-30.atlas.webp",
+      "bytes": 1334080,
+      "sha256": "fcf72d35695632abc547c55ed7d96d05dd6d63dbf5e58d3c739cb8f04cbbf680"
+    },
+    {
+      "source": "assets/achievements/animations-v1/average-30.end.webp",
+      "path": "assets/achievements/animations-v1/average-30.end.webp",
+      "bytes": 72634,
+      "sha256": "a1ad1422ec851b97d5b9b8d9ffc9e12e8cc93c5c31deb80bc4c29628dc0be4b0"
+    },
+    {
+      "source": "assets/achievements/animations-v1/average-30.json",
+      "path": "assets/achievements/animations-v1/average-30.json",
+      "bytes": 147,
+      "sha256": "4af09bfdd96374cd49e1081ef01226478341da72c0092637e58b756df27f426c"
+    },
+    {
+      "source": "assets/achievements/animations-v1/average-30.start.webp",
+      "path": "assets/achievements/animations-v1/average-30.start.webp",
+      "bytes": 38786,
+      "sha256": "3ac5247643165fa03e84507f72b10a7ba24d6eab1282178d39b8d773d2b93177"
+    },
+    {
+      "source": "assets/achievements/animations-v1/average-60.atlas.webp",
+      "path": "assets/achievements/animations-v1/average-60.atlas.webp",
+      "bytes": 1387236,
+      "sha256": "b8ace27e098b4c1795ab7ec3b33ac0b7cce3bb71e26c8370ad4f57c0cb470a82"
+    },
+    {
+      "source": "assets/achievements/animations-v1/average-60.end.webp",
+      "path": "assets/achievements/animations-v1/average-60.end.webp",
+      "bytes": 72126,
+      "sha256": "90bb8721cdeadb6cdcb49bb23ff1bc6a6478e696ebc4106a1cc7248a53c13b65"
+    },
+    {
+      "source": "assets/achievements/animations-v1/average-60.json",
+      "path": "assets/achievements/animations-v1/average-60.json",
+      "bytes": 174,
+      "sha256": "c4ac5df67c5bcaa767f5741940139fc9e745caba36638b4e908f614be6ea1306"
+    },
+    {
+      "source": "assets/achievements/animations-v1/average-60.start.webp",
+      "path": "assets/achievements/animations-v1/average-60.start.webp",
+      "bytes": 42272,
+      "sha256": "d6daad0012657c3492735455c4492b64639ab89c3b2ecdfeec25c096ae337776"
+    },
+    {
+      "source": "assets/achievements/animations-v1/average-90.atlas.webp",
+      "path": "assets/achievements/animations-v1/average-90.atlas.webp",
+      "bytes": 1403532,
+      "sha256": "341efa4b038767ea15652dd746297e9f764b4e6e220c5d39aa0ef999a2b14a91"
+    },
+    {
+      "source": "assets/achievements/animations-v1/average-90.end.webp",
+      "path": "assets/achievements/animations-v1/average-90.end.webp",
+      "bytes": 73722,
+      "sha256": "76e0df368af2831aa7fb3c9ef876817c71e79d1fef4d6100992c36f1d2006fbc"
+    },
+    {
+      "source": "assets/achievements/animations-v1/average-90.json",
+      "path": "assets/achievements/animations-v1/average-90.json",
+      "bytes": 174,
+      "sha256": "accad559c62e636d1890a694c3fe24e04ea87ece2805bdb018630f2bb3e3eecd"
+    },
+    {
+      "source": "assets/achievements/animations-v1/average-90.start.webp",
+      "path": "assets/achievements/animations-v1/average-90.start.webp",
+      "bytes": 42496,
+      "sha256": "201e71feda5d7a4028cb15a7816055a2050fe9bf75c679a38e6c08dd28904bcd"
+    },
+    {
+      "source": "assets/achievements/animations-v1/average-cups-1.atlas.webp",
+      "path": "assets/achievements/animations-v1/average-cups-1.atlas.webp",
+      "bytes": 1508822,
+      "sha256": "72fbd50b62172b92b535ba64e5fc82a87eec295f1128c54f44726c15d9bc99ae"
+    },
+    {
+      "source": "assets/achievements/animations-v1/average-cups-1.end.webp",
+      "path": "assets/achievements/animations-v1/average-cups-1.end.webp",
+      "bytes": 57104,
+      "sha256": "84e1ead2755971c1f4062d77be5b28013493291a6ba3134f1cb26b96db97133a"
+    },
+    {
+      "source": "assets/achievements/animations-v1/average-cups-1.json",
+      "path": "assets/achievements/animations-v1/average-cups-1.json",
+      "bytes": 149,
+      "sha256": "3589ea80186d96b91d3960cc620f7463c7470cac9c884add0bb9fbaa0eba177b"
+    },
+    {
+      "source": "assets/achievements/animations-v1/average-cups-1.start.webp",
+      "path": "assets/achievements/animations-v1/average-cups-1.start.webp",
+      "bytes": 54284,
+      "sha256": "0dd064fbc5751a086d06fdf1a2274a2732ec2ea0f67aada6e8e60dbb3f97f826"
+    },
+    {
+      "source": "assets/achievements/animations-v1/average-cups-10.atlas.webp",
+      "path": "assets/achievements/animations-v1/average-cups-10.atlas.webp",
+      "bytes": 1497826,
+      "sha256": "bb096e6ce0cb39b5acf01c495d76dab2257fec88cb4cf9c5ecbc3ac625bd9ae0"
+    },
+    {
+      "source": "assets/achievements/animations-v1/average-cups-10.end.webp",
+      "path": "assets/achievements/animations-v1/average-cups-10.end.webp",
+      "bytes": 57534,
+      "sha256": "3d3772e6a0d90b764efcaca44e181a03d333117b76339bb86af83c18b7cbf40b"
+    },
+    {
+      "source": "assets/achievements/animations-v1/average-cups-10.json",
+      "path": "assets/achievements/animations-v1/average-cups-10.json",
+      "bytes": 150,
+      "sha256": "7d45392f4b1b973371285de29beb26b87e9f8bd665cdef5dea133c8d10d6cebb"
+    },
+    {
+      "source": "assets/achievements/animations-v1/average-cups-10.start.webp",
+      "path": "assets/achievements/animations-v1/average-cups-10.start.webp",
+      "bytes": 53932,
+      "sha256": "f491fb55785ec62c8334a442d215e93d2f7eee542867e05f38096f51ccd7b30b"
+    },
+    {
+      "source": "assets/achievements/animations-v1/average-cups-100.atlas.webp",
+      "path": "assets/achievements/animations-v1/average-cups-100.atlas.webp",
+      "bytes": 1478188,
+      "sha256": "6cdd677baf72bcb343b171478ccf6f435bb25f4dce1e4d429a3df6160f788f19"
+    },
+    {
+      "source": "assets/achievements/animations-v1/average-cups-100.end.webp",
+      "path": "assets/achievements/animations-v1/average-cups-100.end.webp",
+      "bytes": 55470,
+      "sha256": "8536cb812653fa3ff450ed954d9c51e42fa6a5963fe803d6d610ca03a5da3c43"
+    },
+    {
+      "source": "assets/achievements/animations-v1/average-cups-100.json",
+      "path": "assets/achievements/animations-v1/average-cups-100.json",
+      "bytes": 151,
+      "sha256": "aade43e145eefdd831d05fe6d895a5dcf02ce08c3b90e21fb2db8ed388e1f018"
+    },
+    {
+      "source": "assets/achievements/animations-v1/average-cups-100.start.webp",
+      "path": "assets/achievements/animations-v1/average-cups-100.start.webp",
+      "bytes": 52220,
+      "sha256": "f9dcf876f422e70192a28a9d1e2a6d5247f5c7ab16d9df92e9ec63c66e1cd148"
+    },
+    {
+      "source": "assets/achievements/animations-v1/average-cups-1000.atlas.webp",
+      "path": "assets/achievements/animations-v1/average-cups-1000.atlas.webp",
+      "bytes": 1507866,
+      "sha256": "26f0985c74f1b6cb7f35a88fe9391fafdc2b260a1f6eff32cb092de54113a023"
+    },
+    {
+      "source": "assets/achievements/animations-v1/average-cups-1000.end.webp",
+      "path": "assets/achievements/animations-v1/average-cups-1000.end.webp",
+      "bytes": 57868,
+      "sha256": "cccaf67ff6eeab9cce4384007f98be5f24c9f5a9ebbbf4fc252027090990dc6c"
+    },
+    {
+      "source": "assets/achievements/animations-v1/average-cups-1000.json",
+      "path": "assets/achievements/animations-v1/average-cups-1000.json",
+      "bytes": 152,
+      "sha256": "a69410a5f118bfb3d1c8a95fbbe6f80b8d626aaef1a84f7103e4d1b6769c0e1a"
+    },
+    {
+      "source": "assets/achievements/animations-v1/average-cups-1000.start.webp",
+      "path": "assets/achievements/animations-v1/average-cups-1000.start.webp",
+      "bytes": 54648,
+      "sha256": "8cbf4514bb649648fdca7c91ce816cccde16e2134b377f31ddc53512bd646a62"
+    },
+    {
+      "source": "assets/achievements/animations-v1/average-cups-500.atlas.webp",
+      "path": "assets/achievements/animations-v1/average-cups-500.atlas.webp",
+      "bytes": 1497224,
+      "sha256": "d48aeb25abdb3556a4ee62dd13c39919a96482c47e0af1ce42ccfda5dd1808e1"
+    },
+    {
+      "source": "assets/achievements/animations-v1/average-cups-500.end.webp",
+      "path": "assets/achievements/animations-v1/average-cups-500.end.webp",
+      "bytes": 56372,
+      "sha256": "9296c053531742d6f10de58df0e25a87db6ac64208086739b8f638025136f08b"
+    },
+    {
+      "source": "assets/achievements/animations-v1/average-cups-500.json",
+      "path": "assets/achievements/animations-v1/average-cups-500.json",
+      "bytes": 151,
+      "sha256": "8160c5c3d8789a733b50c7e191033a31c82bbe126d774ed329ad403bd0d9f210"
+    },
+    {
+      "source": "assets/achievements/animations-v1/average-cups-500.start.webp",
+      "path": "assets/achievements/animations-v1/average-cups-500.start.webp",
+      "bytes": 53154,
+      "sha256": "be513cdfc705a28b1929c1f0b378b541a52a6cdf72fef54275120cb21a683cc1"
+    },
+    {
+      "source": "assets/achievements/animations-v1/clean-120.atlas.webp",
+      "path": "assets/achievements/animations-v1/clean-120.atlas.webp",
+      "bytes": 1310850,
+      "sha256": "d5ce084c780fc8add2bd59ad3014251faeb6006f0b0ff26131b0e7ffa0e6f5f8"
+    },
+    {
+      "source": "assets/achievements/animations-v1/clean-120.end.webp",
+      "path": "assets/achievements/animations-v1/clean-120.end.webp",
+      "bytes": 63982,
+      "sha256": "7e46aad0305e92eb76b6b07a8b6fc1194f91cfb56e9b5fa5f09bdfcd94a4aaaa"
+    },
+    {
+      "source": "assets/achievements/animations-v1/clean-120.json",
+      "path": "assets/achievements/animations-v1/clean-120.json",
+      "bytes": 146,
+      "sha256": "4dbe6e68fa8fdf0587892a2a322e33d5771e3b4f9d56f674d90a67ff6f4a7233"
+    },
+    {
+      "source": "assets/achievements/animations-v1/clean-120.start.webp",
+      "path": "assets/achievements/animations-v1/clean-120.start.webp",
+      "bytes": 41926,
+      "sha256": "b7cf39d03098b5cc4b16152304576c5eeaaf3824c66871fde4d3c991e157c1e7"
+    },
+    {
+      "source": "assets/achievements/animations-v1/clean-20.atlas.webp",
+      "path": "assets/achievements/animations-v1/clean-20.atlas.webp",
+      "bytes": 1161502,
+      "sha256": "79d44bef3614ded1e84f1b5fd8d63b0318a617187b216925737304d0e767dc9c"
+    },
+    {
+      "source": "assets/achievements/animations-v1/clean-20.end.webp",
+      "path": "assets/achievements/animations-v1/clean-20.end.webp",
+      "bytes": 60624,
+      "sha256": "2414d637777b75b927449cfa5b1e64b32abdabf217498abaeed55796edbc204e"
+    },
+    {
+      "source": "assets/achievements/animations-v1/clean-20.json",
+      "path": "assets/achievements/animations-v1/clean-20.json",
+      "bytes": 145,
+      "sha256": "44e5577cce11adbce2a348dc6cd2c3b070d3afcdae3f7b7400fd97bcc9b974a3"
+    },
+    {
+      "source": "assets/achievements/animations-v1/clean-20.start.webp",
+      "path": "assets/achievements/animations-v1/clean-20.start.webp",
+      "bytes": 35624,
+      "sha256": "c4f4e59f162ceaeb2405896fdc072985200ccafdacc629eab748f038d14a36d9"
+    },
+    {
+      "source": "assets/achievements/animations-v1/clean-30.atlas.webp",
+      "path": "assets/achievements/animations-v1/clean-30.atlas.webp",
+      "bytes": 1157440,
+      "sha256": "8ce67af63e6eb40965e957137a18f0a14cd614df4b5055b3769b64935d0fd3d8"
+    },
+    {
+      "source": "assets/achievements/animations-v1/clean-30.end.webp",
+      "path": "assets/achievements/animations-v1/clean-30.end.webp",
+      "bytes": 60414,
+      "sha256": "4acdd41bce48932dc048f24e8b93c6a54b21a41cc26295d4a7e0d566fbcd202f"
+    },
+    {
+      "source": "assets/achievements/animations-v1/clean-30.json",
+      "path": "assets/achievements/animations-v1/clean-30.json",
+      "bytes": 145,
+      "sha256": "c6e845e1899a8f26ffe90cc0af0ad798f19b31b6379d92a0f8cb44d37d492f5d"
+    },
+    {
+      "source": "assets/achievements/animations-v1/clean-30.start.webp",
+      "path": "assets/achievements/animations-v1/clean-30.start.webp",
+      "bytes": 35624,
+      "sha256": "c4f4e59f162ceaeb2405896fdc072985200ccafdacc629eab748f038d14a36d9"
+    },
+    {
+      "source": "assets/achievements/animations-v1/clean-60.atlas.webp",
+      "path": "assets/achievements/animations-v1/clean-60.atlas.webp",
+      "bytes": 1171920,
+      "sha256": "4384ed8e6db084211f59392070502cc321c585f5169b2a866a32221028e0ba8b"
+    },
+    {
+      "source": "assets/achievements/animations-v1/clean-60.end.webp",
+      "path": "assets/achievements/animations-v1/clean-60.end.webp",
+      "bytes": 60204,
+      "sha256": "6afac35990d7062adec925237c6e4516ea3efd89607bd86c4366db9dcaa35448"
+    },
+    {
+      "source": "assets/achievements/animations-v1/clean-60.json",
+      "path": "assets/achievements/animations-v1/clean-60.json",
+      "bytes": 145,
+      "sha256": "b35ae0c698b2771613e68ad8067360632e622af7f7d3c664732f54f3609e2f61"
+    },
+    {
+      "source": "assets/achievements/animations-v1/clean-60.start.webp",
+      "path": "assets/achievements/animations-v1/clean-60.start.webp",
+      "bytes": 35624,
+      "sha256": "c4f4e59f162ceaeb2405896fdc072985200ccafdacc629eab748f038d14a36d9"
+    },
+    {
+      "source": "assets/achievements/animations-v1/clean-90.atlas.webp",
+      "path": "assets/achievements/animations-v1/clean-90.atlas.webp",
+      "bytes": 1294042,
+      "sha256": "a9015beed00781df5e0acbe4e8653f350c40c2cd7f8b1d06ecd04c0c0c134d12"
+    },
+    {
+      "source": "assets/achievements/animations-v1/clean-90.end.webp",
+      "path": "assets/achievements/animations-v1/clean-90.end.webp",
+      "bytes": 62654,
+      "sha256": "c7c1dd139298f327631e24d7035801565379912b66ab6a41ff26edc86c36cacf"
+    },
+    {
+      "source": "assets/achievements/animations-v1/clean-90.json",
+      "path": "assets/achievements/animations-v1/clean-90.json",
+      "bytes": 145,
+      "sha256": "0f0aec0d61ef328cc27913b86fece3f6e76b5781290898fee4c9912183e57102"
+    },
+    {
+      "source": "assets/achievements/animations-v1/clean-90.start.webp",
+      "path": "assets/achievements/animations-v1/clean-90.start.webp",
+      "bytes": 41576,
+      "sha256": "d6f555fc61c9a9ef3a30d7494255b21a13508b247dcd81a2e010f548cbd8290f"
+    },
+    {
+      "source": "assets/achievements/animations-v1/distance-1000.atlas.webp",
+      "path": "assets/achievements/animations-v1/distance-1000.atlas.webp",
+      "bytes": 1055414,
+      "sha256": "6e33c87210cb24709bd9f3f2204ac7b0007b34a7871b1b9c2143f4b1fa778f31"
+    },
+    {
+      "source": "assets/achievements/animations-v1/distance-1000.end.webp",
+      "path": "assets/achievements/animations-v1/distance-1000.end.webp",
+      "bytes": 60266,
+      "sha256": "602533feb27c92183427c59a2a184d4a000100fb8cdfadcffada3819ee0970d6"
+    },
+    {
+      "source": "assets/achievements/animations-v1/distance-1000.json",
+      "path": "assets/achievements/animations-v1/distance-1000.json",
+      "bytes": 150,
+      "sha256": "f58a42e41c371607cbadb91f2a34e30bea67e9cea0b264971f8c37b3dc163103"
+    },
+    {
+      "source": "assets/achievements/animations-v1/distance-1000.start.webp",
+      "path": "assets/achievements/animations-v1/distance-1000.start.webp",
+      "bytes": 28414,
+      "sha256": "4a715753a000e214470648da07c2586ab10c8b4909c297eee5d01ccd302d07fb"
+    },
+    {
+      "source": "assets/achievements/animations-v1/distance-10000.atlas.webp",
+      "path": "assets/achievements/animations-v1/distance-10000.atlas.webp",
+      "bytes": 1179606,
+      "sha256": "32f7ccf584f20b7ccc275dc91161546313c32b69396b0f7f46403020a9d9b8e4"
+    },
+    {
+      "source": "assets/achievements/animations-v1/distance-10000.end.webp",
+      "path": "assets/achievements/animations-v1/distance-10000.end.webp",
+      "bytes": 64248,
+      "sha256": "6a8bce35e6a7527935d5d51acc41a881001d6c3eec7fedd940c7d887381721da"
+    },
+    {
+      "source": "assets/achievements/animations-v1/distance-10000.json",
+      "path": "assets/achievements/animations-v1/distance-10000.json",
+      "bytes": 151,
+      "sha256": "f9d82b9df565b8788ef10ec354e40421a1552cd6f4d6c869c46b2e2548135716"
+    },
+    {
+      "source": "assets/achievements/animations-v1/distance-10000.start.webp",
+      "path": "assets/achievements/animations-v1/distance-10000.start.webp",
+      "bytes": 33872,
+      "sha256": "67ad99eb14a8aec5744be2ed5e508f60c6da88217b64ba961b2747a104a9fbb9"
+    },
+    {
+      "source": "assets/achievements/animations-v1/distance-2000.atlas.webp",
+      "path": "assets/achievements/animations-v1/distance-2000.atlas.webp",
+      "bytes": 1059888,
+      "sha256": "e99cc514c34388d45d68c4e305a627ae853eff849532dbe7be11c98e2b386056"
+    },
+    {
+      "source": "assets/achievements/animations-v1/distance-2000.end.webp",
+      "path": "assets/achievements/animations-v1/distance-2000.end.webp",
+      "bytes": 58910,
+      "sha256": "cb2c1b442029917eb1dd99fdad0eebae3b707c15442bbed929223384997c3d80"
+    },
+    {
+      "source": "assets/achievements/animations-v1/distance-2000.json",
+      "path": "assets/achievements/animations-v1/distance-2000.json",
+      "bytes": 150,
+      "sha256": "e3e12fcc32fc8673dfe838fed9753ec0f7750637556d01461c08a3c24895998a"
+    },
+    {
+      "source": "assets/achievements/animations-v1/distance-2000.start.webp",
+      "path": "assets/achievements/animations-v1/distance-2000.start.webp",
+      "bytes": 28414,
+      "sha256": "4a715753a000e214470648da07c2586ab10c8b4909c297eee5d01ccd302d07fb"
+    },
+    {
+      "source": "assets/achievements/animations-v1/distance-20000.atlas.webp",
+      "path": "assets/achievements/animations-v1/distance-20000.atlas.webp",
+      "bytes": 1195670,
+      "sha256": "b465ec3c9a1941035d4360dba0429220b9535bd954e242af95ab509d9f3a6c55"
+    },
+    {
+      "source": "assets/achievements/animations-v1/distance-20000.end.webp",
+      "path": "assets/achievements/animations-v1/distance-20000.end.webp",
+      "bytes": 63230,
+      "sha256": "fe299316effbb12ceb8739b2e75d0b0455f72e623143f9fcb7de7cb41b8e4cb8"
+    },
+    {
+      "source": "assets/achievements/animations-v1/distance-20000.json",
+      "path": "assets/achievements/animations-v1/distance-20000.json",
+      "bytes": 151,
+      "sha256": "2cd9462dfd181c276ec88bc604624eb4fbe1dbf35537b6c6ff1a0305c48af847"
+    },
+    {
+      "source": "assets/achievements/animations-v1/distance-20000.start.webp",
+      "path": "assets/achievements/animations-v1/distance-20000.start.webp",
+      "bytes": 34076,
+      "sha256": "e65df2c72a184b056199e4b615c08038e01f8b8599f2c34da4295e39ecdfccbc"
+    },
+    {
+      "source": "assets/achievements/animations-v1/distance-5000.atlas.webp",
+      "path": "assets/achievements/animations-v1/distance-5000.atlas.webp",
+      "bytes": 1084810,
+      "sha256": "cd54406ae136d7ca4868d6ff8212129b86e9a5e0d5137051c419ec4639e3251e"
+    },
+    {
+      "source": "assets/achievements/animations-v1/distance-5000.end.webp",
+      "path": "assets/achievements/animations-v1/distance-5000.end.webp",
+      "bytes": 61236,
+      "sha256": "85ca64e41dd01a07231b262dc906a5230388e0f90988566bf1fa7afe25b59d36"
+    },
+    {
+      "source": "assets/achievements/animations-v1/distance-5000.json",
+      "path": "assets/achievements/animations-v1/distance-5000.json",
+      "bytes": 150,
+      "sha256": "a72b754ea378c78f06c034897d54a1ac76e799753c6fa6a09f0a7fe6eb4ca13d"
+    },
+    {
+      "source": "assets/achievements/animations-v1/distance-5000.start.webp",
+      "path": "assets/achievements/animations-v1/distance-5000.start.webp",
+      "bytes": 28414,
+      "sha256": "4a715753a000e214470648da07c2586ab10c8b4909c297eee5d01ccd302d07fb"
+    },
+    {
+      "source": "assets/achievements/animations-v1/distance-50000.atlas.webp",
+      "path": "assets/achievements/animations-v1/distance-50000.atlas.webp",
+      "bytes": 1192522,
+      "sha256": "657a6cbe788ca44fbde2776e26f93f55f375bfef516da86f9361f66b7bf7474d"
+    },
+    {
+      "source": "assets/achievements/animations-v1/distance-50000.end.webp",
+      "path": "assets/achievements/animations-v1/distance-50000.end.webp",
+      "bytes": 62926,
+      "sha256": "162684d70d907bf64305b16f63f916787c62707c1a2de4c0981bee1633aeff48"
+    },
+    {
+      "source": "assets/achievements/animations-v1/distance-50000.json",
+      "path": "assets/achievements/animations-v1/distance-50000.json",
+      "bytes": 151,
+      "sha256": "0cdd03e7290e19f476c43a84d527f8e728cabeed2edd2e1550591b87fe7fa128"
+    },
+    {
+      "source": "assets/achievements/animations-v1/distance-50000.start.webp",
+      "path": "assets/achievements/animations-v1/distance-50000.start.webp",
+      "bytes": 34076,
+      "sha256": "e65df2c72a184b056199e4b615c08038e01f8b8599f2c34da4295e39ecdfccbc"
+    },
+    {
+      "source": "assets/achievements/animations-v1/invites-1.atlas.webp",
+      "path": "assets/achievements/animations-v1/invites-1.atlas.webp",
+      "bytes": 1187842,
+      "sha256": "1d96a180d7669d7902f4d8a8bb20843e7b38ba083fdaebc4c76007f4fccca912"
+    },
+    {
+      "source": "assets/achievements/animations-v1/invites-1.end.webp",
+      "path": "assets/achievements/animations-v1/invites-1.end.webp",
+      "bytes": 63160,
+      "sha256": "65ffffbc1c29c1895fc44067d12d29718d2ca04996fed492a3ea13a5da87d3ca"
+    },
+    {
+      "source": "assets/achievements/animations-v1/invites-1.json",
+      "path": "assets/achievements/animations-v1/invites-1.json",
+      "bytes": 146,
+      "sha256": "cdab1c46e7fa923cb84e055fb984bf2761bb7b095b8df508936ac2cbbcc0dab2"
+    },
+    {
+      "source": "assets/achievements/animations-v1/invites-1.start.webp",
+      "path": "assets/achievements/animations-v1/invites-1.start.webp",
+      "bytes": 35716,
+      "sha256": "4ac8318f6a4763624ab14ce1ad52f447d003b4ef58ee1767f4e819cbe606118a"
+    },
+    {
+      "source": "assets/achievements/animations-v1/invites-10.atlas.webp",
+      "path": "assets/achievements/animations-v1/invites-10.atlas.webp",
+      "bytes": 1213780,
+      "sha256": "1cdce20dfe5bb639a61497b833c28c233ebad4e3618df5552cb83ffc141bc642"
+    },
+    {
+      "source": "assets/achievements/animations-v1/invites-10.end.webp",
+      "path": "assets/achievements/animations-v1/invites-10.end.webp",
+      "bytes": 64142,
+      "sha256": "8d6c216ad0f92df1ed030c53669c1222c08372376beb6f78da1d71d203365e1b"
+    },
+    {
+      "source": "assets/achievements/animations-v1/invites-10.json",
+      "path": "assets/achievements/animations-v1/invites-10.json",
+      "bytes": 147,
+      "sha256": "d022d08947199a6ec2bd0e3181dd866aa83081b8300f88a9e7ad9d44209940b7"
+    },
+    {
+      "source": "assets/achievements/animations-v1/invites-10.start.webp",
+      "path": "assets/achievements/animations-v1/invites-10.start.webp",
+      "bytes": 35716,
+      "sha256": "4ac8318f6a4763624ab14ce1ad52f447d003b4ef58ee1767f4e819cbe606118a"
+    },
+    {
+      "source": "assets/achievements/animations-v1/invites-100.atlas.webp",
+      "path": "assets/achievements/animations-v1/invites-100.atlas.webp",
+      "bytes": 1321766,
+      "sha256": "62af59e5fb7e116f98b3336a7a0d59f6d15083b3dd5c5ab80eaab99e842fc7b0"
+    },
+    {
+      "source": "assets/achievements/animations-v1/invites-100.end.webp",
+      "path": "assets/achievements/animations-v1/invites-100.end.webp",
+      "bytes": 67030,
+      "sha256": "e8ed5c246aa63c1509cdd2778b45fd37e5f6f126791a2c96359ee183e1384f63"
+    },
+    {
+      "source": "assets/achievements/animations-v1/invites-100.json",
+      "path": "assets/achievements/animations-v1/invites-100.json",
+      "bytes": 148,
+      "sha256": "fbf3c66a661d04664166926378cb09e16409092d714920a70e7677e826ba05f0"
+    },
+    {
+      "source": "assets/achievements/animations-v1/invites-100.start.webp",
+      "path": "assets/achievements/animations-v1/invites-100.start.webp",
+      "bytes": 40756,
+      "sha256": "8d8db8f6b477f7807c0bff5d895b61682c2c5daf20937d9260c2ce720a0319e6"
+    },
+    {
+      "source": "assets/achievements/animations-v1/invites-5.atlas.webp",
+      "path": "assets/achievements/animations-v1/invites-5.atlas.webp",
+      "bytes": 1200422,
+      "sha256": "ec2dcbbd73cf11877125b5881d4bbe2e3d46ff8738ddb609aaebeba62218cda3"
+    },
+    {
+      "source": "assets/achievements/animations-v1/invites-5.end.webp",
+      "path": "assets/achievements/animations-v1/invites-5.end.webp",
+      "bytes": 64576,
+      "sha256": "5f601df1197f3d29ad2674fd27539411887fa53fed59ae276be6ecf178f8427f"
+    },
+    {
+      "source": "assets/achievements/animations-v1/invites-5.json",
+      "path": "assets/achievements/animations-v1/invites-5.json",
+      "bytes": 146,
+      "sha256": "ca45c04ab955853ea2f1847b279d08508c7bea104b3d8dbf0d1fec3ebef2d0f8"
+    },
+    {
+      "source": "assets/achievements/animations-v1/invites-5.start.webp",
+      "path": "assets/achievements/animations-v1/invites-5.start.webp",
+      "bytes": 35716,
+      "sha256": "4ac8318f6a4763624ab14ce1ad52f447d003b4ef58ee1767f4e819cbe606118a"
+    },
+    {
+      "source": "assets/achievements/animations-v1/invites-50.atlas.webp",
+      "path": "assets/achievements/animations-v1/invites-50.atlas.webp",
+      "bytes": 1289260,
+      "sha256": "62cefd265fd533ce52728152ab73876bc25651575fbc83bab63d3fc1642387b0"
+    },
+    {
+      "source": "assets/achievements/animations-v1/invites-50.end.webp",
+      "path": "assets/achievements/animations-v1/invites-50.end.webp",
+      "bytes": 66676,
+      "sha256": "3490afa92c3157142e4d42b48d93bc1c77f55bfcdb43c3dda4f87b750fd2e303"
+    },
+    {
+      "source": "assets/achievements/animations-v1/invites-50.json",
+      "path": "assets/achievements/animations-v1/invites-50.json",
+      "bytes": 147,
+      "sha256": "c56446c2945d3641973291129acae14d71bec4a0febdd1a1d156da2ba34e63ae"
+    },
+    {
+      "source": "assets/achievements/animations-v1/invites-50.start.webp",
+      "path": "assets/achievements/animations-v1/invites-50.start.webp",
+      "bytes": 40404,
+      "sha256": "48b39090dbcc7b42263e80fe00ad6ba85952b54fce63053ce3f84fe004457182"
+    },
+    {
+      "source": "assets/achievements/animations-v1/ranking-day.atlas.webp",
+      "path": "assets/achievements/animations-v1/ranking-day.atlas.webp",
+      "bytes": 1319900,
+      "sha256": "927f361bacc4d9e1cafd6690569d32e779dc3b4bb640f3fa314f52133a526e0d"
+    },
+    {
+      "source": "assets/achievements/animations-v1/ranking-day.end.webp",
+      "path": "assets/achievements/animations-v1/ranking-day.end.webp",
+      "bytes": 73160,
+      "sha256": "4be105c51ccca09907cb1718f061ed141a389cfd19bd1408cb659841f7394db4"
+    },
+    {
+      "source": "assets/achievements/animations-v1/ranking-day.json",
+      "path": "assets/achievements/animations-v1/ranking-day.json",
+      "bytes": 148,
+      "sha256": "d90dc62317af5652526f8a42d85b409348cba4c9b235471526c0fdc696f9abe3"
+    },
+    {
+      "source": "assets/achievements/animations-v1/ranking-day.start.webp",
+      "path": "assets/achievements/animations-v1/ranking-day.start.webp",
+      "bytes": 35716,
+      "sha256": "4ac8318f6a4763624ab14ce1ad52f447d003b4ef58ee1767f4e819cbe606118a"
+    },
+    {
+      "source": "assets/achievements/animations-v1/ranking-first.atlas.webp",
+      "path": "assets/achievements/animations-v1/ranking-first.atlas.webp",
+      "bytes": 1401638,
+      "sha256": "80fb3fa0f9fbde43b4b856f52095aab995a8b5702be009f8ef9f65d8e8292077"
+    },
+    {
+      "source": "assets/achievements/animations-v1/ranking-first.end.webp",
+      "path": "assets/achievements/animations-v1/ranking-first.end.webp",
+      "bytes": 74462,
+      "sha256": "f0edfdcc5b017a19f2a8b92da95ef114c1cdc47f28395bbe735ebf46d436fdba"
+    },
+    {
+      "source": "assets/achievements/animations-v1/ranking-first.json",
+      "path": "assets/achievements/animations-v1/ranking-first.json",
+      "bytes": 150,
+      "sha256": "5695f13111a11e08f123ba086eafd17414b9035fb482efa5be32c961927925e0"
+    },
+    {
+      "source": "assets/achievements/animations-v1/ranking-first.start.webp",
+      "path": "assets/achievements/animations-v1/ranking-first.start.webp",
+      "bytes": 40756,
+      "sha256": "8d8db8f6b477f7807c0bff5d895b61682c2c5daf20937d9260c2ce720a0319e6"
+    },
+    {
+      "source": "assets/achievements/animations-v1/ranking-month.atlas.webp",
+      "path": "assets/achievements/animations-v1/ranking-month.atlas.webp",
+      "bytes": 1300058,
+      "sha256": "569917dc9fb96e815e0591f31336c1ad01bb6ad3950d80537033b5ee8a78d19e"
+    },
+    {
+      "source": "assets/achievements/animations-v1/ranking-month.end.webp",
+      "path": "assets/achievements/animations-v1/ranking-month.end.webp",
+      "bytes": 71968,
+      "sha256": "26804dd8a821f1c3d463465b6dc467b6ca02be799272852c680a475264002808"
+    },
+    {
+      "source": "assets/achievements/animations-v1/ranking-month.json",
+      "path": "assets/achievements/animations-v1/ranking-month.json",
+      "bytes": 150,
+      "sha256": "ef9b953cac9a4488575806e827d634202e5eae3aa1aeab5bcd20ecebb0ff88fa"
+    },
+    {
+      "source": "assets/achievements/animations-v1/ranking-month.start.webp",
+      "path": "assets/achievements/animations-v1/ranking-month.start.webp",
+      "bytes": 35716,
+      "sha256": "4ac8318f6a4763624ab14ce1ad52f447d003b4ef58ee1767f4e819cbe606118a"
+    },
+    {
+      "source": "assets/achievements/animations-v1/ranking-week.atlas.webp",
+      "path": "assets/achievements/animations-v1/ranking-week.atlas.webp",
+      "bytes": 1316712,
+      "sha256": "14279b7f1dcc9fc448df285bd61a9dbd4cef0ddb0e4f570e9572ad33206de14b"
+    },
+    {
+      "source": "assets/achievements/animations-v1/ranking-week.end.webp",
+      "path": "assets/achievements/animations-v1/ranking-week.end.webp",
+      "bytes": 73052,
+      "sha256": "c18722a0906cf2815ba2f0bb291e82fb1203527e4ebfa512d5bad6896b5698c8"
+    },
+    {
+      "source": "assets/achievements/animations-v1/ranking-week.json",
+      "path": "assets/achievements/animations-v1/ranking-week.json",
+      "bytes": 149,
+      "sha256": "fe64f18caf9b2c82c9e5b4460357f208082873b21d5768b0595cc048ddf1d59d"
+    },
+    {
+      "source": "assets/achievements/animations-v1/ranking-week.start.webp",
+      "path": "assets/achievements/animations-v1/ranking-week.start.webp",
+      "bytes": 35716,
+      "sha256": "4ac8318f6a4763624ab14ce1ad52f447d003b4ef58ee1767f4e819cbe606118a"
+    },
+    {
+      "source": "assets/achievements/animations-v1/ranking-year.atlas.webp",
+      "path": "assets/achievements/animations-v1/ranking-year.atlas.webp",
+      "bytes": 1398672,
+      "sha256": "060fc3724990b1f322bf0df1cfe7e2c44cc9cbdd1b9f5de37e4fd0ae0423e312"
+    },
+    {
+      "source": "assets/achievements/animations-v1/ranking-year.end.webp",
+      "path": "assets/achievements/animations-v1/ranking-year.end.webp",
+      "bytes": 74396,
+      "sha256": "515c108b1d36fd25223dcacedf7fa62d4c3f564fa874b09c3b31d99a3711d7cb"
+    },
+    {
+      "source": "assets/achievements/animations-v1/ranking-year.json",
+      "path": "assets/achievements/animations-v1/ranking-year.json",
+      "bytes": 149,
+      "sha256": "8c421e8a422e0d5ec56df1a5886ac1e177631975628d0184cca39f44d8b67244"
+    },
+    {
+      "source": "assets/achievements/animations-v1/ranking-year.start.webp",
+      "path": "assets/achievements/animations-v1/ranking-year.start.webp",
+      "bytes": 40404,
+      "sha256": "48b39090dbcc7b42263e80fe00ad6ba85952b54fce63053ce3f84fe004457182"
+    },
+    {
+      "source": "assets/achievements/animations-v1/record-cups-1.atlas.webp",
+      "path": "assets/achievements/animations-v1/record-cups-1.atlas.webp",
+      "bytes": 1620134,
+      "sha256": "b8a257386fd62eb4ea46f5f9e5cb773551c659d48376067129b08db7581f3b3a"
+    },
+    {
+      "source": "assets/achievements/animations-v1/record-cups-1.end.webp",
+      "path": "assets/achievements/animations-v1/record-cups-1.end.webp",
+      "bytes": 62480,
+      "sha256": "1c3977ab1c54111688aadb1380685b005bb56ac2f0ce39caffc8be74f8c94edc"
+    },
+    {
+      "source": "assets/achievements/animations-v1/record-cups-1.json",
+      "path": "assets/achievements/animations-v1/record-cups-1.json",
+      "bytes": 148,
+      "sha256": "9f6a12bfd916258a4f19a14e3b4ec6cc74a2091ef61cbde5d43d41dbff78d912"
+    },
+    {
+      "source": "assets/achievements/animations-v1/record-cups-1.start.webp",
+      "path": "assets/achievements/animations-v1/record-cups-1.start.webp",
+      "bytes": 59300,
+      "sha256": "838c8cf2029f79fdb666f22d145e57e2efebf0131f34a4071260894b1fab9145"
+    },
+    {
+      "source": "assets/achievements/animations-v1/record-cups-10.atlas.webp",
+      "path": "assets/achievements/animations-v1/record-cups-10.atlas.webp",
+      "bytes": 1606476,
+      "sha256": "ff4d6522dc1988e4aeaf99a09b63a24a4b32bfaa0bf69a6d19f664a40365c51a"
+    },
+    {
+      "source": "assets/achievements/animations-v1/record-cups-10.end.webp",
+      "path": "assets/achievements/animations-v1/record-cups-10.end.webp",
+      "bytes": 62264,
+      "sha256": "b3272e31c4daad8e17ac8b694a89a59a9883a4c86c9e6d9a1a82d617805b417f"
+    },
+    {
+      "source": "assets/achievements/animations-v1/record-cups-10.json",
+      "path": "assets/achievements/animations-v1/record-cups-10.json",
+      "bytes": 149,
+      "sha256": "368043455aeb573e68cbeec406d99c7fbe3de12e551ba529067a48cb0df707f0"
+    },
+    {
+      "source": "assets/achievements/animations-v1/record-cups-10.start.webp",
+      "path": "assets/achievements/animations-v1/record-cups-10.start.webp",
+      "bytes": 59962,
+      "sha256": "2ab359282aa2f02778b54a18cbe763b641d9a7f57950e4f055d2d198c8da6ce0"
+    },
+    {
+      "source": "assets/achievements/animations-v1/record-cups-100.atlas.webp",
+      "path": "assets/achievements/animations-v1/record-cups-100.atlas.webp",
+      "bytes": 1511094,
+      "sha256": "ef27c96596df3183f340f2e5a34715e51423b248ad9fb3d732ad8e8d62346709"
+    },
+    {
+      "source": "assets/achievements/animations-v1/record-cups-100.end.webp",
+      "path": "assets/achievements/animations-v1/record-cups-100.end.webp",
+      "bytes": 55888,
+      "sha256": "92de377accdb4a6b5659616428cea05c7c1a27d416343b2b5adfb07ecaed6401"
+    },
+    {
+      "source": "assets/achievements/animations-v1/record-cups-100.json",
+      "path": "assets/achievements/animations-v1/record-cups-100.json",
+      "bytes": 150,
+      "sha256": "072278228c14d0eab1f170eca70d098fb2e1dab512fe4ad4821a54b277fbff60"
+    },
+    {
+      "source": "assets/achievements/animations-v1/record-cups-100.start.webp",
+      "path": "assets/achievements/animations-v1/record-cups-100.start.webp",
+      "bytes": 54654,
+      "sha256": "c7e1405a325132ee794491d2e755ce83bd30712931f44e7e101a0fe4185ed89a"
+    },
+    {
+      "source": "assets/achievements/animations-v1/record-cups-1000.atlas.webp",
+      "path": "assets/achievements/animations-v1/record-cups-1000.atlas.webp",
+      "bytes": 1661062,
+      "sha256": "89099b04cf9400f95bdc33f76b7ac25996912f7b72652f019e81a261c9afeafd"
+    },
+    {
+      "source": "assets/achievements/animations-v1/record-cups-1000.end.webp",
+      "path": "assets/achievements/animations-v1/record-cups-1000.end.webp",
+      "bytes": 63630,
+      "sha256": "33632e1c418287c32016ff170505c3c5fb33836b673af81c9a09fe6a844e1c24"
+    },
+    {
+      "source": "assets/achievements/animations-v1/record-cups-1000.json",
+      "path": "assets/achievements/animations-v1/record-cups-1000.json",
+      "bytes": 151,
+      "sha256": "e0d18edb7254b7a5dc71a709c7ca38330febd3610df63093d2d2261c94134c31"
+    },
+    {
+      "source": "assets/achievements/animations-v1/record-cups-1000.start.webp",
+      "path": "assets/achievements/animations-v1/record-cups-1000.start.webp",
+      "bytes": 61216,
+      "sha256": "bb22d71e305e03bd793b4d66512f71d6a42640564ada0af40dffe2a056ade81b"
+    },
+    {
+      "source": "assets/achievements/animations-v1/record-cups-500.atlas.webp",
+      "path": "assets/achievements/animations-v1/record-cups-500.atlas.webp",
+      "bytes": 1606274,
+      "sha256": "a31c44bdfe794f4b2e998c97a8cc8696b7282c3779ecba5bb6c397ae47c5999a"
+    },
+    {
+      "source": "assets/achievements/animations-v1/record-cups-500.end.webp",
+      "path": "assets/achievements/animations-v1/record-cups-500.end.webp",
+      "bytes": 63264,
+      "sha256": "dfe808a84a723a7f798f7d63e19826ec378ba864708584142294c681f0d6cc39"
+    },
+    {
+      "source": "assets/achievements/animations-v1/record-cups-500.json",
+      "path": "assets/achievements/animations-v1/record-cups-500.json",
+      "bytes": 150,
+      "sha256": "889d72913cdc83c03944586e6ac36a42b05bd3de1ac149f212bfb4ac5aa8a2f0"
+    },
+    {
+      "source": "assets/achievements/animations-v1/record-cups-500.start.webp",
+      "path": "assets/achievements/animations-v1/record-cups-500.start.webp",
+      "bytes": 60302,
+      "sha256": "b2a684dd110c8016a3e846669e26a16f2293c8c27c4f545b9c28096cb953b1bc"
+    },
+    {
+      "source": "assets/achievements/animations-v1/risk-10.atlas.webp",
+      "path": "assets/achievements/animations-v1/risk-10.atlas.webp",
+      "bytes": 984626,
+      "sha256": "dea578ea91bbd77ce9288fe4110716a4fa5cf8c05d7d2003f70cf4931f1572fa"
+    },
+    {
+      "source": "assets/achievements/animations-v1/risk-10.end.webp",
+      "path": "assets/achievements/animations-v1/risk-10.end.webp",
+      "bytes": 47092,
+      "sha256": "ea9fb973912ce3c9dd3e037741812dc0c31a6e99c6f293e6afdaeee01b47ba58"
+    },
+    {
+      "source": "assets/achievements/animations-v1/risk-10.json",
+      "path": "assets/achievements/animations-v1/risk-10.json",
+      "bytes": 144,
+      "sha256": "3e64b6c92173acf4f2bfac523de3a7a9984a519dd632c8519cf81f333949ba86"
+    },
+    {
+      "source": "assets/achievements/animations-v1/risk-10.start.webp",
+      "path": "assets/achievements/animations-v1/risk-10.start.webp",
+      "bytes": 31152,
+      "sha256": "297a8ebcaa92916521f218f1618c03aaf1188de3f6db9f907cd6feb102dce6bc"
+    },
+    {
+      "source": "assets/achievements/animations-v1/risk-2.atlas.webp",
+      "path": "assets/achievements/animations-v1/risk-2.atlas.webp",
+      "bytes": 989010,
+      "sha256": "d0aea06dfd2eea993cc98682a41d1b96327b44274b01057de0a2b8dddfc1bfb4"
+    },
+    {
+      "source": "assets/achievements/animations-v1/risk-2.end.webp",
+      "path": "assets/achievements/animations-v1/risk-2.end.webp",
+      "bytes": 47176,
+      "sha256": "74968f5f088600f13d62b205ab94df8a947bf7fabf8f71d01ccb7f66ca2c344f"
+    },
+    {
+      "source": "assets/achievements/animations-v1/risk-2.json",
+      "path": "assets/achievements/animations-v1/risk-2.json",
+      "bytes": 143,
+      "sha256": "38a4fe63d18b8db5e8986a320a86c6f76c851bbd9e8eed7ff5eb36d22253398d"
+    },
+    {
+      "source": "assets/achievements/animations-v1/risk-2.start.webp",
+      "path": "assets/achievements/animations-v1/risk-2.start.webp",
+      "bytes": 31152,
+      "sha256": "297a8ebcaa92916521f218f1618c03aaf1188de3f6db9f907cd6feb102dce6bc"
+    },
+    {
+      "source": "assets/achievements/animations-v1/risk-20.atlas.webp",
+      "path": "assets/achievements/animations-v1/risk-20.atlas.webp",
+      "bytes": 1123198,
+      "sha256": "7e91fc652b3346271b65870477e67da0748374e854a8965649979b6f6ceca046"
+    },
+    {
+      "source": "assets/achievements/animations-v1/risk-20.end.webp",
+      "path": "assets/achievements/animations-v1/risk-20.end.webp",
+      "bytes": 53046,
+      "sha256": "ee80156f0ea8e18ef0eab044e90c968322e90c1b770d6c563e7e2015e1180e91"
+    },
+    {
+      "source": "assets/achievements/animations-v1/risk-20.json",
+      "path": "assets/achievements/animations-v1/risk-20.json",
+      "bytes": 144,
+      "sha256": "da8ca563a38d17c9554d4e57a78260afb4ac00e14bb9459bf0d8a28b90f52108"
+    },
+    {
+      "source": "assets/achievements/animations-v1/risk-20.start.webp",
+      "path": "assets/achievements/animations-v1/risk-20.start.webp",
+      "bytes": 35716,
+      "sha256": "50b8be49c3af653146b163d1401a13c157f20fccda183dbfbae00bb301de985c"
+    },
+    {
+      "source": "assets/achievements/animations-v1/risk-5.atlas.webp",
+      "path": "assets/achievements/animations-v1/risk-5.atlas.webp",
+      "bytes": 982604,
+      "sha256": "d385b9f6e73f1fba49e45da7077824c4c89f23570eb7da7715a98d33a410a31d"
+    },
+    {
+      "source": "assets/achievements/animations-v1/risk-5.end.webp",
+      "path": "assets/achievements/animations-v1/risk-5.end.webp",
+      "bytes": 46914,
+      "sha256": "66c0bf8b92e77523f1719ace681e5843648ee731b86c06e40ea072e5a3d9f210"
+    },
+    {
+      "source": "assets/achievements/animations-v1/risk-5.json",
+      "path": "assets/achievements/animations-v1/risk-5.json",
+      "bytes": 143,
+      "sha256": "07f2dfdde7a47e30446e16b99a7cb28d7b98c528f4bbc00b481363853086486f"
+    },
+    {
+      "source": "assets/achievements/animations-v1/risk-5.start.webp",
+      "path": "assets/achievements/animations-v1/risk-5.start.webp",
+      "bytes": 31152,
+      "sha256": "297a8ebcaa92916521f218f1618c03aaf1188de3f6db9f907cd6feb102dce6bc"
+    },
+    {
+      "source": "assets/achievements/animations-v1/risk-50.atlas.webp",
+      "path": "assets/achievements/animations-v1/risk-50.atlas.webp",
+      "bytes": 1117848,
+      "sha256": "ad11411c35d67e181c275f2e153f33002b0e02d25e36098856d69beb4cec0bf4"
+    },
+    {
+      "source": "assets/achievements/animations-v1/risk-50.end.webp",
+      "path": "assets/achievements/animations-v1/risk-50.end.webp",
+      "bytes": 54200,
+      "sha256": "ecb6909dd582098cf88994185842e56d79c2710f1150881e9fce0e266b14cf58"
+    },
+    {
+      "source": "assets/achievements/animations-v1/risk-50.json",
+      "path": "assets/achievements/animations-v1/risk-50.json",
+      "bytes": 144,
+      "sha256": "e92022164a4ab8d6383b4151a1542fb522d336858f16f33ffb9fd4240e4c8136"
+    },
+    {
+      "source": "assets/achievements/animations-v1/risk-50.start.webp",
+      "path": "assets/achievements/animations-v1/risk-50.start.webp",
+      "bytes": 35940,
+      "sha256": "9ec0838309e5fb0f2ee191f78cbc9b4e9b9a9c393d1f0991beb8e9570853e568"
+    },
+    {
+      "source": "assets/achievements/animations-v1/time-120.atlas.webp",
+      "path": "assets/achievements/animations-v1/time-120.atlas.webp",
+      "bytes": 1483018,
+      "sha256": "707433b7e17c0c31b9ce15a15fa5a699385f7e1fde72557d6e54b67712f677ab"
+    },
+    {
+      "source": "assets/achievements/animations-v1/time-120.end.webp",
+      "path": "assets/achievements/animations-v1/time-120.end.webp",
+      "bytes": 71852,
+      "sha256": "869d9936e897b5704c6f19ebedcf5adbfebb6dfa53a0e9f36afc9570a52c0661"
+    },
+    {
+      "source": "assets/achievements/animations-v1/time-120.json",
+      "path": "assets/achievements/animations-v1/time-120.json",
+      "bytes": 145,
+      "sha256": "335e94cecef09cb3fde6924b87075bb47b830750f7b91af80c0b348b76de1e59"
+    },
+    {
+      "source": "assets/achievements/animations-v1/time-120.start.webp",
+      "path": "assets/achievements/animations-v1/time-120.start.webp",
+      "bytes": 49166,
+      "sha256": "c3ec739e0c124c22bc9c7c494fb7390e907d8fcd5eb80c9ae1f3ec2eec019b33"
+    },
+    {
+      "source": "assets/achievements/animations-v1/time-180.atlas.webp",
+      "path": "assets/achievements/animations-v1/time-180.atlas.webp",
+      "bytes": 1503340,
+      "sha256": "e146f56422afd5189667f6bee40a2a3c3152623b30ad2ac56e88b53eedfe5809"
+    },
+    {
+      "source": "assets/achievements/animations-v1/time-180.end.webp",
+      "path": "assets/achievements/animations-v1/time-180.end.webp",
+      "bytes": 73112,
+      "sha256": "abecb05afe11967d3e77a1f2ae94c136079fdce4fe8629daae5c680fc2cdaa98"
+    },
+    {
+      "source": "assets/achievements/animations-v1/time-180.json",
+      "path": "assets/achievements/animations-v1/time-180.json",
+      "bytes": 145,
+      "sha256": "fe49992e023ac770b88703f79d973a8fb35666f4bfdde9dd4d6f002c9905d10e"
+    },
+    {
+      "source": "assets/achievements/animations-v1/time-180.start.webp",
+      "path": "assets/achievements/animations-v1/time-180.start.webp",
+      "bytes": 50170,
+      "sha256": "960b6c349bdf17f7c3e2aa0edbb61b25301de2bac9834a67ce820e48681d59d1"
+    },
+    {
+      "source": "assets/achievements/animations-v1/time-30.atlas.webp",
+      "path": "assets/achievements/animations-v1/time-30.atlas.webp",
+      "bytes": 1433382,
+      "sha256": "f01d858d0081cd259e0f470f32fe8f6dd6e3ea474e9bde71993e415b009f9858"
+    },
+    {
+      "source": "assets/achievements/animations-v1/time-30.end.webp",
+      "path": "assets/achievements/animations-v1/time-30.end.webp",
+      "bytes": 71258,
+      "sha256": "239430ba329ec3ef02357d6c7550f6ca4b22e102772925f44fe2c5af241901b1"
+    },
+    {
+      "source": "assets/achievements/animations-v1/time-30.json",
+      "path": "assets/achievements/animations-v1/time-30.json",
+      "bytes": 144,
+      "sha256": "018f38a606a76d809999c42acc3bebd195b55260daf815ff252dcccde648803e"
+    },
+    {
+      "source": "assets/achievements/animations-v1/time-30.start.webp",
+      "path": "assets/achievements/animations-v1/time-30.start.webp",
+      "bytes": 46098,
+      "sha256": "d4f51b17e0605c41d3ef5d8e264c0f6034a641ae00e76bfffc697f97a05bd93f"
+    },
+    {
+      "source": "assets/achievements/animations-v1/time-360.atlas.webp",
+      "path": "assets/achievements/animations-v1/time-360.atlas.webp",
+      "bytes": 1511856,
+      "sha256": "30bdf7c41102cd1f4c18c5b770a2a19e5f3e780b7dfb2c2c66998255916bf39e"
+    },
+    {
+      "source": "assets/achievements/animations-v1/time-360.end.webp",
+      "path": "assets/achievements/animations-v1/time-360.end.webp",
+      "bytes": 74048,
+      "sha256": "1767963f17ba09a7ae27a5d27814c537819f8a40a472eb7ba4dc0c3b76930dae"
+    },
+    {
+      "source": "assets/achievements/animations-v1/time-360.json",
+      "path": "assets/achievements/animations-v1/time-360.json",
+      "bytes": 145,
+      "sha256": "9fd955b7be4f8ccf6b657403a7ca0b575da775c58189a8c94723e4faad86ce72"
+    },
+    {
+      "source": "assets/achievements/animations-v1/time-360.start.webp",
+      "path": "assets/achievements/animations-v1/time-360.start.webp",
+      "bytes": 50170,
+      "sha256": "960b6c349bdf17f7c3e2aa0edbb61b25301de2bac9834a67ce820e48681d59d1"
+    },
+    {
+      "source": "assets/achievements/animations-v1/time-60.atlas.webp",
+      "path": "assets/achievements/animations-v1/time-60.atlas.webp",
+      "bytes": 1447776,
+      "sha256": "4aab00e48cc63c735e84be20b2b9d4141b6a3a21ca0afdedc1ee646213757c00"
+    },
+    {
+      "source": "assets/achievements/animations-v1/time-60.end.webp",
+      "path": "assets/achievements/animations-v1/time-60.end.webp",
+      "bytes": 71672,
+      "sha256": "431f211dfda4626d68c998fba5629e986f78d00af74cc9dc1860e211bff4afdb"
+    },
+    {
+      "source": "assets/achievements/animations-v1/time-60.json",
+      "path": "assets/achievements/animations-v1/time-60.json",
+      "bytes": 144,
+      "sha256": "36f6f5fab83d711b609c6e032b2e8cd5dc90b0b0e72b3f54fdcab17bf20ab384"
+    },
+    {
+      "source": "assets/achievements/animations-v1/time-60.start.webp",
+      "path": "assets/achievements/animations-v1/time-60.start.webp",
+      "bytes": 47180,
+      "sha256": "db0274119bbf8a41fa919c71f0ece582f1f2ff9d28e072d6633fe9de1b6ae6d6"
+    },
+    {
+      "source": "assets/achievements/animations-v1/time-90.atlas.webp",
+      "path": "assets/achievements/animations-v1/time-90.atlas.webp",
+      "bytes": 1412464,
+      "sha256": "a5beee764ddfdf53b05ffba8f7b1816168ffb1d6e4e193223e2a480dd0b7ab36"
+    },
+    {
+      "source": "assets/achievements/animations-v1/time-90.end.webp",
+      "path": "assets/achievements/animations-v1/time-90.end.webp",
+      "bytes": 69378,
+      "sha256": "6861ee8edf1e820774e451fdda7cfbd6d8d3ed2ac8b74c02dff719d174516dca"
+    },
+    {
+      "source": "assets/achievements/animations-v1/time-90.json",
+      "path": "assets/achievements/animations-v1/time-90.json",
+      "bytes": 144,
+      "sha256": "4e36a466bfda16767094cc58054af9acb1d03d739575d84d8521d9641f852526"
+    },
+    {
+      "source": "assets/achievements/animations-v1/time-90.start.webp",
+      "path": "assets/achievements/animations-v1/time-90.start.webp",
+      "bytes": 46818,
+      "sha256": "9dcc47e6db9016077991a2951c02e792f50387ae6578a3a7dda9f98e4ae8b2da"
+    },
+    {
+      "source": "assets/achievements/ui/attempts-art-v1.webp",
+      "path": "assets/achievements/ui/attempts-art-v1.webp",
+      "bytes": 14740,
+      "sha256": "ed4f224db961edee6b2c2daf19bdbf3f188424a9579abf760454b6db52bc9de2"
+    },
+    {
+      "source": "assets/achievements/ui/attempts.svg",
+      "path": "assets/achievements/ui/attempts.svg",
+      "bytes": 690,
+      "sha256": "8d1552d2d5c8ac8bf3070a07fdc85499aebb0507cca5500ad0bf18b5b5c61bcc"
+    },
+    {
+      "source": "assets/achievements/ui/average-art-v1.webp",
+      "path": "assets/achievements/ui/average-art-v1.webp",
+      "bytes": 17422,
+      "sha256": "be64a7f87da9c94d147dba2767af31c83e0b369117e1ebe81f0eed051ea720d9"
+    },
+    {
+      "source": "assets/achievements/ui/average.svg",
+      "path": "assets/achievements/ui/average.svg",
+      "bytes": 569,
+      "sha256": "8113428214e6ed56dd88697349a50377cf91316d688c4fbfa7680eaed066fe00"
+    },
+    {
+      "source": "assets/achievements/ui/record-art-v1.webp",
+      "path": "assets/achievements/ui/record-art-v1.webp",
+      "bytes": 17672,
+      "sha256": "7278b024f63bada0e53eebf938147a6b178d234a5914296166d9851ff4c4d7d0"
+    },
+    {
+      "source": "assets/achievements/ui/record.svg",
+      "path": "assets/achievements/ui/record.svg",
+      "bytes": 611,
+      "sha256": "0b85cb7abb2e596cc6e9f5225b833df430855a3984ac5dd53ab10f17c98049a4"
+    },
+    {
+      "source": "assets/achievements/scene/stage-studio-portrait.png",
+      "path": "assets/achievements/scene/stage-studio-portrait.png",
+      "bytes": 2223805,
+      "sha256": "1f57591d7802c65a8b3897f4847a81bfe243eda793f0a51bdfad7e9d558ff723"
+    },
+    {
+      "source": "assets/achievements/scene/tada.mp3",
+      "path": "assets/achievements/scene/tada.mp3",
+      "bytes": 24546,
+      "sha256": "e613adfabcbca53f8165a0da768e8cdc04f74f264d4689c4d4562f215ecf81c6"
+    },
+    {
+      "source": "docs/design/simple-energy-bonus-20261016/live-kit/arcade/achievements/native-levels/level-1.svg",
+      "path": "assets/achievements/levels/level-1.svg",
+      "bytes": 2693,
+      "sha256": "2c5d25697724a12073e2c371204d0f3be6f2945a4622cfaddd25caaa122f21c8"
+    },
+    {
+      "source": "docs/design/simple-energy-bonus-20261016/live-kit/arcade/achievements/native-levels/level-2.svg",
+      "path": "assets/achievements/levels/level-2.svg",
+      "bytes": 4263,
+      "sha256": "8640081cac5b9066c4dde6d6b8f20727c46279dd7f227d66a50737988eda4db4"
+    },
+    {
+      "source": "docs/design/simple-energy-bonus-20261016/live-kit/arcade/achievements/native-levels/level-3.svg",
+      "path": "assets/achievements/levels/level-3.svg",
+      "bytes": 5153,
+      "sha256": "74d3a207f89a2a21743f26e239620ba91666e26613902c2f6f34beac2459dd56"
+    },
+    {
+      "source": "docs/design/simple-energy-bonus-20261016/live-kit/arcade/achievements/native-levels/level-4.svg",
+      "path": "assets/achievements/levels/level-4.svg",
+      "bytes": 2986,
+      "sha256": "d96d7fe2f9103b52c8a098f41decd8024ee90f4dd698c59ddb841a3c9aaa9560"
+    },
+    {
+      "source": "docs/design/simple-energy-bonus-20261016/live-kit/arcade/achievements/native-levels/level-5.svg",
+      "path": "assets/achievements/levels/level-5.svg",
+      "bytes": 4188,
+      "sha256": "a644e2b39309d5948d1410cbb478bddd64245929754197bca0d6c05167f1f1b0"
+    },
+    {
+      "source": "docs/design/simple-energy-bonus-20261016/live-kit/arcade/achievements/native-levels/level-6.svg",
+      "path": "assets/achievements/levels/level-6.svg",
+      "bytes": 5312,
+      "sha256": "49b5745bde1b4ff60d981ce12a1ea3ca9cc1a44ee300b033d679c78b3f10db9d"
+    },
+    {
+      "source": "docs/design/simple-energy-bonus-20261016/live-kit/arcade/achievements/native-levels/level-7.svg",
+      "path": "assets/achievements/levels/level-7.svg",
+      "bytes": 3360,
+      "sha256": "f256c9166e3adfd81b2448d2418039d1e666c42d90643a0b546488fff4c3fd42"
+    },
+    {
+      "source": "assets/branding/ui/sensitivity-scene-v1.png",
+      "path": "assets/branding/ui/sensitivity-scene-v1.png",
+      "bytes": 1145981,
+      "sha256": "5149a0a8667968ebb889a68e1c010ee422f28193dfe66ec1ae657af366d9bb4f"
+    },
+    {
+      "source": "assets/branding/ui/settings-icons-v2.png",
+      "path": "assets/branding/ui/settings-icons-v2.png",
+      "bytes": 1003713,
+      "sha256": "85bd6f0abfa3e3aa4c71ca4d9a9c1863eabe9a72e55f9d365f224905d0d5f1ff"
+    },
+    {
+      "source": "assets/branding/ui/settings-faceless-v1.png",
+      "path": "assets/branding/ui/settings-faceless-v1.png",
+      "bytes": 1035915,
+      "sha256": "76136e4aad53f8caa8e832a52fb126497292f60a77db23f94d900dc74a910733"
+    },
+    {
+      "source": "assets/branding/ui/settings-enemy-faceless-v1.png",
+      "path": "assets/branding/ui/settings-enemy-faceless-v1.png",
+      "bytes": 1133429,
+      "sha256": "2af3259f3174763f75aadae99a28003e91eb4eb1d67ce3403bc4024d7d0ca422"
+    }
+  ]
+}

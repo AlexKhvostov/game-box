@@ -5,8 +5,9 @@ import {resultRewardEvent,type RewardEvent} from '../services/reward-events';
 import { rewardMotion } from '../services/energy-motion';
 import { rewardFrame, energyRoll, clamp, ease } from '../domain/reward-motion';
 import { telegram } from '../platform/telegram';
+import EnergyBolt from './EnergyBolt.vue';
 type MotionReward=RewardEvent;
-const canvas=ref<HTMLCanvasElement>(), card=ref<HTMLElement>(), event=ref<MotionReward|null>(null);
+const canvas=ref<HTMLCanvasElement>(), card=ref<HTMLElement>(), stationary=ref<HTMLElement>(), event=ref<MotionReward|null>(null);
 let frame=0, started=0;
 let from={x:0,y:0}, to={x:0,y:0}, width=230, reduced=false;
 const queue:MotionReward[]=[];
@@ -14,21 +15,21 @@ function cancel(clear=false) {
   cancelAnimationFrame(frame);
   const active=event.value;
   if(!clear&&active){
-    if(active.kind!=='round'&&(active.kind!=='invite'||pendingInviteRewards.value.some(n=>n.id===active.key)))queue.unshift(active);
+    if(active.kind==='wallet'||active.kind==='invite'&&pendingInviteRewards.value.some(n=>n.id===active.key))queue.unshift(active);
     else if(!active.provisional&&active.kind!=='invite')rewardMotion.held-=active.amount;
   }
   if(clear){queue.length=0;rewardMotion.held=0;}
   event.value=null;rewardMotion.revealed=0;rewardMotion.active=false;
 }
 function start() {
-  if(event.value||document.hidden||telegram()?.isActive===false||!state.initialized||world.value?.playing||state.externalBusy)return;
-  for(let i=queue.length-1;i>=0;i--){const r=queue[i]!;if(r.owner!==state.profile?.id||r.kind==='round'&&(state.screen!=='result'||state.resultId!==r.key)||r.kind==='invite'&&!pendingInviteRewards.value.some(n=>n.id===r.key)){queue.splice(i,1);if(!r.provisional&&r.kind!=='invite')rewardMotion.held-=r.amount;}}
+  if(event.value||document.hidden||telegram()?.isActive===false||!state.initialized||world.value?.playing||state.externalBusy&&!queue.some(r=>r.kind==='award'))return;
+  for(let i=queue.length-1;i>=0;i--){const r=queue[i]!;if(r.owner!==state.profile?.id||r.kind==='round'&&(state.screen!=='result'||state.resultId!==r.key)||r.kind==='invite'&&!pendingInviteRewards.value.some(n=>n.id===r.key)||r.kind==='award'&&r.source&&!r.source.isConnected){queue.splice(i,1);if(!r.provisional&&r.kind!=='invite')rewardMotion.held-=r.amount;}}
   const index=queue.findIndex(r=>r.kind!=='invite'||state.inviteNoticeOpen&&!!document.querySelector(`[data-invite-reward-id="${r.key}"] .invite-reward-amount`));
   if(index<0){rewardMotion.active=false;return;}
   const next=queue.splice(index,1)[0]!;
   event.value=next; rewardMotion.active=true; reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const source=((next.kind==='invite'?document.querySelector('.invite-reward-amount'):next.kind==='round'?document.querySelector('.result-metrics'):null)??document.querySelector('.bonus-orb')??document.querySelector('.window-body')??document.querySelector('.game-field'))?.getBoundingClientRect(), target=document.querySelector('.energy-capsule')?.getBoundingClientRect();
-  width=Math.min(230,(source?.width??window.innerWidth)*.86,window.innerWidth-40);
+  const source=(next.source??(next.kind==='invite'?document.querySelector('.invite-reward-amount'):next.kind==='round'?document.querySelector('.result-metrics'):null)??document.querySelector('.bonus-orb')??document.querySelector('.window-body')??document.querySelector('.game-field'))?.getBoundingClientRect(), target=document.querySelector('.energy-capsule')?.getBoundingClientRect();
+  width=Math.min(104,window.innerWidth-32);
   from={x:Math.max(width/2+16,Math.min(window.innerWidth-width/2-16,source?source.x+source.width/2:window.innerWidth/2)),y:Math.max(104,Math.min(window.innerHeight-104,source?source.y+source.height/2:window.innerHeight/2))};
   to={x:target?target.x+target.width/2:60,y:target?target.y+target.height/2:40};
   started=performance.now(); frame=requestAnimationFrame(tick);
@@ -38,9 +39,11 @@ function glow(c:CanvasRenderingContext2D,x:number,y:number,w:number,h:number,col
 }
 function tick(stamp:number) {
   if(!event.value)return;
+  if(event.value.kind==='award'&&event.value.source&&!event.value.source.isConnected){cancel();start();return;}
   const p=clamp((stamp-started)/(event.value.counterOnly?320:reduced?180:1600)),f=rewardFrame(p,reduced);
   const x=from.x+(to.x-from.x)*f.fly,y=from.y+(to.y-from.y)*f.fly-(reduced?0:Math.sin(Math.PI*f.flight)*30);
-  if(card.value){card.value.style.width=`${width}px`;card.value.style.transform=`translate(${x-width/2}px,${y-93}px) scale(${f.scale})`;card.value.style.opacity=String(f.opacity);}
+  if(card.value){card.value.style.width=`${width}px`;card.value.style.transform=`translate(${x-width/2}px,${y-27}px) scale(${f.scale})`;card.value.style.opacity=String(f.labelOpacity);}
+  if(stationary.value){stationary.value.style.width=`${width}px`;stationary.value.style.transform=`translate(${from.x-width/2}px,${from.y-27}px)`;stationary.value.style.opacity=String(reduced?1:clamp(p/.1125));}
   rewardMotion.revealed=event.value.provisional?0:Math.round(event.value.amount*(event.value.counterOnly?ease(p):energyRoll(p,reduced)));
   if(canvas.value){const c=canvas.value.getContext('2d')!,dpr=Math.min(devicePixelRatio,2);const w=window.innerWidth,h=window.innerHeight;if(canvas.value.width!==Math.round(w*dpr)||canvas.value.height!==Math.round(h*dpr)){canvas.value.width=Math.round(w*dpr);canvas.value.height=Math.round(h*dpr);}c.setTransform(dpr,0,0,dpr,0,0);c.clearRect(0,0,w,h);
     if(!reduced){const celebration=clamp(p/.6),shine=Math.sin(Math.PI*celebration),aura=.7+ease(celebration)*.5,flash=clamp((p-.04)/.27),wave=clamp((p-.08)/.32),flashSize=130*(.35+ease(flash)*1.15);
@@ -50,10 +53,10 @@ function tick(stamp:number) {
       c.save();c.globalAlpha=Math.sin(Math.PI*wave)*.55;c.strokeStyle='#fff3a4';c.lineWidth=.3+ease(wave)*1.5;c.beginPath();c.arc(from.x,from.y-18,65*c.lineWidth,0,Math.PI*2);c.stroke();c.restore();
       for(let i=0;i<28;i++){const t=clamp((p-.055-(i%4)*.012)/.46);if(t<=0||t>=1)continue;const a=i*2.399963,r=45+(25+i%5*12)*ease(t);c.save();c.globalAlpha=Math.min(1,t*12,(1-t)*4);c.translate(from.x+Math.cos(a)*r,from.y-18+Math.sin(a)*r+t*t*18);c.rotate((i*25+t*45)*Math.PI/180);c.scale(1-t*.5,1-t*.5);c.fillStyle=(i+12)%3===0?'#a3f8ff':'#fff2a0';if(i%3===0){c.beginPath();for(const [j,k]of [[0,-4],[.88,-.96],[4,0],[.88,.96],[0,4],[-.96,.96],[-4,0],[-.96,-.96]])c.lineTo(j!,k!);c.closePath();c.fill();}else{c.beginPath();c.arc(0,0,1.5,0,Math.PI*2);c.fill();}c.restore();}
       glow(c,to.x,to.y,76,54,[[0,'#ffeb6d60'],[1,'#00000000']],f.hit);
-      for(let i=0;i<6;i++){const t=clamp((p-.4-i*.012)/.34);if(t<=0||t>=1)continue;const v=t*t*(3-2*t),cx=from.x+(i%2?1:-1)*(20+i*4),cy=from.y-60-i*4;const xx=from.x*(1-v)**2+cx*2*(1-v)*v+to.x*v*v,yy=from.y*(1-v)**2+cy*2*(1-v)*v+to.y*v*v;c.save();c.globalAlpha=Math.min(1,t*12,(1-t)*10);c.fillStyle='#fff596';c.translate(xx,yy);c.scale(.55+Math.sin(Math.PI*t)*.65,.55+Math.sin(Math.PI*t)*.65);if(i%3===0){c.beginPath();for(const [j,k]of [[2,-12],[-9,1],[-2,1],[-4,12],[9,-3],[1,-3]])c.lineTo(j!,k!);c.closePath();c.fill();}else{c.beginPath();c.arc(0,0,2.5,0,Math.PI*2);c.fill();}c.restore();}
+      for(let i=0;i<12;i++){const t=clamp((p-.4-i*.007)/.34);if(t<=0||t>=1)continue;const v=t*t*(3-2*t),cx=from.x+(i%2?1:-1)*(28+i%6*8),cy=from.y-60-i%4*8;const xx=from.x*(1-v)**2+cx*2*(1-v)*v+to.x*v*v,yy=from.y*(1-v)**2+cy*2*(1-v)*v+to.y*v*v;c.save();c.globalAlpha=Math.min(1,t*12,(1-t)*10);c.fillStyle='#fff596';c.translate(xx,yy);c.scale(.55+Math.sin(Math.PI*t)*.65,.55+Math.sin(Math.PI*t)*.65);if(i%4===0){c.beginPath();for(const [j,k]of [[2,-12],[-9,1],[-2,1],[-4,12],[9,-3],[1,-3]])c.lineTo(j!,k!);c.closePath();c.fill();}else{c.beginPath();c.arc(0,0,2.5,0,Math.PI*2);c.fill();}c.restore();}
     }
   }
-  if(p<1)frame=requestAnimationFrame(tick);else{const done=event.value;if(done.kind==='invite'){try{markInvitePresented(done.key,done.owner);}catch{state.notice=state.locale==='ru'?'Не удалось сохранить просмотр. Бонус уже на балансе.':'Could not save the notice. Energy is already credited.';}}else if(!done.provisional)rewardMotion.held-=done.amount;rewardMotion.revealed=0;event.value=null;start();}
+  if(p<1)frame=requestAnimationFrame(tick);else{const done=event.value;if(done.kind==='invite'){try{markInvitePresented(done.key,done.owner);}catch{state.notice=state.locale==='ru'?'Не удалось сохранить просмотр. Бонус уже на балансе.':'Could not save the notice. Energy is already credited.';}}else if(!done.provisional)rewardMotion.held-=done.amount;rewardMotion.revealed=0;event.value=null;rewardMotion.active=false;start();}
 }
 const seen=new Set<string>();
 watch(()=>state.profile?.id,()=>{cancel(true);seen.clear();},{flush:'sync'});
@@ -65,11 +68,14 @@ watch(resultRewardEvent,next=>{
   if(!next.provisional&&next.kind!=='invite')rewardMotion.held+=next.amount;
   queue.push(next);start();
 },{flush:'sync'});
-watch(()=>[state.screen,state.resultId,!!world.value?.playing,state.inviteNoticeOpen,state.externalBusy,state.initialized,pendingInviteRewards.value.map(n=>n.id).join(',')],()=>{if(event.value)cancel();start();},{flush:'post'});
+// The world snapshot changes during idle animation too. Watch the actual gate
+// values, not a freshly allocated array that would restart a receipt every frame.
+watch(()=>JSON.stringify([state.screen,state.resultId,!!world.value?.playing,state.inviteNoticeOpen,state.externalBusy,state.initialized,pendingInviteRewards.value.map(n=>n.id).join(',')]),()=>{if(event.value)cancel();start();},{flush:'post'});
 const hidden=()=>{if(document.hidden||telegram()?.isActive===false)cancel();else start();};
 const resize=()=>{cancel();start();};
 document.addEventListener('visibilitychange',hidden);window.addEventListener('resize',resize);
 telegram()?.onEvent('deactivated',hidden);telegram()?.onEvent('activated',hidden);telegram()?.onEvent('viewportChanged',resize);
 onBeforeUnmount(()=>{cancel(true);document.removeEventListener('visibilitychange',hidden);window.removeEventListener('resize',resize);telegram()?.offEvent('deactivated',hidden);telegram()?.offEvent('activated',hidden);telegram()?.offEvent('viewportChanged',resize);});
 </script>
-<template><Teleport to="body"><div v-if="event&&!event.counterOnly" class="energy-reward-overlay" role="status" :aria-label="event.provisional?(state.locale==='ru'?`Бонус за попытку ${event.amount} энергии. Ожидает подтверждения`:`Run bonus ${event.amount} energy. Awaiting confirmation`):(state.locale==='ru'?`Получено ${event.amount} энергии. Баланс ${event.after}`:`Received ${event.amount} energy. Balance ${event.after}`)"><canvas ref="canvas"/><div ref="card" class="energy-reward-card" aria-hidden="true"><span>{{ event.provisional?(state.locale==='ru'?'Бонус за попытку':'Run bonus'):(state.locale==='ru'?'Энергия получена!':'Energy received!') }}</span><img src="/assets/branding/ui/energy-reward-core.svg" alt=""><strong :style="{fontSize:`${Math.min(56,(width-72)/(String(event.amount).length+1)/.75)}px`}">+{{ event.amount }}</strong><small>{{ event.provisional?(state.locale==='ru'?'ожидает подтверждения':'awaiting confirmation'):(state.locale==='ru'?'энергии':'energy') }}</small></div></div></Teleport></template>
+<template><Teleport to="body"><div v-if="event&&!event.counterOnly" class="energy-reward-overlay energy-receipt-e01m" role="status" :aria-label="event.provisional?(state.locale==='ru'?`Бонус ${event.amount} энергии. Ожидает подтверждения`:`Bonus ${event.amount} energy. Awaiting confirmation`):(state.locale==='ru'?`Получено ${event.amount} энергии. Баланс ${event.after}`:`Received ${event.amount} energy. Balance ${event.after}`)"><canvas ref="canvas"/><div v-if="!event.source" ref="stationary" class="energy-receipt-source" aria-hidden="true"><strong :style="{fontSize:`${Math.min(36,75/(String(event.amount).length+1)*1.4)}px`}">+{{event.amount}}</strong><EnergyBolt/></div><div ref="card" class="energy-receipt-copy" aria-hidden="true"><strong :style="{fontSize:`${Math.min(36,75/(String(event.amount).length+1)*1.4)}px`}">+{{event.amount}}</strong><EnergyBolt/></div></div></Teleport></template>
+<style scoped>.energy-receipt-e01m{z-index:1000}.energy-receipt-source,.energy-receipt-copy{position:absolute;top:0;left:0;height:54px;display:flex;align-items:center;justify-content:center;gap:2px;transform-origin:center;opacity:0;color:#ffdc80;text-shadow:0 0 9px #ffda405c,0 2px 4px #00101f;font-weight:900;line-height:1;white-space:nowrap}.energy-receipt-source .energy-bolt,.energy-receipt-copy .energy-bolt{width:25px;height:34px;flex:none;filter:drop-shadow(0 0 4px #ffc84b66)}.energy-receipt-source strong,.energy-receipt-copy strong{font-weight:900;letter-spacing:-.7px}</style>

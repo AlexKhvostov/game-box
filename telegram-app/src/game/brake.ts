@@ -6,7 +6,7 @@ const spiral=new Path2D('M39 62c-17 0-21-20-9-28 11-7 24 3 20 13-3 8-14 9-17 2-2
 const antenna=new Path2D('m69 38 1-13m5 15 6-13');
 const gloss=new Path2D('M9 25V20Q9 9 21 9H27Q32 9 28 14L14 28Q9 33 9 25Z');
 const bright=(hex:string,amount:number)=>'#'+hex.slice(1).match(/../g)!.map(v=>Math.min(255,Math.round(parseInt(v,16)*amount)).toString(16).padStart(2,'0')).join('');
-export function paintBrake(c:CanvasRenderingContext2D,s:WorldState,reduced:boolean,settings:Record<string,unknown>={}){
+export function paintBrake(c:CanvasRenderingContext2D,s:WorldState,reduced:boolean,settings:Record<string,unknown>={},locale='ru'){
  const b=s.brake;if(!b||!b.enabled)return;
  const v=brakeVisual(b,s.playing&&!s.dead,reduced,settings),brightness=1+.3*v.flash;
  c.save();c.translate(190-s.player.size/2,190-s.player.size/2);c.scale(s.player.size/100,s.player.size/100);
@@ -17,7 +17,7 @@ export function paintBrake(c:CanvasRenderingContext2D,s:WorldState,reduced:boole
  if(!v.charged){
   c.lineCap='round';c.lineWidth=4;c.strokeStyle='#31576cd9';c.beginPath();c.arc(50,47,33,0,Math.PI*2);c.stroke();
   if(b.charge>0){c.strokeStyle='#74c0dc';c.beginPath();c.arc(50,47,33,-Math.PI/2,-Math.PI/2+Math.PI*2*b.charge);c.stroke();}
-  c.fillStyle='#cee4ec';c.textAlign='center';c.textBaseline='alphabetic';c.font='600 26px "Segoe UI",Arial,sans-serif';c.fillText(v.timer,50,52);c.font='13px "Segoe UI",Arial,sans-serif';c.fillText('с',50,68);
+  c.fillStyle='#cee4ec';c.textAlign='center';c.textBaseline='alphabetic';c.font='600 26px "Segoe UI",Arial,sans-serif';c.fillText(locale==='en'?v.timer.replace(',','.'):v.timer,50,52);c.font='13px "Segoe UI",Arial,sans-serif';c.fillText(locale==='en'?'s':'с',50,68);
  }else{
   const mint=c.createLinearGradient(0,22,0,74);mint.addColorStop(0,bright('#b3e9d3',brightness));mint.addColorStop(1,bright('#95dabe',brightness));c.fillStyle=mint;c.fill(body);c.beginPath();c.arc(39,47,20,0,Math.PI*2);c.fill();
   c.strokeStyle='#164450';c.lineWidth=3.6;c.lineCap='round';c.lineJoin='round';c.stroke(spiral);c.strokeStyle=bright('#a5ddc3',brightness);c.lineWidth=2.6;c.stroke(antenna);

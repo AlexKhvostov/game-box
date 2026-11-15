@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {computed} from 'vue';
+import LoadingClock from './LoadingClock.vue';
 const props=defineProps<{amount:number;ready:boolean;fraction:number;timer:string;multiplier:number;pending:boolean;locale:string}>();
 defineEmits<{claim:[]}>();
 const r=computed(()=>props.ready?81:86),f=computed(()=>Math.min(1,Math.max(0,props.fraction)));
@@ -25,5 +26,7 @@ const sparkles=Array.from({length:35},(_,i)=>{const a=i*2.399963,d=88+(Math.sin(
 <g :opacity="ready?1:.35" :filter="ready?undefined:'url(#orb-number-blur)'"><text x="100" :y="ready?137:97" text-anchor="middle" fill="#FFF03B" :font-size="amount>999?34:45" font-weight="900">{{amount}}</text><use href="#bolt-shape" :transform="`translate(142 ${ready?94:54}) scale(1.22 1.625)`" fill="url(#bonus-bolt)"/></g>
 <text v-if="ready" x="100" y="162" text-anchor="middle" fill="#061A2B" font-size="21" font-weight="900">{{pending?(locale==='ru'?'Проверяем…':'Checking…'):(locale==='ru'?'Забрать':'Claim')}}</text>
 <g v-else><circle cx="100" cy="110" r="8" stroke="white" fill="none" stroke-width="1.6"/><path d="M100 104V110L104 113" stroke="white" fill="none" stroke-width="1.4"/><text x="100" y="148" text-anchor="middle" fill="white" font-size="26" font-weight="900">{{timer}}</text><text x="100" y="198" text-anchor="middle" fill="#A9CBE4" font-size="11">{{locale==='ru'?'Перезарядка':'Recharging'}}</text></g>
-</svg></button>
+</svg><LoadingClock v-if="pending" class="bonus-pending-clock" :size="28"/></button>
 </template>
+
+<style scoped>.bonus-orb{position:relative}.bonus-pending-clock{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)}</style>

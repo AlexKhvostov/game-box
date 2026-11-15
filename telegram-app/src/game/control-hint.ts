@@ -1,7 +1,9 @@
 // Presentation-only port of the approved UI Kit and Android ControlHintMotion.
 export const HINT_MOTION_MS=5400, HINT_FADE_MS=350, HINT_REST_MS=5000;
 export const HINT_LOOP_MS=HINT_MOTION_MS+HINT_FADE_MS+HINT_REST_MS;
-export const HINT_PROGRESS_KEY='untouch_tg_v2:control_hint_lower_starts_v1';
+export const HINT_LIMIT=2;
+export const HINT_PROGRESS_KEY='untouch_tg_v2:control_hint_starts_v2';
+export const LEGACY_HINT_PROGRESS_KEY='untouch_tg_v2:control_hint_lower_starts_v1';
 type Point={x:number;y:number};
 const points=[[0,0],[55,-35],[-40,-80],[42,-125],[76,-58],[-48,24],[50,80],[-52,54]]
   .map(p=>p.map(v=>v*.8));
@@ -33,19 +35,32 @@ export function hintPresentation(timeMs:number,reduced=false){
 }
 
 export class ControlHintProgress{
-  lowerStarts=0;
+  successfulStarts=0;
+  get lowerStarts(){return this.successfulStarts;} // Read compatibility only.
   private lastAttempt='';
   private storage:Pick<Storage,'getItem'|'setItem'>;
   constructor(storage:Pick<Storage,'getItem'|'setItem'>){
     this.storage=storage;
-    try{const value=Number(storage.getItem(HINT_PROGRESS_KEY));
-      if(Number.isInteger(value)&&value>=0)this.lowerStarts=Math.min(3,value);
+    try{
+      const raw=storage.getItem(HINT_PROGRESS_KEY);
+      if(raw!==null){
+        let value;try{value=JSON.parse(raw);}catch{/* Try the retained v1 preference. */}
+        if(value?.version===2&&Number.isInteger(value.successfulStarts)&&value.successfulStarts>=0){
+          this.successfulStarts=Math.min(HINT_LIMIT,value.successfulStarts);
+          this.lastAttempt=typeof value.lastAttemptId==='string'?value.lastAttemptId:'';
+          return;
+        }
+      }
+      const oldRaw=storage.getItem(LEGACY_HINT_PROGRESS_KEY),old=oldRaw===null?NaN:Number(oldRaw);
+      if(Number.isInteger(old)&&old>=0){this.successfulStarts=Math.min(HINT_LIMIT,old);this.save();}
     }catch{/* A tutorial preference cannot block a run. */}
   }
-  recordSuccessfulStart(fromLower:boolean,attemptId:string){
-    if(!fromLower||!attemptId||attemptId===this.lastAttempt||this.lowerStarts>=3)return false;
-    this.lastAttempt=attemptId;this.lowerStarts++;
-    try{this.storage.setItem(HINT_PROGRESS_KEY,String(this.lowerStarts));}catch{/* Keep session progress. */}
+  private save(){
+    try{this.storage.setItem(HINT_PROGRESS_KEY,JSON.stringify({version:2,successfulStarts:this.successfulStarts,lastAttemptId:this.lastAttempt}));}catch{/* Keep session progress. */}
+  }
+  recordSuccessfulStart(_fromLower:boolean,attemptId:string){
+    if(!attemptId||attemptId===this.lastAttempt||this.successfulStarts>=HINT_LIMIT)return false;
+    this.lastAttempt=attemptId;this.successfulStarts++;this.save();
     return true;
   }
 }

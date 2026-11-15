@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // QA-only visual/audio exercise. No kernel commands, account calls, journal or energy writes.
-import {ref,watch,onMounted,onBeforeUnmount} from 'vue';
+import {ref,watch,nextTick,onMounted,onBeforeUnmount} from 'vue';
 import GameWindow from '../components/GameWindow.vue';
 import {state,world} from '../services/game-store';
 import {prepareAudio,enableAudio,sound,stopAudio,syncMusic,audioDiagnostics,inhibitAudio,previewAllAudioEffects} from '../platform/audio';
@@ -10,40 +10,57 @@ import {ImpactBurst} from '../game/impact';
 import {prepareImpactGlyphs} from '../game/impact-glyphs';
 import {telegram} from '../platform/telegram';
 const canvas=ref<HTMLCanvasElement>(),report=ref(''),running=ref(false),ready=ref(false),label=ref('');
+const isolatedCanvas=ref(false),lowLatency=ref(false),canvasKey=ref(0);
 const names=Object.keys(effects) as SoundName[];
-const titles:Record<SoundName,string>={start:'Старт',wall:'Враг — стена',collide:'Враг — враг',hit:'Герой — враг',heroWall:'Герой — стена',helmet:'Шлем',jump:'Прыжок',brake:'Тормоз · улитка',risk:'Риск'};
+const titles:Record<SoundName,string>={start:'Старт',wall:'Враг — стена',collide:'Враг — враг',hit:'Герой — враг',heroWall:'Герой — стена',helmet:'Шлем',jump:'Прыжок',brake:'Тормоз · улитка',risk:'Риск',enemyCatch:'Смех врагов · Enemy laugh',enemySurprise:'Удивление врагов · Enemy surprise'};
 let raf=0,disposed=false,painter:FieldPainter|undefined,releaseInhibit:(()=>void)|undefined,releasePreview:(()=>void)|undefined;
 let initial=world.value?structuredClone(world.value):null;
 function refresh(){report.value=JSON.stringify({audio:audioDiagnostics(),soundPreference:state.preferences.sound,musicPreference:state.preferences.music},null,2);}
 function one(name:SoundName){enableAudio();sound(name);label.value=titles[name];refresh();}
-function run(withAudio:boolean){
+async function recreateCanvas(){
+  if(running.value||disposed)return;ready.value=false;canvasKey.value++;await nextTick();
+  if(!canvas.value||disposed)return;
+  canvas.value.getContext('2d',{alpha:false,desynchronized:lowLatency.value});
+  painter=new FieldPainter(canvas.value);if(state.config)painter.configure(state.config.config);ready.value=!!initial;
+}
+type DrawMode='field'|'fill'|'blank';
+function run(withAudio:boolean,drawMode:DrawMode='field'){
   if(!ready.value||running.value||!initial||!state.config||!painter)return;
-  running.value=true;label.value=withAudio?'QA: анимация и все звуки':'QA: та же анимация без звука';
+  running.value=true;label.value=drawMode==='blank'?'QA: только частота кадров':drawMode==='fill'?'QA: заливка холста':withAudio?'QA: анимация и все звуки':'QA: та же анимация без звука';
   if(withAudio){enableAudio();syncMusic();}else{stopAudio();releaseInhibit=inhibitAudio();}
   const snapshot=structuredClone(initial),config=state.config.config,frames:number[]=[],costs:number[]=[];
-  const started=performance.now(),beforeAudio=audioDiagnostics();let previous=started,nextSound=0,nextBurst=0,index=0,impacts:ImpactBurst[]=[];
+  painter.draw(snapshot,config,0);
+  const context=canvas.value!.getContext('2d')!;
+  const started=performance.now(),beforeAudio=audioDiagnostics();let previous=started,nextSound=0,nextBurst=0,index=0,frame=0,impacts:ImpactBurst[]=[];
   let seed=417;const rng=()=>((seed=(1664525*seed+1013904223)>>>0)/2**32);
   function tick(now:number){
     if(disposed||!running.value)return;
     if(document.hidden||telegram()?.isActive===false||state.externalBusy){abortRun();return;}
     const elapsed=now-started,dt=now-previous;previous=now;
-    snapshot.timeMs=elapsed;snapshot.playing=true;snapshot.dead=false;
-    snapshot.enemies=snapshot.enemies.map((enemy,i)=>({...enemy,x:(1+Math.sin(elapsed/900+i))*Math.max(0,380-enemy.w)/2,y:(1+Math.cos(elapsed/1100+i))*Math.max(0,380-enemy.h)/2}));
-    if(elapsed>=nextBurst){impacts.push(new ImpactBurst(snapshot,true,rng));nextBurst+=2000;}
-    impacts=impacts.filter(impact=>impact.update(Math.min(dt,50)/1000));
-    const drawAt=performance.now();painter!.draw(snapshot,config,Math.floor(elapsed/16.667),impacts);costs.push(performance.now()-drawAt);frames.push(dt);
+    let drawAt=performance.now();
+    if(drawMode==='field'){
+      snapshot.timeMs=elapsed;snapshot.playing=true;snapshot.dead=false;
+      snapshot.enemies=snapshot.enemies.map((enemy,i)=>({...enemy,x:(1+Math.sin(elapsed/900+i))*Math.max(0,380-enemy.w)/2,y:(1+Math.cos(elapsed/1100+i))*Math.max(0,380-enemy.h)/2}));
+      if(elapsed>=nextBurst){impacts.push(new ImpactBurst(snapshot,true,rng));nextBurst+=2000;}
+      impacts=impacts.filter(impact=>impact.update(Math.min(dt,50)/1000));
+      drawAt=performance.now();
+      painter!.draw(snapshot,config,Math.floor(elapsed/16.667),impacts);
+    }else if(drawMode==='fill'){
+      context.save();context.setTransform(1,0,0,1,0,0);context.globalAlpha=1;context.globalCompositeOperation='source-over';context.fillStyle=frame%2?'#08253b':'#08253c';context.fillRect(0,0,canvas.value!.width,canvas.value!.height);context.restore();
+    }
+    frame++;costs.push(performance.now()-drawAt);frames.push(dt);
     if(withAudio&&elapsed>=nextSound){sound(names[index++%names.length]!);nextSound=elapsed+90;}
     if(elapsed<8000){raf=requestAnimationFrame(tick);return;}
     const during=audioDiagnostics();running.value=false;stopAudio();releaseInhibit?.();releaseInhibit=undefined;
     const stats=(rows:number[])=>{const sorted=[...rows].sort((a,b)=>a-b);return{n:sorted.length,p95:sorted[Math.round((sorted.length-1)*.95)]??0,max:sorted.at(-1)??0,over25:rows.filter(x=>x>25).length};};
-    report.value=JSON.stringify({scope:'QA animation with actual FieldPainter; synthetic paths; not a paid game or acoustic recording',withAudio,rafMs:stats(frames),paintMs:stats(costs),audio:audioDiagnostics(),during,scheduledEffects:during.starts-beforeAudio.starts,canvasLogicalWidth:canvas.value?.clientWidth??0},null,2);
+    report.value=JSON.stringify({scope:'QA animation with actual FieldPainter; synthetic paths; not a paid game or acoustic recording',drawMode,withAudio,isolatedCanvas:isolatedCanvas.value,requestedLowLatency:lowLatency.value,contextAttributes:context.getContextAttributes?.(),rafMs:stats(frames),paintMs:stats(costs),audio:audioDiagnostics(),during,scheduledEffects:during.starts-beforeAudio.starts,canvasLogicalWidth:canvas.value?.clientWidth??0,canvasPixelWidth:canvas.value?.width??0,devicePixelRatio},null,2);
   }
   raf=requestAnimationFrame(tick);
 }
 function abortRun(){if(!running.value)return;running.value=false;cancelAnimationFrame(raf);stopAudio();releaseInhibit?.();releaseInhibit=undefined;report.value=JSON.stringify({incomplete:true,reason:'background_or_external_action',audio:audioDiagnostics()},null,2);}
 const visibility=()=>{if(document.hidden)abortRun();};
 watch(()=>state.externalBusy,busy=>{if(busy)abortRun();});
-onMounted(async()=>{releasePreview=previewAllAudioEffects();document.addEventListener('visibilitychange',visibility);telegram()?.onEvent('deactivated',abortRun);await Promise.all([prepareAudio(),prepareImpactGlyphs()]);if(disposed)return;if(canvas.value){painter=new FieldPainter(canvas.value);if(state.config)painter.configure(state.config.config);}ready.value=!!painter&&!!initial;refresh();});
+onMounted(async()=>{releasePreview=previewAllAudioEffects();document.addEventListener('visibilitychange',visibility);telegram()?.onEvent('deactivated',abortRun);await Promise.all([prepareAudio(),prepareImpactGlyphs()]);if(disposed)return;if(canvas.value){canvas.value.getContext('2d',{alpha:false,desynchronized:lowLatency.value});painter=new FieldPainter(canvas.value);if(state.config)painter.configure(state.config.config);}ready.value=!!painter&&!!initial;refresh();});
 onBeforeUnmount(()=>{abortRun();releasePreview?.();document.removeEventListener('visibilitychange',visibility);telegram()?.offEvent('deactivated',abortRun);releaseInhibit?.();disposed=true;running.value=false;cancelAnimationFrame(raf);stopAudio();});
 </script>
-<template><GameWindow title="QA · Звуки" class="audio-diagnostics-window" :closable="!running"><p class="hint">Без списания энергии и сохранения результатов. Все {{names.length}} эффектов и музыка включены только для проверки; ваши настройки и RC не меняются. Это проверка подготовки и кадров, не запись динамика.</p><canvas ref="canvas" width="760" height="760" class="audio-lab-field"/><div class="audio-lab-buttons"><button v-for="name in names" :key="name" class="secondary" :disabled="running||!ready" @click="one(name)">{{titles[name]}}</button></div><div class="button-row"><button class="secondary" :disabled="running||!ready" @click="run(false)">8 с без звука</button><button class="secondary" :disabled="running||!ready" @click="run(true)">8 с со звуком</button></div><p role="status">{{label}}</p><pre class="audio-lab-report">AUDIO_QA {{report}}</pre></GameWindow></template>
+<template><GameWindow title="QA · Звуки" class="audio-diagnostics-window" :closable="!running"><p class="hint">Без списания энергии и сохранения результатов. Все {{names.length}} эффектов и музыка включены только для проверки; ваши настройки и RC не меняются. Это проверка подготовки и кадров, не запись динамика.</p><canvas :key="canvasKey" ref="canvas" width="760" height="760" class="audio-lab-field" :style="isolatedCanvas?{willChange:'transform',transform:'translateZ(0)'}:{}"/><label><input v-model="isolatedCanvas" type="checkbox" :disabled="running"> QA: отдельный слой холста</label><label><input v-model="lowLatency" type="checkbox" :disabled="running" @change="recreateCanvas"> QA: низкая задержка контекста</label><div class="audio-lab-buttons"><button v-for="name in names" :key="name" class="secondary" :disabled="running||!ready" @click="one(name)">{{titles[name]}}</button></div><div class="button-row"><button class="secondary" :disabled="running||!ready" @click="run(false)">8 с без звука</button><button class="secondary" :disabled="running||!ready" @click="run(true)">8 с со звуком</button></div><div class="button-row"><button class="secondary" :disabled="running||!ready" @click="run(false,'blank')">8 с: только кадры</button><button class="secondary" :disabled="running||!ready" @click="run(false,'fill')">8 с: заливка</button></div><p role="status">{{label}}</p><pre class="audio-lab-report">AUDIO_QA {{report}}</pre></GameWindow></template>

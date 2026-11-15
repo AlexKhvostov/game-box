@@ -1,5 +1,6 @@
 import { DurableStorage } from '../services/storage';
 import { state, openScreen } from '../services/game-store';
+import {setAnalyticsConsent} from '../services/analytics';
 export type AgeBand = 'under18' | 'adult18plus';
 const storage = new DurableStorage();
 // Declaration stays on this device. Consent always starts off in each session.
@@ -7,7 +8,7 @@ let resolvePrompt: ((allowed: boolean) => void) | null = null;
 let prompt: Promise<boolean> | null = null;
 let adsEnabled = false, rewardedRequested = false, revoked = false;
 export function ageBand(): AgeBand | null { const value = storage.get<string | null>('ageBand', null); return value === 'under18' || value === 'adult18plus' ? value : null; }
-export function saveAgeBand(value: AgeBand) { storage.set('ageBand', value); adsEnabled = false; rewardedRequested = false; }
+export function saveAgeBand(value: AgeBand) { storage.set('ageBand', value); if(value!=='adult18plus')setAnalyticsConsent(false);adsEnabled = false; rewardedRequested = false; }
 export function allowAds() { if (ageBand() === 'adult18plus' && !revoked) adsEnabled = true; }
 export function requestRewardedAds() { if (ageBand() === 'adult18plus' && !revoked) rewardedRequested = true; }
 export function revokeAds() { adsEnabled = false; rewardedRequested = false; revoked = true; }

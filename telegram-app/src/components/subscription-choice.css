@@ -241,3 +241,9 @@
 @container(max-width:300px){.sub-additive .sub-coin-stack{transform:scale(.75);transform-origin:center top;height:50px}.sub-additive .sub-plan-art{min-height:66px}.sub-additive .sub-coin-caption{white-space:normal}}
 
 @container(max-width:300px){.sub-large .sub-additive .sub-reward{font-size:32px}}
+
+/* Android385 header uses a270x135 right-hand illustration with independent
+   horizontal/vertical masks; copy starts6px from the left, never over the hero. */
+.sub-additive .sub-header-art-wrap{position:absolute;top:4px;right:0;width:270px;height:135px;pointer-events:none;z-index:-1;mask-image:linear-gradient(90deg,transparent,#000 30%,#000);-webkit-mask-image:linear-gradient(90deg,transparent,#000 30%,#000)}
+.sub-additive .sub-header-art-wrap .sub-header-art{position:static;display:block;width:100%;height:100%;object-fit:contain;object-position:right top;mask-image:linear-gradient(180deg,transparent,#000 12%,#000 62%,transparent);-webkit-mask-image:linear-gradient(180deg,transparent,#000 12%,#000 62%,transparent)}
+.sub-additive .sub-connect{gap:12px;padding-inline:10px}.sub-additive .sub-connect-emblems{flex:0 0 36px;min-width:36px}.sub-additive .sub-connect-copy{flex:1;min-width:0;max-width:100%;text-align:center}.sub-additive .sub-connect-copy>strong{display:block;width:100%;font-size:clamp(13px,4.1cqw,17px);white-space:normal;overflow-wrap:normal}.sub-additive .sub-connect .sub-price-box{min-width:0;flex-wrap:wrap;column-gap:5px;row-gap:2px}.sub-additive .sub-connect .sub-money-line{max-width:100%;gap:4px;white-space:nowrap}.sub-additive .sub-connect .sub-price-period{white-space:nowrap}

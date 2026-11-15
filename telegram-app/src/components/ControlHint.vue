@@ -67,7 +67,7 @@ onBeforeUnmount(()=>{alive=false;stop();resize?.disconnect();media.removeEventLi
   </div>
 </template>
 <style scoped>
-.control-hint{position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden;user-select:none}
+.control-hint{position:absolute;inset:0;z-index:10000;pointer-events:none;overflow:hidden;user-select:none}
 .control-hint-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .control-hint-hand-anchor{position:absolute;left:0;top:0;pointer-events:none;transform-origin:0 0;will-change:transform}
 .control-hint-hand-anchor i{position:absolute;left:-9.5px;top:-9.5px;width:19px;height:19px;border:1px solid #c0f5ffa6;border-radius:50%;pointer-events:none}

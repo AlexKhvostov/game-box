@@ -9,11 +9,17 @@ export const effects = {
   jump: {file:'jump', flag:'sfxJump', gain:.45, gap:0, voices:1},
   brake: {file:'brake', flag:'sfxBrake', gain:.48, gap:0, voices:1},
   risk: {file:'near_miss', flag:'sfxNearMiss', gain:.42, gap:90, voices:1},
+  enemyCatch: {file:'enemy_catch', flag:'sfxEnemyCatch', gain:1, gap:0, voices:1},
+  enemySurprise: {file:'enemy_surprise', flag:'sfxEnemySurprise', gain:.33, gap:0, voices:1},
 } as const;
 export type SoundName = keyof typeof effects;
-export interface AudioPolicy {active:boolean; sound:boolean; music:boolean; config:Record<string,unknown>}
+export interface AudioPolicy {active:boolean; sound:boolean; music:boolean; enemyVoicesEnabled?:boolean; config:Record<string,unknown>}
 interface Voice {source:AudioBufferSourceNode; name:SoundName}
 const volume=(value:unknown,fallback:number)=>typeof value==='number'&&Number.isFinite(value)?Math.max(0,Math.min(1,value)):fallback;
+export function celebrationVolume(kind:'medal'|'level',policy:Pick<AudioPolicy,'active'|'sound'|'config'>){
+  return policy.active&&policy.sound?(kind==='medal'?.25:.10)*volume(policy.config.sfxVolume,1):0;
+}
+const enemyVoice=(name:SoundName)=>name==='enemyCatch'||name==='enemySurprise';
 export class GameAudio {
   private context:AudioContext|undefined;
   private buffers=new Map<string,AudioBuffer>();
@@ -21,6 +27,7 @@ export class GameAudio {
   private voices=new Set<Voice>();
   private last=new Map<string,number>();
   private preparing:Promise<void>|undefined;
+  private nextPrepareAt=0;
   private resuming:Promise<void>|undefined;
   private music:AudioBufferSourceNode|undefined;
   private musicAt=0;
@@ -36,7 +43,9 @@ export class GameAudio {
     private fetcher:typeof fetch=(...args)=>globalThis.fetch(...args),
     private clock:()=>number=()=>performance.now()){}
   prepare(timeoutMs=6000):Promise<void> {
-    return this.preparing??=this.load(timeoutMs);
+    if(this.preparing)return this.preparing;
+    if(this.disposed||this.buffers.size===Object.keys(effects).length+1||this.clock()<this.nextPrepareAt)return Promise.resolve();
+    return this.preparing=this.load(timeoutMs).finally(()=>{this.preparing=undefined;this.nextPrepareAt=this.clock()+5000;});
   }
   private async load(timeoutMs:number) {
     if(this.disposed)return;
@@ -44,7 +53,7 @@ export class GameAudio {
     const context=this.context,abort=new AbortController();let expired=false;
     let timer:ReturnType<typeof setTimeout>;
     const deadline=new Promise<void>(resolve=>{timer=setTimeout(()=>{expired=true;abort.abort();resolve();},timeoutMs);});
-    const tasks=[...Object.values(effects).map(x=>x.file),'bgm_loop'].map(async name=>{
+    const tasks=[...Object.values(effects).map(x=>x.file),'bgm_loop'].filter(name=>!this.buffers.has(name)).map(async name=>{
       try{
         const response=await this.fetcher(`/assets/sfx/${name}.wav`,{signal:abort.signal});
         if(!response.ok)throw Error('audio_asset_unavailable');
@@ -75,7 +84,7 @@ export class GameAudio {
     return gain;
   }
   private allowed(name:SoundName) {
-    const p=this.policy();return !this.disposed&&this.unlocked&&p.active&&p.sound&&p.config[effects[name].flag]!==false;
+    const p=this.policy();return !this.disposed&&this.unlocked&&p.active&&p.sound&&(!enemyVoice(name)||p.enemyVoicesEnabled!==false)&&p.config[effects[name].flag]!==false;
   }
   play(name:SoundName):boolean {
     if(!Object.hasOwn(effects,name)||!this.allowed(name)||this.context?.state!=='running')return false;
@@ -106,7 +115,7 @@ export class GameAudio {
   sync() {
     const p=this.policy();
     if(!p.active){this.stop();return;}
-    for(const voice of [...this.voices])if(!p.sound||p.config[effects[voice.name].flag]===false)this.end(voice);
+    for(const voice of [...this.voices])if(!p.sound||p.config[effects[voice.name].flag]===false||(enemyVoice(voice.name)&&p.enemyVoicesEnabled===false))this.end(voice);
     const buffer=this.buffers.get('bgm_loop');
     if(!this.unlocked||!p.music||p.config.music===false||!buffer||this.context?.state!=='running'){
       this.pauseMusic(!p.music||p.config.music===false);return;

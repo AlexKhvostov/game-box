@@ -1,0 +1,123 @@
+{
+  "checked_at": "2026-11-14 05:04 Europe/Minsk",
+  "component": "untouch_level_up_web",
+  "version": "0.1.0",
+  "files": {
+    ".gitignore": {
+      "bytes": 63,
+      "sha256": "70aa3458942aba2e290207fdc19960c012627331e99356c03c8057d676273a75"
+    },
+    "assets/celebration.mp4": {
+      "bytes": 1503119,
+      "sha256": "c04cc70a66f47fe44000ce31b952dbbd3ad26ab27c056288bf529f29b6b2d583"
+    },
+    "assets/final-frame.png": {
+      "bytes": 1010824,
+      "sha256": "bc2088b6bb7ecbd9ec50cdd263204b504a5fe34f31b9de97c2158fac0c074a34"
+    },
+    "assets/poster.png": {
+      "bytes": 1896706,
+      "sha256": "945a7989ea9ce9821ca5acf8b26b35101e585b06507ea008bcf1fa3b9ec6cc13"
+    },
+    "assets/shields/level-1.svg": {
+      "bytes": 2693,
+      "sha256": "2c5d25697724a12073e2c371204d0f3be6f2945a4622cfaddd25caaa122f21c8"
+    },
+    "assets/shields/level-2.svg": {
+      "bytes": 4263,
+      "sha256": "8640081cac5b9066c4dde6d6b8f20727c46279dd7f227d66a50737988eda4db4"
+    },
+    "assets/shields/level-3.svg": {
+      "bytes": 5153,
+      "sha256": "74d3a207f89a2a21743f26e239620ba91666e26613902c2f6f34beac2459dd56"
+    },
+    "assets/shields/level-4.svg": {
+      "bytes": 2986,
+      "sha256": "d96d7fe2f9103b52c8a098f41decd8024ee90f4dd698c59ddb841a3c9aaa9560"
+    },
+    "assets/shields/level-5.svg": {
+      "bytes": 4188,
+      "sha256": "a644e2b39309d5948d1410cbb478bddd64245929754197bca0d6c05167f1f1b0"
+    },
+    "assets/shields/level-6.svg": {
+      "bytes": 5312,
+      "sha256": "49b5745bde1b4ff60d981ce12a1ea3ca9cc1a44ee300b033d679c78b3f10db9d"
+    },
+    "assets/shields/level-7.svg": {
+      "bytes": 3360,
+      "sha256": "f256c9166e3adfd81b2448d2418039d1e666c42d90643a0b546488fff4c3fd42"
+    },
+    "confetti.mjs": {
+      "bytes": 2206,
+      "sha256": "eacb0d06f0132871eb9b504e6998ebc092ebed8b1be1152cff7cac6c3a260c34"
+    },
+    "examples/vue/App.vue": {
+      "bytes": 1105,
+      "sha256": "d1deed557e393689bed42485584c7b3e2e2d9de5773be48dc655f4c2334b4f0b"
+    },
+    "examples/vue/index.html": {
+      "bytes": 260,
+      "sha256": "e25552f98acbcf1e03b2dbcd4f15f4e7793a7fa906db5aaa6018f92232296ca8"
+    },
+    "examples/vue/main.ts": {
+      "bytes": 93,
+      "sha256": "6c0305857eda796d82bf45ee8720e59075ae4dbe005eda90a7468b2bd518bfa0"
+    },
+    "examples/vue/package.json": {
+      "bytes": 348,
+      "sha256": "0cb81209f857ae19f6557d1654efd9be95a3fb369077928899af4f77211dc894"
+    },
+    "examples/vue/vite.config.ts": {
+      "bytes": 159,
+      "sha256": "aa58e516380cc8cfb5673f88d59168730612ed2d70184917cee7f2a0785a53dd"
+    },
+    "icons.js": {
+      "bytes": 304,
+      "sha256": "e0bfdc2ee3608348ab33c2e036d0411b633d716cdab45a75b7d3e3b0dea6b449"
+    },
+    "index.d.ts": {
+      "bytes": 1375,
+      "sha256": "f21406c15dc7f2c1abc41d5ab7ec18cd8777afac0bb1a212e2b11489c98dfbb4"
+    },
+    "index.js": {
+      "bytes": 162,
+      "sha256": "d885554a139d3745f46873341df3691eced43ce45769f5ac8efa5f15e545062f"
+    },
+    "level-up-animation.js": {
+      "bytes": 13232,
+      "sha256": "6b42c0c8fadca360e43f47d17769ded8384f6b8506809da692ad9430932554a7"
+    },
+    "level-up-modal.js": {
+      "bytes": 3003,
+      "sha256": "d7e453ac1364f2bb272a7477e2dee89b3b2c3d87655bebe5f8351149767551e2"
+    },
+    "level-up.css": {
+      "bytes": 7677,
+      "sha256": "4802405d7ba8955b8709bc0dd869474e3aefbe52f526a407bb5a9b3d1fd8bd1c"
+    },
+    "package.json": {
+      "bytes": 480,
+      "sha256": "944d18bbe03bc74742e1e3b1597a76e4df3310bd43f37326dbbddb0858234bba"
+    },
+    "rays.css": {
+      "bytes": 3235,
+      "sha256": "a57f3e8942189dfe9238e20c8e5d0b34219ffc336d769c9a4af761bed30f4208"
+    },
+    "README.md": {
+      "bytes": 8367,
+      "sha256": "2a4a2c1e8d2eed50c3971318bb21983f627e54bab708c66deb7d03cb296f5961"
+    },
+    "standalone.html": {
+      "bytes": 1645,
+      "sha256": "773190636942e6478a6ca7bd3ed5171a5057c5ecc7ab17f32c1d129b4866c1ec"
+    },
+    "UntouchLevelUp.vue": {
+      "bytes": 1240,
+      "sha256": "f342f5a3ce12df374f42c478cbc873c3944b2dcded9651edb1da7f68c2536d81"
+    },
+    "view.js": {
+      "bytes": 1428,
+      "sha256": "4402fce08b0f2209a71098888b8ba4e84aebb1f9423e00762a91740099ba766a"
+    }
+  }
+}

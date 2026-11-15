@@ -1,0 +1,9 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Untouch · самостоятельный Level Up</title><link rel="stylesheet" href="./level-up.css"><style>body{margin:0;min-height:100dvh;background:#061a2c;color:#eaf8ff;font:15px/1.5 system-ui,sans-serif}main{max-width:700px;padding:24px;margin:auto}button,select{font:inherit;padding:10px 14px;border:1px solid #397e99;border-radius:10px;background:#0e344a;color:#eaf8ff}nav{display:flex;gap:10px;flex-wrap:wrap}p{color:#91b2c6}a{color:#9be6f5}</style></head><body><main><h1>Level Up</h1><p>Самостоятельный компонент — без стилей и скриптов UI Kit.</p><nav><label>Уровень <select id="level" aria-label="Уровень компонента"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option><option>7</option></select></label><button id="open">Открыть поздравление</button></nav><p id="result" role="status"></p></main><script type="module">
+import {LevelUpModal} from './level-up-modal.js';
+let modal;
+const level=document.querySelector('#level'),result=document.querySelector('#result');
+async function open(){if(modal)return;modal=new LevelUpModal({level:Number(level.value)});const value=await modal.result;result.textContent=`${value.reason} · уровень ${value.level}`;modal=null;}
+document.querySelector('#open').addEventListener('click',open);
+window.addEventListener('pagehide',()=>modal?.destroy(),{once:true});
+open();
+</script></body></html>

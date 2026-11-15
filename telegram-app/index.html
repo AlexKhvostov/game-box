@@ -6,13 +6,21 @@
     <meta name="theme-color" content="#061521" />
     <meta name="robots" content="noindex, nofollow" />
     <title>Untouch · Telegram</title>
+    <style>
+      html,body{margin:0;background:#061521;color:#e8fff8;font-family:Arial,sans-serif}
+      #boot-screen{position:fixed;inset:0;z-index:2147483000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;text-align:center;background:#061521}
+      #boot-screen strong{font-size:28px}#boot-screen p{max-width:300px;line-height:1.5;margin:0}#boot-screen small{color:#a4c9c5}
+      #boot-retry{font:inherit;border:0;border-radius:12px;padding:14px 26px;background:#83f4df;color:#061521}#boot-retry[hidden]{display:none}
+    </style>
+    <script src="/boot-guard.js"></script>
     <link rel="preload" href="/fonts/Roboto-Regular.ttf" as="font" type="font/ttf" crossorigin>
     <link rel="preload" href="/fonts/Roboto-Bold.ttf" as="font" type="font/ttf" crossorigin>
     <link rel="preload" href="/assets/branding/ui/result-scene-v1.png" as="image">
   </head>
   <body>
+    <div id="boot-screen" role="status" aria-live="polite"><strong>Untouch</strong><p id="boot-message">Загружаем игру…</p><small>0.3.21</small><button id="boot-retry" type="button" hidden>Повторить</button></div>
     <div id="app"></div>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="/vendor/telegram-web-app-baa788a6f686.js"></script>
     <script type="module" src="/src/app/main.ts"></script>
   </body>
 </html>
