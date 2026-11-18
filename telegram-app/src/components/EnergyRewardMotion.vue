@@ -11,6 +11,9 @@ const canvas=ref<HTMLCanvasElement>(), card=ref<HTMLElement>(), stationary=ref<H
 let frame=0, started=0;
 let from={x:0,y:0}, to={x:0,y:0}, width=230, reduced=false;
 const queue:MotionReward[]=[];
+const motionPreference=matchMedia('(prefers-reduced-motion: reduce)');
+const awardDismissed=(reward:MotionReward)=>reward.kind==='award'&&(
+  motionPreference.matches||!!reward.source&&(!reward.source.isConnected||!!reward.source.closest('.port-window-closing')));
 function cancel(clear=false) {
   cancelAnimationFrame(frame);
   const active=event.value;
@@ -23,11 +26,11 @@ function cancel(clear=false) {
 }
 function start() {
   if(event.value||document.hidden||telegram()?.isActive===false||!state.initialized||world.value?.playing||state.externalBusy&&!queue.some(r=>r.kind==='award'))return;
-  for(let i=queue.length-1;i>=0;i--){const r=queue[i]!;if(r.owner!==state.profile?.id||r.kind==='round'&&(state.screen!=='result'||state.resultId!==r.key)||r.kind==='invite'&&!pendingInviteRewards.value.some(n=>n.id===r.key)||r.kind==='award'&&r.source&&!r.source.isConnected){queue.splice(i,1);if(!r.provisional&&r.kind!=='invite')rewardMotion.held-=r.amount;}}
+  for(let i=queue.length-1;i>=0;i--){const r=queue[i]!;if(r.owner!==state.profile?.id||r.kind==='round'&&(state.screen!=='result'||state.resultId!==r.key)||r.kind==='invite'&&!pendingInviteRewards.value.some(n=>n.id===r.key)||awardDismissed(r)){queue.splice(i,1);if(!r.provisional&&r.kind!=='invite')rewardMotion.held-=r.amount;}}
   const index=queue.findIndex(r=>r.kind!=='invite'||state.inviteNoticeOpen&&!!document.querySelector(`[data-invite-reward-id="${r.key}"] .invite-reward-amount`));
   if(index<0){rewardMotion.active=false;return;}
   const next=queue.splice(index,1)[0]!;
-  event.value=next; rewardMotion.active=true; reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  event.value=next; rewardMotion.active=true; reduced=motionPreference.matches;
   const source=(next.source??(next.kind==='invite'?document.querySelector('.invite-reward-amount'):next.kind==='round'?document.querySelector('.result-metrics'):null)??document.querySelector('.bonus-orb')??document.querySelector('.window-body')??document.querySelector('.game-field'))?.getBoundingClientRect(), target=document.querySelector('.energy-capsule')?.getBoundingClientRect();
   width=Math.min(104,window.innerWidth-32);
   from={x:Math.max(width/2+16,Math.min(window.innerWidth-width/2-16,source?source.x+source.width/2:window.innerWidth/2)),y:Math.max(104,Math.min(window.innerHeight-104,source?source.y+source.height/2:window.innerHeight/2))};
@@ -39,7 +42,7 @@ function glow(c:CanvasRenderingContext2D,x:number,y:number,w:number,h:number,col
 }
 function tick(stamp:number) {
   if(!event.value)return;
-  if(event.value.kind==='award'&&event.value.source&&!event.value.source.isConnected){cancel();start();return;}
+  if(awardDismissed(event.value)){cancel();start();return;}
   const p=clamp((stamp-started)/(event.value.counterOnly?320:reduced?180:1600)),f=rewardFrame(p,reduced);
   const x=from.x+(to.x-from.x)*f.fly,y=from.y+(to.y-from.y)*f.fly-(reduced?0:Math.sin(Math.PI*f.flight)*30);
   if(card.value){card.value.style.width=`${width}px`;card.value.style.transform=`translate(${x-width/2}px,${y-27}px) scale(${f.scale})`;card.value.style.opacity=String(f.labelOpacity);}

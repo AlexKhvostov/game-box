@@ -3,7 +3,7 @@
 export type MedalSeriesId = 'time'|'average'|'clean'|'risk'|'distance'|'attempts'|'ranking'|'invites';
 export interface AchievementSeries {id:MedalSeriesId;ru:string;en:string;values:readonly (number|string)[];stableIds:readonly string[];helpRu:string;helpEn:string;seconds:boolean}
 const series=(id:MedalSeriesId,ru:string,en:string,values:readonly(number|string)[],ids:readonly(number|string)[],helpRu:string,helpEn:string,seconds=false):AchievementSeries=>({id,ru,en,values,stableIds:ids.map(v=>`${id}-${v}`),helpRu,helpEn,seconds});
-export const achievementSeries:readonly AchievementSeries[]=[
+const historicalSeries:readonly AchievementSeries[]=[
   series('time','Время выживания','Survival time',[30,60,90,120,180],[30,60,90,120,180],'Продержитесь указанное время в одной подтверждённой попытке.','Survive for the required time in one confirmed attempt.',true),
   series('average','Среднее время','Average time',[10,20,30,45,60],[10,20,30,60,90],'Достигните указанного среднего времени в рейтинге «Средние». Учитываются подтверждённые попытки по действующим правилам рейтинга.','Reach the required average survival time in the Average leaderboard. Confirmed attempts use the current leaderboard rules.',true),
   series('clean','Без усилений','No boosts',[20,30,60,90,120],[20,30,60,90,120],'Продержитесь указанное время в одной попытке. Шлем и прыжок должны быть выключены на всю попытку.','Survive for the required time in one attempt with both helmet and jump disabled throughout.',true),
@@ -14,15 +14,22 @@ export const achievementSeries:readonly AchievementSeries[]=[
   series('invites','Приглашения','Invitations',[1,3,5,7,10],[1,5,10,50,100],'Поделитесь кодом из аккаунта. Друг вводит его в «Кто вас пригласил?» и выполняет условия программы приглашений. Считаются уникальные друзья с подтверждённой наградой, а не просто установки. Бонус медали выдаётся отдельно.','Share your account’s invitation code. Friends enter it under “Who invited you?” and complete the invitation program requirements. Only unique qualified friends count, not just installs. The medal bonus is separate.'),
 ];
 export interface AchievementDefinition {id:string;series:MedalSeriesId;tier:number;value:number|string;titleRu:string;titleEn:string;helpRu:string;helpEn:string;seconds:boolean}
-export const achievements:readonly AchievementDefinition[]=achievementSeries.flatMap(s=>s.values.map((value,tier)=>({id:s.stableIds[tier]!,series:s.id,tier,value,titleRu:s.ru,titleEn:s.en,helpRu:s.helpRu,helpEn:s.helpEn,seconds:s.seconds})));
+export const historicalAchievements:readonly AchievementDefinition[]=historicalSeries.flatMap(s=>s.values.map((value,tier)=>({id:s.stableIds[tier]!,series:s.id,tier,value,titleRu:s.ru,titleEn:s.en,helpRu:s.helpRu,helpEn:s.helpEn,seconds:s.seconds})));
+export const achievementSeries=historicalSeries.filter(s=>s.id!=='average');
+export const achievements=historicalAchievements.filter(m=>m.series!=='average');
 export const achievementCatalog=achievements;
+export const personalSeries=achievementSeries.filter(s=>s.id!=='ranking');
+export const personalSeriesCount=personalSeries.length;
+export const isRetiredAward=(id:string)=>id.startsWith('average-');
+const historicalIds=new Set(historicalAchievements.map(m=>m.id));
+export const isHistoricalMedal=(id:string)=>historicalIds.has(id);
 export const achievementEnergy:readonly number[]=[5,10,25,50,100];
 const byId=new Map(achievements.map(a=>[a.id,a]));
 export const medalById=(id:string)=>byId.get(id);
 export const cupRanks:readonly number[]=[1000,500,100,10,1];
 export function cupTier(place:number|null|undefined):number|null {if(place==null||place<1||place>1000)return null;for(let i=4;i>=0;i--)if(place<=cupRanks[i]!)return i;return null;}
-export function levelCounts(earned:Iterable<string>):number[]{const ids=new Set(earned);return Array.from({length:5},(_,tier)=>achievementSeries.filter(s=>s.id!=='ranking'&&ids.has(s.stableIds[tier]!)).length);}
-export function achievementLevel(earned:Iterable<string>):number {let level=1;for(const count of levelCounts(earned)){if(count!==7)break;level++;}return level;}
+export function levelCounts(earned:Iterable<string>):number[]{const ids=new Set(earned);return Array.from({length:5},(_,tier)=>personalSeries.filter(s=>ids.has(s.stableIds[tier]!)).length);}
+export function achievementLevel(earned:Iterable<string>):number {let level=1;for(const count of levelCounts(earned)){if(count!==personalSeriesCount)break;level++;}return level;}
 export interface AchievementReceipt {id:string;awardId:string;energy:number;runId?:string|null;at?:number}
 export interface BackfillMarker {version:number;id:string;earned:string[];presented?:string[];levelBaseline?:number;cutoffAt?:number|string;localQuietLevel?:number}
 export interface AchievementSnapshot {version:number;owner:string;confirmed:boolean;earned:string[];earnedRewards:Record<string,number>;metrics:Record<string,number>;rewards:number[];recordPlace:number|null;averagePlace:number|null;pending:AchievementReceipt[];silentBackfill?:BackfillMarker;invitationBackfill?:BackfillMarker;personalBackfill?:BackfillMarker;averageBackfill?:BackfillMarker}

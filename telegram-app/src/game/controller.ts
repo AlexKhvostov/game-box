@@ -1,23 +1,20 @@
 import {watch} from 'vue';
-import { kernel, proof, type WorldState, type RoundProof } from '../domain/kernel';
+import { kernel, proof, type WorldState } from '../domain/kernel';
 import {HelmetShatter} from './helmet';
 import { ImpactBurst, type ImpactEffect } from './impact';
-import { FieldPainter } from './painter';
-import { operationId } from '../services/storage';
-import { state, world, prepareAttempt, finishAttempt, errorText, openScreen, energy, failedFinish, applyPendingConfig } from '../services/game-store';
+import { FieldPainter, type StaticFieldLayers } from './painter';
+import { state, world, impactActive, now, flush, nextAttemptId, prepareAttempt, finishAttempt, errorText, openScreen, energy, failedFinish, applyPendingConfig } from '../services/game-store';
 import { sound, enableAudio, syncMusic, stopAudio } from '../platform/audio';
 import { telegram } from '../platform/telegram';
 import type { GameConfig } from '../services/contracts';
 import { motionProbe } from './motion-probe';
 import {JumpReadySignal} from './jump-ready-signal';
 import {dismissControlHint,resetControlHint,recordControlHintStart} from '../services/control-hint-store';
-import {EnemyReactions,ENEMY_PRESENTATION_MS} from './enemy-reactions';
+import {EnemyReactions,ENEMY_CATCH_MS} from './enemy-reactions';
 import {controlSensitivity,enemyReactionsAllowed,type GamePresentationPolicy,type GamePresentationPreferences} from './presentation-policy';
 export interface GameControllerCallbacks {
-  /** Local persistence has begun. Prepare the first award while enemies react. */
-  onDefeat?:(requestId:string,snapshot:WorldState,roundProof:RoundProof)=>void;
-  /** Show prepared awards or the result immediately; never await HTTP here. */
-  onPresentationReady?:(requestId:string)=>void;
+  /** The journal write completed, or its recoverable error is ready to show. */
+  onFinished?:(requestId:string)=>void;
 }
 export class GameController {
   private painter: FieldPainter;
@@ -30,21 +27,26 @@ export class GameController {
   private lastHud = 0;
   private frame = 0;
   private impacts:ImpactEffect[]=[];
+  private impact:{elapsed:number;duration:number;painted:boolean;finishedAt:number;owner:string}|null=null;
+  private resultFrame=0;
   private raf = 0;
   private pointers = new Map<number, { x: number; y: number }>();
   private primary: number | null = null;
   private stopped = false;
   private enemyReactions:EnemyReactions|null=null;
-  private impactAgeMs=0;
-  private presentationDelivered=false;
   private events: (() => void)[] = [];
-  constructor(private canvas: HTMLCanvasElement, private touchpad: HTMLElement,private callbacks:GameControllerCallbacks={},playingInput?:HTMLElement) {
-    this.painter = new FieldPainter(canvas); this.reset();
+  constructor(private canvas: HTMLCanvasElement, private touchpad: HTMLElement,private fieldSide:()=>number,fieldLayers:StaticFieldLayers,private callbacks:GameControllerCallbacks={},playingInput?:HTMLElement) {
+    this.painter = new FieldPainter(canvas,fieldLayers); this.reset();
+    const restoreField=()=>{this.painter.invalidateStatic();this.syncActivity();};
+    for(const layer of [fieldLayers.background,fieldLayers.border]){
+      layer.addEventListener('contextrestored',restoreField);
+      this.events.push(()=>layer.removeEventListener('contextrestored',restoreField));
+    }
     for(const surface of new Set([touchpad,...(playingInput?[playingInput]:[])])){
       const bind = (name: string, callback: EventListener) => { surface.addEventListener(name, callback,{passive:false}); this.events.push(() => surface.removeEventListener(name, callback)); };
       bind('pointerdown', this.down as EventListener); bind('pointermove', this.move as EventListener); bind('pointerup', this.up as EventListener); bind('pointercancel', this.up as EventListener);
     }
-    window.addEventListener('keydown', this.key); document.addEventListener('visibilitychange', this.visibility);
+    window.addEventListener('keydown', this.key);window.addEventListener('pagehide',this.deactivate);document.addEventListener('visibilitychange', this.visibility);
     telegram()?.onEvent('deactivated', this.deactivate); telegram()?.onEvent('activated', this.activate);
     this.events.push(watch(()=>[state.screen,state.inviteNoticeOpen,state.externalBusy],this.syncActivity,{flush:'sync'}));
     this.events.push(watch(()=>JSON.stringify([this.presentationPolicy(),state.preferences]),()=>{if(!this.snapshot?.playing){this.configureReactions();this.draw();}this.syncActivity();}));
@@ -65,8 +67,8 @@ export class GameController {
     resetControlHint();
     this.boundConfig = state.config;
     this.jumpReady.reset();
-    this.requestId = operationId(); this.snapshot = kernel({ op: 'create', proofVersion: 6, config: this.boundConfig.config, requestId: this.requestId, hadHelmet: state.helmet, hadJump: state.jump });
-    this.configureReactions();this.enemyReactions?.reset();this.impactAgeMs=0;this.presentationDelivered=false;
+    this.requestId = nextAttemptId(); this.snapshot = kernel({ op: 'create', proofVersion: 6, config: this.boundConfig.config, requestId: this.requestId, hadHelmet: state.helmet, hadJump: state.jump });
+    this.configureReactions();this.enemyReactions?.reset();
     this.impacts=[];this.painter.configure(this.boundConfig.config); world.value = this.snapshot; this.reanchor();
     this.draw();
     this.syncActivity();
@@ -79,13 +81,13 @@ export class GameController {
   private draw() {
     if (this.snapshot && this.boundConfig) {
       this.observeJumpReady();
-      this.painter.draw(this.snapshot, this.boundConfig.config, this.frame, this.impacts, this.jumpReady.ageMs,{showPlayerFace:this.preferences().showPlayerFace,enemyReactions:this.enemyReactions,locale:state.locale});
+      this.painter.draw(this.snapshot, this.boundConfig.config, this.frame, this.impacts, this.jumpReady.ageMs,{showPlayerFace:this.preferences().showPlayerFace,enemyReactions:this.enemyReactions,locale:state.locale},this.fieldSide());
     }
   }
   reanchor() { this.lastTime = 0; this.debt = 0; this.pointers.clear(); this.primary = null; }
-  private active(){return !this.stopped&&!!this.snapshot&&!state.screen&&!state.inviteNoticeOpen&&!state.externalBusy&&!document.hidden&&telegram()?.isActive!==false;}
+  private active(){return !this.stopped&&!!this.snapshot&&(!this.snapshot.dead||!!this.impact)&&!state.screen&&!state.inviteNoticeOpen&&!state.externalBusy&&!document.hidden&&telegram()?.isActive!==false;}
   private syncActivity=()=>{
-    if(!this.active()||(this.snapshot.dead&&this.presentationDelivered)){
+    if(!this.active()){
       if(this.raf)cancelAnimationFrame(this.raf);this.raf=0;this.reanchor();return;
     }
     if(!this.raf)this.raf=requestAnimationFrame(this.tick);
@@ -112,30 +114,32 @@ export class GameController {
     this.raf=0;
     if(!this.active()){this.reanchor();return;}
     const dt = this.lastTime ? time - this.lastTime : 0; this.lastTime = time;
+    if(this.impact){
+      const impact=this.impact,step=impact.painted?Math.min(50,Math.max(0,dt)):0;
+      impact.elapsed+=step;
+      this.enemyReactions?.advance(step);
+      this.impacts=this.impacts.filter(effect=>effect.update(step/1000));
+      this.frame++;this.draw();impact.painted=true;
+      if(impact.elapsed>=impact.duration){
+        // End the reaction on a drawn frame before writing the result or building the next screen.
+        this.raf=requestAnimationFrame(()=>{this.raf=0;this.finishImpact();});
+      }else this.syncActivity();
+      return;
+    }
     if (dt <= 0) {this.draw();this.syncActivity();return;}
     this.impacts=this.impacts.filter(impact=>impact.update(Math.min(50,dt)/1000));
-    if(this.snapshot.dead){
-      // Only active presentation time counts; a background/modal pause cannot
-      // open a result or leave an animation timer working in the hidden app.
-      const step=Math.min(50,dt);this.impactAgeMs+=step;this.enemyReactions?.advance(step);
-      this.frame++;this.draw();
-      const hold=this.enemyReactions?.caught?ENEMY_PRESENTATION_MS:420;
-      if(this.impactAgeMs>=hold&&!this.presentationDelivered){
-        this.presentationDelivered=true;this.impacts=[];
-        if(this.callbacks.onPresentationReady)this.callbacks.onPresentationReady(this.requestId);else openScreen('result');
-      }
-      this.syncActivity();return;
-    }
     if (this.snapshot.playing) {
       const before = this.snapshot.timeMs, started = motionProbe.clock();
       this.debt += dt; let budget = Math.min(250, this.debt);
       while (budget > 1e-9 && this.snapshot.playing) { const step = Math.min(50, budget); this.debt -= step; budget -= step; this.advance(step); }
       const afterKernel=motionProbe.clock();this.frame++;this.draw();
+      if(this.snapshot.dead)this.markImpactPainted();
       motionProbe.frame(dt,this.snapshot.timeMs-before,afterKernel-started,motionProbe.clock()-afterKernel,this.snapshot.dead);
     } else { const step=Math.min(50,dt);this.enemyReactions?.advance(step);this.snapshot = kernel({ op: 'idle', ms: step });if(this.snapshot.wallBounces)sound('wall');if(this.snapshot.enemyBounces)sound('collide');this.frame++;this.draw(); }
     if (time - this.lastHud >= 33) { world.value = this.snapshot; this.lastHud = time; }
     this.syncActivity();
   };
+  private markImpactPainted(){if(this.impact)this.impact.painted=true;}
   private advance(ms: number) {
     this.enemyReactions?.advance(ms);
     const previous = this.snapshot; this.snapshot = kernel({ op: 'tick', ms });
@@ -148,30 +152,49 @@ export class GameController {
     if (this.snapshot.riskCount > previous.riskCount) sound('risk');
     if ((this.snapshot.helmetCharge?.breaks??0) > (previous.helmetCharge?.breaks??0)) { this.impacts.push(new HelmetShatter(this.snapshot));sound('helmet'); if (state.preferences.vibration) telegram()?.HapticFeedback?.impactOccurred('medium'); }
     if (this.snapshot.dead && !previous.dead) {
-
       this.enemyReactions?.finish(!this.snapshot.againstWall);
+      const laughing=this.enemyReactions?.caught===true;
+      this.impact={elapsed:0,duration:laughing?ENEMY_CATCH_MS:420,painted:false,finishedAt:Math.trunc(now()),owner:state.profile!.id};
+      impactActive.value=true;
       this.impacts=[new ImpactBurst(this.snapshot)];sound(this.snapshot.againstWall ? 'heroWall' : 'hit');if(this.enemyReactions?.caught)sound('enemyCatch'); if (state.preferences.vibration) telegram()?.HapticFeedback?.notificationOccurred('error');
       this.pointers.clear(); this.primary = null; this.debt = 0; world.value = this.snapshot;
-      state.resultId = this.requestId;this.impactAgeMs=0;this.presentationDelivered=false;
-      try {
-        const roundProof=proof();
-        try { finishAttempt(this.requestId,this.snapshot,roundProof); }
-        catch(error){state.error=errorText(error);}
-        // The presentation context must exist even when a full device cannot
-        // persist the result. Its result-first fallback exposes Retry saving;
-        // it cannot wait forever for an award run that was never prepared.
-        this.callbacks.onDefeat?.(this.requestId,this.snapshot,roundProof);
-      } catch (error) { state.error = errorText(error); }
       motionProbe.finish();
+      this.syncActivity();
     }
   }
+  private finishImpact(showResult=true){
+    const impact=this.impact;
+    if(!impact)return;
+    this.impact=null;
+    if(impact.owner!==state.profile?.id){impactActive.value=false;return;}
+    state.resultId=this.requestId;
+    try{finishAttempt(this.requestId,this.snapshot,proof(),impact.finishedAt);}
+    catch(error){state.error=errorText(error);}
+    if(!showResult){impactActive.value=false;return;}
+    if(this.callbacks.onFinished)this.callbacks.onFinished(this.requestId);else openScreen('result');
+    this.resultFrame=requestAnimationFrame(()=>{
+      this.resultFrame=requestAnimationFrame(()=>{
+        this.resultFrame=0;impactActive.value=false;void flush();
+      });
+    });
+  }
   private down = (event: PointerEvent) => {
+    const surface=event.currentTarget instanceof HTMLElement?event.currentTarget:this.touchpad;
+    this.takePointer(event,surface,{x:event.clientX,y:event.clientY});
+  };
+  startFromAchievements(event:PointerEvent,origin:{x:number;y:number}) {
+    if (!this.active() || this.snapshot.playing) return;
+    // Capture on the touchpad before Vue hides the drawer. The same finger
+    // steers the player from the position where the gesture began.
+    this.takePointer(event,this.touchpad,origin);
+    this.move(event);
+  }
+  private takePointer(event:PointerEvent,surface:HTMLElement,origin:{x:number;y:number}) {
     if (!state.initialized || state.screen || state.inviteNoticeOpen || state.externalBusy || this.snapshot.dead || event.button > 0) return;
     event.preventDefault();
-    const surface=event.currentTarget instanceof HTMLElement?event.currentTarget:this.touchpad;
     surface.setPointerCapture(event.pointerId); enableAudio();
     if (!this.snapshot.playing) {
-      const fromLower=event.clientY>=this.canvas.getBoundingClientRect().bottom;
+      const fromLower=origin.y>=this.canvas.getBoundingClientRect().bottom;
       if (this.geometryIssue()) { this.reanchor(); state.notice = state.locale === 'en' ? 'The field is not fully visible. Close the keyboard or reopen the game. Your run has not started.' : 'Поле отображается не полностью. Закройте клавиатуру или откройте игру заново. Попытка не началась.'; return; }
       if (energy.value < state.profile!.wallet.energyConfig.baseAttemptCost + (state.helmet ? state.profile!.wallet.energyConfig.helmetExtraCost : 0) + (state.jump ? state.profile!.wallet.energyConfig.jumpExtraCost : 0)) { openScreen('energy'); return; }
       try {
@@ -181,13 +204,14 @@ export class GameController {
         if(this.snapshot.playing){dismissControlHint();recordControlHintStart(fromLower,this.requestId);}
       } catch (error) { if(error instanceof Error && error.message==='insufficient_energy'){openScreen('energy');return;} state.error = errorText(error); state.notice = state.error; return; }
     }
-    if (this.primary === null) { this.primary = event.pointerId; this.pointers.set(event.pointerId, { x: event.clientX, y: event.clientY }); }
-    else { this.pointers.set(event.pointerId, { x: event.clientX, y: event.clientY }); this.jump(); }
-  };
+    this.pointers.set(event.pointerId,origin);
+    if (this.primary === null) this.primary = event.pointerId;
+    else this.jump();
+  }
   private move = (event: PointerEvent) => {
     if (!this.snapshot.playing || state.screen || state.inviteNoticeOpen || event.pointerId !== this.primary) return;
     const last = this.pointers.get(event.pointerId); this.pointers.set(event.pointerId, { x: event.clientX, y: event.clientY }); if (!last) return;
-    const factor = 380 / this.canvas.getBoundingClientRect().width * controlSensitivity(this.preferences());
+    const factor = 380 / this.fieldSide() * controlSensitivity(this.preferences());
     const dx = (event.clientX - last.x) * factor, dy = (event.clientY - last.y) * factor;
     if (!dx && !dy) return;
     const previous = this.snapshot; this.snapshot = kernel({ op: 'move', dx, dy }); this.transitions(previous);
@@ -214,8 +238,8 @@ export class GameController {
     if (['INPUT', 'TEXTAREA', 'SELECT'].includes((event.target as HTMLElement)?.tagName) || state.screen || state.inviteNoticeOpen) return;
     if (event.code === 'Space') { event.preventDefault(); this.jump(); }
   };
-  private deactivate = () => { this.reanchor();if(this.raf)cancelAnimationFrame(this.raf);this.raf=0;stopAudio(); };
-  private activate = () => { this.lastTime = 0; syncMusic();this.syncActivity(); };
+  private deactivate = () => { this.reanchor();if(this.raf)cancelAnimationFrame(this.raf);this.raf=0;this.finishImpact();stopAudio(); };
+  private activate = () => { this.lastTime = 0; this.painter.invalidateStatic();syncMusic();this.syncActivity(); };
   private visibility = () => document.hidden ? this.deactivate() : this.activate();
-  dispose() { motionProbe.cancel();this.stopped = true; cancelAnimationFrame(this.raf);this.raf=0;this.enemyReactions=null; for (const fn of this.events) fn(); window.removeEventListener('keydown', this.key); document.removeEventListener('visibilitychange', this.visibility); telegram()?.offEvent('deactivated', this.deactivate); telegram()?.offEvent('activated', this.activate); stopAudio(); }
+  dispose() { motionProbe.cancel();this.stopped = true;cancelAnimationFrame(this.resultFrame);cancelAnimationFrame(this.raf);this.raf=0;this.finishImpact(false);impactActive.value=false;this.enemyReactions=null; for (const fn of this.events) fn(); window.removeEventListener('keydown', this.key);window.removeEventListener('pagehide',this.deactivate);document.removeEventListener('visibilitychange', this.visibility); telegram()?.offEvent('deactivated', this.deactivate); telegram()?.offEvent('activated', this.activate); stopAudio(); }
 }

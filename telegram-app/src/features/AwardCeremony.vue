@@ -1,36 +1,128 @@
 <script setup lang="ts">
-import {computed,ref,watch,onMounted,onBeforeUnmount} from 'vue';
+import {computed,onBeforeUnmount,onMounted,ref} from 'vue';
 import ParityDialog from '../components/ParityDialog.vue';
 import MedalArt from '../components/MedalArt.vue';
 import EnergyAmount from '../components/EnergyAmount.vue';
 import {awardCopy,type AwardPresentationReceipt,type AwardCloseReason} from '../domain/achievement-presentation';
-import {paintAward} from '../domain/award-canvas';
-import type {AwardArtwork} from '../services/award-artwork';
+import {AWARD_CELEBRATION_MS,AWARD_FRAME_MS,paintAwardParticles} from '../domain/award-canvas';
+import {awardStudio,type AwardArtwork} from '../services/award-artwork';
+import type {AwardFanfare} from '../services/award-fanfare';
 import {telegram} from '../platform/telegram';
-const props=withDefaults(defineProps<{receipt:AwardPresentationReceipt;artwork:AwardArtwork;locale:string;muted:boolean;volume?:number}>(),{volume:.25});
-const emit=defineEmits<{presented:[string];close:[id:string,reason:AwardCloseReason];energy:[{id:string;amount:number;source:HTMLElement}]}>();
-const canvas=ref<HTMLCanvasElement>(),source=ref<HTMLElement>(),dialog=ref<InstanceType<typeof ParityDialog>>(),ru=computed(()=>props.locale==='ru'),copy=computed(()=>awardCopy(props.receipt.awardId,props.locale));
+
+const props=defineProps<{receipt:AwardPresentationReceipt;artwork:AwardArtwork;locale:string;muted:boolean;volume:number;fanfare:AwardFanfare}>();
+const emit=defineEmits<{presented:[id:string];close:[id:string,reason:AwardCloseReason];energy:[{id:string;amount:number;source:HTMLElement}]}>();
+const stage=ref<HTMLElement>(),canvas=ref<HTMLCanvasElement>(),source=ref<HTMLElement>();
+const dialog=ref<InstanceType<typeof ParityDialog>>();
+const ru=computed(()=>props.locale==='ru'),copy=computed(()=>awardCopy(props.receipt.awardId,props.locale));
+const motion=matchMedia('(prefers-reduced-motion: reduce)');
+const particles=ref(!motion.matches),artUnavailable=ref(false);
 let closeReason:AwardCloseReason='dismiss';
-let timer:ReturnType<typeof setTimeout>|undefined,frame=0,start=0,lastPaint=0,finished=false,alive=true,audio:HTMLAudioElement|undefined,observer:ResizeObserver|undefined;
-const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
-function paint(elapsed:number){const el=canvas.value;if(!el||!alive)return;const bounds=el.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,2),width=Math.max(1,bounds.width),height=Math.max(1,bounds.height);if(el.width!==Math.round(width*dpr)||el.height!==Math.round(height*dpr)){el.width=Math.round(width*dpr);el.height=Math.round(height*dpr);}const context=el.getContext('2d');if(!context)return;context.setTransform(dpr,0,0,dpr,0,0);paintAward(context,width,height,props.artwork,elapsed,copy.value.cup,reduced);}
-function tick(stamp:number){frame=0;if(!alive||finished||document.hidden||telegram()?.isActive===false)return;const elapsed=stamp-start;if(stamp-lastPaint>=32){paint(elapsed);lastPaint=stamp;}if(elapsed<(reduced?600:copy.value.cup?4550:4020))frame=requestAnimationFrame(tick);else{finished=true;paint(5000);}}
-function stop(){finished=true;cancelAnimationFrame(frame);frame=0;clearTimeout(timer);audio?.pause();if(audio){audio.removeAttribute('src');audio.load();}paint(5000);}
-function background(){if(document.hidden||telegram()?.isActive===false)stop();}
-function close(reason:AwardCloseReason){closeReason=reason;stop();dialog.value?.requestClose();}
-function closed(){stop();emit('close',props.receipt.id,closeReason);}
-function syncAudio(){if(audio){audio.muted=props.muted;audio.volume=Math.max(0,Math.min(.25,Number.isFinite(props.volume)?props.volume:0));}}
-watch(()=>[props.muted,props.volume],syncAudio);
-onMounted(()=>{
- paint(0);observer=new ResizeObserver(()=>paint(finished?5000:start?Math.max(0,performance.now()-start):0));if(canvas.value)observer.observe(canvas.value);
- document.addEventListener('visibilitychange',background);telegram()?.onEvent('deactivated',background);
- // Decode has already finished in AwardHost; start on the first frame after B entrance.
- timer=setTimeout(()=>{if(!alive)return;emit('presented',props.receipt.id);start=performance.now();lastPaint=0;
-  if(source.value&&props.receipt.energy>0)emit('energy',{id:props.receipt.id,amount:props.receipt.energy,source:source.value});
-  if(!props.muted){audio=new Audio('/assets/achievements/scene/tada.mp3');syncAudio();const delay=reduced?0:copy.value.cup?1340:790;timer=setTimeout(()=>{if(alive&&!finished)void audio?.play().catch(()=>{});},delay);}
+let timer:ReturnType<typeof setTimeout>|undefined,frame=0,start=0,lastPaint=-Infinity,stopped=false;
+let observer:ResizeObserver|undefined,context:CanvasRenderingContext2D|null=null,width=0,height=0;
+
+function resizeEffects(){
+  const layer=canvas.value,bounds=stage.value?.getBoundingClientRect();
+  if(!layer||!bounds)return;
+  width=bounds.width;height=bounds.height;
+  const ratio=Math.min(devicePixelRatio||1,1.5);
+  layer.width=Math.max(1,Math.round(width*ratio));layer.height=Math.max(1,Math.round(height*ratio));
+  context=layer.getContext('2d');
+  context?.setTransform(ratio,0,0,ratio,0,0);
+}
+function stopParticles(){
+  cancelAnimationFrame(frame);frame=0;particles.value=false;context=null;
+  observer?.disconnect();
+}
+function tick(stamp:number){
+  frame=0;
+  if(stopped||!particles.value)return;
+  if(document.hidden||telegram()?.isActive===false){stop();return;}
+  const elapsed=stamp-start;
+  if(elapsed>=AWARD_CELEBRATION_MS){stopParticles();return;}
+  if(context&&elapsed-lastPaint>=AWARD_FRAME_MS-1){
+    paintAwardParticles(context,width,height,elapsed,copy.value.cup);
+    lastPaint=elapsed;
+  }
   frame=requestAnimationFrame(tick);
- },reduced?0:160);
+}
+function stop(closing=false){
+  if(stopped)return;
+  stopped=true;clearTimeout(timer);stopParticles();
+  if(closing)props.fanfare.close();else props.fanfare.stop();
+}
+function background(){if(document.hidden||telegram()?.isActive===false)stop();}
+function reduceMotion(){if(motion.matches)stopParticles();}
+function close(reason:AwardCloseReason){closeReason=reason;dialog.value?.requestClose();}
+function closed(){stop();emit('close',props.receipt.id,closeReason);}
+function begin(){
+  if(stopped||document.hidden||telegram()?.isActive===false){stop();return;}
+  emit('presented',props.receipt.id);
+  if(particles.value){
+    resizeEffects();
+    start=performance.now();frame=requestAnimationFrame(tick);
+    if(!copy.value.cup&&source.value&&props.receipt.energy>0)
+      emit('energy',{id:props.receipt.id,amount:props.receipt.energy,source:source.value});
+  }
+  props.fanfare.present();
+}
+onMounted(()=>{
+  props.fanfare.prepare(props.muted,props.volume,event=>event.target instanceof Element&&
+    !!event.target.closest('.port-award-continue,.port-award-collection,.port-award-backdrop .port-close'));
+  if(particles.value&&stage.value){observer=new ResizeObserver(resizeEffects);observer.observe(stage.value);}
+  motion.addEventListener('change',reduceMotion);
+  document.addEventListener('visibilitychange',background);telegram()?.onEvent('deactivated',background);
+  timer=setTimeout(begin,motion.matches?0:160);
 });
-onBeforeUnmount(()=>{alive=false;stop();observer?.disconnect();document.removeEventListener('visibilitychange',background);telegram()?.offEvent('deactivated',background);});
+onBeforeUnmount(()=>{
+  stop();motion.removeEventListener('change',reduceMotion);
+  document.removeEventListener('visibilitychange',background);telegram()?.offEvent('deactivated',background);
+});
 </script>
-<template><ParityDialog ref="dialog" :dismiss-on-backdrop="false" :title="copy.cup?(ru?'Новый титул':'New title'):(ru?'Достижение открыто':'Achievement unlocked')" :locale="locale" name="award-ceremony" variant="award" @close="closed"><div class="port-award-stage" :data-award-id="receipt.awardId"><img class="port-award-studio" src="/assets/achievements/scene/stage-studio-portrait.png" alt=""><canvas ref="canvas" class="port-award-canvas" aria-hidden="true"></canvas><div v-if="!artwork.start&&!artwork.end&&!artwork.atlas" class="port-award-fallback"><MedalArt :id="receipt.awardId" large :normalized="false"/></div><div class="port-award-heading"><small>{{copy.cup?(ru?'НОВЫЙ ТИТУЛ':'NEW TITLE'):(ru?'НОВОЕ ДОСТИЖЕНИЕ':'ACHIEVEMENT UNLOCKED')}}</small><h2>{{copy.label}}</h2><strong>{{copy.category}}</strong></div><div class="port-award-bottom"><div class="port-award-loot"><div class="port-award-collected"><MedalArt :id="receipt.awardId" :normalized="false"/><span><small>{{ru?'В КОЛЛЕКЦИИ':'COLLECTED'}}</small><b>{{copy.name}}</b></span></div><div v-if="receipt.energy>0" ref="source" class="port-award-energy" data-award-source><small>{{ru?'БОНУС':'BONUS'}}</small><EnergyAmount :amount="receipt.energy" prefix="+"/></div></div><button class="port-award-continue" @click="close('continue')">{{ru?'Продолжить':'Continue'}}</button><button class="port-award-collection" @click="close('collection')">{{ru?'В достижения':'View achievements'}}</button></div></div></ParityDialog></template>
+
+<template>
+  <ParityDialog ref="dialog" :dismiss-on-backdrop="false" :title="copy.cup?(ru?'Новый титул':'New title'):(ru?'Достижение открыто':'Achievement unlocked')"
+    :locale="locale" name="award-ceremony" variant="award" @closing="stop(true)" @close="closed">
+    <div ref="stage" class="port-award-stage" :class="{'port-award-cup':copy.cup}" :data-award-id="receipt.awardId">
+      <img class="port-award-studio" :src="awardStudio" alt="">
+      <div class="port-award-still">
+        <img v-if="artwork.src&&!artUnavailable" :src="artwork.src" :alt="copy.name" @error="artUnavailable=true">
+        <MedalArt v-else :id="receipt.awardId" :alt="copy.name" thumbnail :normalized="false"/>
+      </div>
+      <canvas v-if="particles" ref="canvas" class="port-award-canvas" aria-hidden="true"></canvas>
+      <div class="port-award-heading">
+        <small>{{copy.cup?(ru?'НОВЫЙ ТИТУЛ':'NEW TITLE'):(ru?'НОВОЕ ДОСТИЖЕНИЕ':'ACHIEVEMENT UNLOCKED')}}</small>
+        <strong v-if="copy.cup">{{copy.category}}</strong>
+        <h2>{{copy.label}}</h2>
+        <strong v-if="!copy.cup">{{copy.category}}</strong>
+      </div>
+      <div class="port-award-bottom">
+        <div class="port-award-loot">
+          <div class="port-award-collected">
+            <MedalArt :id="receipt.awardId" thumbnail :normalized="false"/>
+            <span><small>{{ru?'В КОЛЛЕКЦИИ':'COLLECTED'}}</small><b>{{copy.name}}</b></span>
+          </div>
+          <div v-if="!copy.cup&&receipt.energy>0" ref="source" class="port-award-energy" data-award-source>
+            <small>{{ru?'БОНУС':'BONUS'}}</small><EnergyAmount :amount="receipt.energy" prefix="+"/>
+          </div>
+        </div>
+        <button type="button" class="port-award-continue" @click="close('continue')">{{ru?'Продолжить':'Continue'}}</button>
+        <button type="button" class="port-award-collection" @click="close('collection')">{{ru?'В достижения':'View achievements'}}</button>
+      </div>
+    </div>
+  </ParityDialog>
+</template>
+
+<style scoped>
+.port-award-still{
+  position:absolute;z-index:1;left:50%;top:44%;transform:translate(-50%,-50%);width:78%;max-height:49%;
+  aspect-ratio:1;pointer-events:none
+}
+.port-award-cup .port-award-still{top:45%;width:90%}
+.port-award-still>img,.port-award-still :deep(.port-medal-art){display:block;width:100%;height:100%;object-fit:contain}
+.port-award-stage .port-award-canvas{z-index:2}
+.port-award-stage .port-award-heading{z-index:3}
+@media(max-height:500px){
+  .port-award-stage .port-award-heading{top:36px;gap:3px}
+  .port-award-heading h2{font-size:32px}
+}
+</style>

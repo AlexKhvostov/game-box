@@ -1,111 +1,126 @@
 <script setup lang="ts">
-import {onBeforeUnmount,computed, ref, watch, nextTick, onMounted, useId} from 'vue';
+import {computed,onBeforeUnmount,ref} from 'vue';
 import GameWindow from '../components/GameWindow.vue';
 import GameArt from '../components/GameArt.vue';
-import AverageInfoDialog from '../components/AverageInfoDialog.vue';
-import {state, refreshAttemptHistory, moreAttemptHistory, retryAttemptHistory, openBestAttemptResult} from '../services/game-store';
-import {myAttemptsModel, attemptWindow, bestAttemptScore} from '../domain/my-attempts';
+import GameIcon from '../components/GameIcon.vue';
+import ParityDialog from '../components/ParityDialog.vue';
+import {state,achievementPanel,flush,now,pendingRecordIds,recordThrough} from '../services/game-store';
+import {myAttemptsModel} from '../domain/my-attempts';
+import {recordMetrics,recordTime,type RecordMetric} from '../domain/daily-records';
 import type {Attempt} from '../services/contracts';
-const emit = defineEmits<{detail: [attempt: Attempt]}>();
-const t = (ru: string, en: string) => state.locale === 'ru' ? ru : en;
-const model = computed(() => myAttemptsModel({attempts: state.history, profile: state.profile, board: state.average, allTime: state.periods.all ?? [], server:state.serverHistory,config:state.config}));
-const expanded = ref(true), showInfo = ref(false), selectedId = ref<string | null>(null), meanButton = ref<HTMLButtonElement>(), list = ref<HTMLElement>();
-const plotId = useId(), missingBest = ref(false);
-const visible = computed(() => attemptWindow(model.value.rows, selectedId.value));
-const ceiling = computed(() => Math.max(5000, Math.ceil(Math.max(...visible.value.map(row => Math.max(row.attempt.result!.timeMs, row.averageMs ?? 0))) / 5000) * 5000));
-const x = (index: number) => 36 + (index + .5) * 314 / Math.max(1, visible.value.length);
-const y = (ms: number) => 172 - 160 * ms / ceiling.value;
-const barWidth = computed(() => Math.min(22, 314 / Math.max(1, visible.value.length) * .58));
-const averageLine = computed(() => visible.value.map((row, index) => row.averageMs === null ? null : `${x(index)},${y(row.averageMs)}`).filter(Boolean).join(' '));
-const seconds = (ms?: number | null) => ms == null ? '—' : (ms / 1000).toFixed(3).replace('.', state.locale === 'ru' ? ',' : '.');
-function stamp(timestamp?: number | null) {
-  if (timestamp == null) return t('Дата недоступна','Date unavailable');
-  const date = new Date(timestamp), now = new Date(), yesterday = new Date(now);
-  yesterday.setDate(now.getDate() - 1);
-  const locale = state.locale === 'ru' ? 'ru-RU' : 'en-US';
-  const day = date.toDateString() === now.toDateString() ? t('Сегодня','Today') : date.toDateString() === yesterday.toDateString() ? t('Вчера','Yesterday') : date.toLocaleDateString(locale, {day:'numeric', month:'short', ...(date.getFullYear()===now.getFullYear()?{}:{year:'numeric'})});
-  return `${day}, ${date.toLocaleTimeString(locale,{hour:'2-digit',minute:'2-digit'})}`;
-}
-const phase = (attempt: Attempt) => attempt.phase === 'confirmed' ? '' : attempt.phase === 'rejected' || attempt.phase === 'abandoned' ? t(' · Не зачтена',' · Not counted') : t(' · Ожидает',' · Pending');
-let scrollFrame=0;
-function scrollSelected(){void nextTick(()=>{cancelAnimationFrame(scrollFrame);const container=list.value,row=Array.from(container?.querySelectorAll<HTMLElement>('[data-attempt-id]')??[]).find(el=>el.dataset.attemptId===selectedId.value);if(!row||!container)return;const before=container.scrollTop,target=Math.max(0,Math.min(container.scrollHeight-container.clientHeight,row.offsetTop-container.clientHeight/2+row.offsetHeight/2));if(matchMedia('(prefers-reduced-motion: reduce)').matches){container.scrollTop=target;return;}const start=performance.now();const tick=(stamp:number)=>{const p=Math.max(0,Math.min(1,(stamp-start)/180));let lo=0,hi=1;for(let n=0;n<18;n++){const q=(lo+hi)/2,x=3*(1-q)*q*q*.58+q*q*q;if(x<p)lo=q;else hi=q;}const q=(lo+hi)/2,t=3*(1-q)*q*q+q*q*q;container.scrollTop=before+(target-before)*t;if(p<1)scrollFrame=requestAnimationFrame(tick);else scrollFrame=0;};scrollFrame=requestAnimationFrame(tick);});}
-onBeforeUnmount(()=>cancelAnimationFrame(scrollFrame));
-function select(id: string, scroll = false) {selectedId.value = id; missingBest.value = false; if (scroll) scrollSelected();}
-function showAttempt(attempt: Attempt) { select(attempt.requestId); emit('detail',attempt); }
-function selectBest() {const score = bestAttemptScore(state.serverHistory, state.profile); if (score) openBestAttemptResult(score);}
-function closeInfo() {const owner = state.profile?.id; showInfo.value = false; void nextTick(() => {if (owner === state.profile?.id && state.screen === 'history') meanButton.value?.focus({preventScroll: true});});}
-function chartKey(event: KeyboardEvent) {
-  const step = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
-  if (!step) return;
-  event.preventDefault();
-  const index = model.value.rows.findIndex(row => row.attempt.requestId === selectedId.value);
-  const row = model.value.rows[Math.max(0, Math.min(model.value.rows.length - 1, index + step))];
-  if (row) select(row.attempt.requestId, true);
-}
-function chartClick(event: MouseEvent) {
-  const rect = (event.currentTarget as SVGElement).getBoundingClientRect();
-  const at = Math.floor(((event.clientX - rect.left) * 364 / rect.width - 36) / 314 * visible.value.length);
-  const row = visible.value[Math.max(0, Math.min(visible.value.length - 1, at))];
-  if (row) select(row.attempt.requestId, true);
-}
-watch(() => state.profile?.id, () => {selectedId.value = null; showInfo.value = false; expanded.value = true; missingBest.value = false;}, {flush: 'sync'});
-watch(() => !!model.value.rules, available => {if (!available) showInfo.value = false;}, {flush: 'sync'});
-watch(() => model.value.rows.map(row => row.attempt.requestId).join(','), () => {
-  if (!model.value.rows.some(row => row.attempt.requestId === selectedId.value)) selectedId.value = model.value.rows.at(-1)?.attempt.requestId ?? null;
-}, {immediate: true});
-onMounted(() => {void refreshAttemptHistory();});
+
+const emit=defineEmits<{detail:[attempt:Attempt]}>();
+const t=(ru:string,en:string)=>state.locale==='ru'?ru:en;
+const model=computed(()=>myAttemptsModel(state.history,state.profile,recordThrough.value,achievementPanel.value.totalAttempts));
+const info=ref(false);
+const hasPending=computed(()=>state.history.some(a=>!['confirmed','rejected','abandoned'].includes(a.phase)));
+const clock=ref(now());
+const timer=setInterval(()=>clock.value=now(),15000);
+onBeforeUnmount(()=>clearInterval(timer));
+const nextMidnight=computed(()=>new Date(new Date(clock.value).toISOString().slice(0,10)+'T00:00:00Z').getTime()+86400000);
+const seconds=(ms:number)=>(ms/1000).toFixed(3).replace('.',state.locale==='ru'?',':'.');
+const time=(timestamp:number,utc=false)=>new Intl.DateTimeFormat('en-GB',{hour:'2-digit',minute:'2-digit',
+  ...(utc?{timeZone:'UTC'}:{})}).format(timestamp);
+const utcDate=(day:string)=>day.split('-').reverse().join('.');
+const metricLabel=(metric:RecordMetric)=>({
+  cleanTimeMs:t('Время без усилений','Time without boosts'),
+  boostedTimeMs:t('Время с усилениями','Time with boosts'),
+  maxSteps:t('Шаги','Steps'),maxRisk:t('Риск','Risk'),
+})[metric];
+const delivery=(a:Attempt)=>{
+  if(a.recordRejected||a.phase==='rejected'||a.phase==='abandoned')return 'rejected';
+  if(a.recordPublished||a.recordSequence===undefined&&a.phase==='confirmed')return 'sent';
+  if(a.recordSequence===undefined||pendingRecordIds.value.has(a.requestId))return 'waiting';
+  return 'local';
+};
+const deliveryLabel=(a:Attempt)=>({
+  sent:t('Отправлено','Sent'),waiting:t('Ожидает отправки','Waiting to send'),
+  local:t('На устройстве','On this device'),rejected:t('Не зачтена','Not counted'),
+})[delivery(a)];
 </script>
+
 <template>
-  <GameWindow class="my-attempts-window" :status-busy="state.busy||state.historyLoading" :status-message="state.historyLoading?t('Обновляем историю…','Refreshing history…'):undefined" :title="t('Мои попытки','My attempts')" tall :inactive="showInfo">
+  <GameWindow class="my-attempts-window" :inactive="info" :title="t('Мои попытки','My attempts')" tall>
     <template #title><GameArt class="ma-hero" src="/assets/branding/ranking/my-attempts-hero.png"/>{{t('Мои попытки','My attempts')}}</template>
     <template v-if="state.parent" #back>‹</template>
     <section class="ma-graph" :aria-label="t('Результаты попыток','Attempt results')">
+      <p class="ma-intro">{{t('На сервер идут дневные рекорды и общий счётчик.','Daily records and the total count sync to the server.')}}</p>
       <div class="ma-summary">
         <div class="ma-stat ma-total">
           <span class="ma-stat-label">{{t('Всего попыток','Total attempts')}}</span>
-          <strong class="ma-value" :style="{'--characters':String(model.totalCount ?? '—').length}">{{model.totalCount ?? '—'}}</strong>
-          <span class="ma-stat-sub">{{t('За всё время','All time')}}</span>
+          <strong class="ma-value" :style="{'--characters':String(model.totalCount).length}">{{model.totalCount}}</strong>
+          <span class="ma-stat-sub">{{model.confirmed===undefined?t('За всё время','All time'):
+            t('Подтверждено ','Confirmed ')+model.confirmed}}</span>
         </div>
-        <button v-analytics="{feature: 'select_best', placement: 'my_attempts'}" type="button" class="ma-stat ma-best" :disabled="!model.best" @click="selectBest">
+        <button v-analytics="{feature:'select_best',placement:'my_attempts'}" type="button" class="ma-stat ma-best"
+          :disabled="!model.localBest" @click="model.localBest&&emit('detail',model.localBest)">
           <span class="ma-stat-label"><img src="/assets/branding/ranking/trophy.svg" alt="">{{t('Лучшая попытка','Best attempt')}}</span>
-          <strong class="ma-value" :style="{'--characters':seconds(model.best?.timeMs).length+1}">{{seconds(model.best?.timeMs)}} <small>{{t('с','s')}}</small></strong>
-          <span class="ma-stat-sub ma-best-date">{{model.best?stamp(model.best.createdAt):t('Пока нет рекорда','No record yet')}}</span>
-          <span v-if="model.best?.source==='confirmed-local'" class="ma-stat-sub">{{t('Подтверждено на устройстве','Confirmed on this device')}}</span>
-        </button>
-        <button v-analytics="{feature: 'show_info', placement: 'my_attempts'}" ref="meanButton" type="button" class="ma-stat ma-mean" :disabled="!model.rules" aria-haspopup="dialog" :aria-expanded="showInfo" @click="showInfo=true">
-          <span class="ma-stat-label">{{t('Среднее','Average')}} <span aria-hidden="true" class="ma-info">ⓘ</span></span>
-          <strong class="ma-value" :style="{'--characters':seconds(model.averageMs).length+1}">{{seconds(model.averageMs)}} <small>{{t('с','s')}}</small></strong>
-          <span class="ma-stat-sub">{{model.rules?t(`Учтено попыток: ${model.usedCount}`,`Attempts counted: ${model.usedCount}`):t('Подключаем данные…','Loading rules…')}}</span>
+          <strong class="ma-value" :style="{'--characters':seconds(model.bestTime).length+1}">
+            {{model.bestTime?seconds(model.bestTime):'—'}} <small>{{t('с','s')}}</small>
+          </strong>
+          <span class="ma-stat-sub ma-best-date">{{model.localBest?time(recordTime(model.localBest))+' / '+time(recordTime(model.localBest),true)+' UTC':
+            model.bestTime?t('Дата недоступна','Date unavailable'):t('Пока нет рекорда','No record yet')}}</span>
         </button>
       </div>
-      <div class="ma-chart-shell">
-        <button v-analytics="{feature: 'expanded', placement: 'my_attempts'}" type="button" class="ma-chart-toggle" :aria-expanded="expanded" :aria-controls="plotId" @click="expanded=!expanded"><span>{{t('График · время, с','Chart · time, s')}}</span><span>{{expanded?t('Свернуть','Collapse'):t('Развернуть','Expand')}} <svg viewBox="0 0 24 24" aria-hidden="true" :class="{collapsed:!expanded}"><path d="m6 15 6-6 6 6"/></svg></span></button>
-        <div v-show="expanded" :id="plotId" class="ma-chart-region">
-          <svg v-if="visible.length" viewBox="0 0 364 198" class="ma-chart" tabindex="0" role="img" :aria-label="t('Столбики — попытки, жёлтая линия — среднее. Стрелки выбирают попытку.','Bars show attempts; the yellow line shows the average. Arrow keys select an attempt.')" @click="chartClick" @keydown="chartKey">
-            <g v-for="i in 6" :key="`grid-${i}`"><line x1="36" x2="350" :y1="y(ceiling*(i-1)/5)" :y2="y(ceiling*(i-1)/5)" class="ma-grid"/><text x="30" :y="y(ceiling*(i-1)/5)+4" text-anchor="end">{{ceiling*(i-1)/5000}}</text></g>
-            <g v-for="(row,i) in visible" :key="row.attempt.requestId"><rect :x="x(i)-barWidth/2" :y="Math.min(170,y(row.attempt.result!.timeMs))" :width="barWidth" :height="Math.max(2,172-y(row.attempt.result!.timeMs))" rx="2" class="ma-bar" :class="{'is-selected':row.attempt.requestId===selectedId,'is-pending':row.attempt.phase!=='confirmed'}"/><text v-if="i===0||i===visible.length-1||i===Math.floor((visible.length-1)/2)" :x="x(i)" y="190" text-anchor="middle">{{row.number}}</text></g>
-            <polyline v-if="averageLine" :points="averageLine" class="ma-average-line"/>
-            <circle v-for="(row,i) in visible.filter(row=>row.averageMs!==null)" :key="`point-${row.attempt.requestId}`" :cx="x(visible.indexOf(row))" :cy="y(row.averageMs!)" :r="row.attempt.requestId===selectedId?3.8:2" class="ma-average-dot" :data-point="i"/>
-          </svg>
-          <p v-else class="ma-empty-chart" role="status">{{state.historyLoading?t('Загружаем историю…','Loading history…'):state.historyError?t('Не удалось загрузить историю','Could not load history'):t('Здесь появится ваш прогресс','Your progress will appear here')}}</p>
-        </div>
-      </div>
-      <div v-show="expanded" class="ma-selection" aria-live="polite"><strong v-if="model.averageMs!==null">{{t('Среднее','Average')}} {{seconds(model.averageMs)}} {{t('с','s')}}</strong></div>
-      <div v-show="expanded" class="ma-legend"><span v-if="model.chartMode!=='none'"><b class="ma-line-swatch"/>{{t('Среднее','Average')}}</span><span><b class="ma-bar-swatch"/>{{t('Попытка','Attempt')}}</span></div>
+      <p class="ma-clock">{{t('У вас ','Local ')}}{{time(clock)}} · {{t('Игра ','Game ')}}{{time(clock,true)}} UTC<br>
+        {{t('Новый день','New day')}} · 00:00 UTC / {{time(nextMidnight)}} {{t('у вас','local')}}</p>
     </section>
     <section class="ma-history" :aria-label="t('История попыток','Attempt history')">
-      <header class="ma-history-heading"><h2>{{t('История','History')}} <span>· {{model.history.length}} / {{model.totalCount ?? '—'}}</span></h2><small>{{t('Новые сверху','Newest first')}}</small></header>
-      <div ref="list" class="ma-list">
-        <div v-for="row in model.history" :key="row.attempt.requestId" class="ma-row" :class="{'is-selected':selectedId===row.attempt.requestId,'is-best':row.attempt.requestId===model.best?.localId}" :data-attempt-id="row.attempt.requestId">
-          <button v-analytics="{feature: 'select', placement: 'my_attempts'}" type="button" class="ma-row-select" :aria-label="t(`Открыть результат попытки ${row.number}`,`View result of attempt ${row.number}`)" @click="showAttempt(row.attempt)"><span class="ma-number">#{{row.number}}</span><span class="ma-row-meta"><span class="ma-date">{{stamp(row.attempt.createdAt)}}</span><small>{{t('Шаги','Steps')}} {{row.attempt.result!.runDistance}} · {{t('Риск','Risk')}} {{row.attempt.result!.riskCount}}{{phase(row.attempt)}}</small></span><strong class="ma-time">{{seconds(row.attempt.result!.timeMs)}} <small>{{t('с','s')}}</small></strong><svg class="ma-eye" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button>
-        </div>
-        <p v-if="!model.history.length&&!state.historyLoading&&!state.historyError" class="ma-empty">{{t('Ваши попытки будут здесь. Пока нет результатов.','Your attempts will appear here. No results yet.')}}</p>
-        <button v-analytics="{feature: 'state', placement: 'my_attempts'}" v-if="state.historyError||state.serverHistory?.history.nextCursor" class="ma-load-more" type="button" :disabled="state.historyLoading" @click="state.historyError?retryAttemptHistory():moreAttemptHistory()">{{state.historyLoading?t('Загружаем…','Loading…'):state.historyError?t('Повторить загрузку','Retry loading'):t('Загрузить ещё','Load more')}}</button>
-        <div v-if="model.pending.length" class="ma-pending"><strong>{{t('На устройстве · отдельно от графика','On this device · outside the chart')}}</strong><button v-for="attempt in model.pending" :key="attempt.requestId" class="ma-pending-row" type="button" @click="showAttempt(attempt)"><span>{{stamp(attempt.createdAt)}} · {{seconds(attempt.result!.timeMs)}} {{t('с','s')}}{{phase(attempt)}}</span><svg class="ma-eye" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg><span class="ma-sr">{{t('Открыть результат','View result')}}</span></button></div>
+      <header class="ma-history-heading">
+        <h2>{{t('История','History')}} <span>· {{model.historyCount}}</span></h2>
+        <button type="button" class="ma-action" :disabled="state.recordSending||!hasPending" @click="flush(true)"
+          :aria-label="t('Отправить сейчас','Sync now')" :title="t('Отправить сейчас','Sync now')">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 0 0-13-6L4 9m0-5v5h5m-5 3a8 8 0 0 0 13 6l3-3m0 5v-5h-5"/></svg>
+        </button>
+        <button type="button" class="ma-action" @click="info=true" :aria-label="t('Как отправляются рекорды','How records sync')">ⓘ</button>
+        <small>{{t('На этом устройстве','On this device')}}</small>
+      </header>
+      <p v-if="state.recordSending||state.recordError||!state.online&&hasPending" class="ma-sync-note" role="status">
+        {{state.recordSending?t('Отправляем…','Syncing…'):!state.online?t('Нет сети. Попытки сохранены на устройстве.','Offline. Attempts are saved on this device.'):state.recordError}}
+      </p>
+      <div class="ma-list">
+        <section v-for="group in model.days" :key="group.day" :data-record-day="group.day">
+          <h3 class="ma-day">{{utcDate(group.day)}} · UTC</h3>
+          <div v-for="{attempt,number,records} in group.rows" :key="attempt.requestId" class="ma-row"
+            :class="{'is-best':attempt.requestId===model.localBest?.requestId,'is-record':records.length>0}" :data-attempt-id="attempt.requestId">
+            <button type="button" class="ma-row-select" v-analytics="{feature:'select',placement:'my_attempts'}"
+              :aria-label="t('Открыть результат попытки ','View result of attempt ')+number" @click="emit('detail',attempt)">
+              <span class="ma-row-meta">
+                <span class="ma-date"><span class="ma-number">#{{number}}</span> {{time(recordTime(attempt))}} / {{time(recordTime(attempt),true)}} UTC</span>
+                <small class="ma-delivery" :data-delivery="delivery(attempt)">
+                  <svg v-if="delivery(attempt)==='sent'" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 18a4 4 0 1 1 .5-8A5.5 5.5 0 0 1 17 11a3.5 3.5 0 1 1 1 7H6Zm3-4 2 2 4-4"/></svg>
+                  <svg v-else-if="delivery(attempt)==='waiting'" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 7v6l3 2"/></svg>
+                  <svg v-else-if="delivery(attempt)==='local'" viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/></svg>
+                  {{deliveryLabel(attempt)}}
+                </small>
+              </span>
+              <span class="ma-record-grid" :aria-label="records.map(metricLabel).join(', ')||undefined" :aria-hidden="!records.length">
+                <span v-for="metric in recordMetrics" :key="metric" :data-category="metric"
+                  :class="{lit:records.includes(metric)}" :title="metricLabel(metric)">
+                  <GameIcon v-if="metric==='maxSteps'||metric==='maxRisk'" :name="metric==='maxSteps'?'run':'risk'"/>
+                  <svg v-else viewBox="0 0 24 24" aria-hidden="true">
+                    <path v-if="metric==='boostedTimeMs'" d="M12 2 4 5v6c0 4 3 8 8 11 5-3 8-7 8-11V5l-8-3Z"/>
+                    <template v-else><circle cx="12" cy="13" r="8"/><path d="M10 2h4m-2 6v5l3 1"/></template>
+                  </svg>
+                </span>
+              </span>
+              <strong class="ma-time">{{seconds(attempt.result!.timeMs)}} <small>{{t('с','s')}}</small></strong>
+              <svg class="ma-eye" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </section>
+        <p v-if="!model.historyCount" class="ma-empty">{{t('Ваши попытки будут здесь.','Your attempts will appear here.')}}</p>
       </div>
-      <p v-if="missingBest||state.historyError||state.historyLoading" class="ma-history-note" role="status">{{missingBest?t('Рекорд в более ранней истории. Загрузите ещё попытки.','Your record is in earlier history. Load more attempts.'):state.historyError?(state.serverHistory?t('Связь прервалась. Загруженная история сохранена — повторите загрузку.','Connection interrupted. Loaded history is kept — retry loading.'):t('Не удалось загрузить историю. Повторите загрузку.','Could not load history. Please retry.')):t('Загружаем историю с сервера…','Loading history from the server…')}}</p>
     </section>
   </GameWindow>
-  <AverageInfoDialog v-if="showInfo&&model.rules" :rules="model.rules" :incomplete="!model.historyComplete" @close="closeInfo"/>
+  <ParityDialog v-if="info" name="record-delivery-help" :title="t('Дневные рекорды','Daily records')" :locale="state.locale" @close="info=false">
+    <div class="port-information-body ma-record-help">
+      <p>{{t('История хранится на этом устройстве. Сервер получает только новые максимумы каждого дня UTC и общий счётчик.',
+        'Attempt history stays on this device. The server receives new records for each UTC day and the total count.')}}</p>
+      <ul><li v-for="metric in recordMetrics" :key="metric">{{metricLabel(metric)}}</li></ul>
+      <p>{{t('Рекорд отмечается как отправленный после подтверждения. Если сети нет, запись останется в очереди.',
+        'A record is marked sent after confirmation. Records stay queued while offline.')}}</p>
+    </div>
+  </ParityDialog>
 </template>
 <style scoped src="./my-attempts.css"></style>

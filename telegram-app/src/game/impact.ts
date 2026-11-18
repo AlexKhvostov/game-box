@@ -24,7 +24,11 @@ export class ImpactBurst {
     if(this.age<.22){c.globalAlpha=(1-this.age/.22)*.55;c.strokeStyle='#FFFFFF';c.lineWidth=1.6;c.lineCap='round';for(let i=0;i<8;i++){const ang=i/8*Math.PI*2+this.age*2,inner=10+this.age*40,outer=28+this.age*90;c.beginPath();c.moveTo(this.x+Math.cos(ang)*inner,this.y+Math.sin(ang)*inner);c.lineTo(this.x+Math.cos(ang)*outer,this.y+Math.sin(ang)*outer);c.stroke();}}
     for(const g of this.glyphs){if(g.life<=0)continue;const fade=Math.min(1,g.life/.45),fontSize=g.size*(.85+(1-fade)*.35);c.save();c.translate(g.x,g.y);c.rotate(g.rot);c.globalAlpha=fade;c.shadowColor=g.color;c.shadowOffsetX=1.2;c.shadowOffsetY=1.2;
       if(g.sprite)paintImpactGlyph(c,g.sprite,fontSize);
-      else{c.font=`900 ${fontSize}px Roboto,Arial,sans-serif`;c.textAlign='center';c.textBaseline='middle';c.fillStyle=g.color;c.fillText(g.mark,0,0);}
+      else{
+        // Missing optional font data uses a spark with no text layout at impact.
+        const radius=fontSize*.22;c.strokeStyle=g.color;c.lineWidth=2;c.beginPath();
+        c.moveTo(-radius,0);c.lineTo(radius,0);c.moveTo(0,-radius);c.lineTo(0,radius);c.stroke();
+      }
       c.restore();}c.restore();
   }
 }

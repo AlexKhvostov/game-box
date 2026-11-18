@@ -15,12 +15,14 @@ import {renderShareCard} from '../services/share-card';
 import {loadShareArtwork,type ShareArtworkResource} from '../services/share-artwork';
 import {resultInvitation,sameShareInvitation,shareCaption} from '../domain/share-invitation';
 import {shareDownloadUrl,sharePngName} from '../domain/share-download';
-import { resultArtwork } from '../services/artwork';
-import { state, openScreen, back, action, failedFinish, retryFailedFinish, returnToPlay, presentResultReward, achievementSnapshot,refreshInvites } from '../services/game-store';
+import { resultArtwork,resultTrophy,preparedArtwork } from '../services/artwork';
+import { completedRecord } from '../domain/daily-records';
+import { state, pendingRecordIds, openScreen, back, action, failedFinish, retryFailedFinish, returnToPlay, presentResultReward, achievementSnapshot,refreshInvites } from '../services/game-store';
 import { telegram } from '../platform/telegram';
 import {registerOverlayBack} from '../services/ui-overlays';
 const t = (ru: string, en: string) => state.locale === 'ru' ? ru : en;
 const imageUrl=ref(''),artFailed=ref(false),artAttempt=ref(0);
+const sceneInMemory=preparedArtwork(resultArtwork),trophyInMemory=preparedArtwork(resultTrophy);
 const run = computed(() => state.history.find(a => a.requestId === state.resultId&&a.owner===state.profile?.id));
 const runAwards=computed(()=>bestAttempt.value?runAwardSummary([],undefined,undefined):runAwardSummary(achievementSnapshot.value.pending,run.value,state.profile?.id));
 const previewPhase=computed(()=>state.resultPreviewPhase??'confirmed');
@@ -39,8 +41,14 @@ onBeforeUnmount(()=>{document.removeEventListener('visibilitychange',presentWhen
 const result = computed(() => bestAttempt.value ?? failedFinish.value?.result ?? run.value?.result);
 const seconds = computed(() => ((result.value?.timeMs ?? 0) / 1000).toFixed(3).replace('.',state.locale==='ru'?',':'.'));
 const previousBest = computed(() => run.value?.previousBestTimeMs);
-const isRecord = computed(() => !bestAttempt.value && previousBest.value !== undefined && (result.value?.timeMs??0)>previousBest.value);
-const best = computed(() => ((isRecord.value && (previousBest.value??0)>0 ? previousBest.value! : Math.max(result.value?.timeMs??0,state.profile?.wallet.bestTimeMs??0))/1000).toFixed(3));
+const savedRun=computed(()=>!failedFinish.value&&!!run.value&&completedRecord(run.value));
+const isRecord = computed(() => !bestAttempt.value&&savedRun.value&&previousBest.value!==undefined&&run.value!.result!.timeMs>previousBest.value);
+const best = computed(() => {
+  const known=Math.max(previousBest.value??0,state.profile?.wallet.bestTimeMs??0);
+  const shown=isRecord.value&&previousBest.value!>0?previousBest.value!:
+    Math.max(known,savedRun.value||bestAttempt.value?result.value?.timeMs??0:0);
+  return (shown/1000).toFixed(3);
+});
 const metricTip = ref<'risk'|'run'|null>(null);
 let metricTrigger:HTMLElement|undefined,removeTipBack:(()=>void)|undefined;
 function closeMetric(){removeTipBack?.();removeTipBack=undefined;metricTip.value=null;void nextTick(()=>{if(metricTrigger?.isConnected)metricTrigger.focus({preventScroll:true});});}
@@ -105,10 +113,14 @@ async function copyBrowserLink(){
 }
 onBeforeUnmount(()=>{shareAlive=false;inviteSerial++;shareGeneration++;providerGeneration++;clearShareFile();releaseShareArt();});
 </script>
+<style>
+.modal-backdrop.result-window:not(.window-exiting)::before,
+.modal-backdrop.result-window:not(.window-exiting)>.game-window{animation:none}
+</style>
 <template>
   <GameWindow class="port-ranking-result" v-if="!bestAttempt||state.screen==='share'" :title="state.screen==='share'?t('Поделиться','Share'):t('Результат попытки','Run result')" :closable="!failedFinish" :inactive="!!metricTip" :class="state.screen==='result'?'result-window':'share-window'">
     <template v-if="state.screen==='share'||bestAttempt" #back>‹</template>
-    <template v-if="state.screen==='result'" #background><GameArt class="result-scene" :src="resultArtwork+(artAttempt?'?reload='+artAttempt:'')" @unavailable="artFailed=$event"/><div class="result-shade" aria-hidden="true"/></template>
+    <template v-if="state.screen==='result'" #background><img v-if="sceneInMemory" class="result-scene" :src="sceneInMemory" alt=""><GameArt v-else class="result-scene" :src="resultArtwork+(artAttempt?'?reload='+artAttempt:'')" @unavailable="artFailed=$event"/><div class="result-shade" aria-hidden="true"/></template>
     <template v-if="state.screen==='share'"><ShareScoreCard :time-ms="result?.timeMs??0" :risk-count="result?.riskCount??0" :steps="result?.runDistance??0" :invitation="invitation" :art-url="shareArt?.url" @layout="shareTextScale=$event"/><p v-if="invitationLoading||imageLoading" class="share-ready-status" role="status"><LoadingClock :size="16"/>{{invitationLoading?t('Загружаем ваш код…','Loading your code…'):t('Готовим картинку…','Preparing image…')}}</p><button v-else-if="invitationError||!invitation" class="text-button full" @click="loadInvitation">{{t('Код недоступен. Повторить','Code unavailable. Retry')}}</button><button v-else-if="imageError" class="text-button full" @click="shareArtRevision++">{{t('Картинка не загрузилась. Повторить','Image unavailable. Retry')}}</button><p v-if="shareFeedback" class="share-ready-status" role="status">{{shareFeedback}}</p></template>
     <div v-else class="result-summary"><small>{{ bestAttempt?t('🏆 Лучшая попытка','🏆 Best attempt'):isRecord?t('Новый рекорд!','New personal best!'):t('Ваш результат','Your result') }}</small><strong>{{ seconds }} {{ t('с','s') }}</strong><span class="best-chip">{{ isRecord&&(previousBest??0)>0?t('Предыдущий рекорд','Previous best'):t('Ваш рекорд','Your best') }}: {{ best }} {{t('с','s')}}</span></div>
     <div v-if="state.screen==='result'" class="result-actions">
@@ -122,7 +134,7 @@ onBeforeUnmount(()=>{shareAlive=false;inviteSerial++;shareGeneration++;providerG
     </div>
 
 
-    <template v-if="state.screen==='result'" #footer><div class="result-footer-actions"><button v-analytics="{feature:'ranking',placement:'result'}" type="button" class="result-side-action" :disabled="!!failedFinish" :aria-label="t('Рейтинг','Leaderboard')" :title="t('Рейтинг','Leaderboard')" @click="openScreen('ranking','result')"><GameArt src="/assets/branding/ranking/trophy.svg"/></button><button v-analytics="{feature:'play_again',placement:'result'}" type="button" class="primary replay-action" :disabled="!!failedFinish" @click="returnToPlay()"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10a8 8 0 1 1 0 5M4 4v6h6"/></svg>{{t('Ещё раз','Play again')}}</button><button v-analytics="{feature:'share',placement:'result'}" type="button" class="result-side-action" :disabled="!!failedFinish" :aria-label="t('Поделиться','Share')" :title="t('Поделиться','Share')" @click="openScreen('share','result')"><GameIcon name="share"/></button></div></template>
+    <template v-if="state.screen==='result'" #footer><div class="result-footer-actions"><button v-analytics="{feature:'ranking',placement:'result'}" type="button" class="result-side-action" :disabled="!!failedFinish" :aria-label="t('Рейтинг','Leaderboard')" :title="t('Рейтинг','Leaderboard')" @click="openScreen('ranking','result')"><img v-if="trophyInMemory" :src="trophyInMemory" alt=""><GameArt v-else :src="resultTrophy"/></button><button v-analytics="{feature:'play_again',placement:'result'}" type="button" class="primary replay-action" :disabled="!!failedFinish" @click="returnToPlay()"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10a8 8 0 1 1 0 5M4 4v6h6"/></svg>{{t('Ещё раз','Play again')}}</button><button v-analytics="{feature:'share',placement:'result'}" type="button" class="result-side-action" :disabled="!!failedFinish" :aria-label="t('Поделиться','Share')" :title="t('Поделиться','Share')" @click="openScreen('share','result')"><GameIcon name="share"/></button></div></template>
     <template v-if="state.screen==='share'" #footer>
       <button v-analytics="{feature: 'send_share', placement: 'result'}" class="primary share-send-action" :disabled="state.busy||shareSending||!canOpenShare" @click="share"><GameIcon name="share"/><span>{{t('Отправить','Send')}}</span></button><p v-if="fileReady&&!nativeFileShare" class="share-transport-hint">{{telegram()?.initData?t('В Telegram отправятся текст и ссылка. Картинку можно сохранить отдельно.','Telegram will share text and a link. Save the image separately.'):t('Отправка недоступна на этом устройстве. Картинку можно сохранить.','Sharing is unavailable on this device. You can save the image.')}}</p>
       <button v-analytics="{feature: 'save_share_image', placement: 'result'}" v-if="!imageUrl" class="text-button share-save-action" :disabled="state.busy||shareSending||!fileReady" @click="saveImage">{{telegram()?.initData?t('Сохранить картинку в браузере','Save image in browser'):t('Сохранить картинку','Save image')}}</button>
@@ -135,11 +147,11 @@ onBeforeUnmount(()=>{shareAlive=false;inviteSerial++;shareGeneration++;providerG
     <template #back>‹</template>
     <div class="player-result-identity"><div><h2>{{bestAttempt.playerName}}</h2><small>{{previewLabel}}<span v-if="bestAttempt.place"> · #{{bestAttempt.place}}</span></small></div></div>
     <PlayerResultScene :score="bestAttempt" :locale="state.locale"/>
-    <p v-if="previewPhase!=='confirmed'" class="hint" role="status">{{['rejected','abandoned'].includes(previewPhase)?t('Попытка не зачтена и не входит в среднее.','This run was not counted and is excluded from the average.'):t('Результат сохранён на устройстве и ожидает подтверждения.','Result saved on this device and awaiting confirmation.')}}</p>
+    <p v-if="previewPhase!=='confirmed'" class="hint" role="status">{{['rejected','abandoned'].includes(previewPhase)?t('Попытка не зачтена.','This run was not counted.'):t('Результат сохранён на устройстве.','Result saved on this device.')}}</p>
     <div class="player-result-meta"><p>{{new Date(bestAttempt.createdAt).toLocaleString(state.locale==='ru'?'ru-RU':'en-US')}}</p><p>{{t('Это ваш личный результат','This is your own result')}}</p></div>
     <template #footer><div class="button-row"><button type="button" class="secondary" @click="openScreen('share','result')"><GameIcon name="share"/>{{t('Поделиться','Share')}}</button><button type="button" class="secondary" @click="back">{{previewReturn}}</button></div></template>
   </GameWindow>
-  <ResultDeliveryNotice v-if="!bestAttempt&&!failedFinish&&state.screen==='result'&&run" :attempt-id="run.requestId" :pending="!['confirmed','rejected','abandoned'].includes(run.phase)" :locale="state.locale"/>
+  <ResultDeliveryNotice v-if="!bestAttempt&&!failedFinish&&state.screen==='result'&&run" :attempt-id="run.requestId" :pending="run.recordSequence===undefined?!['confirmed','rejected','abandoned'].includes(run.phase):pendingRecordIds.has(run.requestId)" :locale="state.locale"/>
   <GameWindow v-if="metricTip" class="metric-tip-window" :title="metricTip==='risk'?t('Что такое риск','What is risk?'):t('Как считаются шаги','How steps are counted')">
     <p>{{resultMetricTip(metricTip??'risk',{hadJump:false,hadHelmet:false},state.locale)}}</p>
     <p v-if="!bestAttempt&&Number.isFinite(tipDivisor)&&tipDivisor>0" class="hint">{{metricTip==='risk'?t(`За каждые ${tipDivisor} рисков — 1 ед. энергии.`,`Every ${tipDivisor} risks earns 1 energy.`):t(`За каждые ${tipDivisor} шагов — 1 ед. энергии.`,`Every ${tipDivisor} steps earns 1 energy.`)}}</p>

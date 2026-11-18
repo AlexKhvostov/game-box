@@ -1,13 +1,13 @@
 import type {JsonStorage} from '../services/storage.ts';
-import {achievements,achievementLevel,emptyAchievementSnapshot,medalById,medalRequirement,orderAchievementReceipts,parseAchievementSnapshot,parseBackfillMarker,cupRanks,cupTier,type AchievementSnapshot,type AchievementReceipt,type BackfillMarker} from './achievements.ts';
+import {achievements,historicalAchievements,isHistoricalMedal,isRetiredAward,achievementLevel,emptyAchievementSnapshot,medalById,medalRequirement,orderAchievementReceipts,parseAchievementSnapshot,parseBackfillMarker,cupRanks,cupTier,type AchievementSnapshot,type AchievementReceipt,type BackfillMarker} from './achievements.ts';
 import {emptyStreamingAverage,parseStreamingAverage,advanceStreamingAverage,streamingAverageMs,type StreamingAverageState} from './streaming-average.ts';
 
-export interface RankingSnapshot {id:string;asOf:number;algorithm:'ew_rms_v2';rulesKey:string;record:Record<string,number>;average:Record<string,number>}
-export interface FrozenLocalRun {personalMedalsVersion:1|2|3;rewards:number[];rankingSnapshot:RankingSnapshot|null;rewardDivisors?:{run:number;risk:number}}
+export interface RankingSnapshot {id:string;asOf:number;algorithm:'ew_rms_v2'|'record_only_v1';averageDisabled?:true;rulesKey:string;record:Record<string,number>;average?:Record<string,number>}
+export interface FrozenLocalRun {averageDisabled?:true;personalMedalsVersion:1|2|3;rewards:number[];rankingSnapshot:RankingSnapshot|null;rewardDivisors?:{run:number;risk:number}}
 export interface LocalRunInput {requestId:string;roundId?:string;owner?:string;timeMs:number;runDistance:number;riskCount:number;hadJump:boolean;hadHelmet:boolean;frozen?:FrozenLocalRun}
 interface LocalRun extends LocalRunInput {roundId:string;frozen:FrozenLocalRun;roundReward:number}
 interface Grant {energy:number;runId:string;confirmed:boolean}
-interface LedgerState {version:1;namespace:string;owner:string;supported:boolean;snapshotInitialized:boolean;averageInitialized:boolean;walletVersion:number;serverNow:number;remote:AchievementSnapshot;serverAverage:StreamingAverageState;rankingSnapshot:RankingSnapshot|null;runs:LocalRun[];grants:Record<string,Grant>;receipts:AchievementReceipt[];seenRuns:string[];presented:string[];ack:string[];silentEarned:string[];levelBaseline:number|null;levelObserved:number;levelPresented:number;markers:Partial<Record<'silentBackfill'|'invitationBackfill'|'personalBackfill'|'averageBackfill',BackfillMarker>>}
+interface LedgerState {version:1;recordOnlyLevels?:true;namespace:string;owner:string;supported:boolean;snapshotInitialized:boolean;averageInitialized:boolean;walletVersion:number;serverNow:number;remote:AchievementSnapshot;serverAverage:StreamingAverageState;rankingSnapshot:RankingSnapshot|null;runs:LocalRun[];grants:Record<string,Grant>;receipts:AchievementReceipt[];seenRuns:string[];presented:string[];ack:string[];silentEarned:string[];levelBaseline:number|null;levelObserved:number;levelPresented:number;markers:Partial<Record<'silentBackfill'|'invitationBackfill'|'personalBackfill'|'averageBackfill',BackfillMarker>>}
 const validHex=(v:unknown):v is string=>typeof v==='string'&&/^[a-f0-9]{64}$/.test(v);
 const clone=<T>(v:T):T=>structuredClone(v);
 const rawOwner=(owner:string)=>owner.startsWith('supabase:')?owner.slice(9):owner;
@@ -26,8 +26,8 @@ export function localAwardHash(value:string):string {
 }
 export const canonicalRoundId=(owner:string,requestId:string)=>localAwardHash(`${rawOwner(owner)}:${requestId}`);
 export function parseRankingSnapshot(raw:unknown):RankingSnapshot|null {
-  const r=asObject(raw);if(!r||!validHex(r.id)||r.algorithm!=='ew_rms_v2'||typeof r.rulesKey!=='string'||!Number.isFinite(r.asOf))return null;
-  for(const family of ['record','average'])if(!asObject(r[family])||!cupRanks.every(rank=>typeof r[family][rank]==='number'&&Number.isFinite(r[family][rank])&&r[family][rank]>=0))return null;
+  const r=asObject(raw);if(!r||!validHex(r.id)||(r.algorithm!=='ew_rms_v2'&&(r.algorithm!=='record_only_v1'||r.averageDisabled!==true))||typeof r.rulesKey!=='string'||!Number.isFinite(r.asOf))return null;
+  for(const family of r.algorithm==='record_only_v1'?['record']:['record','average'])if(!asObject(r[family])||!cupRanks.every(rank=>typeof r[family][rank]==='number'&&Number.isFinite(r[family][rank])&&r[family][rank]>=0))return null;
   return clone(r) as RankingSnapshot;
 }
 export function snapshotPlace(value:number,thresholds:Record<string,number>|undefined,previousPlace:number|null=null):number|null {
@@ -47,45 +47,52 @@ export class LocalAwardsLedger {
     this.storage=storage;this.namespace=namespace;this.owner=owner;
     this.key=`local-awards:v1:${namespace}:${owner}`;
     const cached=storage.get<LedgerState|null>(this.key,null);
-    this.value=cached?this.restore(cached):{version:1,namespace,owner,supported:false,snapshotInitialized:false,averageInitialized:false,walletVersion:-1,serverNow:0,remote:emptyAchievementSnapshot(owner),serverAverage:emptyStreamingAverage(),rankingSnapshot:null,runs:[],grants:{},receipts:[],seenRuns:[],presented:[],ack:[],silentEarned:[],levelBaseline:null,levelObserved:1,levelPresented:1,markers:{}};
+    this.value=cached?this.restore(cached):{version:1,recordOnlyLevels:true,namespace,owner,supported:false,snapshotInitialized:false,averageInitialized:false,walletVersion:-1,serverNow:0,remote:emptyAchievementSnapshot(owner),serverAverage:emptyStreamingAverage(),rankingSnapshot:null,runs:[],grants:{},receipts:[],seenRuns:[],presented:[],ack:[],silentEarned:[],levelBaseline:null,levelObserved:1,levelPresented:1,markers:{}};
   }
   private restore(raw:LedgerState):LedgerState {
     if(raw.version!==1||raw.owner!==this.owner||raw.namespace!==this.namespace||!Array.isArray(raw.runs)||!Array.isArray(raw.receipts)||!Array.isArray(raw.seenRuns)||!Array.isArray(raw.presented)||!Array.isArray(raw.ack)||!Array.isArray(raw.silentEarned)||!asObject(raw.grants)||!asObject(raw.markers)||!Number.isSafeInteger(raw.walletVersion)||raw.walletVersion< -1||!Number.isFinite(raw.serverNow)||typeof raw.supported!=='boolean'||![raw.levelObserved,raw.levelPresented].every(v=>Number.isInteger(v)&&v>=1&&v<=7)||raw.levelPresented>raw.levelObserved)throw Error('achievement_storage_invalid');
     const next=clone(raw);next.snapshotInitialized=raw.snapshotInitialized===true;next.averageInitialized=raw.averageInitialized===true;next.remote=parseAchievementSnapshot(raw.remote,this.owner);next.remote.confirmed=raw.remote.confirmed===true;next.serverAverage=parseStreamingAverage(raw.serverAverage);next.rankingSnapshot=raw.rankingSnapshot===null?null:parseRankingSnapshot(raw.rankingSnapshot);
     if(raw.rankingSnapshot&&!next.rankingSnapshot)throw Error('achievement_storage_invalid');
     for(const run of next.runs){if(!validHex(run.requestId)||!validHex(run.roundId)||run.roundId!==canonicalRoundId(this.owner,run.requestId)||run.owner!==undefined&&run.owner!==this.owner)throw Error('achievement_storage_invalid');this.validateRun(run);}
-    for(const [id,g]of Object.entries(next.grants))if(!medalById(id)||!Number.isSafeInteger(g.energy)||g.energy<0||g.energy>100000||!validHex(g.runId)||typeof g.confirmed!=='boolean')throw Error('achievement_storage_invalid');
+    for(const [id,g]of Object.entries(next.grants))if(!isHistoricalMedal(id)||!Number.isSafeInteger(g.energy)||g.energy<0||g.energy>100000||!validHex(g.runId)||typeof g.confirmed!=='boolean')throw Error('achievement_storage_invalid');
     for(const r of next.receipts)if(!validHex(r.id)||typeof r.awardId!=='string'||!Number.isSafeInteger(r.energy)||r.energy<0)throw Error('achievement_storage_invalid');
     if(!next.seenRuns.every(validHex)||![next.presented,next.ack].every(list=>list.every(v=>typeof v==='string'))||!next.silentEarned.every(v=>typeof v==='string'))throw Error('achievement_storage_invalid');
+    if(!next.recordOnlyLevels){
+      // Apply the six-series level quietly while retaining the wallet and queue.
+      if(next.remote.confirmed){
+        const level=achievementLevel([...next.remote.earned,...Object.keys(next.grants),...next.silentEarned]);
+        next.levelBaseline=next.levelObserved=next.levelPresented=level;
+      }
+      next.recordOnlyLevels=true;
+    }
     return next;
   }
   private commit(change:(next:LedgerState)=>void){const next=clone(this.value);change(next);this.observeLevel(next);this.storage.set(this.key,next);this.value=next;}
   private observeLevel(s:LedgerState){const level=achievementLevel([...s.remote.earned,...Object.keys(s.grants),...s.silentEarned]);if(s.levelBaseline===null){if(!s.remote.confirmed)return;s.levelBaseline=level;s.levelObserved=s.levelPresented=level;}else s.levelObserved=Math.max(s.levelObserved,level);}
   get supported(){return this.value.supported;}
-  get ready(){return this.supported&&this.value.remote.confirmed&&this.value.snapshotInitialized&&this.value.averageInitialized;}
-  private averageFor(s:LedgerState){let state=clone(s.serverAverage);for(const run of s.runs)state=advanceStreamingAverage(state,run.timeMs,run.roundId);return state;}
+  get ready(){return this.supported&&this.value.remote.confirmed&&this.value.snapshotInitialized;}
+  private averageFor(s:LedgerState){let state=clone(s.serverAverage);for(const run of s.runs)if(!run.frozen.averageDisabled)state=advanceStreamingAverage(state,run.timeMs,run.roundId);return state;}
   get averageState(){return this.averageFor(this.value);}
   get rankingSnapshot(){return clone(this.value.rankingSnapshot);}
   private snapshotFor(s:LedgerState):AchievementSnapshot {
     const remote=clone(s.remote),earned=new Set([...remote.earned,...Object.keys(s.grants),...s.silentEarned]),metrics={...remote.metrics};
     metrics.attempts=Math.max(metrics.attempts??0,s.serverAverage.totalAttempts)+s.runs.length;
     for(const run of s.runs){metrics.time=Math.max(metrics.time??0,run.timeMs/1000);metrics.clean=Math.max(metrics.clean??0,!run.hadJump&&!run.hadHelmet?run.timeMs/1000:0);metrics.risk=Math.max(metrics.risk??0,run.riskCount);metrics.distance=Math.max(metrics.distance??0,run.runDistance);}
-    const average=this.averageFor(s);if(average.count>0)metrics.average=streamingAverageMs(average)/1000;
     const pending=new Map([...remote.pending,...s.receipts].map(r=>[r.id,r]));
     return {...remote,earned:[...earned],earnedRewards:{...Object.fromEntries(Object.entries(s.grants).map(([id,g])=>[id,g.energy])),...remote.earnedRewards},metrics,pending:orderAchievementReceipts(pending.values()),...this.localCupPlaces(s)};
   }
   get snapshot(){return this.snapshotFor(this.value);}
-  private localCupPlaces(s:LedgerState):{recordPlace:number|null;averagePlace:number|null}{let record=s.remote.recordPlace,average=s.remote.averagePlace,best=s.remote.metrics.time??0,a=clone(s.serverAverage);for(const run of s.runs){best=Math.max(best,run.timeMs/1000);a=advanceStreamingAverage(a,run.timeMs,run.roundId);const snap=run.frozen.rankingSnapshot;if(snap){record=snapshotPlace(best*1000,snap.record,record);if(snap.rulesKey===a.rulesKey)average=a.count>=a.rules.minAttempts?snapshotPlace(streamingAverageMs(a),snap.average,average):null;}}return{recordPlace:record,averagePlace:average};}
-  get pending(){const s=this.value;return this.snapshot.pending.filter(r=>!s.presented.includes(r.id)&&!s.silentEarned.includes(r.awardId));}
+  private localCupPlaces(s:LedgerState):{recordPlace:number|null;averagePlace:number|null}{let record=s.remote.recordPlace,average=s.remote.averagePlace,best=s.remote.metrics.time??0,a=clone(s.serverAverage);for(const run of s.runs){best=Math.max(best,run.timeMs/1000);if(!run.frozen.averageDisabled)a=advanceStreamingAverage(a,run.timeMs,run.roundId);const snap=run.frozen.rankingSnapshot;if(snap){record=snapshotPlace(best*1000,snap.record,record);if(!run.frozen.averageDisabled&&snap.rulesKey===a.rulesKey)average=a.count>=a.rules.minAttempts?snapshotPlace(streamingAverageMs(a),snap.average,average):null;}}return{recordPlace:record,averagePlace:average};}
+  get pending(){const s=this.value;return this.snapshot.pending.filter(r=>!isRetiredAward(r.awardId)&&!s.presented.includes(r.id)&&!s.silentEarned.includes(r.awardId));}
   get pendingLevels(){const reached=Math.min(6,this.value.levelObserved,achievementLevel(this.snapshot.earned));return this.ready&&this.value.levelBaseline!==null&&reached>this.value.levelPresented?[reached]:[];}
   get pendingAcknowledgements(){return [...this.value.ack];}
   get credits():Record<string,number>{const s=this.value,result:Record<string,number>={};if(!s.supported)return result;for(const [id,g]of Object.entries(s.grants))if(!g.confirmed&&!s.remote.earned.includes(id))result[id]=g.energy;for(const r of s.runs)if(r.roundReward>0)result[`round:${r.requestId}`]=r.roundReward;return result;}
   get creditTotal(){return Object.values(this.credits).reduce((a,b)=>a+b,0);}
   get pendingRunIds(){return this.value.runs.map(r=>r.requestId);}
-  get needsBackfill(){return !this.value.markers.silentBackfill||!this.value.markers.invitationBackfill||!this.value.markers.personalBackfill||!this.value.markers.averageBackfill;}
-  get backfillRequest(){return {localAwardsVersion:1,silentBackfillVersion:1,invitationMedalsVersion:2,personalMedalsVersion:3,historicalRewardBackfillVersion:1,requestSilentBackfill:!this.value.markers.silentBackfill,requestInvitationBackfill:!this.value.markers.invitationBackfill,requestPersonalMedalBackfill:!this.value.markers.personalBackfill||!this.value.markers.averageBackfill,requestHistoricalRewardBackfill:true};}
-  freezeRun(rewardDivisors?:{run:number;risk:number}):FrozenLocalRun {if(!this.ready)throw Error('achievements_unavailable');return {personalMedalsVersion:3,rewards:[...this.value.remote.rewards],rankingSnapshot:this.rankingSnapshot,...(rewardDivisors?{rewardDivisors:{...rewardDivisors}}:{})};}
-  private validateRun(run:LocalRunInput){if(!validHex(run.requestId)||!Number.isSafeInteger(run.timeMs)||run.timeMs<1||run.timeMs>3600000||!Number.isSafeInteger(run.runDistance)||run.runDistance<0||run.runDistance>10000000||!Number.isSafeInteger(run.riskCount)||run.riskCount<0||run.riskCount>10000||typeof run.hadJump!=='boolean'||typeof run.hadHelmet!=='boolean'||run.owner!==undefined&&run.owner!==this.owner)throw Error('local_award_run_invalid');if(run.frozen&&(![1,2,3].includes(run.frozen.personalMedalsVersion)||run.frozen.rewards.length!==5||!run.frozen.rewards.every(v=>Number.isSafeInteger(v)&&v>=0&&v<=100000)))throw Error('local_award_run_invalid');}
+  get needsBackfill(){return !this.value.markers.silentBackfill||!this.value.markers.invitationBackfill||!this.value.markers.personalBackfill;}
+  get backfillRequest(){return {localAwardsVersion:1,silentBackfillVersion:1,invitationMedalsVersion:2,personalMedalsVersion:3,historicalRewardBackfillVersion:1,requestSilentBackfill:!this.value.markers.silentBackfill,requestInvitationBackfill:!this.value.markers.invitationBackfill,requestPersonalMedalBackfill:!this.value.markers.personalBackfill,requestHistoricalRewardBackfill:true};}
+  freezeRun(rewardDivisors?:{run:number;risk:number}):FrozenLocalRun {if(!this.ready)throw Error('achievements_unavailable');return {averageDisabled:true,personalMedalsVersion:3,rewards:[...this.value.remote.rewards],rankingSnapshot:this.rankingSnapshot,...(rewardDivisors?{rewardDivisors:{...rewardDivisors}}:{})};}
+  private validateRun(run:LocalRunInput){if(!validHex(run.requestId)||!Number.isSafeInteger(run.timeMs)||run.timeMs<1||run.timeMs>3600000||!Number.isSafeInteger(run.runDistance)||run.runDistance<0||run.runDistance>10000000||!Number.isSafeInteger(run.riskCount)||run.riskCount<0||run.riskCount>10000||typeof run.hadJump!=='boolean'||typeof run.hadHelmet!=='boolean'||run.owner!==undefined&&run.owner!==this.owner)throw Error('local_award_run_invalid');if(run.frozen&&(run.frozen.averageDisabled!==undefined&&run.frozen.averageDisabled!==true||![1,2,3].includes(run.frozen.personalMedalsVersion)||run.frozen.rewards.length!==5||!run.frozen.rewards.every(v=>Number.isSafeInteger(v)&&v>=0&&v<=100000)))throw Error('local_award_run_invalid');}
   completeRun(input:LocalRunInput):AchievementReceipt[] {
     this.validateRun(input);if(!input.frozen||!this.ready)return [];
     const roundId=canonicalRoundId(this.owner,input.requestId);if(input.roundId&&input.roundId!==roundId)throw Error('local_award_run_invalid');
@@ -97,13 +104,13 @@ export class LocalAwardsLedger {
   /** One projection path serves normal append, rejected predecessors and ACK
    * rebase. A pending grant is a derivation, never an independent paid ledger. */
   private appendProjectedRun(s:LedgerState,input:LocalRun):AchievementReceipt[]{
-    const before=this.snapshotFor(s),a=advanceStreamingAverage(this.averageFor(s),input.timeMs,input.roundId),rewards=input.frozen.rewards,personal=input.frozen.personalMedalsVersion,roundId=input.roundId;
-    const qualification:Record<string,number>={time:input.timeMs/1000,clean:!input.hadJump&&!input.hadHelmet?input.timeMs/1000:0,risk:input.riskCount,distance:input.runDistance,attempts:(before.metrics.attempts??0)+1,average:input.timeMs>a.rules.minDurationMs&&a.count>=a.rules.minAttempts?streamingAverageMs(a)/1000:0};
+    const before=this.snapshotFor(s),a=input.frozen.averageDisabled?null:advanceStreamingAverage(this.averageFor(s),input.timeMs,input.roundId),rewards=input.frozen.rewards,personal=input.frozen.personalMedalsVersion,roundId=input.roundId;
+    const qualification:Record<string,number>={time:input.timeMs/1000,clean:!input.hadJump&&!input.hadHelmet?input.timeMs/1000:0,risk:input.riskCount,distance:input.runDistance,attempts:(before.metrics.attempts??0)+1,average:a&&input.timeMs>a.rules.minDurationMs&&a.count>=a.rules.minAttempts?streamingAverageMs(a)/1000:0};
     const added:AchievementReceipt[]=[];
       const grant=(id:string,tier:number)=>{if(before.earned.includes(id)||s.grants[id])return;const energy=rewards[tier]!;s.grants[id]={energy,runId:roundId,confirmed:false};const receipt={id:localAwardHash(`achievement:v1:${rawOwner(this.owner)}:${id}`),awardId:id,energy,runId:roundId};s.receipts.push(receipt);added.push(receipt);};
-      for(const medal of achievements){if(medal.series==='invites'||medal.series==='ranking')continue;const requirement=Number(medalRequirement(medal,personal));if(medal.series==='attempts'&&requirement<=(before.metrics.attempts??0))continue;if((qualification[medal.series]??0)>=requirement)grant(medal.id,medal.tier);}
+      for(const medal of a?historicalAchievements:achievements){if(medal.series==='invites'||medal.series==='ranking')continue;const requirement=Number(medalRequirement(medal,personal));if(medal.series==='attempts'&&requirement<=(before.metrics.attempts??0))continue;if((qualification[medal.series]??0)>=requirement)grant(medal.id,medal.tier);}
       const snap=input.frozen!.rankingSnapshot;
-      if(snap){for(const family of ['record','average']as const){if(family==='average'&&snap.rulesKey!==a.rulesKey)continue;const old=family==='record'?before.recordPlace:before.averagePlace,value=family==='record'?Math.max(before.metrics.time??0,input.timeMs/1000)*1000:a.count>=a.rules.minAttempts?streamingAverageMs(a):0,rank=snapshotPlace(value,snap[family],old);if(rank!==old)s.receipts=s.receipts.filter(r=>!r.awardId.startsWith(`${family}-cups-`));if(rank!==null&&(cupTier(rank)??-1)>(cupTier(old)??-1)){const r={id:localAwardHash(`local-cup:v1:${rawOwner(this.owner)}:${input.requestId}:${family}:${rank}`),awardId:`${family}-cups-${rank}`,energy:0,runId:roundId};s.receipts.push(r);added.push(r);}}if(snapshotPlace(input.timeMs,snap.record)===1)grant('ranking-first',4);}
+      if(snap){for(const family of ['record','average']as const){if(family==='average'&&(!a||snap.rulesKey!==a.rulesKey))continue;const old=family==='record'?before.recordPlace:before.averagePlace,value=family==='record'?Math.max(before.metrics.time??0,input.timeMs/1000)*1000:a&&a.count>=a.rules.minAttempts?streamingAverageMs(a):0,rank=snapshotPlace(value,snap[family],old);if(rank!==old)s.receipts=s.receipts.filter(r=>!r.awardId.startsWith(`${family}-cups-`));if(rank!==null&&(cupTier(rank)??-1)>(cupTier(old)??-1)){const r={id:localAwardHash(`local-cup:v1:${rawOwner(this.owner)}:${input.requestId}:${family}:${rank}`),awardId:`${family}-cups-${rank}`,energy:0,runId:roundId};s.receipts.push(r);added.push(r);}}if(snapshotPlace(input.timeMs,snap.record)===1)grant('ranking-first',4);}
       s.runs.push(clone(input));return orderAchievementReceipts(added);
   }
   private reprojectPending(s:LedgerState,discardedRunIds:readonly string[]=[],authoritativeFull=false){
@@ -116,7 +123,7 @@ export class LocalAwardsLedger {
   }
   /** Call before exposing the corresponding server wallet. Ceremony ACKs are
    * deliberately absent from the money/checkpoint reconciliation below. */
-  accept(response:unknown):boolean {
+  accept(response:unknown,accountedRuns:ReadonlySet<string>=new Set()):boolean {
     const data=asObject(response);if(!data)return false;const profile=asObject(data.profile);if(profile?.id!==undefined&&profile.id!==this.owner)throw Error('achievement_owner_changed');
     const version=profile?.walletVersion;if(version!==undefined&&(!Number.isSafeInteger(version)||version<0))throw Error('achievement_snapshot_invalid');
     const stamp=Number(profile?.serverNow??data.serverNow??0);if(version!==undefined&&(version<this.value.walletVersion||version===this.value.walletVersion&&stamp<this.value.serverNow))return false;
@@ -126,13 +133,25 @@ export class LocalAwardsLedger {
     this.commit(s=>{
       if(data.localAwardsSupported===true)s.supported=true;
       if(version!==undefined){s.walletVersion=version;s.serverNow=stamp;}
-      const priorEarned=this.snapshot.earned;
+      const priorEarned=this.snapshot.earned,firstSnapshot=full!==null&&!s.snapshotInitialized;
       if(full){s.remote=full;s.snapshotInitialized=true;}
       const localEarned=local&&Array.isArray(local.earned)?local.earned:null;
       if(localEarned){const parsed=parseAchievementSnapshot({earned:localEarned,earnedRewards:local!.earnedRewards??{}},this.owner);s.remote.earned=[...new Set([...s.remote.earned,...parsed.earned])];s.remote.earnedRewards={...s.remote.earnedRewards,...parsed.earnedRewards};s.remote.confirmed=true;}
       const config=asObject(data.gameConfig?.config?.achievements?.energy);if(!full&&config){const values=['tier1','tier2','tier3','tier4','tier5'].map(k=>config[k]);if(values.every(v=>Number.isSafeInteger(v)&&v>=0&&v<=100000))s.remote.rewards=values;}
       if(typeof profile?.wallet?.bestTimeMs==='number')s.remote.metrics.time=Math.max(s.remote.metrics.time??0,profile.wallet.bestTimeMs/1000);
+      if(Number.isSafeInteger(profile?.completedAttempts)&&profile!.completedAttempts>=0)
+        s.remote.metrics.attempts=Math.max(s.remote.metrics.attempts??0,profile!.completedAttempts);
       for(const [field,v]of [['silentBackfill',1],['invitationBackfill',2],['personalBackfill',2],['averageBackfill',3]]as const){const marker=parseBackfillMarker(data.achievements?.[field]??local?.[field],v);if(!marker)continue;const previous=s.markers[field],ids=marker.earned.filter(id=>medalById(id)&&!s.grants[id]);let quiet=previous?.localQuietLevel??1;if(!previous&&field!=='silentBackfill'&&ids.length){const historical=new Set([...priorEarned,...s.silentEarned,...ids]);quiet=achievementLevel(historical);}for(const id of ids)add(s.silentEarned,id);for(const id of marker.presented??[]){if(!s.presented.includes(id))add(s.ack,id);add(s.presented,id);}const floor=Math.max(marker.levelBaseline??1,quiet);s.markers[field]={...marker,earned:[...new Set([...(previous?.earned??[]),...ids])],...(quiet>1?{localQuietLevel:quiet}:{})};s.levelBaseline??=floor;s.levelObserved=Math.max(s.levelObserved,floor);s.levelPresented=Math.max(s.levelPresented,floor);}
+      if(firstSnapshot){
+        // A refreshed browser may see an old seven-series checkpoint before
+        // receiving the full collection. Quietly recognize the historical
+        // six-series level and leave genuine pending medals available.
+        const pending=new Set(s.remote.pending.filter(r=>!s.presented.includes(r.id)).map(r=>r.awardId));
+        const historyLevel=achievementLevel(s.remote.earned.filter(id=>!pending.has(id)));
+        s.levelBaseline=Math.max(s.levelBaseline??1,historyLevel);
+        s.levelObserved=Math.max(s.levelObserved,historyLevel);
+        s.levelPresented=Math.max(s.levelPresented,historyLevel);
+      }
       for(const id of s.remote.earned)if(s.grants[id])s.grants[id]!.confirmed=true;
       const processedRequest=local?.processedRequestId??data.processedRequestId,processedRun=local?.processedRunId??data.processedRunId??avg?.lastRunId;
       const index=s.runs.findIndex(r=>r.requestId===processedRequest||r.roundId===processedRun);
@@ -141,10 +160,11 @@ export class LocalAwardsLedger {
         // A lost finish reply may first be observed through profile.localAwards.
         // Retain the already-proven accepted prefix as the canonical metric/cup
         // baseline until a complete achievement response arrives.
-        if(!full){const prefix=clone(s);prefix.runs=covered;const projected=this.snapshotFor(prefix);s.remote.metrics={...projected.metrics};const cups=this.localCupPlaces(prefix);s.remote.recordPlace=cups.recordPlace;s.remote.averagePlace=cups.averagePlace;if(!avg){s.serverAverage=this.averageFor(prefix);s.averageInitialized=true;}}
+        if(!full){const prefix=clone(s);prefix.runs=covered;const projected=this.snapshotFor(prefix);s.remote.metrics={...projected.metrics};const cups=this.localCupPlaces(prefix);s.remote.recordPlace=cups.recordPlace;s.remote.averagePlace=cups.averagePlace;if(!avg&&covered.some(run=>!run.frozen.averageDisabled)){s.serverAverage=this.averageFor(prefix);s.averageInitialized=true;}}
         s.runs.splice(0,index+1);
       }
       if(typeof processedRequest==='string'&&validHex(processedRequest))add(s.seenRuns,processedRequest);
+      if(accountedRuns.size)s.runs=s.runs.filter(run=>!accountedRuns.has(run.requestId));
       if(avg&&(avg.count>=s.serverAverage.count||avg.rulesKey!==s.serverAverage.rulesKey)){s.serverAverage=avg;s.averageInitialized=true;s.remote.metrics.attempts=Math.max(s.remote.metrics.attempts??0,avg.totalAttempts);}
       if(ranking)s.rankingSnapshot=ranking;
       this.reprojectPending(s,[],full!==null);

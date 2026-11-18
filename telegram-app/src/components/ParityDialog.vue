@@ -3,9 +3,9 @@ import {ref,useId,onMounted,onBeforeUnmount} from 'vue';
 import {registerOverlayBack} from '../services/ui-overlays';
 import './achievement-port.css';
 const props=withDefaults(defineProps<{title:string;locale?:string;name?:string;wide?:boolean;closable?:boolean;inactive?:boolean;variant?:'award'|'level'|'settings';dismissOnBackdrop?:boolean}>(),{locale:'ru',closable:true,dismissOnBackdrop:true});
-const emit=defineEmits<{close:[]}>();
+const emit=defineEmits<{closing:[];close:[]}>();
 const panel=ref<HTMLElement>(),titleId=useId(),closing=ref(false);let prior:HTMLElement|null=null,release:(()=>void)|undefined,closeTimer:ReturnType<typeof setTimeout>|undefined;
-function close(){if(!props.closable||props.inactive||closing.value)return;closing.value=true;closeTimer=setTimeout(()=>emit('close'),matchMedia('(prefers-reduced-motion: reduce)').matches?0:100);}
+function close(){if(!props.closable||props.inactive||closing.value)return;closing.value=true;emit('closing');closeTimer=setTimeout(()=>emit('close'),matchMedia('(prefers-reduced-motion: reduce)').matches?0:100);}
 defineExpose({requestClose:close});
 function key(event:KeyboardEvent){
   const current=panel.value;if(!current||current!==Array.from(document.querySelectorAll('.port-dialog')).at(-1))return;

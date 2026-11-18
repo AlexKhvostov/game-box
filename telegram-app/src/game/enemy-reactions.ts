@@ -3,7 +3,6 @@ import type {Body, WorldState} from '../domain/kernel';
 // Presentation-only port of Android385 EnemyReactions. Its clock never enters
 // replay proof, body coordinates, risk accounting, or collision decisions.
 export const ENEMY_CATCH_MS = 620;
-export const ENEMY_PRESENTATION_MS = ENEMY_CATCH_MS * 2 / 3;
 const TAU = Math.PI * 2;
 type Expression = {x:number;y:number;squint:number};
 export function reactionEase(value:number) { const t=Math.max(0,Math.min(1,value));return t*t*(3-2*t); }

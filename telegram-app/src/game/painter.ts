@@ -7,10 +7,15 @@ import {createJumpReadyDrawer} from './jump-ready-drawer';
 import {jumpGlowProgress} from './jump-glow-progress';
 import type {EnemyReactions} from './enemy-reactions';
 export interface FieldPresentation {showPlayerFace?:boolean;enemyReactions?:EnemyReactions|null;locale?:string}
+export interface StaticFieldLayers {background:HTMLCanvasElement;border:HTMLCanvasElement}
 // Direct Canvas translation of GameFieldPainter/paintHeroFace. Geometry comes
 // exclusively from the compiled Dart world; visible effects never alter bodies.
 function rounded(c: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
-  r = Math.max(0, Math.min(r, w / 2, h / 2)); c.beginPath(); c.moveTo(x + r, y); c.lineTo(x + w - r, y); c.quadraticCurveTo(x + w, y, x + w, y + r); c.lineTo(x + w, y + h - r); c.quadraticCurveTo(x + w, y + h, x + w - r, y + h); c.lineTo(x + r, y + h); c.quadraticCurveTo(x, y + h, x, y + h - r); c.lineTo(x, y + r); c.quadraticCurveTo(x, y, x + r, y); c.closePath();
+  c.beginPath();
+  traceRounded(c,x,y,w,h,r);
+}
+function traceRounded(c:CanvasRenderingContext2D|Path2D,x:number,y:number,w:number,h:number,r:number) {
+  r = Math.max(0, Math.min(r, w / 2, h / 2)); c.moveTo(x + r, y); c.lineTo(x + w - r, y); c.quadraticCurveTo(x + w, y, x + w, y + r); c.lineTo(x + w, y + h - r); c.quadraticCurveTo(x + w, y + h, x + w - r, y + h); c.lineTo(x + r, y + h); c.quadraticCurveTo(x, y + h, x, y + h - r); c.lineTo(x, y + r); c.quadraticCurveTo(x, y, x + r, y); c.closePath();
 }
 function ellipse(c: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, fill: string) { c.beginPath(); c.ellipse(x, y, w / 2, h / 2, 0, 0, Math.PI * 2); c.fillStyle = fill; c.fill(); }
 function mix(a: string, b: string, t: number) { const channel=(hex:string,i:number)=>parseInt(hex.slice(i,i+2),16);return '#'+[1,3,5].map(i=>Math.round(channel(a,i)+(channel(b,i)-channel(a,i))*t).toString(16).padStart(2,'0')).join(''); }
@@ -23,12 +28,28 @@ export class FieldPainter {
   private c: CanvasRenderingContext2D;
   private backgroundBase = '#08253B';
   private backgroundCenter = '#0B374C';
+  private backgroundGradient?:CanvasGradient;
+  private fieldPaths?:{radius:number;inset:number;outline:Path2D;border:Path2D};
+  private staticDirty=true;
+  private staticBorderWidth=0;
+  private staticWall='';
+  private backgroundContext?:CanvasRenderingContext2D;
+  private borderContext?:CanvasRenderingContext2D;
+  private grid=new Path2D();
   private reduced=matchMedia('(prefers-reduced-motion: reduce)');
   private jumpGlow: ReturnType<typeof createJumpReadyDrawer>;
-  constructor(private canvas: HTMLCanvasElement) {
-    // Keep the opaque surface; a supported low-latency context avoids an extra
-    // presentation queue in Telegram WebView. Unsupported hints are ignored.
-    this.c = canvas.getContext('2d', { alpha: false, desynchronized: true })!;
+  constructor(private canvas:HTMLCanvasElement,private layers?:StaticFieldLayers) {
+    // The arena composites the dynamic objects over the separate field artwork.
+    this.c=canvas.getContext('2d',{alpha:!!layers,desynchronized:true})!;
+    if(layers){
+      this.backgroundContext=layers.background.getContext('2d',{alpha:false})!;
+      this.borderContext=layers.border.getContext('2d')!;
+    }
+    for(let i=1;i<12;i++){
+      const v=380*i/12;
+      this.grid.moveTo(v,0);this.grid.lineTo(v,380);
+      this.grid.moveTo(0,v);this.grid.lineTo(380,v);
+    }
     // Glass capsule adapter uses the existing simulation readiness.
     this.jumpGlow = createJumpReadyDrawer();
   }
@@ -36,29 +57,69 @@ export class FieldPainter {
     let base = config.field.colorHex || '#08253B'; if (/^#[a-f0-9]{8}$/i.test(base)) base='#'+base.slice(3);
     const brightness=Math.max(.4,Math.min(1.8,config.field.brightness??1));
     if(brightness>1)base=mix(base,'#ffffff',(brightness-1)/.8);else if(brightness<1)base=mix(base,'#000000',(1-brightness)/.6);
-    this.backgroundBase = base; this.backgroundCenter = mix(base,'#168899',.18);
+    const center=mix(base,'#168899',.18);
+    if(base!==this.backgroundBase||center!==this.backgroundCenter){
+      this.backgroundBase=base;this.backgroundCenter=center;this.invalidateStatic();
+    }
   }
-  private paintBackground(c: CanvasRenderingContext2D, config: Record<string, any>) {
-    // Repaint an opaque field from geometry each frame. An offscreen bitmap can
-    // lose its backing store after iOS suspends the WebView; source-over copying
-    // an empty bitmap would otherwise leave the previous enemies on screen.
+  invalidateStatic(){
+    this.backgroundGradient=undefined;
+    this.staticDirty=true;
+  }
+  private paths(radius:number,inset:number) {
+    if(this.fieldPaths?.radius===radius&&this.fieldPaths.inset===inset)return this.fieldPaths;
+    const outline=new Path2D(),border=new Path2D();
+    traceRounded(outline,0,0,380,380,radius);
+    traceRounded(border,inset,inset,380-inset*2,380-inset*2,Math.max(0,radius-inset));
+    this.staticDirty=true;
+    return this.fieldPaths={radius,inset,outline,border};
+  }
+  private paintBackground(c:CanvasRenderingContext2D,outline:Path2D) {
     c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
-    const gradient = c.createRadialGradient(190, 152, 0, 190, 152, 323);
-    gradient.addColorStop(0, this.backgroundCenter); gradient.addColorStop(1, this.backgroundBase);
-    c.fillStyle = '#061B2D'; c.fillRect(0, 0, 380, 380); rounded(c, 0, 0, 380, 380, config.field.cornerRadius); c.fillStyle = gradient; c.fill();
-    c.save(); c.clip(); c.beginPath(); for (let i = 1; i < 12; i++) { const v = 380 * i / 12; c.moveTo(v, 0); c.lineTo(v, 380); c.moveTo(0, v); c.lineTo(380, v); } c.strokeStyle = '#58E2EC16'; c.lineWidth = .7; c.stroke(); c.restore();
-    rounded(c, 0, 0, 380, 380, config.field.cornerRadius); c.strokeStyle = '#0000001f'; c.lineWidth = 380 * .08; c.stroke();
+    if(!this.backgroundGradient){
+      const gradient=c.createRadialGradient(190,152,0,190,152,323);
+      gradient.addColorStop(0,this.backgroundCenter);gradient.addColorStop(1,this.backgroundBase);
+      this.backgroundGradient=gradient;
+    }
+    c.fillStyle='#061B2D';c.fillRect(0,0,380,380);
+    c.fillStyle=this.backgroundGradient;c.fill(outline);
+    c.save();c.clip(outline);c.strokeStyle='#58E2EC16';c.lineWidth=.7;c.stroke(this.grid);c.restore();
+    c.strokeStyle='#0000001f';c.lineWidth=380*.08;c.stroke(outline);
   }
-  draw(s: WorldState, config: Record<string, any>, frame: number, impacts:ImpactEffect[] = [], jumpReadyAgeMs: number | null = null, presentation:FieldPresentation = {}) {
+  private paintBorder(c:CanvasRenderingContext2D,border:Path2D,width:number,wall:string){
+    c.strokeStyle=`${wall}47`;c.lineWidth=width+4;c.stroke(border);
+    c.strokeStyle=wall;c.lineWidth=width;c.stroke(border);
+  }
+  private paintStatic(pixels:number,outline:Path2D,border:Path2D,width:number,wall:string){
+    if(!this.staticDirty&&this.staticBorderWidth===width&&this.staticWall===wall)return;
+    const layers=this.layers!,background=this.backgroundContext!,front=this.borderContext!;
+    for(const canvas of [layers.background,layers.border]){
+      if(canvas.width!==pixels){canvas.width=pixels;canvas.height=pixels;}
+    }
+    const scale=pixels/380;
+    background.setTransform(scale,0,0,scale,0,0);this.paintBackground(background,outline);
+    front.setTransform(scale,0,0,scale,0,0);front.clearRect(0,0,380,380);this.paintBorder(front,border,width,wall);
+    this.staticDirty=false;this.staticBorderWidth=width;this.staticWall=wall;
+  }
+  draw(s: WorldState, config: Record<string, any>, frame: number, impacts:ImpactEffect[] = [], jumpReadyAgeMs: number | null = null, presentation:FieldPresentation = {}, viewportSide?:number) {
     const t0=motionProbe.clock();
-    const c = this.c, dpr = Math.min(devicePixelRatio || 1, 3), displaySide = this.canvas.getBoundingClientRect().width;
+    const c = this.c, dpr = Math.min(devicePixelRatio || 1, 3), displaySide = viewportSide??this.canvas.getBoundingClientRect().width;
     // The 380px logical canvas is scaled by its viewport. Allocate physical
     // pixels for the displayed field, including that scale, rather than its
     // untransformed layout box. Before layout, retain the safe existing size.
     const side = Number.isFinite(displaySide) && displaySide > 0 ? displaySide : this.canvas.clientWidth;
-    const pixels = Math.max(1, Math.round(side * dpr)); if (this.canvas.width !== pixels) { this.canvas.width = pixels; this.canvas.height = pixels; }
+    const pixels = Math.max(1, Math.round(side * dpr));
+    if (this.canvas.width !== pixels) { this.canvas.width=pixels;this.canvas.height=pixels;this.invalidateStatic(); }
     const t1=t0?motionProbe.clock():0;
-    c.setTransform(pixels / 380, 0, 0, pixels / 380, 0, 0); this.paintBackground(c,config);c.save();rounded(c,0,0,380,380,config.field.cornerRadius);c.clip();
+    const borderWidth=config.field.borderWidth;
+    const {outline,border}=this.paths(config.field.cornerRadius,Math.max(.5,Math.min(12,borderWidth/2+.5)));
+    const wall=config.game.wallsKillPlayer?'#F0363E':'#58E2EC';
+    c.setTransform(pixels/380,0,0,pixels/380,0,0);
+    if(this.layers){
+      this.paintStatic(pixels,outline,border,borderWidth,wall);
+      c.clearRect(0,0,380,380);
+    }else this.paintBackground(c,outline);
+    c.save();c.clip(outline);
     paintBrake(c,s,this.reduced.matches,config.enemyPace,presentation.locale);
     const t2=t0?motionProbe.clock():0;
     const brightness = Math.max(.4, Math.min(2.5, config.field.shadowBrightness ?? 1));
@@ -121,9 +182,7 @@ export class FieldPainter {
     c.restore();
     if (!s.playing && !s.dead) { rounded(c, x - 5, y - 5, vis + 10, vis + 10, 9); c.strokeStyle = '#B1FFD777'; c.lineWidth = 1; c.stroke(); }
     const t4=t0?motionProbe.clock():0;
-    const border = config.field.borderWidth, inset = Math.max(.5, Math.min(12, border / 2 + .5));
-    rounded(c, inset, inset, 380 - inset * 2, 380 - inset * 2, Math.max(0, config.field.cornerRadius - inset));
-    const wall = config.game.wallsKillPlayer ? '#F0363E' : '#58E2EC'; c.strokeStyle = `${wall}47`; c.lineWidth = border + 4; c.stroke(); c.strokeStyle = wall; c.lineWidth = border; c.stroke();
+    if(!this.layers)this.paintBorder(c,border,borderWidth,wall);
     const t5=t0?motionProbe.clock():0;
     for(const impact of impacts)impact.paint(c,this.reduced.matches);
     for(const fx of s.nearMissFx??[]){const t=Math.min(1,fx.age/.42),a=(1-t)*.9,r=6+t*26;c.save();c.globalAlpha=a;c.strokeStyle='#FFC107';c.lineWidth=2.4*(1-t*.5);c.beginPath();c.arc(fx.x,fx.y,r,0,Math.PI*2);c.stroke();c.globalAlpha=a*.55;c.fillStyle='#FFF59D';c.beginPath();c.arc(fx.x,fx.y,r*.35,0,Math.PI*2);c.fill();c.restore();}

@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import {computed, ref, useId, watch} from 'vue';
+import {achievements} from '../domain/achievements';
 const props = withDefaults(defineProps<{open:boolean; label?:string; interactive?:boolean; retainedProgress?:number}>(), {label:'Игровая панель',interactive:true});
 const emit = defineEmits<{'update:open':[value:boolean]}>();
 const id = useId(), content = ref<HTMLElement>(), handle = ref<HTMLButtonElement>(), progressHandle=ref<HTMLButtonElement>();
-const progressCount=computed(()=>Math.max(0,Math.min(40,Math.trunc(Number(props.retainedProgress)||0))));
+const progressCount=computed(()=>Math.max(0,Math.min(achievements.length,Math.trunc(Number(props.retainedProgress)||0))));
 watch(()=>props.open, value=>{
   if(!value&&props.interactive&&(content.value?.contains(document.activeElement)||handle.value===document.activeElement))
     (props.retainedProgress===undefined?handle.value:progressHandle.value)?.focus({preventScroll:true});
@@ -14,7 +15,7 @@ watch(()=>props.open, value=>{
   <div class="field-drawer" :class="{'is-open':open,'is-passive':!interactive,'has-retained-progress':retainedProgress!==undefined}">
     <div class="field-drawer-arena"><slot name="arena"/></div>
     <div class="field-drawer-mouth" @pointerdown.stop @pointerup.stop @pointermove.stop @pointercancel.stop @touchstart.stop @touchend.stop @click.stop>
-      <button v-if="retainedProgress!==undefined" ref="progressHandle" type="button" class="field-drawer-progress" :disabled="open||!interactive" :aria-hidden="open" :aria-label="`Показать: ${label}. Медали: ${progressCount} из 40`" :aria-expanded="open" :aria-controls="id" @keydown.stop @keyup.stop @click="emit('update:open',true)"><span class="field-drawer-progress-track" aria-hidden="true"><i v-for="n in 40" :key="n" :class="{lit:n<=progressCount}"></i></span></button>
+      <button v-if="retainedProgress!==undefined" ref="progressHandle" type="button" class="field-drawer-progress" :disabled="open||!interactive" :aria-hidden="open" :aria-label="`Показать: ${label}. Медали: ${progressCount} из ${achievements.length}`" :aria-expanded="open" :aria-controls="id" @keydown.stop @keyup.stop @click="emit('update:open',true)"><span class="field-drawer-progress-track" aria-hidden="true"><i v-for="n in achievements.length" :key="n" :class="{lit:n<=progressCount}"></i></span></button>
       <section class="field-drawer-panel" :aria-label="label" @keydown.esc.stop="emit('update:open',false)">
         <div :id="id" ref="content" class="field-drawer-content" :inert="!open||!interactive ? true : undefined" :aria-hidden="!open"><slot/></div>
         <button ref="handle" type="button" class="field-drawer-handle" :disabled="!interactive||(retainedProgress!==undefined&&!open)" :aria-hidden="retainedProgress!==undefined&&!open" :aria-label="`${open?'Скрыть':'Показать'}: ${label}`" :aria-expanded="open" :aria-controls="id" @click="emit('update:open',!open)"><span></span><svg viewBox="0 0 16 8" aria-hidden="true"><path d="m3 2 5 4 5-4"/></svg><span></span></button>

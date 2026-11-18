@@ -3,14 +3,20 @@ import type {AttemptHistorySnapshot, ServerAttempt} from '../services/contracts.
 export type HistoryState = {snapshot: AttemptHistorySnapshot | null; loading: boolean; error: string};
 type Storage = {get<T>(key:string,fallback:T):T;set(key:string,value:unknown):void};
 const validNumber=(v:unknown)=>typeof v==='number'&&Number.isFinite(v)&&v>=0;
-function validRow(r:ServerAttempt){return r&&typeof r.id==='string'&&r.id.length>0&&Number.isSafeInteger(r.number)&&r.number>0&&validNumber(r.timeMs)&&validNumber(r.createdAt)&&validNumber(r.runDistance)&&validNumber(r.riskCount)&&typeof r.hadJump==='boolean'&&typeof r.hadHelmet==='boolean'&&(r.averageMs===null||validNumber(r.averageMs))&&typeof r.included==='boolean'&&Number.isSafeInteger(r.windowCount)&&r.windowCount>=0;}
-const averageKey=(snapshot:AttemptHistorySnapshot)=>{const a=snapshot.average;return JSON.stringify({rules:a.rules,averageMs:a.mine.averageMs,usedCount:a.mine.usedCount,eligibleCount:a.mine.eligibleCount,totalAttempts:a.mine.totalAttempts});};
+function validRow(r:ServerAttempt){
+  return r&&typeof r.id==='string'&&r.id.length>0&&Number.isSafeInteger(r.number)&&r.number>0&&
+    validNumber(r.timeMs)&&validNumber(r.createdAt)&&validNumber(r.runDistance)&&validNumber(r.riskCount)&&
+    typeof r.hadJump==='boolean'&&typeof r.hadHelmet==='boolean';
+}
 export function validateHistory(value:unknown,owner:string):AttemptHistorySnapshot {
-  const v=value as AttemptHistorySnapshot,h=v?.history,a=v?.average;
-  const streaming=a?.rules?.algorithm==='ew_rms_v2';
-  if(!h||h.userId!==owner||!h.snapshot||typeof h.snapshot!=='string'||!Number.isSafeInteger(h.totalCount)||h.totalCount<0||!Array.isArray(h.rows)||h.rows.length>h.totalCount||!(h.nextCursor===null||typeof h.nextCursor==='string'&&h.nextCursor.length>0)||!a?.rules||a.mine?.userId!==owner||!(a.mine.averageMs===null||validNumber(a.mine.averageMs))||(streaming?(!Number.isSafeInteger(a.mine.totalAttempts)||a.mine.totalAttempts!<h.totalCount):a.mine.totalAttempts!==h.totalCount)||h.rows.some(r=>!validRow(r))||h.best!==null&&!validRow(h.best))throw new Error('attempt_history_invalid');
-  const rules=a.rules;
-  if(typeof rules.algorithm!=='string'||!rules.algorithm||!Number.isSafeInteger(rules.windowSize)||rules.windowSize<1||!validNumber(rules.previousWeightPercent)||rules.previousWeightPercent>100||!Number.isSafeInteger(rules.minAttempts)||rules.minAttempts<0||!validNumber(rules.minDurationMs)||!Number.isSafeInteger(a.mine.usedCount)||a.mine.usedCount<0||a.mine.usedCount>(streaming?a.mine.totalAttempts!:h.totalCount)||streaming&&a.mine.eligibleCount!==undefined&&(!Number.isSafeInteger(a.mine.eligibleCount)||a.mine.eligibleCount<0||a.mine.eligibleCount>a.mine.totalAttempts!||a.mine.usedCount>a.mine.eligibleCount)||h.best&&h.best.number>h.totalCount)throw new Error('attempt_history_invalid');
+  const v=value as (AttemptHistorySnapshot&{average?:{mine?:{userId:string;totalAttempts:number}}})|null;
+  const h=v?.history,summary=v?.summary??v?.average?.mine;
+  // Older owner-bound pages remain readable offline. Their cursors are retried
+  // from the first page by the existing loader when the server mode changes.
+  if(!h||h.userId!==owner||!h.snapshot||typeof h.snapshot!=='string'||!Number.isSafeInteger(h.totalCount)||h.totalCount<0||
+    !Array.isArray(h.rows)||h.rows.length>h.totalCount||!(h.nextCursor===null||typeof h.nextCursor==='string'&&h.nextCursor.length>0)||
+    summary?.userId!==owner||!Number.isSafeInteger(summary.totalAttempts)||summary.totalAttempts<h.totalCount||
+    h.rows.some(r=>!validRow(r))||h.best!==null&&(!validRow(h.best)||h.best.number>h.totalCount))throw new Error('attempt_history_invalid');
   const ids=new Set<string>(),numbers=new Set<number>();
   for(let i=0;i<h.rows.length;i++){
     const row=h.rows[i],previous=h.rows[i-1];
@@ -18,7 +24,7 @@ export function validateHistory(value:unknown,owner:string):AttemptHistorySnapsh
     ids.add(row.id);numbers.add(row.number);
   }
   if(h.totalCount>0&&!h.rows.length||h.nextCursor===null&&h.rows.length&&h.rows.at(-1)!.number!==1)throw new Error('attempt_history_invalid');
-  return structuredClone({average:a,history:h});
+  return structuredClone({summary:{userId:owner,totalAttempts:summary.totalAttempts},history:h});
 }
 
 /** Separate, owner-bound read cache: it never modifies the durable result outbox. */
@@ -49,7 +55,7 @@ export class ServerHistoryLoader {
       const page=validateHistory(response,owner);
       if((!cursor||restarted)&&page.history.rows.length&&page.history.rows[0]!.number!==page.history.totalCount)throw new Error('attempt_history_invalid');
       if(cursor&&!restarted&&page.history.snapshot===current!.history.snapshot){
-        if(averageKey(page)!==averageKey(current!)||page.history.totalCount!==current!.history.totalCount)throw new Error('attempt_history_invalid');
+        if(page.summary.totalAttempts!==current!.summary.totalAttempts||page.history.totalCount!==current!.history.totalCount)throw new Error('attempt_history_invalid');
         if(page.history.rows.length&&page.history.rows[0]!.number!==current!.history.rows.at(-1)!.number-1)throw new Error('attempt_history_invalid');
         const merged=new Map([...current!.history.rows,...page.history.rows].map(r=>[r.id,r]));
         page.history.rows=[...merged.values()].sort((a,b)=>b.number-a.number);

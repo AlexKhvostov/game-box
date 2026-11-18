@@ -1,24 +1,40 @@
 // Keep the result illustration decoded before the first round finishes, as
 // Android GameHomeScreen does. Retain successful loads for the WebView session.
 const decoded = new Map<string, Promise<HTMLImageElement>>();
+const prepared = new Map<string, string>();
 export const resultArtwork = '/assets/branding/ui/result-scene-v1.png';
+export const resultTrophy = '/assets/branding/ranking/trophy.svg';
+export const preparedArtwork = (src:string) => prepared.get(src);
 export function loadArtwork(src: string): Promise<HTMLImageElement> {
   let pending = decoded.get(src);
   if (!pending) {
-    pending = new Promise<HTMLImageElement>((resolve, reject) => {
+    pending = (async()=>{
+      const abort=new AbortController();
       const art = new Image();
-      art.onload = () => art.decode().then(() => resolve(art), reject);
-      art.onerror = () => reject(new Error('artwork_unavailable'));
-      art.src = src;
-    }).catch(error => { decoded.delete(src); throw error; });
+      let objectUrl='',timer:ReturnType<typeof setTimeout>|undefined;
+      const deadline=new Promise<never>((_,reject)=>{
+        timer=setTimeout(()=>{abort.abort();reject(Error('artwork_unavailable'));},2000);
+      });
+      const load=async()=>{
+        const response=await fetch(src,{signal:abort.signal});
+        if(!response.ok)throw Error('artwork_unavailable');
+        const file=await response.blob();
+        if(abort.signal.aborted)throw Error('artwork_unavailable');
+        objectUrl=URL.createObjectURL(file);art.src=objectUrl;
+        await art.decode();
+      };
+      try{
+        await Promise.race([load(),deadline]);
+        prepared.set(src,objectUrl);return art;
+      }catch(error){
+        if(objectUrl){art.removeAttribute('src');URL.revokeObjectURL(objectUrl);}
+        decoded.delete(src);throw error;
+      }finally{clearTimeout(timer);}
+    })();
     decoded.set(src, pending);
   }
   return pending;
 }
-export function warmArtwork() {
-  for (const src of [resultArtwork, '/assets/branding/ui/hud-player-portrait-v1.png',
-    '/assets/branding/ui/untouch-floor-brand-v1.webp',
-    '/assets/branding/ui/control-hint-hand-v1.png',
-    '/assets/branding/ui/simple-energy-helmet.png', '/assets/branding/ui/simple-energy-jump.png',
-    '/assets/branding/ui/jump-v1.png']) void loadArtwork(src).catch(() => {});
+export function warmResultArtwork() {
+  return Promise.allSettled([loadArtwork(resultArtwork),loadArtwork(resultTrophy)]);
 }

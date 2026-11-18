@@ -33,6 +33,9 @@ onBeforeUnmount(() => { window.removeEventListener('keydown', key); previous?.fo
 </template>
 
 <style scoped>
-.modal-backdrop{animation:window-barrier-enter 160ms ease both}.modal-backdrop.window-exiting{animation:window-barrier-exit 100ms cubic-bezier(.75,0,.75,.9) both}@keyframes window-barrier-enter{from{background-color:transparent}to{background-color:#061b2db8}}@keyframes window-barrier-exit{from{background-color:#061b2db8}to{background-color:transparent}}
-.modal-backdrop:not(.window-exiting)>.game-window{animation:port-window-enter 160ms cubic-bezier(.22,.8,.25,1) both}.modal-backdrop.window-exiting>.game-window{animation:port-window-exit 100ms ease-out both;pointer-events:none}@keyframes port-window-enter{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}@keyframes port-window-exit{to{opacity:0;transform:translateY(8px)}}@media(prefers-reduced-motion:reduce){.modal-backdrop,.modal-backdrop>.game-window{animation:none!important}}
+.modal-backdrop{background:transparent;isolation:isolate}
+.modal-backdrop::before{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;background:#061b2db8;animation:window-barrier-enter 160ms ease both}
+.modal-backdrop.window-exiting::before{animation:window-barrier-exit 100ms cubic-bezier(.75,0,.75,.9) both}
+@keyframes window-barrier-enter{from{opacity:0}to{opacity:1}}@keyframes window-barrier-exit{from{opacity:1}to{opacity:0}}
+.modal-backdrop:not(.window-exiting)>.game-window{animation:port-window-enter 160ms cubic-bezier(.22,.8,.25,1) both}.modal-backdrop.window-exiting>.game-window{animation:port-window-exit 100ms ease-out both;pointer-events:none}@keyframes port-window-enter{from{opacity:.8;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}@keyframes port-window-exit{to{opacity:0;transform:translateY(8px)}}@media(prefers-reduced-motion:reduce){.modal-backdrop::before,.modal-backdrop>.game-window{animation:none!important}}
 </style>
